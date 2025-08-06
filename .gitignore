@@ -1,0 +1,7 @@
+**/__pycache__/**
+**_pycache__/**
+venv/
+env/
+simple_test.py
+test_simple.py
+
