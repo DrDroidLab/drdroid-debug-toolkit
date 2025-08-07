@@ -6,14 +6,14 @@ import logging
 from typing import Dict, Any, Optional, List, Type
 from datetime import datetime
 
-from drdroid_debug_toolkit.core.sdk_base import BaseSDK
-from drdroid_debug_toolkit.core.sources.grafana_sdk import GrafanaSDK
-from drdroid_debug_toolkit.core.sources.signoz_sdk import SignozSDK
-from drdroid_debug_toolkit.core.sources.bash_sdk import BashSDK
-from drdroid_debug_toolkit.core.sources.kubernetes_sdk import KubernetesSDK
-from drdroid_debug_toolkit.core.sources.cloudwatch_sdk import CloudWatchSDK
-from drdroid_debug_toolkit.core.sources.sentry_sdk import SentrySDK
-from drdroid_debug_toolkit.exceptions import ConfigurationError, ValidationError
+from drdroid_debug_toolkit.drdroid_debug_toolkit.core.sdk_base import BaseSDK
+from drdroid_debug_toolkit.drdroid_debug_toolkit.core.sources.grafana_sdk import GrafanaSDK
+from drdroid_debug_toolkit.drdroid_debug_toolkit.core.sources.signoz_sdk import SignozSDK
+from drdroid_debug_toolkit.drdroid_debug_toolkit.core.sources.bash_sdk import BashSDK
+from drdroid_debug_toolkit.drdroid_debug_toolkit.core.sources.kubernetes_sdk import KubernetesSDK
+from drdroid_debug_toolkit.drdroid_debug_toolkit.core.sources.cloudwatch_sdk import CloudWatchSDK
+from drdroid_debug_toolkit.drdroid_debug_toolkit.core.sources.sentry_sdk import SentrySDK
+from drdroid_debug_toolkit.drdroid_debug_toolkit.exceptions import ConfigurationError, ValidationError
 
 logger = logging.getLogger(__name__)
 

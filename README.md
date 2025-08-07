@@ -16,10 +16,35 @@ A Python SDK for integrating with various monitoring and observability platforms
 
 ## Installation
 
+### From GitHub (Development)
+
+1. Clone the repository:
+```bash
+git clone https://github.com/DrDroidLab/drdroid-debug-toolkit.git
+cd drdroid-debug-toolkit
+```
+
+2. Install in development mode:
+```bash
+pip install -e .
+```
+
+### From PyPI (Production)
+
+```bash
+pip install drdroid-debug-toolkit
+```
+
+### Manual Installation
+
 1. Clone the repository
 2. Install dependencies:
 ```bash
 pip install -r requirements.txt
+```
+3. Install the package:
+```bash
+pip install -e .
 ```
 
 ## Quick Start
@@ -68,7 +93,7 @@ sentry:
 ### 2. Initialize SDK
 
 ```python
-from drdroid_sdk import DroidSDK
+from drdroid_debug_toolkit import DroidSDK
 
 # Initialize SDK with credentials file
 sdk = DroidSDK("credentials.yaml")
@@ -335,6 +360,39 @@ except Exception as e:
 ## Examples
 
 See the `examples/` directory for more detailed usage examples.
+
+## Troubleshooting
+
+### Import Issues
+
+If you encounter import errors, try the following:
+
+1. **Verify installation**: Make sure the package is installed correctly:
+   ```bash
+   pip list | grep drdroid-debug-toolkit
+   ```
+
+2. **Check Python path**: Ensure you're using the correct Python environment:
+   ```bash
+   python -c "import drdroid_debug_toolkit; print('Package found!')"
+   ```
+
+3. **Reinstall the package**: If issues persist, try reinstalling:
+   ```bash
+   pip uninstall drdroid-debug-toolkit
+   pip install -e .
+   ```
+
+4. **Test imports**: Run the test script to verify imports:
+   ```bash
+   python test_import.py
+   ```
+
+### Common Issues
+
+- **ModuleNotFoundError**: Make sure you're using the correct import name: `drdroid_debug_toolkit`
+- **AttributeError**: Check that you're importing the correct classes from the package
+- **ConfigurationError**: Verify your credentials file format and path
 
 ## Contributing
 
