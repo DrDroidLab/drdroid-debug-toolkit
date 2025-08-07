@@ -6,11 +6,11 @@ import logging
 from datetime import datetime
 from typing import Dict, Any, Optional
 
-from drdroid_debug_toolkit.exceptions import TaskExecutionError
-from drdroid_debug_toolkit.core.protos.base_pb2 import Source, SourceKeyType
-from drdroid_debug_toolkit.core.integrations.source_managers.sentry_source_manager import SentrySourceManager
-from drdroid_debug_toolkit.core.utils.proto_utils import proto_to_dict
-from drdroid_debug_toolkit.core.sdk_base import BaseSDK
+from drdroid_debug_toolkit.drdroid_debug_toolkit.exceptions import TaskExecutionError
+from drdroid_debug_toolkit.drdroid_debug_toolkit.core.protos.base_pb2 import Source, SourceKeyType
+from drdroid_debug_toolkit.drdroid_debug_toolkit.core.integrations.source_managers.sentry_source_manager import SentrySourceManager
+from drdroid_debug_toolkit.drdroid_debug_toolkit.core.utils.proto_utils import proto_to_dict
+from drdroid_debug_toolkit.drdroid_debug_toolkit.core.sdk_base import BaseSDK
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +60,7 @@ class SentrySDK(BaseSDK):
             time_range = self._create_time_range(start_time, end_time, duration_minutes)
             
             # Create task proto
-            from drdroid_debug_toolkit.core.protos.playbooks.source_task_definitions.sentry_task_pb2 import Sentry
+            from drdroid_debug_toolkit.drdroid_debug_toolkit.core.protos.playbooks.source_task_definitions.sentry_task_pb2 import Sentry
             from google.protobuf.wrappers_pb2 import StringValue
             
             task = Sentry()
@@ -104,7 +104,7 @@ class SentrySDK(BaseSDK):
             time_range = self._create_time_range(start_time, end_time, duration_minutes)
             
             # Create task proto
-            from drdroid_debug_toolkit.core.protos.playbooks.source_task_definitions.sentry_task_pb2 import Sentry
+            from drdroid_debug_toolkit.drdroid_debug_toolkit.core.protos.playbooks.source_task_definitions.sentry_task_pb2 import Sentry
             from google.protobuf.wrappers_pb2 import StringValue
             
             task = Sentry()
@@ -151,7 +151,7 @@ class SentrySDK(BaseSDK):
             time_range = self._create_time_range(start_time, end_time, duration_minutes)
             
             # Create task proto
-            from drdroid_debug_toolkit.core.protos.playbooks.source_task_definitions.sentry_task_pb2 import Sentry
+            from drdroid_debug_toolkit.drdroid_debug_toolkit.core.protos.playbooks.source_task_definitions.sentry_task_pb2 import Sentry
             from google.protobuf.wrappers_pb2 import StringValue, Int64Value
             
             task = Sentry()
