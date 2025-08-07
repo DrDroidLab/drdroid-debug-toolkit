@@ -23,14 +23,14 @@ def read_requirements():
     return []
 
 setup(
-    name="drdroid-sdk",
+    name="drdroid-debug-toolkit",
     version="1.0.0",
     description="A Python SDK for integrating with monitoring and observability platforms",
     long_description=read_readme(),
     long_description_content_type="text/markdown",
     author="DroidSpace",
     author_email="support@droidspace.com",
-    url="https://github.com/droidspace/drdroid-sdk",
+    url="https://github.com/DrDroidLab/drdroid-debug-toolkit",
     packages=find_packages(),
     classifiers=[
         "Development Status :: 4 - Beta",
@@ -62,13 +62,13 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "drdroid-sdk=drdroid_sdk.cli:main",
+            "drdroid-debug-toolkit=drdroid_sdk.cli:main",
         ],
     },
     keywords="monitoring observability grafana signoz prometheus clickhouse",
     project_urls={
-        "Bug Reports": "https://github.com/droidspace/drdroid-sdk/issues",
-        "Source": "https://github.com/droidspace/drdroid-sdk",
-        "Documentation": "https://github.com/droidspace/drdroid-sdk/blob/main/README.md",
+        "Bug Reports": "https://github.com/DrDroidLab/drdroid-debug-toolkit/issues",
+        "Source": "https://github.com/DrDroidLab/drdroid-debug-toolkit",
+        "Documentation": "https://github.com/DrDroidLab/drdroid-debug-toolkit/blob/main/README.md",
     },
 ) 
