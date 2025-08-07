@@ -6,11 +6,11 @@ import logging
 from typing import Dict, Any, Optional, List
 from datetime import datetime
 
-from drdroid_debug_toolkit.drdroid_debug_toolkit.exceptions import TaskExecutionError
-from drdroid_debug_toolkit.drdroid_debug_toolkit.core.protos.base_pb2 import Source, SourceKeyType
-from drdroid_debug_toolkit.drdroid_debug_toolkit.core.integrations.source_managers.signoz_source_manager import SignozSourceManager
-from drdroid_debug_toolkit.drdroid_debug_toolkit.core.utils.proto_utils import proto_to_dict
-from drdroid_debug_toolkit.drdroid_debug_toolkit.core.sdk_base import BaseSDK
+from drdroid_debug_toolkit.exceptions import TaskExecutionError
+from drdroid_debug_toolkit.core.protos.base_pb2 import Source, SourceKeyType
+from drdroid_debug_toolkit.core.integrations.source_managers.signoz_source_manager import SignozSourceManager
+from drdroid_debug_toolkit.core.utils.proto_utils import proto_to_dict
+from drdroid_debug_toolkit.core.sdk_base import BaseSDK
 
 logger = logging.getLogger(__name__)
 
@@ -228,7 +228,7 @@ class SignozSDK(BaseSDK):
             time_range = self._create_time_range(start_time, end_time, duration_minutes)
             
             # Create task proto
-            from drdroid_debug_toolkit.drdroid_debug_toolkit.core.protos.playbooks.source_task_definitions.signoz_task_pb2 import Signoz
+            from drdroid_debug_toolkit.core.protos.playbooks.source_task_definitions.signoz_task_pb2 import Signoz
             
             task = Signoz()
             task.type = Signoz.TaskType.FETCH_SERVICES
@@ -256,7 +256,7 @@ class SignozSDK(BaseSDK):
             time_range = self._create_time_range()
             
             # Create task proto
-            from drdroid_debug_toolkit.drdroid_debug_toolkit.core.protos.playbooks.source_task_definitions.signoz_task_pb2 import Signoz
+            from drdroid_debug_toolkit.core.protos.playbooks.source_task_definitions.signoz_task_pb2 import Signoz
             
             task = Signoz()
             task.type = Signoz.TaskType.FETCH_DASHBOARDS
@@ -300,7 +300,7 @@ class SignozSDK(BaseSDK):
             time_range = self._create_time_range(start_time, end_time, duration_minutes)
             
             # Create task proto
-            from drdroid_debug_toolkit.drdroid_debug_toolkit.core.protos.playbooks.source_task_definitions.signoz_task_pb2 import Signoz
+            from drdroid_debug_toolkit.core.protos.playbooks.source_task_definitions.signoz_task_pb2 import Signoz
             from google.protobuf.wrappers_pb2 import StringValue
             import json
             
