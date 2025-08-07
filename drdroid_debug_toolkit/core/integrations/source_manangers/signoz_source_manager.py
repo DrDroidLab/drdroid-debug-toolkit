@@ -10,21 +10,21 @@ from google.protobuf.wrappers_pb2 import (
     StringValue,
 )
 
-from drdroid_debug_toolkit.core.integrations.source_api_processors.signoz_api_processor import SignozApiProcessor
-from drdroid_debug_toolkit.core.integrations.source_manager import SourceManager
-from drdroid_debug_toolkit.core.protos.assets.asset_pb2 import (
+from core.integrations.source_api_processors.signoz_api_processor import SignozApiProcessor
+from core.integrations.source_manager import SourceManager
+from core.protos.assets.asset_pb2 import (
     AccountConnectorAssetsModelFilters,
     AccountConnectorAssets,
 )
-from drdroid_debug_toolkit.core.protos.assets.signoz_asset_pb2 import (
+from core.protos.assets.signoz_asset_pb2 import (
     SignozDashboardModel,
 )
-from drdroid_debug_toolkit.core.protos.base_pb2 import Source, SourceModelType, TimeRange
-from drdroid_debug_toolkit.core.protos.connectors.connector_pb2 import (
+from core.protos.base_pb2 import Source, SourceModelType, TimeRange
+from core.protos.connectors.connector_pb2 import (
     Connector as ConnectorProto,
 )
-from drdroid_debug_toolkit.core.protos.literal_pb2 import Literal, LiteralType
-from drdroid_debug_toolkit.core.protos.playbooks.playbook_commons_pb2 import (
+from core.protos.literal_pb2 import Literal, LiteralType
+from core.protos.playbooks.playbook_commons_pb2 import (
     ApiResponseResult,
     LabelValuePair,
     PlaybookTaskResult,
@@ -33,12 +33,12 @@ from drdroid_debug_toolkit.core.protos.playbooks.playbook_commons_pb2 import (
     TextResult,
     TimeseriesResult,
 )
-from drdroid_debug_toolkit.core.protos.playbooks.source_task_definitions.signoz_task_pb2 import Signoz
-from drdroid_debug_toolkit.core.protos.ui_definition_pb2 import FormField, FormFieldType
-from drdroid_debug_toolkit.core.utils.credentilal_utils import generate_credentials_dict
-from drdroid_debug_toolkit.core.utils.playbooks_client import PrototypeClient
-from drdroid_debug_toolkit.core.utils.proto_utils import dict_to_proto, proto_to_dict
-from drdroid_debug_toolkit.core.utils.time_utils import calculate_timeseries_bucket_size
+from core.protos.playbooks.source_task_definitions.signoz_task_pb2 import Signoz
+from core.protos.ui_definition_pb2 import FormField, FormFieldType
+from core.utils.credentilal_utils import generate_credentials_dict
+from core.utils.playbooks_client import PrototypeClient
+from core.utils.proto_utils import dict_to_proto, proto_to_dict
+from core.utils.time_utils import calculate_timeseries_bucket_size
 
 logger = logging.getLogger(__name__)
 

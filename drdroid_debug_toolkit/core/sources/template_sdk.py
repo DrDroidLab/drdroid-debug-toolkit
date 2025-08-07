@@ -7,12 +7,12 @@ import logging
 from typing import Dict, Any, Optional, List
 from datetime import datetime
 
-from drdroid_debug_toolkit.exceptions import TaskExecutionError
-from drdroid_debug_toolkit.core.protos.base_pb2 import Source, SourceKeyType
+from ...exceptions import TaskExecutionError
+from ..protos.base_pb2 import Source, SourceKeyType
 # Import your source manager here
-# from drdroid_debug_toolkit.core.integrations.source_managers.your_source_manager import YourSourceManager
-from drdroid_debug_toolkit.core.utils.proto_utils import proto_to_dict
-from drdroid_debug_toolkit.core.sdk_base import BaseSDK
+# from ..integrations.source_managers.your_source_manager import YourSourceManager
+from ..utils.proto_utils import proto_to_dict
+from ..sdk_base import BaseSDK
 
 logger = logging.getLogger(__name__)
 

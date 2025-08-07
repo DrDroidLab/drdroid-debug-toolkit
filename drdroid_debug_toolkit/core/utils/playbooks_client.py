@@ -1,9 +1,9 @@
 from typing import Dict, Any
 import requests
 from requests.exceptions import RequestException
-from drdroid_debug_toolkit.core.protos.base_pb2 import SourceModelType
-from drdroid_debug_toolkit.core.protos.assets.asset_pb2 import AccountConnectorAssets
-from drdroid_debug_toolkit.core.utils.proto_utils import dict_to_proto
+from ..protos.base_pb2 import SourceModelType
+from ..protos.assets.asset_pb2 import AccountConnectorAssets
+from ..utils.proto_utils import dict_to_proto
 
 
 
