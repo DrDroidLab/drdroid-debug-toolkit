@@ -3,8 +3,7 @@ DroidSpace SDK v2 - Improved modular implementation
 """
 
 import logging
-from typing import Dict, Any, Optional, List, Union
-from datetime import datetime
+from typing import Dict, Any, List, Union
 
 from drdroid_sdk.exceptions import ConfigurationError, ConnectionError, ValidationError, TaskExecutionError
 from drdroid_sdk.core.sdk_factory import SDKFactory
