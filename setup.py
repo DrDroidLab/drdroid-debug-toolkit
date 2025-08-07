@@ -58,11 +58,11 @@ setup(
     },
     include_package_data=True,
     package_data={
-        "drdroid_sdk": ["*.yaml", "*.yml"],
+        "drdroid_debug_toolkit": ["*.yaml", "*.yml"],
     },
     entry_points={
         "console_scripts": [
-            "drdroid-debug-toolkit=drdroid_sdk.cli:main",
+            "drdroid-debug-toolkit=drdroid_debug_toolkit.cli:main",
         ],
     },
     keywords="monitoring observability grafana signoz prometheus clickhouse",

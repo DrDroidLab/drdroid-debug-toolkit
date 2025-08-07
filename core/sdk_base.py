@@ -9,12 +9,12 @@ from typing import Dict, Any, Optional, List
 from datetime import datetime, timedelta
 from abc import ABC, abstractmethod
 
-from drdroid_sdk.exceptions import ConfigurationError, ConnectionError, ValidationError, TaskExecutionError
-from drdroid_sdk.core.protos.base_pb2 import Source, TimeRange, SourceKeyType
-from drdroid_sdk.core.protos.connectors.connector_pb2 import Connector, ConnectorKey
-from drdroid_sdk.core.protos.playbooks.playbook_commons_pb2 import PlaybookTaskResult
-from drdroid_sdk.core.integrations.source_manager import SourceManager
-from drdroid_sdk.core.utils.credentilal_utils import generate_credentials_dict
+from drdroid_debug_toolkit.exceptions import ConfigurationError, ConnectionError, ValidationError, TaskExecutionError
+from drdroid_debug_toolkit.core.protos.base_pb2 import Source, TimeRange, SourceKeyType
+from drdroid_debug_toolkit.core.protos.connectors.connector_pb2 import Connector, ConnectorKey
+from drdroid_debug_toolkit.core.protos.playbooks.playbook_commons_pb2 import PlaybookTaskResult
+from drdroid_debug_toolkit.core.integrations.source_manager import SourceManager
+from drdroid_debug_toolkit.core.utils.credentilal_utils import generate_credentials_dict
 
 logger = logging.getLogger(__name__)
 
