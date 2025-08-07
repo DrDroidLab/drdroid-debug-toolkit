@@ -3,8 +3,8 @@ from datetime import datetime, date
 
 import requests
 
-from drdroid_debug_toolkit.drdroid_debug_toolkit.core.protos.base_pb2 import Source
-from drdroid_debug_toolkit.drdroid_debug_toolkit.core.utils.logging_utils import log_function_call
+from drdroid_debug_toolkit.core.protos.base_pb2 import Source
+from drdroid_debug_toolkit.core.utils.logging_utils import log_function_call
 
 logger = logging.getLogger(__name__)
 

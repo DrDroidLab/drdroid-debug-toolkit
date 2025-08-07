@@ -6,11 +6,11 @@ import logging
 from typing import Dict, Any, Optional, List
 from datetime import datetime
 
-from drdroid_debug_toolkit.drdroid_debug_toolkit.exceptions import TaskExecutionError
-from drdroid_debug_toolkit.drdroid_debug_toolkit.core.protos.base_pb2 import Source, SourceKeyType
-from drdroid_debug_toolkit.drdroid_debug_toolkit.core.integrations.source_managers.cloudwatch_source_manager import CloudwatchSourceManager
-from drdroid_debug_toolkit.drdroid_debug_toolkit.core.utils.proto_utils import proto_to_dict
-from drdroid_debug_toolkit.drdroid_debug_toolkit.core.sdk_base import BaseSDK
+from drdroid_debug_toolkit.exceptions import TaskExecutionError
+from drdroid_debug_toolkit.core.protos.base_pb2 import Source, SourceKeyType
+from drdroid_debug_toolkit.core.integrations.source_managers.cloudwatch_source_manager import CloudwatchSourceManager
+from drdroid_debug_toolkit.core.utils.proto_utils import proto_to_dict
+from drdroid_debug_toolkit.core.sdk_base import BaseSDK
 
 logger = logging.getLogger(__name__)
 
@@ -73,7 +73,7 @@ class CloudWatchSDK(BaseSDK):
             time_range = self._create_time_range(start_time, end_time, duration_minutes)
             
             # Create task proto
-            from drdroid_debug_toolkit.drdroid_debug_toolkit.core.protos.playbooks.source_task_definitions.cloudwatch_task_pb2 import Cloudwatch
+            from drdroid_debug_toolkit.core.protos.playbooks.source_task_definitions.cloudwatch_task_pb2 import Cloudwatch
             from google.protobuf.wrappers_pb2 import StringValue, UInt64Value
             
             task = Cloudwatch()
@@ -134,7 +134,7 @@ class CloudWatchSDK(BaseSDK):
             time_range = self._create_time_range(start_time, end_time, duration_minutes)
             
             # Create task proto
-            from drdroid_debug_toolkit.drdroid_debug_toolkit.core.protos.playbooks.source_task_definitions.cloudwatch_task_pb2 import Cloudwatch
+            from drdroid_debug_toolkit.core.protos.playbooks.source_task_definitions.cloudwatch_task_pb2 import Cloudwatch
             from google.protobuf.wrappers_pb2 import StringValue
             
             task = Cloudwatch()
@@ -178,7 +178,7 @@ class CloudWatchSDK(BaseSDK):
             time_range = self._create_time_range(start_time, end_time, duration_minutes)
             
             # Create task proto
-            from drdroid_debug_toolkit.drdroid_debug_toolkit.core.protos.playbooks.source_task_definitions.cloudwatch_task_pb2 import Cloudwatch
+            from drdroid_debug_toolkit.core.protos.playbooks.source_task_definitions.cloudwatch_task_pb2 import Cloudwatch
             
             task = Cloudwatch()
             task.type = Cloudwatch.TaskType.ECS_LIST_CLUSTERS
@@ -216,7 +216,7 @@ class CloudWatchSDK(BaseSDK):
             time_range = self._create_time_range(start_time, end_time, duration_minutes)
             
             # Create task proto
-            from drdroid_debug_toolkit.drdroid_debug_toolkit.core.protos.playbooks.source_task_definitions.cloudwatch_task_pb2 import Cloudwatch
+            from drdroid_debug_toolkit.core.protos.playbooks.source_task_definitions.cloudwatch_task_pb2 import Cloudwatch
             from google.protobuf.wrappers_pb2 import StringValue
             
             task = Cloudwatch()
@@ -262,7 +262,7 @@ class CloudWatchSDK(BaseSDK):
             time_range = self._create_time_range(start_time, end_time, duration_minutes)
             
             # Create task proto
-            from drdroid_debug_toolkit.drdroid_debug_toolkit.core.protos.playbooks.source_task_definitions.cloudwatch_task_pb2 import Cloudwatch
+            from drdroid_debug_toolkit.core.protos.playbooks.source_task_definitions.cloudwatch_task_pb2 import Cloudwatch
             from google.protobuf.wrappers_pb2 import StringValue, Int64Value
             
             task = Cloudwatch()
@@ -312,7 +312,7 @@ class CloudWatchSDK(BaseSDK):
             time_range = self._create_time_range(start_time, end_time, duration_minutes)
             
             # Create task proto
-            from drdroid_debug_toolkit.drdroid_debug_toolkit.core.protos.playbooks.source_task_definitions.cloudwatch_task_pb2 import Cloudwatch
+            from drdroid_debug_toolkit.core.protos.playbooks.source_task_definitions.cloudwatch_task_pb2 import Cloudwatch
             from google.protobuf.wrappers_pb2 import StringValue, Int32Value
             
             task = Cloudwatch()
@@ -359,7 +359,7 @@ class CloudWatchSDK(BaseSDK):
             time_range = self._create_time_range(start_time, end_time, duration_minutes)
             
             # Create task proto
-            from drdroid_debug_toolkit.drdroid_debug_toolkit.core.protos.playbooks.source_task_definitions.cloudwatch_task_pb2 import Cloudwatch
+            from drdroid_debug_toolkit.core.protos.playbooks.source_task_definitions.cloudwatch_task_pb2 import Cloudwatch
             from google.protobuf.wrappers_pb2 import StringValue
             
             task = Cloudwatch()
@@ -402,7 +402,7 @@ class CloudWatchSDK(BaseSDK):
             time_range = self._create_time_range(start_time, end_time, duration_minutes)
             
             # Create task proto
-            from drdroid_debug_toolkit.drdroid_debug_toolkit.core.protos.playbooks.source_task_definitions.cloudwatch_task_pb2 import Cloudwatch
+            from drdroid_debug_toolkit.core.protos.playbooks.source_task_definitions.cloudwatch_task_pb2 import Cloudwatch
             from google.protobuf.wrappers_pb2 import StringValue
             
             task = Cloudwatch()
