@@ -8,15 +8,15 @@ from typing import Optional, Union
 from google.protobuf.struct_pb2 import Struct
 from google.protobuf.wrappers_pb2 import DoubleValue, StringValue
 
-from drdroid_debug_toolkit.core.integrations.source_api_processors.grafana_api_processor import GrafanaApiProcessor
-from drdroid_debug_toolkit.core.integrations.source_manager import SourceManager
-from drdroid_debug_toolkit.core.protos.base_pb2 import Source, SourceModelType, TimeRange
-from drdroid_debug_toolkit.core.protos.connectors.connector_pb2 import Connector as ConnectorProto
-from drdroid_debug_toolkit.core.protos.literal_pb2 import Literal, LiteralType
-from drdroid_debug_toolkit.core.protos.assets.grafana_asset_pb2 import GrafanaAssetModel, GrafanaDashboardAssetModel, \
+from core.integrations.source_api_processors.grafana_api_processor import GrafanaApiProcessor
+from core.integrations.source_manager import SourceManager
+from core.protos.base_pb2 import Source, SourceModelType, TimeRange
+from core.protos.connectors.connector_pb2 import Connector as ConnectorProto
+from core.protos.literal_pb2 import Literal, LiteralType
+from core.protos.assets.grafana_asset_pb2 import GrafanaAssetModel, GrafanaDashboardAssetModel, \
     GrafanaDashboardAssetOptions
-from drdroid_debug_toolkit.core.protos.assets.asset_pb2 import AccountConnectorAssets, AccountConnectorAssetsModelFilters
-from drdroid_debug_toolkit.core.protos.playbooks.playbook_commons_pb2 import (
+from core.protos.assets.asset_pb2 import AccountConnectorAssets, AccountConnectorAssetsModelFilters
+from core.protos.playbooks.playbook_commons_pb2 import (
     ApiResponseResult,
     LabelValuePair,
     PlaybookTaskResult,
@@ -24,11 +24,11 @@ from drdroid_debug_toolkit.core.protos.playbooks.playbook_commons_pb2 import (
     TextResult,
     TimeseriesResult,
 )
-from drdroid_debug_toolkit.core.protos.playbooks.source_task_definitions.grafana_task_pb2 import Grafana
-from drdroid_debug_toolkit.core.protos.ui_definition_pb2 import FormField, FormFieldType
-from drdroid_debug_toolkit.core.utils.credentilal_utils import generate_credentials_dict
-from drdroid_debug_toolkit.core.utils.playbooks_client import PrototypeClient
-from drdroid_debug_toolkit.core.utils.proto_utils import dict_to_proto, proto_to_dict
+from core.protos.playbooks.source_task_definitions.grafana_task_pb2 import Grafana
+from core.protos.ui_definition_pb2 import FormField, FormFieldType
+from core.utils.credentilal_utils import generate_credentials_dict
+from core.utils.playbooks_client import PrototypeClient
+from core.utils.proto_utils import dict_to_proto, proto_to_dict
 
 logger = logging.getLogger(__name__)
 

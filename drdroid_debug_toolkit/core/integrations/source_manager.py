@@ -2,18 +2,18 @@ import logging
 
 from google.protobuf.struct_pb2 import Struct
 
-from drdroid_debug_toolkit.core.integrations.utils.executor_utils import apply_result_transformer, resolve_global_variables
-from drdroid_debug_toolkit.core.utils.credentilal_utils import credential_yaml_to_connector_proto
-from drdroid_debug_toolkit.core.utils.static_mappings import integrations_connector_type_connector_keys_map
-from drdroid_debug_toolkit.core.integrations.processor import Processor
-from drdroid_debug_toolkit.core.integrations.source_api_processors.no_op_processor import NoOpProcessor
-from drdroid_debug_toolkit.core.protos.base_pb2 import TimeRange, Source
-from drdroid_debug_toolkit.core.protos.connectors.connector_pb2 import Connector as ConnectorProto
-from drdroid_debug_toolkit.core.protos.playbooks.playbook_commons_pb2 import PlaybookTaskResult, PlaybookTaskResultType, \
+from core.integrations.utils.executor_utils import apply_result_transformer, resolve_global_variables
+from core.utils.credentilal_utils import credential_yaml_to_connector_proto
+from core.utils.static_mappings import integrations_connector_type_connector_keys_map
+from core.integrations.processor import Processor
+from core.integrations.source_api_processors.no_op_processor import NoOpProcessor
+from core.protos.base_pb2 import TimeRange, Source
+from core.protos.connectors.connector_pb2 import Connector as ConnectorProto
+from core.protos.playbooks.playbook_commons_pb2 import PlaybookTaskResult, PlaybookTaskResultType, \
     PlaybookExecutionStatusType
-from drdroid_debug_toolkit.core.protos.playbooks.playbook_pb2 import PlaybookTask
-from drdroid_debug_toolkit.core.utils.proto_utils import proto_to_dict, dict_to_proto
-from drdroid_debug_toolkit.core.integrations.utils.executor_utils import check_multiple_task_results
+from core.protos.playbooks.playbook_pb2 import PlaybookTask
+from core.utils.proto_utils import proto_to_dict, dict_to_proto
+from core.integrations.utils.executor_utils import check_multiple_task_results
 logger = logging.getLogger(__name__)
 
 

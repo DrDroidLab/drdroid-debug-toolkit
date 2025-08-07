@@ -5,10 +5,10 @@ DroidSpace SDK v2 - Improved modular implementation
 import logging
 from typing import Dict, Any, List, Union
 
-from drdroid_debug_toolkit.exceptions import ConfigurationError, ConnectionError, ValidationError, TaskExecutionError
-from drdroid_debug_toolkit.core.sdk_factory import SDKFactory
-from drdroid_debug_toolkit.core.sources.grafana_sdk import GrafanaSDK
-from drdroid_debug_toolkit.core.sources.signoz_sdk import SignozSDK
+from .exceptions import ConfigurationError, ConnectionError, ValidationError, TaskExecutionError
+from .core.sdk_factory import SDKFactory
+from .core.sources.grafana_sdk import GrafanaSDK
+from .core.sources.signoz_sdk import SignozSDK
 
 logger = logging.getLogger(__name__)
 
