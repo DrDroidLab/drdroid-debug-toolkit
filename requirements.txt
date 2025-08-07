@@ -30,6 +30,9 @@ psycopg2-binary>=2.9.0
 PyMySQL>=1.1.0
 sqlalchemy>=1.4.0
 
+# Django support
+Django==4.1.4
+
 # Elasticsearch support
 elasticsearch>=8.15.0
 
