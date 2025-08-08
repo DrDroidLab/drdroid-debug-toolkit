@@ -13,6 +13,12 @@ from .sources.bash_sdk import BashSDK
 from .sources.kubernetes_sdk import KubernetesSDK
 from .sources.cloudwatch_sdk import CloudWatchSDK
 from .sources.sentry_sdk import SentrySDK
+from .sources.datadog_sdk import DatadogSDK
+from .sources.newrelic_sdk import NewRelicSDK
+from .sources.postgres_sdk import PostgresSDK
+from .sources.posthog_sdk import PostHogSDK
+from .sources.sql_database_connection_sdk import SqlDatabaseConnectionSDK
+from .sources.clickhouse_sdk import ClickHouseSDK
 from ..exceptions import ConfigurationError, ValidationError
 
 logger = logging.getLogger(__name__)
@@ -32,6 +38,12 @@ class SDKFactory:
         'kubernetes': KubernetesSDK,
         'cloudwatch': CloudWatchSDK,
         'sentry': SentrySDK,
+        'datadog': DatadogSDK,
+        'newrelic': NewRelicSDK,
+        'postgres': PostgresSDK,
+        'posthog': PostHogSDK,
+        'sql_database_connection': SqlDatabaseConnectionSDK,
+        'clickhouse': ClickHouseSDK,
     }
     
     def __init__(self, credentials_file_path: str):
@@ -112,6 +124,30 @@ class SDKFactory:
     def get_sentry_sdk(self) -> SentrySDK:
         """Get Sentry SDK instance"""
         return self.get_sdk('sentry')
+    
+    def get_datadog_sdk(self) -> DatadogSDK:
+        """Get Datadog SDK instance"""
+        return self.get_sdk('datadog')
+    
+    def get_newrelic_sdk(self) -> NewRelicSDK:
+        """Get NewRelic SDK instance"""
+        return self.get_sdk('newrelic')
+    
+    def get_postgres_sdk(self) -> PostgresSDK:
+        """Get Postgres SDK instance"""
+        return self.get_sdk('postgres')
+    
+    def get_posthog_sdk(self) -> PostHogSDK:
+        """Get PostHog SDK instance"""
+        return self.get_sdk('posthog')
+    
+    def get_sql_database_connection_sdk(self) -> SqlDatabaseConnectionSDK:
+        """Get SQL Database Connection SDK instance"""
+        return self.get_sdk('sql_database_connection')
+    
+    def get_clickhouse_sdk(self) -> ClickHouseSDK:
+        """Get ClickHouse SDK instance"""
+        return self.get_sdk('clickhouse')
     
     def get_available_sources(self) -> List[str]:
         """Get list of available source SDKs"""

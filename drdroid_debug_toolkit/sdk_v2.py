@@ -9,6 +9,12 @@ from .exceptions import ConfigurationError, ConnectionError, ValidationError, Ta
 from .core.sdk_factory import SDKFactory
 from .core.sources.grafana_sdk import GrafanaSDK
 from .core.sources.signoz_sdk import SignozSDK
+from .core.sources.datadog_sdk import DatadogSDK
+from .core.sources.newrelic_sdk import NewRelicSDK
+from .core.sources.postgres_sdk import PostgresSDK
+from .core.sources.posthog_sdk import PostHogSDK
+from .core.sources.sql_database_connection_sdk import SqlDatabaseConnectionSDK
+from .core.sources.clickhouse_sdk import ClickHouseSDK
 
 logger = logging.getLogger(__name__)
 
@@ -90,7 +96,7 @@ class DroidSDK:
     # Dynamic SDK Access
     # ============================================================================
     
-    def get_sdk(self, source_name: str) -> Union[GrafanaSDK, SignozSDK]:
+    def get_sdk(self, source_name: str) -> Union[GrafanaSDK, SignozSDK, DatadogSDK, NewRelicSDK, PostgresSDK, PostHogSDK, SqlDatabaseConnectionSDK, ClickHouseSDK]:
         """
         Get source-specific SDK by name
         
@@ -135,6 +141,30 @@ class DroidSDK:
     def get_signoz_sdk(self) -> SignozSDK:
         """Get Signoz SDK instance (convenience method)"""
         return self.get_sdk('signoz')
+    
+    def get_datadog_sdk(self) -> DatadogSDK:
+        """Get Datadog SDK instance (convenience method)"""
+        return self.get_sdk('datadog')
+    
+    def get_newrelic_sdk(self) -> NewRelicSDK:
+        """Get NewRelic SDK instance (convenience method)"""
+        return self.get_sdk('newrelic')
+    
+    def get_postgres_sdk(self) -> PostgresSDK:
+        """Get Postgres SDK instance (convenience method)"""
+        return self.get_sdk('postgres')
+    
+    def get_posthog_sdk(self) -> PostHogSDK:
+        """Get PostHog SDK instance (convenience method)"""
+        return self.get_sdk('posthog')
+    
+    def get_sql_database_connection_sdk(self) -> SqlDatabaseConnectionSDK:
+        """Get SQL Database Connection SDK instance (convenience method)"""
+        return self.get_sdk('sql_database_connection')
+    
+    def get_clickhouse_sdk(self) -> ClickHouseSDK:
+        """Get ClickHouse SDK instance (convenience method)"""
+        return self.get_sdk('clickhouse')
     
     # ============================================================================
     # Generic Task Execution (Advanced Usage)
