@@ -33,7 +33,7 @@ class SqlDatabaseConnectionSDK(BaseSDK):
     def _get_key_type_mapping(self) -> Dict[str, SourceKeyType]:
         """Get SQL Database Connection-specific key type mapping"""
         return {
-            'connection_string': SourceKeyType.SQL_DATABASE_CONNECTION_STRING,
+            'connection_string': SourceKeyType.SQL_DATABASE_CONNECTION_STRING_URI,
         }
     
     def execute_sql_query(self,
@@ -62,7 +62,7 @@ class SqlDatabaseConnectionSDK(BaseSDK):
             
             # Create task proto
             from ..protos.playbooks.source_task_definitions.sql_data_fetch_task_pb2 import SqlDataFetch
-            from google.protobuf.wrappers_pb2 import StringValue, Int64Value
+            from google.protobuf.wrappers_pb2 import StringValue, UInt64Value
             
             task = SqlDataFetch()
             task.type = SqlDataFetch.TaskType.SQL_QUERY
@@ -71,7 +71,7 @@ class SqlDatabaseConnectionSDK(BaseSDK):
             sql_task.query.CopyFrom(StringValue(value=query))
             
             if timeout:
-                sql_task.timeout.CopyFrom(Int64Value(value=timeout))
+                sql_task.timeout.CopyFrom(UInt64Value(value=timeout))
             
             # Execute task
             result = source_manager.execute_sql_query(
