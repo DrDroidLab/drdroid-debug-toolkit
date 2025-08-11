@@ -828,7 +828,6 @@ class SignozSourceManager(SourceManager):
             # Execute the query
             result = signoz_api_processor.execute_signoz_query(payload)
             logger.info(f"Clickhouse query result: {json.dumps(result, indent=2) if result else 'None'}")
-            print(f"Clickhouse query result: {result}")
 
             # Create the appropriate task result based on panel_type
             return self._create_task_result(result, panel_type, query, "Clickhouse Query")
@@ -1370,7 +1369,6 @@ class SignozSourceManager(SourceManager):
             result = signoz_api_processor.fetch_apm_metrics(
                 service_name, start_time, end_time, window, operation_names, metrics, duration
             )
-            print(f"APM metrics result: {result}")
 
             if result and "error" not in result:
                 # Convert to timeseries result
