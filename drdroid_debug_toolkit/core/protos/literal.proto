@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package protos;
+package core.protos;
 
 import "google/protobuf/wrappers.proto";
 

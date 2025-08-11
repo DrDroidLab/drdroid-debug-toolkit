@@ -1,8 +1,8 @@
 syntax = "proto3";
-package protos.connectors;
+package core.protos.connectors;
 
 import "google/protobuf/wrappers.proto";
-import "protos/base.proto";
+import "core/protos/base.proto";
 
 message PosthogPropertyAssetModel {
   google.protobuf.StringValue id = 1;

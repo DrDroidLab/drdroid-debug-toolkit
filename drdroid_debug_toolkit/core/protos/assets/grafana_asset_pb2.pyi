@@ -4,12 +4,12 @@ isort:skip_file
 """
 import builtins
 import collections.abc
+import core.protos.base_pb2
 import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.message
 import google.protobuf.struct_pb2
 import google.protobuf.wrappers_pb2
-import protos.base_pb2
 import sys
 
 if sys.version_info >= (3, 8):
@@ -428,8 +428,8 @@ class GrafanaAssetModel(google.protobuf.message.Message):
     GRAFANA_DASHBOARD_FIELD_NUMBER: builtins.int
     @property
     def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
-    connector_type: protos.base_pb2.Source.ValueType
-    type: protos.base_pb2.SourceModelType.ValueType
+    connector_type: core.protos.base_pb2.Source.ValueType
+    type: core.protos.base_pb2.SourceModelType.ValueType
     last_updated: builtins.int
     @property
     def grafana_target_metric_promql(self) -> global___GrafanaTargetMetricPromQlAssetModel: ...
@@ -443,8 +443,8 @@ class GrafanaAssetModel(google.protobuf.message.Message):
         self,
         *,
         id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
-        connector_type: protos.base_pb2.Source.ValueType = ...,
-        type: protos.base_pb2.SourceModelType.ValueType = ...,
+        connector_type: core.protos.base_pb2.Source.ValueType = ...,
+        type: core.protos.base_pb2.SourceModelType.ValueType = ...,
         last_updated: builtins.int = ...,
         grafana_target_metric_promql: global___GrafanaTargetMetricPromQlAssetModel | None = ...,
         grafana_prometheus_datasource: global___GrafanaDatasourceAssetModel | None = ...,

@@ -1,9 +1,9 @@
 syntax = "proto3";
 import "google/protobuf/wrappers.proto";
-import "protos/connectors/connector.proto";
-import "protos/base.proto";
+import "core/protos/connectors/connector.proto";
+import "core/protos/base.proto";
 
-package protos.connectors;
+package core.protos.connectors;
 
 /////////////////////  Connectors API schema  /////////////////////
 message TestConnectorRequest {

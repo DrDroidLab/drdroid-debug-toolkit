@@ -1,7 +1,7 @@
 syntax = "proto3";
 import "google/protobuf/wrappers.proto";
 
-package protos;
+package core.protos;
 
 message TimeRange {
   uint64 time_geq = 1;

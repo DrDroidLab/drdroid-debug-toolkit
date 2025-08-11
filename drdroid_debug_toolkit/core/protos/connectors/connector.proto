@@ -1,8 +1,8 @@
 syntax = "proto3";
 import "google/protobuf/wrappers.proto";
-import "protos/base.proto";
+import "core/protos/base.proto";
 
-package protos.connectors;
+package core.protos.connectors;
 
 message Connector {
   google.protobuf.UInt64Value account_id = 1;

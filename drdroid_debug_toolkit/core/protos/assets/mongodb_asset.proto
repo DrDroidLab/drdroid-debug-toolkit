@@ -1,9 +1,9 @@
 syntax = "proto3";
-package protos.connectors;
+package core.protos.connectors;
 
 import "google/protobuf/wrappers.proto";
-import "protos/base.proto";
-import "protos/connectors/connector.proto";
+import "core/protos/base.proto";
+import "core/protos/connectors/connector.proto";
 
 message MongoDBDatabaseAssetOptions {
   repeated string databases = 1; // Names of databases

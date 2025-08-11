@@ -8,7 +8,7 @@ from datetime import datetime
 
 from ...exceptions import TaskExecutionError
 from ..protos.base_pb2 import Source, SourceKeyType
-from ..integrations.source_manangers.clickhouse_source_manager import ClickhouseSourceManager
+from ..integrations.source_managers.clickhouse_source_manager import ClickhouseSourceManager
 from ..utils.proto_utils import proto_to_dict
 from ..sdk_base import BaseSDK
 

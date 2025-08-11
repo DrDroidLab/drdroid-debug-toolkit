@@ -8,7 +8,7 @@ from datetime import datetime
 
 from ...exceptions import TaskExecutionError
 from ..protos.base_pb2 import Source, SourceKeyType
-from ..integrations.source_manangers.datadog_source_manager import DatadogSourceManager
+from ..integrations.source_managers.datadog_source_manager import DatadogSourceManager
 from ..utils.proto_utils import proto_to_dict
 from ..sdk_base import BaseSDK
 

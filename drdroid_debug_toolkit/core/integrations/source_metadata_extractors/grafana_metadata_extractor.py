@@ -459,3 +459,78 @@ class GrafanaSourceMetadataExtractor(SourceMetadataExtractor):
 
         if len(model_data) > 0:
             self.create_or_update_model_metadata(model_type, model_data)
+
+    @log_function_call
+    def extract_dashboard_variables(self, dashboard_uid: str) -> dict:
+        """Extract variables and their values from a specific Grafana Dashboard.
+        
+        Args:
+            dashboard_uid: UID of the dashboard to extract variables from
+            
+        Returns:
+            dict: Dashboard variables data with current values
+        """
+        try:
+            # Get dashboard variables from API
+            variables_data = self.__grafana_api_processor.get_dashboard_variables(dashboard_uid)
+            
+            if not variables_data or not variables_data.get('variables'):
+                logger.warning(f"No variables found for dashboard: {dashboard_uid}")
+                return {"variables": {}, "message": f"No variables found for dashboard: {dashboard_uid}"}
+            
+            # Fetch dashboard details to get current values
+            try:
+                dashboard_details = self.__grafana_api_processor.fetch_dashboard_details(dashboard_uid)
+                if not dashboard_details or 'dashboard' not in dashboard_details:
+                    logger.warning(f"Failed to fetch dashboard details for UID: {dashboard_uid}")
+                    return {"variables": variables_data.get('variables', {})}
+                
+                dashboard_dict = dashboard_details['dashboard']
+                
+                # Extract current values from dashboard template variables
+                current_values = {}
+                dashboard_templating = dashboard_dict.get("templating", {})
+                if isinstance(dashboard_templating, dict) and "list" in dashboard_templating:
+                    template_vars = dashboard_templating.get("list", [])
+                    for var in template_vars:
+                        if not isinstance(var, dict):
+                            continue
+                        
+                        var_name = var.get("name", "")
+                        if not var_name:
+                            continue
+                        
+                        current = var.get("current", {})
+                        if isinstance(current, dict):
+                            current_values[var_name] = current.get("value")
+                
+                # Enhance the API response with current values from dashboard
+                api_variables = variables_data.get('variables', {})
+                enhanced_variables = {}
+                for var_name, var_info in api_variables.items():
+                    enhanced_variables[var_name] = {
+                        'allowed_values': var_info
+                    }
+                    if var_name in current_values:
+                        enhanced_variables[var_name]['current_value'] = current_values[var_name]
+                
+                # Return enhanced variables data
+                return {
+                    'variables': enhanced_variables,
+                    'dashboard_title': dashboard_dict.get('title', ''),
+                    'dashboard_uid': dashboard_uid
+                }
+                
+            except Exception as dashboard_error:
+                logger.warning(f"Failed to get current values from dashboard details: {dashboard_error}")
+                return {
+                    'variables': variables_data.get('variables', {}),
+                    'dashboard_retrieval_error': str(dashboard_error)
+                }
+                
+        except Exception as e:
+            logger.error(f'Error extracting dashboard variables for UID {dashboard_uid}: {e}')
+            return {
+                'error': f'Error extracting dashboard variables: {str(e)}',
+                'dashboard_uid': dashboard_uid
+            }

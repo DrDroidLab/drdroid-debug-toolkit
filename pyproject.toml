@@ -54,6 +54,9 @@ dependencies = [
     "slack_sdk>=3.36.0",
     "openai>=1.35.0",
     "opsgenie-sdk>=2.1.0",
+    "datadog-api-client>=2.15.0",
+    "requests-oauthlib>=2.0.0",
+    "requests-toolbelt>=1.0.0"
 ]
 
 [project.optional-dependencies]

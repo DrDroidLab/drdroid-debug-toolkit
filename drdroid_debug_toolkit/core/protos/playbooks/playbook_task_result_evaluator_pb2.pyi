@@ -4,13 +4,13 @@ isort:skip_file
 """
 import builtins
 import collections.abc
+import core.protos.base_pb2
+import core.protos.playbooks.playbook_commons_pb2
 import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.internal.enum_type_wrapper
 import google.protobuf.message
 import google.protobuf.wrappers_pb2
-import protos.base_pb2
-import protos.playbooks.playbook_commons_pb2
 import sys
 import typing
 
@@ -47,23 +47,23 @@ class TimeseriesResultRule(google.protobuf.message.Message):
     THRESHOLD_FIELD_NUMBER: builtins.int
     LABEL_VALUE_FILTERS_FIELD_NUMBER: builtins.int
     type: global___TimeseriesResultRule.Type.ValueType
-    function: protos.base_pb2.Function.ValueType
-    operator: protos.base_pb2.Operator.ValueType
+    function: core.protos.base_pb2.Function.ValueType
+    operator: core.protos.base_pb2.Operator.ValueType
     @property
     def window(self) -> google.protobuf.wrappers_pb2.DoubleValue: ...
     @property
     def threshold(self) -> google.protobuf.wrappers_pb2.DoubleValue: ...
     @property
-    def label_value_filters(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[protos.playbooks.playbook_commons_pb2.LabelValuePair]: ...
+    def label_value_filters(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[core.protos.playbooks.playbook_commons_pb2.LabelValuePair]: ...
     def __init__(
         self,
         *,
         type: global___TimeseriesResultRule.Type.ValueType = ...,
-        function: protos.base_pb2.Function.ValueType = ...,
-        operator: protos.base_pb2.Operator.ValueType = ...,
+        function: core.protos.base_pb2.Function.ValueType = ...,
+        operator: core.protos.base_pb2.Operator.ValueType = ...,
         window: google.protobuf.wrappers_pb2.DoubleValue | None = ...,
         threshold: google.protobuf.wrappers_pb2.DoubleValue | None = ...,
-        label_value_filters: collections.abc.Iterable[protos.playbooks.playbook_commons_pb2.LabelValuePair] | None = ...,
+        label_value_filters: collections.abc.Iterable[core.protos.playbooks.playbook_commons_pb2.LabelValuePair] | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing_extensions.Literal["threshold", b"threshold", "window", b"window"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing_extensions.Literal["function", b"function", "label_value_filters", b"label_value_filters", "operator", b"operator", "threshold", b"threshold", "type", b"type", "window", b"window"]) -> None: ...
@@ -95,7 +95,7 @@ class TableResultRule(google.protobuf.message.Message):
     NUMERIC_VALUE_THRESHOLD_FIELD_NUMBER: builtins.int
     STRING_VALUE_THRESHOLD_FIELD_NUMBER: builtins.int
     type: global___TableResultRule.Type.ValueType
-    operator: protos.base_pb2.Operator.ValueType
+    operator: core.protos.base_pb2.Operator.ValueType
     @property
     def column_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
@@ -106,7 +106,7 @@ class TableResultRule(google.protobuf.message.Message):
         self,
         *,
         type: global___TableResultRule.Type.ValueType = ...,
-        operator: protos.base_pb2.Operator.ValueType = ...,
+        operator: core.protos.base_pb2.Operator.ValueType = ...,
         column_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
         numeric_value_threshold: google.protobuf.wrappers_pb2.DoubleValue | None = ...,
         string_value_threshold: google.protobuf.wrappers_pb2.StringValue | None = ...,
@@ -144,7 +144,7 @@ class BashCommandOutputResultRule(google.protobuf.message.Message):
     CASE_SENSITIVE_FIELD_NUMBER: builtins.int
     THRESHOLD_FIELD_NUMBER: builtins.int
     type: global___BashCommandOutputResultRule.Type.ValueType
-    operator: protos.base_pb2.Operator.ValueType
+    operator: core.protos.base_pb2.Operator.ValueType
     @property
     def pattern(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
@@ -155,7 +155,7 @@ class BashCommandOutputResultRule(google.protobuf.message.Message):
         self,
         *,
         type: global___BashCommandOutputResultRule.Type.ValueType = ...,
-        operator: protos.base_pb2.Operator.ValueType = ...,
+        operator: core.protos.base_pb2.Operator.ValueType = ...,
         pattern: google.protobuf.wrappers_pb2.StringValue | None = ...,
         case_sensitive: google.protobuf.wrappers_pb2.BoolValue | None = ...,
         threshold: google.protobuf.wrappers_pb2.UInt64Value | None = ...,

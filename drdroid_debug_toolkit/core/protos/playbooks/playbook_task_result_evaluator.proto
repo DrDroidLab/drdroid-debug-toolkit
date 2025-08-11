@@ -1,10 +1,10 @@
 syntax = "proto3";
-package protos.playbooks;
+package core.protos.playbooks;
 
-import "protos/base.proto";
+import "core/protos/base.proto";
 import "google/protobuf/wrappers.proto";
 import "google/protobuf/struct.proto";
-import "protos/playbooks/playbook_commons.proto";
+import "core/protos/playbooks/playbook_commons.proto";
 
 message TimeseriesResultRule {
   enum Type {

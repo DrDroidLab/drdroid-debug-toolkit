@@ -4,48 +4,48 @@ isort:skip_file
 """
 import builtins
 import collections.abc
+import core.protos.base_pb2
+import core.protos.playbooks.intelligence_layer.interpreter_pb2
+import core.protos.playbooks.playbook_commons_pb2
+import core.protos.playbooks.playbook_step_result_evaluator_pb2
+import core.protos.playbooks.playbook_task_result_evaluator_pb2
+import core.protos.playbooks.source_task_definitions.api_task_pb2
+import core.protos.playbooks.source_task_definitions.argocd_task_pb2
+import core.protos.playbooks.source_task_definitions.azure_task_pb2
+import core.protos.playbooks.source_task_definitions.bash_task_pb2
+import core.protos.playbooks.source_task_definitions.big_query_task_pb2
+import core.protos.playbooks.source_task_definitions.cloudwatch_task_pb2
+import core.protos.playbooks.source_task_definitions.datadog_task_pb2
+import core.protos.playbooks.source_task_definitions.documentation_task_pb2
+import core.protos.playbooks.source_task_definitions.drd_proxy_agent_task_pb2
+import core.protos.playbooks.source_task_definitions.eks_task_pb2
+import core.protos.playbooks.source_task_definitions.elastic_search_task_pb2
+import core.protos.playbooks.source_task_definitions.email_task_pb2
+import core.protos.playbooks.source_task_definitions.gcm_task_pb2
+import core.protos.playbooks.source_task_definitions.github_actions_task_pb2
+import core.protos.playbooks.source_task_definitions.github_task_pb2
+import core.protos.playbooks.source_task_definitions.gke_task_pb2
+import core.protos.playbooks.source_task_definitions.grafana_loki_task_pb2
+import core.protos.playbooks.source_task_definitions.grafana_task_pb2
+import core.protos.playbooks.source_task_definitions.jenkins_task_pb2
+import core.protos.playbooks.source_task_definitions.jira_task_pb2
+import core.protos.playbooks.source_task_definitions.kubectl_task_pb2
+import core.protos.playbooks.source_task_definitions.lambda_function_task_pb2
+import core.protos.playbooks.source_task_definitions.mongodb_task_pb2
+import core.protos.playbooks.source_task_definitions.new_relic_task_pb2
+import core.protos.playbooks.source_task_definitions.open_search_task_pb2
+import core.protos.playbooks.source_task_definitions.posthog_task_pb2
+import core.protos.playbooks.source_task_definitions.promql_task_pb2
+import core.protos.playbooks.source_task_definitions.sentry_task_pb2
+import core.protos.playbooks.source_task_definitions.signoz_task_pb2
+import core.protos.playbooks.source_task_definitions.slack_task_pb2
+import core.protos.playbooks.source_task_definitions.sql_data_fetch_task_pb2
 import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.internal.enum_type_wrapper
 import google.protobuf.message
 import google.protobuf.struct_pb2
 import google.protobuf.wrappers_pb2
-import protos.base_pb2
-import protos.playbooks.intelligence_layer.interpreter_pb2
-import protos.playbooks.playbook_commons_pb2
-import protos.playbooks.playbook_step_result_evaluator_pb2
-import protos.playbooks.playbook_task_result_evaluator_pb2
-import protos.playbooks.source_task_definitions.api_task_pb2
-import protos.playbooks.source_task_definitions.argocd_task_pb2
-import protos.playbooks.source_task_definitions.azure_task_pb2
-import protos.playbooks.source_task_definitions.bash_task_pb2
-import protos.playbooks.source_task_definitions.big_query_task_pb2
-import protos.playbooks.source_task_definitions.cloudwatch_task_pb2
-import protos.playbooks.source_task_definitions.datadog_task_pb2
-import protos.playbooks.source_task_definitions.documentation_task_pb2
-import protos.playbooks.source_task_definitions.drd_proxy_agent_task_pb2
-import protos.playbooks.source_task_definitions.eks_task_pb2
-import protos.playbooks.source_task_definitions.elastic_search_task_pb2
-import protos.playbooks.source_task_definitions.email_task_pb2
-import protos.playbooks.source_task_definitions.gcm_task_pb2
-import protos.playbooks.source_task_definitions.github_actions_task_pb2
-import protos.playbooks.source_task_definitions.github_task_pb2
-import protos.playbooks.source_task_definitions.gke_task_pb2
-import protos.playbooks.source_task_definitions.grafana_loki_task_pb2
-import protos.playbooks.source_task_definitions.grafana_task_pb2
-import protos.playbooks.source_task_definitions.jenkins_task_pb2
-import protos.playbooks.source_task_definitions.jira_task_pb2
-import protos.playbooks.source_task_definitions.kubectl_task_pb2
-import protos.playbooks.source_task_definitions.lambda_function_task_pb2
-import protos.playbooks.source_task_definitions.mongodb_task_pb2
-import protos.playbooks.source_task_definitions.new_relic_task_pb2
-import protos.playbooks.source_task_definitions.open_search_task_pb2
-import protos.playbooks.source_task_definitions.posthog_task_pb2
-import protos.playbooks.source_task_definitions.promql_task_pb2
-import protos.playbooks.source_task_definitions.sentry_task_pb2
-import protos.playbooks.source_task_definitions.signoz_task_pb2
-import protos.playbooks.source_task_definitions.slack_task_pb2
-import protos.playbooks.source_task_definitions.sql_data_fetch_task_pb2
 import sys
 import typing
 
@@ -71,14 +71,14 @@ class PlaybookTask(google.protobuf.message.Message):
         NAME_FIELD_NUMBER: builtins.int
         @property
         def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
-        source: protos.base_pb2.Source.ValueType
+        source: core.protos.base_pb2.Source.ValueType
         @property
         def name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
         def __init__(
             self,
             *,
             id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
-            source: protos.base_pb2.Source.ValueType = ...,
+            source: core.protos.base_pb2.Source.ValueType = ...,
             name: google.protobuf.wrappers_pb2.StringValue | None = ...,
         ) -> None: ...
         def HasField(self, field_name: typing_extensions.Literal["id", b"id", "name", b"name"]) -> builtins.bool: ...
@@ -102,7 +102,7 @@ class PlaybookTask(google.protobuf.message.Message):
         @property
         def is_result_transformer_enabled(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
         @property
-        def result_transformer_lambda_function(self) -> protos.playbooks.source_task_definitions.lambda_function_task_pb2.Lambda.Function: ...
+        def result_transformer_lambda_function(self) -> core.protos.playbooks.source_task_definitions.lambda_function_task_pb2.Lambda.Function: ...
         def __init__(
             self,
             *,
@@ -110,7 +110,7 @@ class PlaybookTask(google.protobuf.message.Message):
             bulk_execution_var_field: google.protobuf.wrappers_pb2.StringValue | None = ...,
             timeseries_offsets: collections.abc.Iterable[builtins.int] | None = ...,
             is_result_transformer_enabled: google.protobuf.wrappers_pb2.BoolValue | None = ...,
-            result_transformer_lambda_function: protos.playbooks.source_task_definitions.lambda_function_task_pb2.Lambda.Function | None = ...,
+            result_transformer_lambda_function: core.protos.playbooks.source_task_definitions.lambda_function_task_pb2.Lambda.Function | None = ...,
         ) -> None: ...
         def HasField(self, field_name: typing_extensions.Literal["bulk_execution_var_field", b"bulk_execution_var_field", "is_bulk_execution", b"is_bulk_execution", "is_result_transformer_enabled", b"is_result_transformer_enabled", "result_transformer_lambda_function", b"result_transformer_lambda_function"]) -> builtins.bool: ...
         def ClearField(self, field_name: typing_extensions.Literal["bulk_execution_var_field", b"bulk_execution_var_field", "is_bulk_execution", b"is_bulk_execution", "is_result_transformer_enabled", b"is_result_transformer_enabled", "result_transformer_lambda_function", b"result_transformer_lambda_function", "timeseries_offsets", b"timeseries_offsets"]) -> None: ...
@@ -161,7 +161,7 @@ class PlaybookTask(google.protobuf.message.Message):
     SIGNOZ_FIELD_NUMBER: builtins.int
     @property
     def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
-    source: protos.base_pb2.Source.ValueType
+    source: core.protos.base_pb2.Source.ValueType
     @property
     def reference_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
@@ -174,121 +174,121 @@ class PlaybookTask(google.protobuf.message.Message):
     def created_by(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
     def global_variable_set(self) -> google.protobuf.struct_pb2.Struct: ...
-    interpreter_type: protos.playbooks.intelligence_layer.interpreter_pb2.InterpreterType.ValueType
+    interpreter_type: core.protos.playbooks.intelligence_layer.interpreter_pb2.InterpreterType.ValueType
     @property
     def task_connector_sources(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___PlaybookTask.PlaybookTaskConnectorSource]: ...
     @property
     def execution_configuration(self) -> global___PlaybookTask.ExecutionConfiguration: ...
     @property
-    def documentation(self) -> protos.playbooks.source_task_definitions.documentation_task_pb2.Documentation: ...
+    def documentation(self) -> core.protos.playbooks.source_task_definitions.documentation_task_pb2.Documentation: ...
     @property
-    def cloudwatch(self) -> protos.playbooks.source_task_definitions.cloudwatch_task_pb2.Cloudwatch: ...
+    def cloudwatch(self) -> core.protos.playbooks.source_task_definitions.cloudwatch_task_pb2.Cloudwatch: ...
     @property
-    def grafana(self) -> protos.playbooks.source_task_definitions.grafana_task_pb2.Grafana: ...
+    def grafana(self) -> core.protos.playbooks.source_task_definitions.grafana_task_pb2.Grafana: ...
     @property
-    def new_relic(self) -> protos.playbooks.source_task_definitions.new_relic_task_pb2.NewRelic: ...
+    def new_relic(self) -> core.protos.playbooks.source_task_definitions.new_relic_task_pb2.NewRelic: ...
     @property
-    def datadog(self) -> protos.playbooks.source_task_definitions.datadog_task_pb2.Datadog: ...
+    def datadog(self) -> core.protos.playbooks.source_task_definitions.datadog_task_pb2.Datadog: ...
     @property
-    def clickhouse(self) -> protos.playbooks.source_task_definitions.sql_data_fetch_task_pb2.SqlDataFetch: ...
+    def clickhouse(self) -> core.protos.playbooks.source_task_definitions.sql_data_fetch_task_pb2.SqlDataFetch: ...
     @property
-    def postgres(self) -> protos.playbooks.source_task_definitions.sql_data_fetch_task_pb2.SqlDataFetch: ...
+    def postgres(self) -> core.protos.playbooks.source_task_definitions.sql_data_fetch_task_pb2.SqlDataFetch: ...
     @property
-    def eks(self) -> protos.playbooks.source_task_definitions.eks_task_pb2.Eks: ...
+    def eks(self) -> core.protos.playbooks.source_task_definitions.eks_task_pb2.Eks: ...
     @property
-    def sql_database_connection(self) -> protos.playbooks.source_task_definitions.sql_data_fetch_task_pb2.SqlDataFetch: ...
+    def sql_database_connection(self) -> core.protos.playbooks.source_task_definitions.sql_data_fetch_task_pb2.SqlDataFetch: ...
     @property
-    def api(self) -> protos.playbooks.source_task_definitions.api_task_pb2.Api: ...
+    def api(self) -> core.protos.playbooks.source_task_definitions.api_task_pb2.Api: ...
     @property
-    def bash(self) -> protos.playbooks.source_task_definitions.bash_task_pb2.Bash: ...
+    def bash(self) -> core.protos.playbooks.source_task_definitions.bash_task_pb2.Bash: ...
     @property
-    def grafana_mimir(self) -> protos.playbooks.source_task_definitions.promql_task_pb2.PromQl: ...
+    def grafana_mimir(self) -> core.protos.playbooks.source_task_definitions.promql_task_pb2.PromQl: ...
     @property
-    def azure(self) -> protos.playbooks.source_task_definitions.azure_task_pb2.Azure: ...
+    def azure(self) -> core.protos.playbooks.source_task_definitions.azure_task_pb2.Azure: ...
     @property
-    def gke(self) -> protos.playbooks.source_task_definitions.gke_task_pb2.Gke: ...
+    def gke(self) -> core.protos.playbooks.source_task_definitions.gke_task_pb2.Gke: ...
     @property
-    def elastic_search(self) -> protos.playbooks.source_task_definitions.elastic_search_task_pb2.ElasticSearch: ...
+    def elastic_search(self) -> core.protos.playbooks.source_task_definitions.elastic_search_task_pb2.ElasticSearch: ...
     @property
-    def grafana_loki(self) -> protos.playbooks.source_task_definitions.grafana_loki_task_pb2.GrafanaLoki: ...
+    def grafana_loki(self) -> core.protos.playbooks.source_task_definitions.grafana_loki_task_pb2.GrafanaLoki: ...
     @property
-    def kubernetes(self) -> protos.playbooks.source_task_definitions.kubectl_task_pb2.Kubectl: ...
+    def kubernetes(self) -> core.protos.playbooks.source_task_definitions.kubectl_task_pb2.Kubectl: ...
     @property
-    def gcm(self) -> protos.playbooks.source_task_definitions.gcm_task_pb2.Gcm: ...
+    def gcm(self) -> core.protos.playbooks.source_task_definitions.gcm_task_pb2.Gcm: ...
     @property
-    def smtp(self) -> protos.playbooks.source_task_definitions.email_task_pb2.SMTP: ...
+    def smtp(self) -> core.protos.playbooks.source_task_definitions.email_task_pb2.SMTP: ...
     @property
-    def slack(self) -> protos.playbooks.source_task_definitions.slack_task_pb2.Slack: ...
+    def slack(self) -> core.protos.playbooks.source_task_definitions.slack_task_pb2.Slack: ...
     @property
-    def big_query(self) -> protos.playbooks.source_task_definitions.big_query_task_pb2.BigQuery: ...
+    def big_query(self) -> core.protos.playbooks.source_task_definitions.big_query_task_pb2.BigQuery: ...
     @property
-    def mongodb(self) -> protos.playbooks.source_task_definitions.mongodb_task_pb2.MongoDB: ...
+    def mongodb(self) -> core.protos.playbooks.source_task_definitions.mongodb_task_pb2.MongoDB: ...
     @property
-    def open_search(self) -> protos.playbooks.source_task_definitions.open_search_task_pb2.OpenSearch: ...
+    def open_search(self) -> core.protos.playbooks.source_task_definitions.open_search_task_pb2.OpenSearch: ...
     @property
-    def jenkins(self) -> protos.playbooks.source_task_definitions.jenkins_task_pb2.Jenkins: ...
+    def jenkins(self) -> core.protos.playbooks.source_task_definitions.jenkins_task_pb2.Jenkins: ...
     @property
-    def github(self) -> protos.playbooks.source_task_definitions.github_task_pb2.Github: ...
+    def github(self) -> core.protos.playbooks.source_task_definitions.github_task_pb2.Github: ...
     @property
-    def sentry(self) -> protos.playbooks.source_task_definitions.sentry_task_pb2.Sentry: ...
+    def sentry(self) -> core.protos.playbooks.source_task_definitions.sentry_task_pb2.Sentry: ...
     @property
-    def github_actions(self) -> protos.playbooks.source_task_definitions.github_actions_task_pb2.GithubActions: ...
+    def github_actions(self) -> core.protos.playbooks.source_task_definitions.github_actions_task_pb2.GithubActions: ...
     @property
-    def argocd(self) -> protos.playbooks.source_task_definitions.argocd_task_pb2.ArgoCD: ...
+    def argocd(self) -> core.protos.playbooks.source_task_definitions.argocd_task_pb2.ArgoCD: ...
     @property
-    def jira_cloud(self) -> protos.playbooks.source_task_definitions.jira_task_pb2.Jira: ...
+    def jira_cloud(self) -> core.protos.playbooks.source_task_definitions.jira_task_pb2.Jira: ...
     @property
-    def drd_proxy_agent(self) -> protos.playbooks.source_task_definitions.drd_proxy_agent_task_pb2.DrdProxyAgent: ...
+    def drd_proxy_agent(self) -> core.protos.playbooks.source_task_definitions.drd_proxy_agent_task_pb2.DrdProxyAgent: ...
     @property
-    def posthog(self) -> protos.playbooks.source_task_definitions.posthog_task_pb2.PostHog: ...
+    def posthog(self) -> core.protos.playbooks.source_task_definitions.posthog_task_pb2.PostHog: ...
     @property
-    def signoz(self) -> protos.playbooks.source_task_definitions.signoz_task_pb2.Signoz: ...
+    def signoz(self) -> core.protos.playbooks.source_task_definitions.signoz_task_pb2.Signoz: ...
     def __init__(
         self,
         *,
         id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
-        source: protos.base_pb2.Source.ValueType = ...,
+        source: core.protos.base_pb2.Source.ValueType = ...,
         reference_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
         name: google.protobuf.wrappers_pb2.StringValue | None = ...,
         description: google.protobuf.wrappers_pb2.StringValue | None = ...,
         notes: google.protobuf.wrappers_pb2.StringValue | None = ...,
         created_by: google.protobuf.wrappers_pb2.StringValue | None = ...,
         global_variable_set: google.protobuf.struct_pb2.Struct | None = ...,
-        interpreter_type: protos.playbooks.intelligence_layer.interpreter_pb2.InterpreterType.ValueType = ...,
+        interpreter_type: core.protos.playbooks.intelligence_layer.interpreter_pb2.InterpreterType.ValueType = ...,
         task_connector_sources: collections.abc.Iterable[global___PlaybookTask.PlaybookTaskConnectorSource] | None = ...,
         execution_configuration: global___PlaybookTask.ExecutionConfiguration | None = ...,
-        documentation: protos.playbooks.source_task_definitions.documentation_task_pb2.Documentation | None = ...,
-        cloudwatch: protos.playbooks.source_task_definitions.cloudwatch_task_pb2.Cloudwatch | None = ...,
-        grafana: protos.playbooks.source_task_definitions.grafana_task_pb2.Grafana | None = ...,
-        new_relic: protos.playbooks.source_task_definitions.new_relic_task_pb2.NewRelic | None = ...,
-        datadog: protos.playbooks.source_task_definitions.datadog_task_pb2.Datadog | None = ...,
-        clickhouse: protos.playbooks.source_task_definitions.sql_data_fetch_task_pb2.SqlDataFetch | None = ...,
-        postgres: protos.playbooks.source_task_definitions.sql_data_fetch_task_pb2.SqlDataFetch | None = ...,
-        eks: protos.playbooks.source_task_definitions.eks_task_pb2.Eks | None = ...,
-        sql_database_connection: protos.playbooks.source_task_definitions.sql_data_fetch_task_pb2.SqlDataFetch | None = ...,
-        api: protos.playbooks.source_task_definitions.api_task_pb2.Api | None = ...,
-        bash: protos.playbooks.source_task_definitions.bash_task_pb2.Bash | None = ...,
-        grafana_mimir: protos.playbooks.source_task_definitions.promql_task_pb2.PromQl | None = ...,
-        azure: protos.playbooks.source_task_definitions.azure_task_pb2.Azure | None = ...,
-        gke: protos.playbooks.source_task_definitions.gke_task_pb2.Gke | None = ...,
-        elastic_search: protos.playbooks.source_task_definitions.elastic_search_task_pb2.ElasticSearch | None = ...,
-        grafana_loki: protos.playbooks.source_task_definitions.grafana_loki_task_pb2.GrafanaLoki | None = ...,
-        kubernetes: protos.playbooks.source_task_definitions.kubectl_task_pb2.Kubectl | None = ...,
-        gcm: protos.playbooks.source_task_definitions.gcm_task_pb2.Gcm | None = ...,
-        smtp: protos.playbooks.source_task_definitions.email_task_pb2.SMTP | None = ...,
-        slack: protos.playbooks.source_task_definitions.slack_task_pb2.Slack | None = ...,
-        big_query: protos.playbooks.source_task_definitions.big_query_task_pb2.BigQuery | None = ...,
-        mongodb: protos.playbooks.source_task_definitions.mongodb_task_pb2.MongoDB | None = ...,
-        open_search: protos.playbooks.source_task_definitions.open_search_task_pb2.OpenSearch | None = ...,
-        jenkins: protos.playbooks.source_task_definitions.jenkins_task_pb2.Jenkins | None = ...,
-        github: protos.playbooks.source_task_definitions.github_task_pb2.Github | None = ...,
-        sentry: protos.playbooks.source_task_definitions.sentry_task_pb2.Sentry | None = ...,
-        github_actions: protos.playbooks.source_task_definitions.github_actions_task_pb2.GithubActions | None = ...,
-        argocd: protos.playbooks.source_task_definitions.argocd_task_pb2.ArgoCD | None = ...,
-        jira_cloud: protos.playbooks.source_task_definitions.jira_task_pb2.Jira | None = ...,
-        drd_proxy_agent: protos.playbooks.source_task_definitions.drd_proxy_agent_task_pb2.DrdProxyAgent | None = ...,
-        posthog: protos.playbooks.source_task_definitions.posthog_task_pb2.PostHog | None = ...,
-        signoz: protos.playbooks.source_task_definitions.signoz_task_pb2.Signoz | None = ...,
+        documentation: core.protos.playbooks.source_task_definitions.documentation_task_pb2.Documentation | None = ...,
+        cloudwatch: core.protos.playbooks.source_task_definitions.cloudwatch_task_pb2.Cloudwatch | None = ...,
+        grafana: core.protos.playbooks.source_task_definitions.grafana_task_pb2.Grafana | None = ...,
+        new_relic: core.protos.playbooks.source_task_definitions.new_relic_task_pb2.NewRelic | None = ...,
+        datadog: core.protos.playbooks.source_task_definitions.datadog_task_pb2.Datadog | None = ...,
+        clickhouse: core.protos.playbooks.source_task_definitions.sql_data_fetch_task_pb2.SqlDataFetch | None = ...,
+        postgres: core.protos.playbooks.source_task_definitions.sql_data_fetch_task_pb2.SqlDataFetch | None = ...,
+        eks: core.protos.playbooks.source_task_definitions.eks_task_pb2.Eks | None = ...,
+        sql_database_connection: core.protos.playbooks.source_task_definitions.sql_data_fetch_task_pb2.SqlDataFetch | None = ...,
+        api: core.protos.playbooks.source_task_definitions.api_task_pb2.Api | None = ...,
+        bash: core.protos.playbooks.source_task_definitions.bash_task_pb2.Bash | None = ...,
+        grafana_mimir: core.protos.playbooks.source_task_definitions.promql_task_pb2.PromQl | None = ...,
+        azure: core.protos.playbooks.source_task_definitions.azure_task_pb2.Azure | None = ...,
+        gke: core.protos.playbooks.source_task_definitions.gke_task_pb2.Gke | None = ...,
+        elastic_search: core.protos.playbooks.source_task_definitions.elastic_search_task_pb2.ElasticSearch | None = ...,
+        grafana_loki: core.protos.playbooks.source_task_definitions.grafana_loki_task_pb2.GrafanaLoki | None = ...,
+        kubernetes: core.protos.playbooks.source_task_definitions.kubectl_task_pb2.Kubectl | None = ...,
+        gcm: core.protos.playbooks.source_task_definitions.gcm_task_pb2.Gcm | None = ...,
+        smtp: core.protos.playbooks.source_task_definitions.email_task_pb2.SMTP | None = ...,
+        slack: core.protos.playbooks.source_task_definitions.slack_task_pb2.Slack | None = ...,
+        big_query: core.protos.playbooks.source_task_definitions.big_query_task_pb2.BigQuery | None = ...,
+        mongodb: core.protos.playbooks.source_task_definitions.mongodb_task_pb2.MongoDB | None = ...,
+        open_search: core.protos.playbooks.source_task_definitions.open_search_task_pb2.OpenSearch | None = ...,
+        jenkins: core.protos.playbooks.source_task_definitions.jenkins_task_pb2.Jenkins | None = ...,
+        github: core.protos.playbooks.source_task_definitions.github_task_pb2.Github | None = ...,
+        sentry: core.protos.playbooks.source_task_definitions.sentry_task_pb2.Sentry | None = ...,
+        github_actions: core.protos.playbooks.source_task_definitions.github_actions_task_pb2.GithubActions | None = ...,
+        argocd: core.protos.playbooks.source_task_definitions.argocd_task_pb2.ArgoCD | None = ...,
+        jira_cloud: core.protos.playbooks.source_task_definitions.jira_task_pb2.Jira | None = ...,
+        drd_proxy_agent: core.protos.playbooks.source_task_definitions.drd_proxy_agent_task_pb2.DrdProxyAgent | None = ...,
+        posthog: core.protos.playbooks.source_task_definitions.posthog_task_pb2.PostHog | None = ...,
+        signoz: core.protos.playbooks.source_task_definitions.signoz_task_pb2.Signoz | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing_extensions.Literal["api", b"api", "argocd", b"argocd", "azure", b"azure", "bash", b"bash", "big_query", b"big_query", "clickhouse", b"clickhouse", "cloudwatch", b"cloudwatch", "created_by", b"created_by", "datadog", b"datadog", "description", b"description", "documentation", b"documentation", "drd_proxy_agent", b"drd_proxy_agent", "eks", b"eks", "elastic_search", b"elastic_search", "execution_configuration", b"execution_configuration", "gcm", b"gcm", "github", b"github", "github_actions", b"github_actions", "gke", b"gke", "global_variable_set", b"global_variable_set", "grafana", b"grafana", "grafana_loki", b"grafana_loki", "grafana_mimir", b"grafana_mimir", "id", b"id", "jenkins", b"jenkins", "jira_cloud", b"jira_cloud", "kubernetes", b"kubernetes", "lambda", b"lambda", "mongodb", b"mongodb", "name", b"name", "new_relic", b"new_relic", "notes", b"notes", "open_search", b"open_search", "postgres", b"postgres", "posthog", b"posthog", "reference_id", b"reference_id", "sentry", b"sentry", "signoz", b"signoz", "slack", b"slack", "smtp", b"smtp", "sql_database_connection", b"sql_database_connection", "task", b"task"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing_extensions.Literal["api", b"api", "argocd", b"argocd", "azure", b"azure", "bash", b"bash", "big_query", b"big_query", "clickhouse", b"clickhouse", "cloudwatch", b"cloudwatch", "created_by", b"created_by", "datadog", b"datadog", "description", b"description", "documentation", b"documentation", "drd_proxy_agent", b"drd_proxy_agent", "eks", b"eks", "elastic_search", b"elastic_search", "execution_configuration", b"execution_configuration", "gcm", b"gcm", "github", b"github", "github_actions", b"github_actions", "gke", b"gke", "global_variable_set", b"global_variable_set", "grafana", b"grafana", "grafana_loki", b"grafana_loki", "grafana_mimir", b"grafana_mimir", "id", b"id", "interpreter_type", b"interpreter_type", "jenkins", b"jenkins", "jira_cloud", b"jira_cloud", "kubernetes", b"kubernetes", "lambda", b"lambda", "mongodb", b"mongodb", "name", b"name", "new_relic", b"new_relic", "notes", b"notes", "open_search", b"open_search", "postgres", b"postgres", "posthog", b"posthog", "reference_id", b"reference_id", "sentry", b"sentry", "signoz", b"signoz", "slack", b"slack", "smtp", b"smtp", "source", b"source", "sql_database_connection", b"sql_database_connection", "task", b"task", "task_connector_sources", b"task_connector_sources"]) -> None: ...
@@ -306,26 +306,26 @@ class PlaybookTaskResultRule(google.protobuf.message.Message):
     TABLE_FIELD_NUMBER: builtins.int
     LOGS_FIELD_NUMBER: builtins.int
     BASH_COMMAND_OUTPUT_FIELD_NUMBER: builtins.int
-    type: protos.playbooks.playbook_commons_pb2.PlaybookTaskResultType.ValueType
+    type: core.protos.playbooks.playbook_commons_pb2.PlaybookTaskResultType.ValueType
     @property
     def task(self) -> global___PlaybookTask: ...
     @property
-    def timeseries(self) -> protos.playbooks.playbook_task_result_evaluator_pb2.TimeseriesResultRule: ...
+    def timeseries(self) -> core.protos.playbooks.playbook_task_result_evaluator_pb2.TimeseriesResultRule: ...
     @property
-    def table(self) -> protos.playbooks.playbook_task_result_evaluator_pb2.TableResultRule: ...
+    def table(self) -> core.protos.playbooks.playbook_task_result_evaluator_pb2.TableResultRule: ...
     @property
-    def logs(self) -> protos.playbooks.playbook_task_result_evaluator_pb2.TableResultRule: ...
+    def logs(self) -> core.protos.playbooks.playbook_task_result_evaluator_pb2.TableResultRule: ...
     @property
-    def bash_command_output(self) -> protos.playbooks.playbook_task_result_evaluator_pb2.BashCommandOutputResultRule: ...
+    def bash_command_output(self) -> core.protos.playbooks.playbook_task_result_evaluator_pb2.BashCommandOutputResultRule: ...
     def __init__(
         self,
         *,
-        type: protos.playbooks.playbook_commons_pb2.PlaybookTaskResultType.ValueType = ...,
+        type: core.protos.playbooks.playbook_commons_pb2.PlaybookTaskResultType.ValueType = ...,
         task: global___PlaybookTask | None = ...,
-        timeseries: protos.playbooks.playbook_task_result_evaluator_pb2.TimeseriesResultRule | None = ...,
-        table: protos.playbooks.playbook_task_result_evaluator_pb2.TableResultRule | None = ...,
-        logs: protos.playbooks.playbook_task_result_evaluator_pb2.TableResultRule | None = ...,
-        bash_command_output: protos.playbooks.playbook_task_result_evaluator_pb2.BashCommandOutputResultRule | None = ...,
+        timeseries: core.protos.playbooks.playbook_task_result_evaluator_pb2.TimeseriesResultRule | None = ...,
+        table: core.protos.playbooks.playbook_task_result_evaluator_pb2.TableResultRule | None = ...,
+        logs: core.protos.playbooks.playbook_task_result_evaluator_pb2.TableResultRule | None = ...,
+        bash_command_output: core.protos.playbooks.playbook_task_result_evaluator_pb2.BashCommandOutputResultRule | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing_extensions.Literal["bash_command_output", b"bash_command_output", "logs", b"logs", "rule", b"rule", "table", b"table", "task", b"task", "timeseries", b"timeseries"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing_extensions.Literal["bash_command_output", b"bash_command_output", "logs", b"logs", "rule", b"rule", "table", b"table", "task", b"task", "timeseries", b"timeseries", "type", b"type"]) -> None: ...
@@ -353,31 +353,31 @@ class PlaybookTaskExecutionLog(google.protobuf.message.Message):
     @property
     def task(self) -> global___PlaybookTask: ...
     @property
-    def result(self) -> protos.playbooks.playbook_commons_pb2.PlaybookTaskResult: ...
+    def result(self) -> core.protos.playbooks.playbook_commons_pb2.PlaybookTaskResult: ...
     @property
-    def interpretation(self) -> protos.playbooks.intelligence_layer.interpreter_pb2.Interpretation: ...
+    def interpretation(self) -> core.protos.playbooks.intelligence_layer.interpreter_pb2.Interpretation: ...
     @property
-    def time_range(self) -> protos.base_pb2.TimeRange: ...
+    def time_range(self) -> core.protos.base_pb2.TimeRange: ...
     @property
     def created_by(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
     def execution_global_variable_set(self) -> google.protobuf.struct_pb2.Struct: ...
     @property
     def proxy_execution_request_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    status: protos.playbooks.playbook_commons_pb2.PlaybookExecutionStatusType.ValueType
+    status: core.protos.playbooks.playbook_commons_pb2.PlaybookExecutionStatusType.ValueType
     def __init__(
         self,
         *,
         id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
         timestamp: builtins.int = ...,
         task: global___PlaybookTask | None = ...,
-        result: protos.playbooks.playbook_commons_pb2.PlaybookTaskResult | None = ...,
-        interpretation: protos.playbooks.intelligence_layer.interpreter_pb2.Interpretation | None = ...,
-        time_range: protos.base_pb2.TimeRange | None = ...,
+        result: core.protos.playbooks.playbook_commons_pb2.PlaybookTaskResult | None = ...,
+        interpretation: core.protos.playbooks.intelligence_layer.interpreter_pb2.Interpretation | None = ...,
+        time_range: core.protos.base_pb2.TimeRange | None = ...,
         created_by: google.protobuf.wrappers_pb2.StringValue | None = ...,
         execution_global_variable_set: google.protobuf.struct_pb2.Struct | None = ...,
         proxy_execution_request_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        status: protos.playbooks.playbook_commons_pb2.PlaybookExecutionStatusType.ValueType = ...,
+        status: core.protos.playbooks.playbook_commons_pb2.PlaybookExecutionStatusType.ValueType = ...,
     ) -> None: ...
     def HasField(self, field_name: typing_extensions.Literal["created_by", b"created_by", "execution_global_variable_set", b"execution_global_variable_set", "id", b"id", "interpretation", b"interpretation", "proxy_execution_request_id", b"proxy_execution_request_id", "result", b"result", "task", b"task", "time_range", b"time_range"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing_extensions.Literal["created_by", b"created_by", "execution_global_variable_set", b"execution_global_variable_set", "id", b"id", "interpretation", b"interpretation", "proxy_execution_request_id", b"proxy_execution_request_id", "result", b"result", "status", b"status", "task", b"task", "time_range", b"time_range", "timestamp", b"timestamp"]) -> None: ...
@@ -397,29 +397,29 @@ class PlaybookStepResultCondition(google.protobuf.message.Message):
         LOGICAL_OPERATOR_FIELD_NUMBER: builtins.int
         RULES_FIELD_NUMBER: builtins.int
         STEP_RULES_FIELD_NUMBER: builtins.int
-        logical_operator: protos.base_pb2.LogicalOperator.ValueType
+        logical_operator: core.protos.base_pb2.LogicalOperator.ValueType
         @property
         def rules(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___PlaybookTaskResultRule]: ...
         @property
-        def step_rules(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[protos.playbooks.playbook_step_result_evaluator_pb2.PlaybookStepResultRule]: ...
+        def step_rules(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[core.protos.playbooks.playbook_step_result_evaluator_pb2.PlaybookStepResultRule]: ...
         def __init__(
             self,
             *,
-            logical_operator: protos.base_pb2.LogicalOperator.ValueType = ...,
+            logical_operator: core.protos.base_pb2.LogicalOperator.ValueType = ...,
             rules: collections.abc.Iterable[global___PlaybookTaskResultRule] | None = ...,
-            step_rules: collections.abc.Iterable[protos.playbooks.playbook_step_result_evaluator_pb2.PlaybookStepResultRule] | None = ...,
+            step_rules: collections.abc.Iterable[core.protos.playbooks.playbook_step_result_evaluator_pb2.PlaybookStepResultRule] | None = ...,
         ) -> None: ...
         def ClearField(self, field_name: typing_extensions.Literal["logical_operator", b"logical_operator", "rules", b"rules", "step_rules", b"step_rules"]) -> None: ...
 
     LOGICAL_OPERATOR_FIELD_NUMBER: builtins.int
     RULE_SETS_FIELD_NUMBER: builtins.int
-    logical_operator: protos.base_pb2.LogicalOperator.ValueType
+    logical_operator: core.protos.base_pb2.LogicalOperator.ValueType
     @property
     def rule_sets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___PlaybookStepResultCondition.RuleSet]: ...
     def __init__(
         self,
         *,
-        logical_operator: protos.base_pb2.LogicalOperator.ValueType = ...,
+        logical_operator: core.protos.base_pb2.LogicalOperator.ValueType = ...,
         rule_sets: collections.abc.Iterable[global___PlaybookStepResultCondition.RuleSet] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing_extensions.Literal["logical_operator", b"logical_operator", "rule_sets", b"rule_sets"]) -> None: ...
@@ -450,8 +450,8 @@ class PlaybookStep(google.protobuf.message.Message):
     @property
     def notes(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
-    def external_links(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[protos.playbooks.playbook_commons_pb2.ExternalLink]: ...
-    interpreter_type: protos.playbooks.intelligence_layer.interpreter_pb2.InterpreterType.ValueType
+    def external_links(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[core.protos.playbooks.playbook_commons_pb2.ExternalLink]: ...
+    interpreter_type: core.protos.playbooks.intelligence_layer.interpreter_pb2.InterpreterType.ValueType
     @property
     def tasks(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___PlaybookTask]: ...
     @property
@@ -464,8 +464,8 @@ class PlaybookStep(google.protobuf.message.Message):
         name: google.protobuf.wrappers_pb2.StringValue | None = ...,
         description: google.protobuf.wrappers_pb2.StringValue | None = ...,
         notes: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        external_links: collections.abc.Iterable[protos.playbooks.playbook_commons_pb2.ExternalLink] | None = ...,
-        interpreter_type: protos.playbooks.intelligence_layer.interpreter_pb2.InterpreterType.ValueType = ...,
+        external_links: collections.abc.Iterable[core.protos.playbooks.playbook_commons_pb2.ExternalLink] | None = ...,
+        interpreter_type: core.protos.playbooks.intelligence_layer.interpreter_pb2.InterpreterType.ValueType = ...,
         tasks: collections.abc.Iterable[global___PlaybookTask] | None = ...,
         children: collections.abc.Iterable[global___PlaybookStepRelation] | None = ...,
     ) -> None: ...
@@ -525,7 +525,7 @@ class PlaybookStepRelationExecutionLog(google.protobuf.message.Message):
     @property
     def evaluation_output(self) -> google.protobuf.struct_pb2.Struct: ...
     @property
-    def step_relation_interpretation(self) -> protos.playbooks.intelligence_layer.interpreter_pb2.Interpretation: ...
+    def step_relation_interpretation(self) -> core.protos.playbooks.intelligence_layer.interpreter_pb2.Interpretation: ...
     def __init__(
         self,
         *,
@@ -533,7 +533,7 @@ class PlaybookStepRelationExecutionLog(google.protobuf.message.Message):
         relation: global___PlaybookStepRelation | None = ...,
         evaluation_result: google.protobuf.wrappers_pb2.BoolValue | None = ...,
         evaluation_output: google.protobuf.struct_pb2.Struct | None = ...,
-        step_relation_interpretation: protos.playbooks.intelligence_layer.interpreter_pb2.Interpretation | None = ...,
+        step_relation_interpretation: core.protos.playbooks.intelligence_layer.interpreter_pb2.Interpretation | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing_extensions.Literal["evaluation_output", b"evaluation_output", "evaluation_result", b"evaluation_result", "id", b"id", "relation", b"relation", "step_relation_interpretation", b"step_relation_interpretation"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing_extensions.Literal["evaluation_output", b"evaluation_output", "evaluation_result", b"evaluation_result", "id", b"id", "relation", b"relation", "step_relation_interpretation", b"step_relation_interpretation"]) -> None: ...
@@ -565,9 +565,9 @@ class PlaybookStepExecutionLog(google.protobuf.message.Message):
     @property
     def relation_execution_logs(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___PlaybookStepRelationExecutionLog]: ...
     @property
-    def step_interpretation(self) -> protos.playbooks.intelligence_layer.interpreter_pb2.Interpretation: ...
+    def step_interpretation(self) -> core.protos.playbooks.intelligence_layer.interpreter_pb2.Interpretation: ...
     @property
-    def time_range(self) -> protos.base_pb2.TimeRange: ...
+    def time_range(self) -> core.protos.base_pb2.TimeRange: ...
     @property
     def created_by(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     def __init__(
@@ -579,8 +579,8 @@ class PlaybookStepExecutionLog(google.protobuf.message.Message):
         step: global___PlaybookStep | None = ...,
         task_execution_logs: collections.abc.Iterable[global___PlaybookTaskExecutionLog] | None = ...,
         relation_execution_logs: collections.abc.Iterable[global___PlaybookStepRelationExecutionLog] | None = ...,
-        step_interpretation: protos.playbooks.intelligence_layer.interpreter_pb2.Interpretation | None = ...,
-        time_range: protos.base_pb2.TimeRange | None = ...,
+        step_interpretation: core.protos.playbooks.intelligence_layer.interpreter_pb2.Interpretation | None = ...,
+        time_range: core.protos.base_pb2.TimeRange | None = ...,
         created_by: google.protobuf.wrappers_pb2.StringValue | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing_extensions.Literal["created_by", b"created_by", "id", b"id", "playbook_run_id", b"playbook_run_id", "step", b"step", "step_interpretation", b"step_interpretation", "time_range", b"time_range"]) -> builtins.bool: ...
@@ -617,7 +617,7 @@ class Playbook(google.protobuf.message.Message):
     def is_active(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
     created_at: builtins.int
     last_run_at: builtins.int
-    status: protos.playbooks.playbook_commons_pb2.PlaybookExecutionStatusType.ValueType
+    status: core.protos.playbooks.playbook_commons_pb2.PlaybookExecutionStatusType.ValueType
     @property
     def steps(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___PlaybookStep]: ...
     @property
@@ -633,7 +633,7 @@ class Playbook(google.protobuf.message.Message):
         is_active: google.protobuf.wrappers_pb2.BoolValue | None = ...,
         created_at: builtins.int = ...,
         last_run_at: builtins.int = ...,
-        status: protos.playbooks.playbook_commons_pb2.PlaybookExecutionStatusType.ValueType = ...,
+        status: core.protos.playbooks.playbook_commons_pb2.PlaybookExecutionStatusType.ValueType = ...,
         steps: collections.abc.Iterable[global___PlaybookStep] | None = ...,
         step_relations: collections.abc.Iterable[global___PlaybookStepRelation] | None = ...,
     ) -> None: ...
@@ -663,12 +663,12 @@ class PlaybookExecution(google.protobuf.message.Message):
     def playbook_run_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
     def playbook(self) -> global___Playbook: ...
-    status: protos.playbooks.playbook_commons_pb2.PlaybookExecutionStatusType.ValueType
+    status: core.protos.playbooks.playbook_commons_pb2.PlaybookExecutionStatusType.ValueType
     created_at: builtins.int
     started_at: builtins.int
     finished_at: builtins.int
     @property
-    def time_range(self) -> protos.base_pb2.TimeRange: ...
+    def time_range(self) -> core.protos.base_pb2.TimeRange: ...
     @property
     def created_by(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
@@ -681,11 +681,11 @@ class PlaybookExecution(google.protobuf.message.Message):
         id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
         playbook_run_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
         playbook: global___Playbook | None = ...,
-        status: protos.playbooks.playbook_commons_pb2.PlaybookExecutionStatusType.ValueType = ...,
+        status: core.protos.playbooks.playbook_commons_pb2.PlaybookExecutionStatusType.ValueType = ...,
         created_at: builtins.int = ...,
         started_at: builtins.int = ...,
         finished_at: builtins.int = ...,
-        time_range: protos.base_pb2.TimeRange | None = ...,
+        time_range: core.protos.base_pb2.TimeRange | None = ...,
         created_by: google.protobuf.wrappers_pb2.StringValue | None = ...,
         step_execution_logs: collections.abc.Iterable[global___PlaybookStepExecutionLog] | None = ...,
         execution_global_variable_set: google.protobuf.struct_pb2.Struct | None = ...,

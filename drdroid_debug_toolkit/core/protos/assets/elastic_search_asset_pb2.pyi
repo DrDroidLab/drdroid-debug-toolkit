@@ -4,11 +4,11 @@ isort:skip_file
 """
 import builtins
 import collections.abc
+import core.protos.base_pb2
 import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.message
 import google.protobuf.wrappers_pb2
-import protos.base_pb2
 import sys
 
 if sys.version_info >= (3, 8):
@@ -62,8 +62,8 @@ class ElasticSearchAssetModel(google.protobuf.message.Message):
     ELASTIC_SEARCH_INDEX_FIELD_NUMBER: builtins.int
     @property
     def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
-    connector_type: protos.base_pb2.Source.ValueType
-    type: protos.base_pb2.SourceModelType.ValueType
+    connector_type: core.protos.base_pb2.Source.ValueType
+    type: core.protos.base_pb2.SourceModelType.ValueType
     last_updated: builtins.int
     @property
     def elastic_search_index(self) -> global___ElasticSearchIndexAssetModel: ...
@@ -71,8 +71,8 @@ class ElasticSearchAssetModel(google.protobuf.message.Message):
         self,
         *,
         id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
-        connector_type: protos.base_pb2.Source.ValueType = ...,
-        type: protos.base_pb2.SourceModelType.ValueType = ...,
+        connector_type: core.protos.base_pb2.Source.ValueType = ...,
+        type: core.protos.base_pb2.SourceModelType.ValueType = ...,
         last_updated: builtins.int = ...,
         elastic_search_index: global___ElasticSearchIndexAssetModel | None = ...,
     ) -> None: ...
