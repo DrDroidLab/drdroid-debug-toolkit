@@ -32,8 +32,7 @@ requires-python = ">=3.8"
 dependencies = [
     "PyYAML>=6.0.0",
     "requests>=2.28.0",
-    "protobuf>=4.21.0,<6.0.0",
-    "grpcio-tools>=1.59.0",
+    "protobuf>=4.21.0",
     "paramiko>=3.4.0",
     "kubernetes>=26.0.0",
     "boto3>=1.37.0",
@@ -76,4 +75,11 @@ Repository = "https://github.com/DrDroidLab/drdroid-debug-toolkit"
 "Bug Tracker" = "https://github.com/DrDroidLab/drdroid-debug-toolkit/issues"
 
 [project.scripts]
-drdroid-debug-toolkit = "drdroid_debug_toolkit.cli:main" 
+drdroid-debug-toolkit = "drdroid_debug_toolkit.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["drdroid_debug_toolkit*"]
+
+[tool.setuptools.package-data]
+drdroid_debug_toolkit = ["*.yaml", "*.yml"] 
