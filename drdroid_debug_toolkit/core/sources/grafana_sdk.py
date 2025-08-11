@@ -38,25 +38,25 @@ class GrafanaSDK(BaseSDK):
             'ssl_verify': SourceKeyType.SSL_VERIFY,
         }
     
-    def query_prometheus(self, 
+    def query_datasource(self, 
                         datasource_uid: str,
-                        query: str,
+                        query_expression: str,
                         start_time: Optional[datetime] = None,
                         end_time: Optional[datetime] = None,
                         duration_minutes: Optional[int] = None,
                         interval: Optional[int] = None,
                         query_type: str = "PromQL") -> Dict[str, Any]:
         """
-        Execute a Prometheus query via Grafana
+        Execute a query against any Grafana datasource (Prometheus, Loki, InfluxDB, SQL, etc.)
         
         Args:
             datasource_uid: Grafana datasource UID
-            query: PromQL query expression
+            query_expression: Query expression (PromQL, Flux, Loki, SQL, etc.)
             start_time: Start time for the query
             end_time: End time for the query
             duration_minutes: Duration in minutes (used if start_time not provided)
             interval: Step interval in seconds
-            query_type: Query type ('PromQL' or 'Flux')
+            query_type: Query type ('PromQL', 'Flux', 'Loki', etc.)
             
         Returns:
             Query results as dictionary
@@ -71,25 +71,56 @@ class GrafanaSDK(BaseSDK):
             from google.protobuf.wrappers_pb2 import StringValue, UInt64Value
             
             task = Grafana()
-            task.type = Grafana.TaskType.PROMETHEUS_DATASOURCE_METRIC_EXECUTION
+            task.type = Grafana.TaskType.DATASOURCE_QUERY_EXECUTION
             
-            prometheus_task = task.prometheus_datasource_metric_execution
-            prometheus_task.datasource_uid.CopyFrom(StringValue(value=datasource_uid))
-            prometheus_task.promql_expression.CopyFrom(StringValue(value=query))
-            prometheus_task.query_type.CopyFrom(StringValue(value=query_type))
+            datasource_task = task.datasource_query_execution
+            datasource_task.datasource_uid.CopyFrom(StringValue(value=datasource_uid))
+            datasource_task.query_expression.CopyFrom(StringValue(value=query_expression))
+            datasource_task.query_type.CopyFrom(StringValue(value=query_type))
             
             if interval:
-                prometheus_task.interval.CopyFrom(UInt64Value(value=interval))
+                datasource_task.interval.CopyFrom(UInt64Value(value=interval))
             
             # Execute task
-            result = source_manager.execute_prometheus_datasource_metric_execution(
+            result = source_manager.execute_datasource_query_execution(
                 time_range, task, connector
             )
             
             return proto_to_dict(result)
             
         except Exception as e:
-            raise TaskExecutionError(f"Grafana Prometheus query failed: {e}")
+            raise TaskExecutionError(f"Grafana datasource query failed: {e}")
+    
+    def query_prometheus(self, 
+                        datasource_uid: str,
+                        query: str,
+                        start_time: Optional[datetime] = None,
+                        end_time: Optional[datetime] = None,
+                        duration_minutes: Optional[int] = None,
+                        interval: Optional[int] = None) -> Dict[str, Any]:
+        """
+        Execute a Prometheus query via Grafana (convenience method)
+        
+        Args:
+            datasource_uid: Grafana datasource UID
+            query: PromQL query expression
+            start_time: Start time for the query
+            end_time: End time for the query
+            duration_minutes: Duration in minutes (used if start_time not provided)
+            interval: Step interval in seconds
+            
+        Returns:
+            Query results as dictionary
+        """
+        return self.query_datasource(
+            datasource_uid=datasource_uid,
+            query_expression=query,
+            start_time=start_time,
+            end_time=end_time,
+            duration_minutes=duration_minutes,
+            interval=interval,
+            query_type="PromQL"
+        )
     
     def query_dashboard_panel(self,
                              dashboard_id: str,
@@ -240,3 +271,131 @@ class GrafanaSDK(BaseSDK):
             
         except Exception as e:
             raise TaskExecutionError(f"Grafana dashboard variables fetch failed: {e}")
+    
+    def get_dashboard_config(self, dashboard_uid: str) -> Dict[str, Any]:
+        """
+        Get dashboard configuration details from Grafana
+        
+        Args:
+            dashboard_uid: Dashboard UID
+            
+        Returns:
+            Dashboard configuration as dictionary
+        """
+        try:
+            source_manager = self._get_source_manager('grafana')
+            connector = self._get_connector('grafana')
+            time_range = self._create_time_range()
+            
+            # Create task proto
+            from ..protos.playbooks.source_task_definitions.grafana_task_pb2 import Grafana
+            from google.protobuf.wrappers_pb2 import StringValue
+            
+            task = Grafana()
+            task.type = Grafana.TaskType.GET_DASHBOARD_CONFIG
+            
+            config_task = task.get_dashboard_config
+            config_task.dashboard_uid.CopyFrom(StringValue(value=dashboard_uid))
+            
+            # Execute task
+            result = source_manager.execute_get_dashboard_config(
+                time_range, task, connector
+            )
+            
+            return proto_to_dict(result)
+            
+        except Exception as e:
+            raise TaskExecutionError(f"Grafana dashboard config fetch failed: {e}")
+    
+    def fetch_all_dashboards(self, limit: Optional[int] = 100) -> Dict[str, Any]:
+        """
+        Fetch all dashboards from Grafana
+        
+        Args:
+            limit: Maximum number of dashboards to return (default: 100)
+            
+        Returns:
+            List of dashboards as dictionary
+        """
+        try:
+            source_manager = self._get_source_manager('grafana')
+            connector = self._get_connector('grafana')
+            time_range = self._create_time_range()
+            
+            # Create task proto
+            from ..protos.playbooks.source_task_definitions.grafana_task_pb2 import Grafana
+            from google.protobuf.wrappers_pb2 import UInt64Value
+            
+            task = Grafana()
+            task.type = Grafana.TaskType.FETCH_ALL_DASHBOARDS
+            
+            dashboards_task = task.fetch_all_dashboards
+            if limit:
+                dashboards_task.limit.CopyFrom(UInt64Value(value=limit))
+            
+            # Execute task
+            result = source_manager.execute_fetch_all_dashboards(
+                time_range, task, connector
+            )
+            
+            return proto_to_dict(result)
+            
+        except Exception as e:
+            raise TaskExecutionError(f"Grafana fetch all dashboards failed: {e}")
+    
+    def fetch_datasources(self) -> Dict[str, Any]:
+        """
+        Fetch all datasources from Grafana
+        
+        Returns:
+            List of datasources as dictionary
+        """
+        try:
+            source_manager = self._get_source_manager('grafana')
+            connector = self._get_connector('grafana')
+            time_range = self._create_time_range()
+            
+            # Create task proto
+            from ..protos.playbooks.source_task_definitions.grafana_task_pb2 import Grafana
+            
+            task = Grafana()
+            task.type = Grafana.TaskType.FETCH_DATASOURCES
+            
+            # Execute task
+            result = source_manager.execute_fetch_datasources(
+                time_range, task, connector
+            )
+            
+            return proto_to_dict(result)
+            
+        except Exception as e:
+            raise TaskExecutionError(f"Grafana fetch datasources failed: {e}")
+    
+    def fetch_folders(self) -> Dict[str, Any]:
+        """
+        Fetch all folders from Grafana
+        
+        Returns:
+            List of folders as dictionary
+        """
+        try:
+            source_manager = self._get_source_manager('grafana')
+            connector = self._get_connector('grafana')
+            time_range = self._create_time_range()
+            
+            # Create task proto
+            from ..protos.playbooks.source_task_definitions.grafana_task_pb2 import Grafana
+            
+            task = Grafana()
+            task.type = Grafana.TaskType.FETCH_FOLDERS
+            
+            # Execute task
+            result = source_manager.execute_fetch_folders(
+                time_range, task, connector
+            )
+            
+            return proto_to_dict(result)
+            
+        except Exception as e:
+            raise TaskExecutionError(f"Grafana fetch folders failed: {e}")
+
