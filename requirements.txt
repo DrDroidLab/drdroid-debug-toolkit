@@ -1,7 +1,7 @@
 # Core dependencies
 PyYAML>=6.0.0
 requests>=2.28.0
-protobuf>=4.21.0
+protobuf>=4.21.0,<6.0.0.dev0
 
 # SSH support for bash operations
 paramiko>=3.4.0
