@@ -76,16 +76,4 @@ Repository = "https://github.com/DrDroidLab/drdroid-debug-toolkit"
 "Bug Tracker" = "https://github.com/DrDroidLab/drdroid-debug-toolkit/issues"
 
 [project.scripts]
-drdroid-debug-toolkit = "drdroid_debug_toolkit.cli:main"
-
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["drdroid_debug_toolkit*"]
-
-[tool.setuptools.package-data]
-drdroid_debug_toolkit = ["*.yaml", "*.yml"]
-
-[tool.setuptools.cmdclass]
-develop = "drdroid_debug_toolkit.setup:DevelopCommand"
-install = "drdroid_debug_toolkit.setup:InstallCommand"
-generate_protobuf = "drdroid_debug_toolkit.setup:GenerateProtobufCommand" 
+drdroid-debug-toolkit = "drdroid_debug_toolkit.cli:main" 
