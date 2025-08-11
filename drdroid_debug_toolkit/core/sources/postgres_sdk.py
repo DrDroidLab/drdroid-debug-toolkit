@@ -33,11 +33,11 @@ class PostgresSDK(BaseSDK):
     def _get_key_type_mapping(self) -> Dict[str, SourceKeyType]:
         """Get Postgres-specific key type mapping"""
         return {
-            'postgres_host': SourceKeyType.POSTGRES_HOST,
-            'postgres_port': SourceKeyType.POSTGRES_PORT,
-            'postgres_username': SourceKeyType.POSTGRES_USER,
-            'postgres_password': SourceKeyType.POSTGRES_PASSWORD,
-            'postgres_database': SourceKeyType.POSTGRES_DATABASE,
+            'host': SourceKeyType.POSTGRES_HOST,
+            'port': SourceKeyType.POSTGRES_PORT,
+            'user': SourceKeyType.POSTGRES_USER,
+            'password': SourceKeyType.POSTGRES_PASSWORD,
+            'database': SourceKeyType.POSTGRES_DATABASE,
         }
     
     def execute_sql_query(self,
@@ -68,7 +68,7 @@ class PostgresSDK(BaseSDK):
             
             # Create task proto
             from ..protos.playbooks.source_task_definitions.sql_data_fetch_task_pb2 import SqlDataFetch
-            from google.protobuf.wrappers_pb2 import StringValue, Int64Value
+            from google.protobuf.wrappers_pb2 import StringValue, UInt64Value
             
             task = SqlDataFetch()
             task.type = SqlDataFetch.TaskType.SQL_QUERY
@@ -80,7 +80,7 @@ class PostgresSDK(BaseSDK):
                 sql_task.database.CopyFrom(StringValue(value=database))
             
             if timeout:
-                sql_task.timeout.CopyFrom(Int64Value(value=timeout))
+                sql_task.timeout.CopyFrom(UInt64Value(value=timeout))
             
             # Execute task
             result = source_manager.execute_sql_query(
