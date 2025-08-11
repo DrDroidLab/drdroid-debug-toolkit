@@ -1,8 +1,8 @@
 syntax = "proto3";
 package core.protos.playbooks;
 
-import "protos/base.proto";
-import "protos/ui_definition.proto";
+import "core/protos/base.proto";
+import "core/protos/ui_definition.proto";
 import "google/protobuf/wrappers.proto";
 import "google/protobuf/struct.proto";
 

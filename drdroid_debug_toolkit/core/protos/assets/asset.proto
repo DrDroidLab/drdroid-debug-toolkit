@@ -1,33 +1,33 @@
 syntax = "proto3";
 package core.protos.connectors;
 
-import "protos/base.proto";
+import "core/protos/base.proto";
 import "google/protobuf/wrappers.proto";
 import "google/protobuf/struct.proto";
-import "protos/connectors/connector.proto";
-import "protos/assets/cloudwatch_asset.proto";
-import "protos/assets/grafana_asset.proto";
-import "protos/assets/clickhouse_asset.proto";
-import "protos/assets/slack_asset.proto";
-import "protos/assets/newrelic_asset.proto";
-import "protos/assets/datadog_asset.proto";
-import "protos/assets/postgres_asset.proto";
-import "protos/assets/eks_asset.proto";
-import "protos/assets/azure_asset.proto";
-import "protos/assets/bash_asset.proto";
-import "protos/assets/gke_asset.proto";
-import "protos/assets/elastic_search_asset.proto";
-import "protos/assets/gcm_asset.proto";
-import "protos/assets/open_search_asset.proto";
-import "protos/assets/asana_asset.proto";
-import "protos/assets/github_asset.proto";
-import "protos/assets/jira_asset.proto";
-import "protos/assets/argocd_asset.proto";
-import "protos/assets/jenkins_asset.proto";
-import "protos/assets/signoz_asset.proto";
-import "protos/assets/posthog_asset.proto";
-import "protos/assets/sql_database_asset.proto";
-import "protos/assets/mongodb_asset.proto";
+import "core/protos/connectors/connector.proto";
+import "core/protos/assets/cloudwatch_asset.proto";
+import "core/protos/assets/grafana_asset.proto";
+import "core/protos/assets/clickhouse_asset.proto";
+import "core/protos/assets/slack_asset.proto";
+import "core/protos/assets/newrelic_asset.proto";
+import "core/protos/assets/datadog_asset.proto";
+import "core/protos/assets/postgres_asset.proto";
+import "core/protos/assets/eks_asset.proto";
+import "core/protos/assets/azure_asset.proto";
+import "core/protos/assets/bash_asset.proto";
+import "core/protos/assets/gke_asset.proto";
+import "core/protos/assets/elastic_search_asset.proto";
+import "core/protos/assets/gcm_asset.proto";
+import "core/protos/assets/open_search_asset.proto";
+import "core/protos/assets/asana_asset.proto";
+import "core/protos/assets/github_asset.proto";
+import "core/protos/assets/jira_asset.proto";
+import "core/protos/assets/argocd_asset.proto";
+import "core/protos/assets/jenkins_asset.proto";
+import "core/protos/assets/signoz_asset.proto";
+import "core/protos/assets/posthog_asset.proto";
+import "core/protos/assets/sql_database_asset.proto";
+import "core/protos/assets/mongodb_asset.proto";
 
 
 message AccountConnectorAssets {

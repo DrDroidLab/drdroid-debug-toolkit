@@ -3,11 +3,11 @@
 isort:skip_file
 """
 import builtins
+import core.protos.base_pb2
+import core.protos.connectors.connector_pb2
 import google.protobuf.descriptor
 import google.protobuf.message
 import google.protobuf.wrappers_pb2
-import protos.base_pb2
-import protos.connectors.connector_pb2
 import sys
 
 if sys.version_info >= (3, 8):
@@ -25,11 +25,11 @@ class TestConnectorRequest(google.protobuf.message.Message):
 
     CONNECTOR_FIELD_NUMBER: builtins.int
     @property
-    def connector(self) -> protos.connectors.connector_pb2.Connector: ...
+    def connector(self) -> core.protos.connectors.connector_pb2.Connector: ...
     def __init__(
         self,
         *,
-        connector: protos.connectors.connector_pb2.Connector | None = ...,
+        connector: core.protos.connectors.connector_pb2.Connector | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing_extensions.Literal["connector", b"connector"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing_extensions.Literal["connector", b"connector"]) -> None: ...
@@ -45,12 +45,12 @@ class TestConnectorResponse(google.protobuf.message.Message):
     @property
     def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
     @property
-    def message(self) -> protos.base_pb2.Message: ...
+    def message(self) -> core.protos.base_pb2.Message: ...
     def __init__(
         self,
         *,
         success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
-        message: protos.base_pb2.Message | None = ...,
+        message: core.protos.base_pb2.Message | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing_extensions.Literal["message", b"message", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing_extensions.Literal["message", b"message", "success", b"success"]) -> None: ...

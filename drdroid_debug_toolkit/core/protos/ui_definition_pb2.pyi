@@ -4,12 +4,12 @@ isort:skip_file
 """
 import builtins
 import collections.abc
+import core.protos.literal_pb2
 import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.internal.enum_type_wrapper
 import google.protobuf.message
 import google.protobuf.wrappers_pb2
-import protos.literal_pb2
 import sys
 import typing
 
@@ -82,12 +82,12 @@ class FormField(google.protobuf.message.Message):
     def display_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
     def description(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    data_type: protos.literal_pb2.LiteralType.ValueType
+    data_type: core.protos.literal_pb2.LiteralType.ValueType
     is_optional: builtins.bool
     @property
-    def default_value(self) -> protos.literal_pb2.Literal: ...
+    def default_value(self) -> core.protos.literal_pb2.Literal: ...
     @property
-    def valid_values(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[protos.literal_pb2.Literal]: ...
+    def valid_values(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[core.protos.literal_pb2.Literal]: ...
     is_composite: builtins.bool
     @property
     def composite_fields(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___FormField]: ...
@@ -102,10 +102,10 @@ class FormField(google.protobuf.message.Message):
         key_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
         display_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
         description: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        data_type: protos.literal_pb2.LiteralType.ValueType = ...,
+        data_type: core.protos.literal_pb2.LiteralType.ValueType = ...,
         is_optional: builtins.bool = ...,
-        default_value: protos.literal_pb2.Literal | None = ...,
-        valid_values: collections.abc.Iterable[protos.literal_pb2.Literal] | None = ...,
+        default_value: core.protos.literal_pb2.Literal | None = ...,
+        valid_values: collections.abc.Iterable[core.protos.literal_pb2.Literal] | None = ...,
         is_composite: builtins.bool = ...,
         composite_fields: collections.abc.Iterable[global___FormField] | None = ...,
         max_length_allowed: google.protobuf.wrappers_pb2.UInt64Value | None = ...,

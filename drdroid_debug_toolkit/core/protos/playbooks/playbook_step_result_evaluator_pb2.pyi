@@ -3,11 +3,11 @@
 isort:skip_file
 """
 import builtins
+import core.protos.base_pb2
 import google.protobuf.descriptor
 import google.protobuf.internal.enum_type_wrapper
 import google.protobuf.message
 import google.protobuf.wrappers_pb2
-import protos.base_pb2
 import sys
 import typing
 
@@ -26,7 +26,7 @@ class CompareTimeWithCronRule(google.protobuf.message.Message):
     RULE_FIELD_NUMBER: builtins.int
     TIMEZONE_FIELD_NUMBER: builtins.int
     WITHIN_SECONDS_FIELD_NUMBER: builtins.int
-    operator: protos.base_pb2.Operator.ValueType
+    operator: core.protos.base_pb2.Operator.ValueType
     @property
     def rule(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
@@ -36,7 +36,7 @@ class CompareTimeWithCronRule(google.protobuf.message.Message):
     def __init__(
         self,
         *,
-        operator: protos.base_pb2.Operator.ValueType = ...,
+        operator: core.protos.base_pb2.Operator.ValueType = ...,
         rule: google.protobuf.wrappers_pb2.StringValue | None = ...,
         timezone: google.protobuf.wrappers_pb2.StringValue | None = ...,
         within_seconds: google.protobuf.wrappers_pb2.UInt64Value | None = ...,

@@ -4,11 +4,11 @@ isort:skip_file
 """
 import builtins
 import collections.abc
+import core.protos.base_pb2
 import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.message
 import google.protobuf.wrappers_pb2
-import protos.base_pb2
 import sys
 
 if sys.version_info >= (3, 8):
@@ -29,7 +29,7 @@ class Connector(google.protobuf.message.Message):
     ID_FIELD_NUMBER: builtins.int
     @property
     def account_id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
-    type: protos.base_pb2.Source.ValueType
+    type: core.protos.base_pb2.Source.ValueType
     @property
     def name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
@@ -40,7 +40,7 @@ class Connector(google.protobuf.message.Message):
         self,
         *,
         account_id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
-        type: protos.base_pb2.Source.ValueType = ...,
+        type: core.protos.base_pb2.Source.ValueType = ...,
         name: google.protobuf.wrappers_pb2.StringValue | None = ...,
         keys: collections.abc.Iterable[global___ConnectorKey] | None = ...,
         id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
@@ -57,7 +57,7 @@ class ConnectorKey(google.protobuf.message.Message):
     KEY_TYPE_FIELD_NUMBER: builtins.int
     KEY_FIELD_NUMBER: builtins.int
     CONNECTOR_NAME_FIELD_NUMBER: builtins.int
-    key_type: protos.base_pb2.SourceKeyType.ValueType
+    key_type: core.protos.base_pb2.SourceKeyType.ValueType
     @property
     def key(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
@@ -65,7 +65,7 @@ class ConnectorKey(google.protobuf.message.Message):
     def __init__(
         self,
         *,
-        key_type: protos.base_pb2.SourceKeyType.ValueType = ...,
+        key_type: core.protos.base_pb2.SourceKeyType.ValueType = ...,
         key: google.protobuf.wrappers_pb2.StringValue | None = ...,
         connector_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
     ) -> None: ...

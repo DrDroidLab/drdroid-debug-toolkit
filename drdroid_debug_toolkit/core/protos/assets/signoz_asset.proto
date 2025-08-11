@@ -3,8 +3,8 @@ package core.protos.connectors;
 
 import "google/protobuf/wrappers.proto";
 import "google/protobuf/struct.proto";
-import "protos/base.proto";
-import "protos/connectors/connector.proto";
+import "core/protos/base.proto";
+import "core/protos/connectors/connector.proto";
 
 message SignozDashboardPanelModel {
   message Query {

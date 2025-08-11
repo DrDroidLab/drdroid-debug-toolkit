@@ -2,7 +2,7 @@ syntax = "proto3";
 package core.protos.playbooks;
 
 import "google/protobuf/wrappers.proto";
-import "protos/playbooks/source_task_definitions/promql_task.proto";
+import "core/protos/playbooks/source_task_definitions/promql_task.proto";
 
 
 message GrafanaLoki {

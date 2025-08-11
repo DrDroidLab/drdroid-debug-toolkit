@@ -3,7 +3,7 @@ package core.protos.playbooks;
 
 import "google/protobuf/wrappers.proto";
 
-import "protos/base.proto";
+import "core/protos/base.proto";
 
 enum InterpreterType {
   UNKNOWN_I = 0;

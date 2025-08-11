@@ -4,14 +4,14 @@ isort:skip_file
 """
 import builtins
 import collections.abc
+import core.protos.base_pb2
+import core.protos.ui_definition_pb2
 import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.internal.enum_type_wrapper
 import google.protobuf.message
 import google.protobuf.struct_pb2
 import google.protobuf.wrappers_pb2
-import protos.base_pb2
-import protos.ui_definition_pb2
 import sys
 import typing
 
@@ -366,7 +366,7 @@ class PlaybookTaskResult(google.protobuf.message.Message):
     @property
     def error(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     type: global___PlaybookTaskResultType.ValueType
-    source: protos.base_pb2.Source.ValueType
+    source: core.protos.base_pb2.Source.ValueType
     @property
     def task_local_variable_set(self) -> google.protobuf.struct_pb2.Struct: ...
     @property
@@ -398,7 +398,7 @@ class PlaybookTaskResult(google.protobuf.message.Message):
         *,
         error: google.protobuf.wrappers_pb2.StringValue | None = ...,
         type: global___PlaybookTaskResultType.ValueType = ...,
-        source: protos.base_pb2.Source.ValueType = ...,
+        source: core.protos.base_pb2.Source.ValueType = ...,
         task_local_variable_set: google.protobuf.struct_pb2.Struct | None = ...,
         result_transformer_lambda_function_variable_set: google.protobuf.struct_pb2.Struct | None = ...,
         proxy_execution_request_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
@@ -452,13 +452,13 @@ class PlaybookSourceOptions(google.protobuf.message.Message):
 
             MODEL_TYPE_FIELD_NUMBER: builtins.int
             DISPLAY_NAME_FIELD_NUMBER: builtins.int
-            model_type: protos.base_pb2.SourceModelType.ValueType
+            model_type: core.protos.base_pb2.SourceModelType.ValueType
             @property
             def display_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
             def __init__(
                 self,
                 *,
-                model_type: protos.base_pb2.SourceModelType.ValueType = ...,
+                model_type: core.protos.base_pb2.SourceModelType.ValueType = ...,
                 display_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
             ) -> None: ...
             def HasField(self, field_name: typing_extensions.Literal["display_name", b"display_name"]) -> builtins.bool: ...
@@ -480,7 +480,7 @@ class PlaybookSourceOptions(google.protobuf.message.Message):
         def supported_model_types(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___PlaybookSourceOptions.TaskTypeOption.SourceModelTypeMap]: ...
         result_type: global___PlaybookTaskResultType.ValueType
         @property
-        def form_fields(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[protos.ui_definition_pb2.FormField]: ...
+        def form_fields(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[core.protos.ui_definition_pb2.FormField]: ...
         def __init__(
             self,
             *,
@@ -489,7 +489,7 @@ class PlaybookSourceOptions(google.protobuf.message.Message):
             category: google.protobuf.wrappers_pb2.StringValue | None = ...,
             supported_model_types: collections.abc.Iterable[global___PlaybookSourceOptions.TaskTypeOption.SourceModelTypeMap] | None = ...,
             result_type: global___PlaybookTaskResultType.ValueType = ...,
-            form_fields: collections.abc.Iterable[protos.ui_definition_pb2.FormField] | None = ...,
+            form_fields: collections.abc.Iterable[core.protos.ui_definition_pb2.FormField] | None = ...,
         ) -> None: ...
         def HasField(self, field_name: typing_extensions.Literal["category", b"category", "display_name", b"display_name", "task_type", b"task_type"]) -> builtins.bool: ...
         def ClearField(self, field_name: typing_extensions.Literal["category", b"category", "display_name", b"display_name", "form_fields", b"form_fields", "result_type", b"result_type", "supported_model_types", b"supported_model_types", "task_type", b"task_type"]) -> None: ...
@@ -498,7 +498,7 @@ class PlaybookSourceOptions(google.protobuf.message.Message):
     DISPLAY_NAME_FIELD_NUMBER: builtins.int
     SUPPORTED_TASK_TYPE_OPTIONS_FIELD_NUMBER: builtins.int
     CONNECTOR_OPTIONS_FIELD_NUMBER: builtins.int
-    source: protos.base_pb2.Source.ValueType
+    source: core.protos.base_pb2.Source.ValueType
     @property
     def display_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
@@ -508,7 +508,7 @@ class PlaybookSourceOptions(google.protobuf.message.Message):
     def __init__(
         self,
         *,
-        source: protos.base_pb2.Source.ValueType = ...,
+        source: core.protos.base_pb2.Source.ValueType = ...,
         display_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
         supported_task_type_options: collections.abc.Iterable[global___PlaybookSourceOptions.TaskTypeOption] | None = ...,
         connector_options: collections.abc.Iterable[global___PlaybookSourceOptions.ConnectorOption] | None = ...,

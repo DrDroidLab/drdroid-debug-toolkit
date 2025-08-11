@@ -2,7 +2,7 @@ syntax = "proto3";
 package core.protos.connectors;
 
 import "google/protobuf/wrappers.proto";
-import "protos/base.proto";
+import "core/protos/base.proto";
 
 message Command {
   google.protobuf.StringValue type = 1;

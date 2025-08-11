@@ -3,7 +3,7 @@ package core.protos.connectors;
 
 import "google/protobuf/wrappers.proto";
 import "google/protobuf/struct.proto";
-import "protos/base.proto";
+import "core/protos/base.proto";
 
 message JenkinsAppsAssetOptions {
   repeated string apps = 1; // Names of apps

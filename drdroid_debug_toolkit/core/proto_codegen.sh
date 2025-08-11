@@ -15,10 +15,11 @@ find "$repo_root/drdroid_debug_toolkit/core/protos/" -regex ".*_pb2.*\.pyi?" -ex
 
 # generate proto code for all protos
 all_protos=$(find "$PROTO_REPO_DIR" -iname "*.proto")
+
 python -m grpc_tools.protoc \
-    -I "$repo_root/drdroid_debug_toolkit/core/" \
-    --python_out=. \
-    --mypy_out=. \
+    --proto_path="$repo_root/drdroid_debug_toolkit/" \
+    --python_out="$repo_root/drdroid_debug_toolkit/" \
+    --mypy_out="$repo_root/drdroid_debug_toolkit/" \
     $all_protos
 
 echo "Latest proto generation done."

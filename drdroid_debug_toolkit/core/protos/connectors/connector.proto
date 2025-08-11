@@ -1,6 +1,6 @@
 syntax = "proto3";
 import "google/protobuf/wrappers.proto";
-import "protos/base.proto";
+import "core/protos/base.proto";
 
 package core.protos.connectors;
 
