@@ -35,10 +35,9 @@ class PostgresSDK(BaseSDK):
         return {
             'postgres_host': SourceKeyType.POSTGRES_HOST,
             'postgres_port': SourceKeyType.POSTGRES_PORT,
-            'postgres_username': SourceKeyType.POSTGRES_USERNAME,
+            'postgres_username': SourceKeyType.POSTGRES_USER,
             'postgres_password': SourceKeyType.POSTGRES_PASSWORD,
             'postgres_database': SourceKeyType.POSTGRES_DATABASE,
-            'postgres_ssl_mode': SourceKeyType.POSTGRES_SSL_MODE,
         }
     
     def execute_sql_query(self,
