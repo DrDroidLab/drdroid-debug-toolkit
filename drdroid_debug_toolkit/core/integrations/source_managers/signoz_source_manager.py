@@ -38,7 +38,6 @@ from core.protos.playbooks.playbook_commons_pb2 import (
 from core.protos.playbooks.source_task_definitions.signoz_task_pb2 import Signoz
 from core.protos.ui_definition_pb2 import FormField, FormFieldType
 from core.utils.credentilal_utils import generate_credentials_dict
-from core.utils.playbooks_client import PrototypeClient
 from core.utils.proto_utils import dict_to_proto, proto_to_dict
 from core.utils.time_utils import calculate_timeseries_bucket_size
 
@@ -790,6 +789,7 @@ class SignozSourceManager(SourceManager):
 
             task = signoz_task.clickhouse_query
             query = task.query.value
+            logger.info(f"Executing Clickhouse query: {query}")
 
             step = self._get_step_interval(time_range, task)
             fill_gaps = task.fill_gaps.value if task.HasField("fill_gaps") else False
@@ -823,8 +823,11 @@ class SignozSourceManager(SourceManager):
                 },
             }
 
+            logger.info(f"Clickhouse query payload: {json.dumps(payload, indent=2)}")
+
             # Execute the query
             result = signoz_api_processor.execute_signoz_query(payload)
+            logger.info(f"Clickhouse query result: {json.dumps(result, indent=2) if result else 'None'}")
 
             # Create the appropriate task result based on panel_type
             return self._create_task_result(result, panel_type, query, "Clickhouse Query")
@@ -845,6 +848,8 @@ class SignozSourceManager(SourceManager):
             task = signoz_task.builder_query
             # Clean and parse the builder queries
             builder_queries = json.loads(task.builder_queries.value)
+            logger.info(f"Executing Builder query with queries: {json.dumps(builder_queries, indent=2)}")
+            
             # Clean and format the queries
             cleaned_queries = format_builder_queries(builder_queries)
 
@@ -872,9 +877,12 @@ class SignozSourceManager(SourceManager):
 
             # Format the entire payload to ensure double quotes
             payload = format_builder_queries(payload)
+            logger.info(f"Builder query payload: {json.dumps(payload, indent=2)}")
 
             # Execute the query
             result = signoz_api_processor.execute_signoz_query(payload)
+            logger.info(f"Builder query result: {json.dumps(result, indent=2) if result else 'None'}")
+            
             query_name = "Builder Query"
             if cleaned_queries and isinstance(cleaned_queries, dict):
                 first_key = next(iter(cleaned_queries), None)
@@ -1060,32 +1068,6 @@ class SignozSourceManager(SourceManager):
         except Exception as e:
             logger.error(f"Error executing queries for panel '{panel_info.get('panel_title', 'UNKNOWN')}': {e}", exc_info=True)
             return None  # Indicate error for this panel
-
-    def _find_dashboard_asset(self, signoz_connector: ConnectorProto, dashboard_name: str) -> typing.Optional["SignozDashboardModel"]:
-        """Finds a specific dashboard asset by name."""
-        try:
-            prototype_client = PrototypeClient()
-            assets:AccountConnectorAssets = prototype_client.get_connector_assets(
-                "SIGNOZ",
-                signoz_connector.id.value,
-                SourceModelType.SIGNOZ_DASHBOARD,
-                proto_to_dict(AccountConnectorAssetsModelFilters()),  # Pass filters if possible later
-            )
-            if not assets or not assets.signoz or not assets.signoz.assets:
-                logger.warning(f"No Signoz dashboard assets found for connector {signoz_connector.id.value}")
-                return None
-
-            for asset in assets.signoz.assets:
-                if (
-                    asset.type == SourceModelType.SIGNOZ_DASHBOARD
-                    and asset.HasField("signoz_dashboard")
-                    and asset.signoz_dashboard.title.value == dashboard_name
-                ):
-                    return asset.signoz_dashboard
-            return None
-        except Exception as e:
-            logger.error(f"Error fetching dashboard assets for connector {signoz_connector.id.value}: {e}", exc_info=True)
-            return None  # Indicate error during fetch
 
     def _parse_dashboard_variables(self, task: Signoz.DashboardDataTask) -> tuple[dict, typing.Optional[PlaybookTaskResult]]:
         """Parses variables JSON from task input, returning dict and error result if any."""

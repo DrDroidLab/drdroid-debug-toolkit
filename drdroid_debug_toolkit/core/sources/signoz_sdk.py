@@ -88,6 +88,9 @@ class SignozSDK(BaseSDK):
                 time_range, task, connector
             )
             
+            if result is None:
+                return {"error": "No data returned from Signoz Clickhouse query"}
+            
             return proto_to_dict(result)
             
         except Exception as e:
@@ -137,6 +140,9 @@ class SignozSDK(BaseSDK):
             result = source_manager.execute_builder_query(
                 time_range, task, connector
             )
+            
+            if result is None:
+                return {"error": "No data returned from Signoz builder query"}
             
             return proto_to_dict(result)
             
@@ -190,6 +196,9 @@ class SignozSDK(BaseSDK):
                 time_range, task, connector
             )
             
+            if not results:
+                return {"error": "No data returned from Signoz dashboard query"}
+            
             # Convert list of results to list of dictionaries
             return [proto_to_dict(result) for result in results]
             
@@ -236,6 +245,9 @@ class SignozSDK(BaseSDK):
                 time_range, task, connector
             )
             
+            if result is None:
+                return {"error": "No data returned from Signoz services query"}
+            
             return proto_to_dict(result)
             
         except Exception as e:
@@ -263,6 +275,9 @@ class SignozSDK(BaseSDK):
             result = source_manager.execute_fetch_dashboards(
                 time_range, task, connector
             )
+            
+            if result is None:
+                return {"error": "No data returned from Signoz dashboards query"}
             
             return proto_to_dict(result)
             
@@ -298,6 +313,9 @@ class SignozSDK(BaseSDK):
             result = source_manager.execute_fetch_dashboard_details(
                 time_range, task, connector
             )
+            
+            if result is None:
+                return {"error": f"No data returned for dashboard {dashboard_id}"}
             
             return proto_to_dict(result)
             
@@ -358,6 +376,9 @@ class SignozSDK(BaseSDK):
             result = source_manager.execute_fetch_apm_metrics(
                 time_range, task, connector
             )
+            
+            if result is None:
+                return {"error": "No data returned from Signoz APM metrics query"}
             
             return proto_to_dict(result)
             
@@ -447,6 +468,9 @@ class SignozSDK(BaseSDK):
             result = source_manager.execute_fetch_traces_or_logs(
                 time_range, task, connector
             )
+            
+            if result is None:
+                return {"error": f"No data returned from Signoz {data_type} query"}
             
             return proto_to_dict(result)
             
