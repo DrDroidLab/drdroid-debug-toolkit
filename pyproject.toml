@@ -83,4 +83,9 @@ where = ["."]
 include = ["drdroid_debug_toolkit*"]
 
 [tool.setuptools.package-data]
-drdroid_debug_toolkit = ["*.yaml", "*.yml"] 
+drdroid_debug_toolkit = ["*.yaml", "*.yml"]
+
+[tool.setuptools.cmdclass]
+develop = "drdroid_debug_toolkit.setup:DevelopCommand"
+install = "drdroid_debug_toolkit.setup:InstallCommand"
+generate_protobuf = "drdroid_debug_toolkit.setup:GenerateProtobufCommand" 
