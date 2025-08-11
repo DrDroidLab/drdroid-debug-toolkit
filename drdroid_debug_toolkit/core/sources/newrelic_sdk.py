@@ -8,7 +8,7 @@ from datetime import datetime
 
 from ...exceptions import TaskExecutionError
 from ..protos.base_pb2 import Source, SourceKeyType
-from ..integrations.source_manangers.newrelic_source_manager import NewRelicSourceManager
+from ..integrations.source_managers.newrelic_source_manager import NewRelicSourceManager
 from ..utils.proto_utils import proto_to_dict
 from ..sdk_base import BaseSDK
 

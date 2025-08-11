@@ -405,3 +405,51 @@ class GrafanaApiProcessor(Processor):
         except Exception as e:
             logger.error("Exception occurred while querying Grafana datasource: %s", e)
             raise e
+
+    def fetch_folders(self):
+        """
+        Fetches all folders from Grafana with their metadata and permissions.
+        
+        Returns:
+            List of folder objects with metadata
+        """
+        try:
+            url = f'{self.__host}/api/folders'
+            response = requests.get(url, headers=self.headers, verify=self.__ssl_verify, timeout=20)
+            if response and response.status_code == 200:
+                return response.json()
+            else:
+                status_code = response.status_code if response else None
+                raise Exception(f"Failed to fetch folders. Status Code: {status_code}. Response Text: {response.text}")
+        except Exception as e:
+            logger.error(f"Exception occurred while fetching grafana folders with error: {e}")
+            raise e
+
+    def get_dashboard_config_details(self, dashboard_uid):
+        """
+        Retrieves dashboard configuration details from Grafana.
+        This is similar to fetch_dashboard_details but specifically for config metadata.
+        
+        Args:
+            dashboard_uid: Dashboard UID
+            
+        Returns:
+            Dashboard configuration details including metadata
+        """
+        try:
+            url = f'{self.__host}/api/dashboards/uid/{dashboard_uid}'
+            response = requests.get(url, headers=self.headers, verify=self.__ssl_verify, timeout=20)
+            if response and response.status_code == 200:
+                dashboard_data = response.json()
+                return {
+                    "dashboard_uid": dashboard_uid,
+                    "dashboard": dashboard_data.get("dashboard", {}),
+                    "meta": dashboard_data.get("meta", {}),
+                    "status": "success"
+                }
+            else:
+                status_code = response.status_code if response else None
+                raise Exception(f"Failed to fetch dashboard config. Status Code: {status_code}. Response Text: {response.text}")
+        except Exception as e:
+            logger.error(f"Exception occurred while fetching dashboard config for {dashboard_uid} with error: {e}")
+            raise e

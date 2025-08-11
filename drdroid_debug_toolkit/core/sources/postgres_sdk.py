@@ -8,7 +8,7 @@ from datetime import datetime
 
 from ...exceptions import TaskExecutionError
 from ..protos.base_pb2 import Source, SourceKeyType
-from ..integrations.source_manangers.postgres_source_manager import PostgresSourceManager
+from ..integrations.source_managers.postgres_source_manager import PostgresSourceManager
 from ..utils.proto_utils import proto_to_dict
 from ..sdk_base import BaseSDK
 

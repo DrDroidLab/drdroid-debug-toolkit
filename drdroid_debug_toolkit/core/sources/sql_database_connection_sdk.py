@@ -8,7 +8,7 @@ from datetime import datetime
 
 from ...exceptions import TaskExecutionError
 from ..protos.base_pb2 import Source, SourceKeyType
-from ..integrations.source_manangers.sql_database_connection_source_manager import SqlDatabaseConnectionSourceManager
+from ..integrations.source_managers.sql_database_connection_source_manager import SqlDatabaseConnectionSourceManager
 from ..utils.proto_utils import proto_to_dict
 from ..sdk_base import BaseSDK
 
