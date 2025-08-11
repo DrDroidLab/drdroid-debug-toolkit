@@ -20,17 +20,17 @@ A Python SDK for integrating with various monitoring and observability platforms
 
 #### Using uv (Recommended)
 ```bash
-uv pip install git+https://github.com/DrDroidLab/drdroid-debug-toolkit.git@fix/setup-fixes
+uv pip install git+https://github.com/DrDroidLab/drdroid-debug-toolkit.git
 ```
 
 #### Using pip
 ```bash
-pip install git+https://github.com/DrDroidLab/drdroid-debug-toolkit.git@fix/setup-fixes
+pip install git+https://github.com/DrDroidLab/drdroid-debug-toolkit.git
 ```
 
 #### Using uv add (for projects with pyproject.toml)
 ```bash
-uv add git+https://github.com/DrDroidLab/drdroid-debug-toolkit.git@fix/setup-fixes
+uv add git+https://github.com/DrDroidLab/drdroid-debug-toolkit.git
 ```
 
 ### Alternative: Clone and Install
