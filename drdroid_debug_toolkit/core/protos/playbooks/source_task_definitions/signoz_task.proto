@@ -25,11 +25,49 @@ message Signoz {
     google.protobuf.StringValue variables_json = 4;
   }
 
+  message FetchDashboardsTask {
+    // No additional parameters needed for fetching all dashboards
+  }
+
+  message FetchDashboardDetailsTask {
+    google.protobuf.StringValue dashboard_id = 1;
+  }
+
+  message FetchServicesTask {
+    google.protobuf.StringValue start_time = 1;
+    google.protobuf.StringValue end_time = 2;
+    google.protobuf.StringValue duration = 3;
+  }
+
+  message FetchApmMetricsTask {
+    google.protobuf.StringValue service_name = 1;
+    google.protobuf.StringValue start_time = 2;
+    google.protobuf.StringValue end_time = 3;
+    google.protobuf.StringValue window = 4;
+    google.protobuf.StringValue operation_names = 5;  // JSON array as string
+    google.protobuf.StringValue metrics = 6;  // JSON array as string
+    google.protobuf.StringValue duration = 7;
+  }
+
+  message FetchTracesOrLogsTask {
+    google.protobuf.StringValue data_type = 1;  // "traces" or "logs"
+    google.protobuf.StringValue start_time = 2;
+    google.protobuf.StringValue end_time = 3;
+    google.protobuf.StringValue duration = 4;
+    google.protobuf.StringValue service_name = 5;
+    google.protobuf.Int32Value limit = 6;
+  }
+
   enum TaskType {
     UNKNOWN = 0;
     CLICKHOUSE_QUERY = 1;
     BUILDER_QUERY = 2;
     DASHBOARD_DATA = 3;
+    FETCH_DASHBOARDS = 4;
+    FETCH_DASHBOARD_DETAILS = 5;
+    FETCH_SERVICES = 6;
+    FETCH_APM_METRICS = 7;
+    FETCH_TRACES_OR_LOGS = 8;
   }
 
   TaskType type = 1;
@@ -37,5 +75,10 @@ message Signoz {
     ClickhouseQueryTask clickhouse_query = 2;
     BuilderQueryTask builder_query = 3;
     DashboardDataTask dashboard_data = 4;
+    FetchDashboardsTask fetch_dashboards = 5;
+    FetchDashboardDetailsTask fetch_dashboard_details = 6;
+    FetchServicesTask fetch_services = 7;
+    FetchApmMetricsTask fetch_apm_metrics = 8;
+    FetchTracesOrLogsTask fetch_traces_or_logs = 9;
   }
 } 

@@ -16,7 +16,7 @@ from google.protobuf import wrappers_pb2 as google_dot_protobuf_dot_wrappers__pb
 from google.protobuf import struct_pb2 as google_dot_protobuf_dot_struct__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n?core/protos/playbooks/source_task_definitions/signoz_task.proto\x12\x15\x63ore.protos.playbooks\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1cgoogle/protobuf/struct.proto\"\xd8\x07\n\x06Signoz\x12\x34\n\x04type\x18\x01 \x01(\x0e\x32&.core.protos.playbooks.Signoz.TaskType\x12M\n\x10\x63lickhouse_query\x18\x02 \x01(\x0b\x32\x31.core.protos.playbooks.Signoz.ClickhouseQueryTaskH\x00\x12G\n\rbuilder_query\x18\x03 \x01(\x0b\x32..core.protos.playbooks.Signoz.BuilderQueryTaskH\x00\x12I\n\x0e\x64\x61shboard_data\x18\x04 \x01(\x0b\x32/.core.protos.playbooks.Signoz.DashboardDataTaskH\x00\x1a\xce\x01\n\x13\x43lickhouseQueryTask\x12+\n\x05query\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12)\n\x04step\x18\x02 \x01(\x0b\x32\x1b.google.protobuf.Int32Value\x12-\n\tfill_gaps\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.BoolValue\x12\x30\n\npanel_type\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1a\xa6\x01\n\x10\x42uilderQueryTask\x12\x35\n\x0f\x62uilder_queries\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12)\n\x04step\x18\x02 \x01(\x0b\x32\x1b.google.protobuf.Int32Value\x12\x30\n\npanel_type\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1a\xdc\x01\n\x11\x44\x61shboardDataTask\x12\x34\n\x0e\x64\x61shboard_name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12)\n\x04step\x18\x02 \x01(\x0b\x32\x1b.google.protobuf.Int32Value\x12\x30\n\npanel_type\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x34\n\x0evariables_json\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"T\n\x08TaskType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x14\n\x10\x43LICKHOUSE_QUERY\x10\x01\x12\x11\n\rBUILDER_QUERY\x10\x02\x12\x12\n\x0e\x44\x41SHBOARD_DATA\x10\x03\x42\x06\n\x04taskb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n?core/protos/playbooks/source_task_definitions/signoz_task.proto\x12\x15\x63ore.protos.playbooks\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1cgoogle/protobuf/struct.proto\"\xab\x13\n\x06Signoz\x12\x34\n\x04type\x18\x01 \x01(\x0e\x32&.core.protos.playbooks.Signoz.TaskType\x12M\n\x10\x63lickhouse_query\x18\x02 \x01(\x0b\x32\x31.core.protos.playbooks.Signoz.ClickhouseQueryTaskH\x00\x12G\n\rbuilder_query\x18\x03 \x01(\x0b\x32..core.protos.playbooks.Signoz.BuilderQueryTaskH\x00\x12I\n\x0e\x64\x61shboard_data\x18\x04 \x01(\x0b\x32/.core.protos.playbooks.Signoz.DashboardDataTaskH\x00\x12M\n\x10\x66\x65tch_dashboards\x18\x05 \x01(\x0b\x32\x31.core.protos.playbooks.Signoz.FetchDashboardsTaskH\x00\x12Z\n\x17\x66\x65tch_dashboard_details\x18\x06 \x01(\x0b\x32\x37.core.protos.playbooks.Signoz.FetchDashboardDetailsTaskH\x00\x12I\n\x0e\x66\x65tch_services\x18\x07 \x01(\x0b\x32/.core.protos.playbooks.Signoz.FetchServicesTaskH\x00\x12N\n\x11\x66\x65tch_apm_metrics\x18\x08 \x01(\x0b\x32\x31.core.protos.playbooks.Signoz.FetchApmMetricsTaskH\x00\x12S\n\x14\x66\x65tch_traces_or_logs\x18\t \x01(\x0b\x32\x33.core.protos.playbooks.Signoz.FetchTracesOrLogsTaskH\x00\x1a\xce\x01\n\x13\x43lickhouseQueryTask\x12+\n\x05query\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12)\n\x04step\x18\x02 \x01(\x0b\x32\x1b.google.protobuf.Int32Value\x12-\n\tfill_gaps\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.BoolValue\x12\x30\n\npanel_type\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1a\xa6\x01\n\x10\x42uilderQueryTask\x12\x35\n\x0f\x62uilder_queries\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12)\n\x04step\x18\x02 \x01(\x0b\x32\x1b.google.protobuf.Int32Value\x12\x30\n\npanel_type\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1a\xdc\x01\n\x11\x44\x61shboardDataTask\x12\x34\n\x0e\x64\x61shboard_name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12)\n\x04step\x18\x02 \x01(\x0b\x32\x1b.google.protobuf.Int32Value\x12\x30\n\npanel_type\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x34\n\x0evariables_json\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1a\x15\n\x13\x46\x65tchDashboardsTask\x1aO\n\x19\x46\x65tchDashboardDetailsTask\x12\x32\n\x0c\x64\x61shboard_id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1a\xa5\x01\n\x11\x46\x65tchServicesTask\x12\x30\n\nstart_time\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12.\n\x08\x65nd_time\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12.\n\x08\x64uration\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1a\xef\x02\n\x13\x46\x65tchApmMetricsTask\x12\x32\n\x0cservice_name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x30\n\nstart_time\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12.\n\x08\x65nd_time\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12,\n\x06window\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x35\n\x0foperation_names\x18\x05 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12-\n\x07metrics\x18\x06 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12.\n\x08\x64uration\x18\x07 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1a\xba\x02\n\x15\x46\x65tchTracesOrLogsTask\x12/\n\tdata_type\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x30\n\nstart_time\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12.\n\x08\x65nd_time\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12.\n\x08\x64uration\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x32\n\x0cservice_name\x18\x05 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x05limit\x18\x06 \x01(\x0b\x32\x1b.google.protobuf.Int32Value\"\xcc\x01\n\x08TaskType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x14\n\x10\x43LICKHOUSE_QUERY\x10\x01\x12\x11\n\rBUILDER_QUERY\x10\x02\x12\x12\n\x0e\x44\x41SHBOARD_DATA\x10\x03\x12\x14\n\x10\x46\x45TCH_DASHBOARDS\x10\x04\x12\x1b\n\x17\x46\x45TCH_DASHBOARD_DETAILS\x10\x05\x12\x12\n\x0e\x46\x45TCH_SERVICES\x10\x06\x12\x15\n\x11\x46\x45TCH_APM_METRICS\x10\x07\x12\x18\n\x14\x46\x45TCH_TRACES_OR_LOGS\x10\x08\x42\x06\n\x04taskb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -24,13 +24,23 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'core.protos.playbooks.sourc
 if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
   _globals['_SIGNOZ']._serialized_start=153
-  _globals['_SIGNOZ']._serialized_end=1137
-  _globals['_SIGNOZ_CLICKHOUSEQUERYTASK']._serialized_start=445
-  _globals['_SIGNOZ_CLICKHOUSEQUERYTASK']._serialized_end=651
-  _globals['_SIGNOZ_BUILDERQUERYTASK']._serialized_start=654
-  _globals['_SIGNOZ_BUILDERQUERYTASK']._serialized_end=820
-  _globals['_SIGNOZ_DASHBOARDDATATASK']._serialized_start=823
-  _globals['_SIGNOZ_DASHBOARDDATATASK']._serialized_end=1043
-  _globals['_SIGNOZ_TASKTYPE']._serialized_start=1045
-  _globals['_SIGNOZ_TASKTYPE']._serialized_end=1129
+  _globals['_SIGNOZ']._serialized_end=2628
+  _globals['_SIGNOZ_CLICKHOUSEQUERYTASK']._serialized_start=856
+  _globals['_SIGNOZ_CLICKHOUSEQUERYTASK']._serialized_end=1062
+  _globals['_SIGNOZ_BUILDERQUERYTASK']._serialized_start=1065
+  _globals['_SIGNOZ_BUILDERQUERYTASK']._serialized_end=1231
+  _globals['_SIGNOZ_DASHBOARDDATATASK']._serialized_start=1234
+  _globals['_SIGNOZ_DASHBOARDDATATASK']._serialized_end=1454
+  _globals['_SIGNOZ_FETCHDASHBOARDSTASK']._serialized_start=1456
+  _globals['_SIGNOZ_FETCHDASHBOARDSTASK']._serialized_end=1477
+  _globals['_SIGNOZ_FETCHDASHBOARDDETAILSTASK']._serialized_start=1479
+  _globals['_SIGNOZ_FETCHDASHBOARDDETAILSTASK']._serialized_end=1558
+  _globals['_SIGNOZ_FETCHSERVICESTASK']._serialized_start=1561
+  _globals['_SIGNOZ_FETCHSERVICESTASK']._serialized_end=1726
+  _globals['_SIGNOZ_FETCHAPMMETRICSTASK']._serialized_start=1729
+  _globals['_SIGNOZ_FETCHAPMMETRICSTASK']._serialized_end=2096
+  _globals['_SIGNOZ_FETCHTRACESORLOGSTASK']._serialized_start=2099
+  _globals['_SIGNOZ_FETCHTRACESORLOGSTASK']._serialized_end=2413
+  _globals['_SIGNOZ_TASKTYPE']._serialized_start=2416
+  _globals['_SIGNOZ_TASKTYPE']._serialized_end=2620
 # @@protoc_insertion_point(module_scope)
