@@ -33,7 +33,7 @@ class SqlDatabaseConnectionSDK(BaseSDK):
     def _get_key_type_mapping(self) -> Dict[str, SourceKeyType]:
         """Get SQL Database Connection-specific key type mapping"""
         return {
-            'connection_string': SourceKeyType.SQL_DATABASE_CONNECTION_STRING,
+            'connection_string': SourceKeyType.SQL_DATABASE_CONNECTION_STRING_URI,
         }
     
     def execute_sql_query(self,
