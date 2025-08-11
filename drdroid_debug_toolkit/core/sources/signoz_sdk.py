@@ -5,11 +5,12 @@ Signoz-specific SDK implementation
 import json
 import logging
 from typing import Dict, Any, Optional, List
-from datetime import datetime, timezone
+from datetime import datetime
 
 from ...exceptions import TaskExecutionError
 from ..protos.base_pb2 import Source, SourceKeyType, TimeRange
 from ..integrations.source_managers.signoz_source_manager import SignozSourceManager
+from ..utils.proto_utils import proto_to_dict
 from ..sdk_base import BaseSDK
 
 logger = logging.getLogger(__name__)
@@ -37,52 +38,7 @@ class SignozSDK(BaseSDK):
             'signoz_api_token': SourceKeyType.SIGNOZ_API_TOKEN,
         }
     
-    def _get_source_manager(self) -> SignozSourceManager:
-        """Get the Signoz source manager"""
-        if 'signoz' not in self.credentials:
-            raise TaskExecutionError("Signoz credentials not found")
-        
-        return self.source_managers['signoz']
-    
-    def _get_connector(self) -> Dict[str, Any]:
-        """Get the Signoz connector configuration"""
-        if 'signoz' not in self.credentials:
-            raise TaskExecutionError("Signoz credentials not found")
-        
-        return {
-            'type': Source.SIGNOZ,
-            'keys': [
-                {
-                    'key_type': SourceKeyType.SIGNOZ_API_URL,
-                    'key_value': self.credentials['signoz']['signoz_api_url']
-                },
-                {
-                    'key_type': SourceKeyType.SIGNOZ_API_TOKEN,
-                    'key_value': self.credentials['signoz'].get('signoz_api_token', '')
-                }
-            ]
-        }
-    
-    def _create_time_range(self, start_time: Optional[datetime] = None, 
-                          end_time: Optional[datetime] = None, 
-                          duration_minutes: Optional[int] = None) -> TimeRange:
-        """Create time range"""
-        if start_time and end_time:
-            time_geq = int(start_time.timestamp())
-            time_lt = int(end_time.timestamp())
-        elif duration_minutes:
-            end_dt = datetime.now(timezone.utc)
-            start_dt = end_dt.replace(minute=end_dt.minute - duration_minutes)
-            time_geq = int(start_dt.timestamp())
-            time_lt = int(end_dt.timestamp())
-        else:
-            # Default to last 3 hours
-            end_dt = datetime.now(timezone.utc)
-            start_dt = end_dt.replace(hour=end_dt.hour - 3)
-            time_geq = int(start_dt.timestamp())
-            time_lt = int(end_dt.timestamp())
-        
-        return TimeRange(time_geq=time_geq, time_lt=time_lt)
+
     
     def clickhouse_query(self,
                         query: str,
@@ -108,40 +64,31 @@ class SignozSDK(BaseSDK):
             Query results as dictionary
         """
         try:
-            source_manager = self._get_source_manager()
-            connector = self._get_connector()
+            source_manager = self._get_source_manager('signoz')
+            connector = self._get_connector('signoz')
             time_range = self._create_time_range(start_time, end_time, duration_minutes)
             
-            # Create task dictionary instead of proto
-            task = {
-                'type': 'CLICKHOUSE_QUERY',
-                'clickhouse_query': {
-                    'query': query,
-                    'step': step,
-                    'fill_gaps': fill_gaps,
-                    'panel_type': panel_type
-                }
-            }
+            # Create task proto
+            from ..protos.playbooks.source_task_definitions.signoz_task_pb2 import Signoz
+            from google.protobuf.wrappers_pb2 import StringValue, Int32Value, BoolValue
             
-            # Execute task using source manager's direct API processor
-            api_processor = source_manager.get_connector_processor(connector)
-            from_time = int(time_range.time_geq * 1000)
-            to_time = int(time_range.time_lt * 1000)
+            task = Signoz()
+            task.type = Signoz.TaskType.CLICKHOUSE_QUERY
             
-            # Use the tool method from the API processor
-            result = api_processor.execute_clickhouse_query_tool(
-                query=query,
-                time_geq=time_range.time_geq,
-                time_lt=time_range.time_lt,
-                panel_type=panel_type,
-                fill_gaps=fill_gaps,
-                step=step or 60
+            clickhouse_task = task.clickhouse_query
+            clickhouse_task.query.CopyFrom(StringValue(value=query))
+            clickhouse_task.panel_type.CopyFrom(StringValue(value=panel_type))
+            clickhouse_task.fill_gaps.CopyFrom(BoolValue(value=fill_gaps))
+            
+            if step:
+                clickhouse_task.step.CopyFrom(Int32Value(value=step))
+            
+            # Execute task
+            result = source_manager.execute_clickhouse_query(
+                time_range, task, connector
             )
             
-            if result is None:
-                return {"error": "No data returned from Signoz query"}
-            
-            return result
+            return proto_to_dict(result)
             
         except Exception as e:
             raise TaskExecutionError(f"Signoz Clickhouse query failed: {e}")
@@ -168,26 +115,30 @@ class SignozSDK(BaseSDK):
             Query results as dictionary
         """
         try:
-            source_manager = self._get_source_manager()
-            connector = self._get_connector()
+            source_manager = self._get_source_manager('signoz')
+            connector = self._get_connector('signoz')
             time_range = self._create_time_range(start_time, end_time, duration_minutes)
             
-            # Execute task using source manager's direct API processor
-            api_processor = source_manager.get_connector_processor(connector)
+            # Create task proto
+            from ..protos.playbooks.source_task_definitions.signoz_task_pb2 import Signoz
+            from google.protobuf.wrappers_pb2 import StringValue, Int32Value
             
-            # Use the tool method from the API processor
-            result = api_processor.execute_builder_query_tool(
-                builder_queries=builder_queries,
-                time_geq=time_range.time_geq,
-                time_lt=time_range.time_lt,
-                panel_type=panel_type,
-                step=step or 60
+            task = Signoz()
+            task.type = Signoz.TaskType.BUILDER_QUERY
+            
+            builder_task = task.builder_query
+            builder_task.builder_queries.CopyFrom(StringValue(value=json.dumps(builder_queries)))
+            builder_task.panel_type.CopyFrom(StringValue(value=panel_type))
+            
+            if step:
+                builder_task.step.CopyFrom(Int32Value(value=step))
+            
+            # Execute task
+            result = source_manager.execute_builder_query(
+                time_range, task, connector
             )
             
-            if result is None:
-                return {"error": "No data returned from Signoz builder query"}
-            
-            return result
+            return proto_to_dict(result)
             
         except Exception as e:
             raise TaskExecutionError(f"Signoz builder query failed: {e}")
@@ -214,39 +165,33 @@ class SignozSDK(BaseSDK):
             Dashboard data as dictionary
         """
         try:
-            source_manager = self._get_source_manager()
-            connector = self._get_connector()
+            source_manager = self._get_source_manager('signoz')
+            connector = self._get_connector('signoz')
             time_range = self._create_time_range(start_time, end_time, duration_minutes)
             
-            # Execute task using source manager's direct API processor
-            api_processor = source_manager.get_connector_processor(connector)
+            # Create task proto
+            from ..protos.playbooks.source_task_definitions.signoz_task_pb2 import Signoz
+            from google.protobuf.wrappers_pb2 import StringValue, Int32Value
             
-            # Convert datetime to string format expected by the API processor
-            start_time_str = None
-            end_time_str = None
+            task = Signoz()
+            task.type = Signoz.TaskType.DASHBOARD_DATA
             
-            if start_time:
-                start_time_str = start_time.isoformat()
-            if end_time:
-                end_time_str = end_time.isoformat()
+            dashboard_task = task.dashboard_data
+            dashboard_task.dashboard_name.CopyFrom(StringValue(value=dashboard_name))
             
-            variables_json = None
+            if step:
+                dashboard_task.step.CopyFrom(Int32Value(value=step))
+            
             if variables:
-                variables_json = json.dumps(variables)
+                dashboard_task.variables_json.CopyFrom(StringValue(value=json.dumps(variables)))
             
-            result = api_processor.fetch_dashboard_data(
-                dashboard_name=dashboard_name,
-                start_time=start_time_str,
-                end_time=end_time_str,
-                step=step,
-                variables_json=variables_json,
-                duration=None  # We're using start_time/end_time instead
+            # Execute task
+            results = source_manager.execute_dashboard_data(
+                time_range, task, connector
             )
             
-            if result is None:
-                return {"error": "No data returned from Signoz dashboard query"}
-            
-            return result
+            # Convert list of results to list of dictionaries
+            return [proto_to_dict(result) for result in results]
             
         except Exception as e:
             raise TaskExecutionError(f"Signoz dashboard data query failed: {e}")
@@ -267,31 +212,31 @@ class SignozSDK(BaseSDK):
             Services data as dictionary
         """
         try:
-            source_manager = self._get_source_manager()
-            connector = self._get_connector()
+            source_manager = self._get_source_manager('signoz')
+            connector = self._get_connector('signoz')
+            time_range = self._create_time_range(start_time, end_time, duration_minutes)
             
-            # Execute task using source manager's direct API processor
-            api_processor = source_manager.get_connector_processor(connector)
+            # Create task proto
+            from ..protos.playbooks.source_task_definitions.signoz_task_pb2 import Signoz
+            from google.protobuf.wrappers_pb2 import StringValue
             
-            # Convert datetime to string format expected by the API processor
-            start_time_str = None
-            end_time_str = None
+            task = Signoz()
+            task.type = Signoz.TaskType.FETCH_SERVICES
             
+            services_task = task.fetch_services
             if start_time:
-                start_time_str = start_time.isoformat()
+                services_task.start_time.CopyFrom(StringValue(value=start_time.isoformat()))
             if end_time:
-                end_time_str = end_time.isoformat()
+                services_task.end_time.CopyFrom(StringValue(value=end_time.isoformat()))
+            if duration_minutes:
+                services_task.duration.CopyFrom(StringValue(value=f"{duration_minutes}m"))
             
-            result = api_processor.fetch_services(
-                start_time=start_time_str,
-                end_time=end_time_str,
-                duration=None  # We're using start_time/end_time instead
+            # Execute task
+            result = source_manager.execute_fetch_services(
+                time_range, task, connector
             )
             
-            if result is None:
-                return {"error": "No data returned from Signoz services query"}
-            
-            return result
+            return proto_to_dict(result)
             
         except Exception as e:
             raise TaskExecutionError(f"Signoz services fetch failed: {e}")
@@ -304,17 +249,22 @@ class SignozSDK(BaseSDK):
             Dashboards data as dictionary
         """
         try:
-            source_manager = self._get_source_manager()
-            connector = self._get_connector()
+            source_manager = self._get_source_manager('signoz')
+            connector = self._get_connector('signoz')
+            time_range = self._create_time_range()
             
-            # Execute task using source manager's direct API processor
-            api_processor = source_manager.get_connector_processor(connector)
-            result = api_processor.fetch_dashboards()
+            # Create task proto
+            from ..protos.playbooks.source_task_definitions.signoz_task_pb2 import Signoz
             
-            if result is None:
-                return {"error": "No data returned from Signoz dashboards query"}
+            task = Signoz()
+            task.type = Signoz.TaskType.FETCH_DASHBOARDS
             
-            return result
+            # Execute task
+            result = source_manager.execute_fetch_dashboards(
+                time_range, task, connector
+            )
+            
+            return proto_to_dict(result)
             
         except Exception as e:
             raise TaskExecutionError(f"Signoz dashboards fetch failed: {e}")
@@ -330,29 +280,38 @@ class SignozSDK(BaseSDK):
             Dashboard details as dictionary
         """
         try:
-            source_manager = self._get_source_manager()
-            connector = self._get_connector()
+            source_manager = self._get_source_manager('signoz')
+            connector = self._get_connector('signoz')
+            time_range = self._create_time_range()
             
-            # Execute task using source manager's direct API processor
-            api_processor = source_manager.get_connector_processor(connector)
-            result = api_processor.fetch_dashboard_details(dashboard_id)
+            # Create task proto
+            from ..protos.playbooks.source_task_definitions.signoz_task_pb2 import Signoz
+            from google.protobuf.wrappers_pb2 import StringValue
             
-            if result is None:
-                return {"error": f"No data returned for dashboard {dashboard_id}"}
+            task = Signoz()
+            task.type = Signoz.TaskType.FETCH_DASHBOARD_DETAILS
             
-            return result
+            details_task = task.fetch_dashboard_details
+            details_task.dashboard_id.CopyFrom(StringValue(value=dashboard_id))
+            
+            # Execute task
+            result = source_manager.execute_fetch_dashboard_details(
+                time_range, task, connector
+            )
+            
+            return proto_to_dict(result)
             
         except Exception as e:
             raise TaskExecutionError(f"Signoz dashboard details fetch failed: {e}")
     
     def fetch_apm_metrics(self,
-                   service_name: str,
-                   start_time: Optional[datetime] = None,
-                   end_time: Optional[datetime] = None,
-                   duration_minutes: Optional[int] = None,
-                   window: str = "5m",
-                   operation_names: Optional[List[str]] = None,
-                   metrics: Optional[List[str]] = None) -> Dict[str, Any]:
+                         service_name: str,
+                         start_time: Optional[datetime] = None,
+                         end_time: Optional[datetime] = None,
+                         duration_minutes: Optional[int] = None,
+                         window: str = "5m",
+                         operation_names: Optional[List[str]] = None,
+                         metrics: Optional[List[str]] = None) -> Dict[str, Any]:
         """
         Fetch APM metrics for a service
         
@@ -369,35 +328,38 @@ class SignozSDK(BaseSDK):
             APM metrics as dictionary
         """
         try:
-            source_manager = self._get_source_manager()
-            connector = self._get_connector()
+            source_manager = self._get_source_manager('signoz')
+            connector = self._get_connector('signoz')
+            time_range = self._create_time_range(start_time, end_time, duration_minutes)
             
-            # Execute task using source manager's direct API processor
-            api_processor = source_manager.get_connector_processor(connector)
+            # Create task proto
+            from ..protos.playbooks.source_task_definitions.signoz_task_pb2 import Signoz
+            from google.protobuf.wrappers_pb2 import StringValue
             
-            # Convert datetime to string format expected by the API processor
-            start_time_str = None
-            end_time_str = None
+            task = Signoz()
+            task.type = Signoz.TaskType.FETCH_APM_METRICS
+            
+            apm_task = task.fetch_apm_metrics
+            apm_task.service_name.CopyFrom(StringValue(value=service_name))
+            apm_task.window.CopyFrom(StringValue(value=window))
             
             if start_time:
-                start_time_str = start_time.isoformat()
+                apm_task.start_time.CopyFrom(StringValue(value=start_time.isoformat()))
             if end_time:
-                end_time_str = end_time.isoformat()
+                apm_task.end_time.CopyFrom(StringValue(value=end_time.isoformat()))
+            if duration_minutes:
+                apm_task.duration.CopyFrom(StringValue(value=f"{duration_minutes}m"))
+            if operation_names:
+                apm_task.operation_names.CopyFrom(StringValue(value=json.dumps(operation_names)))
+            if metrics:
+                apm_task.metrics.CopyFrom(StringValue(value=json.dumps(metrics)))
             
-            result = api_processor.fetch_apm_metrics(
-                service_name=service_name,
-                start_time=start_time_str,
-                end_time=end_time_str,
-                window=window,
-                operation_names=operation_names,
-                metrics=metrics,
-                duration=None  # We're using start_time/end_time instead
+            # Execute task
+            result = source_manager.execute_fetch_apm_metrics(
+                time_range, task, connector
             )
             
-            if result is None:
-                return {"error": "No data returned from Signoz APM metrics query"}
-            
-            return result
+            return proto_to_dict(result)
             
         except Exception as e:
             raise TaskExecutionError(f"Signoz APM metrics fetch failed: {e}")
@@ -457,34 +419,36 @@ class SignozSDK(BaseSDK):
             Traces or logs data as dictionary
         """
         try:
-            source_manager = self._get_source_manager()
-            connector = self._get_connector()
+            source_manager = self._get_source_manager('signoz')
+            connector = self._get_connector('signoz')
+            time_range = self._create_time_range(start_time, end_time, duration_minutes)
             
-            # Execute task using source manager's direct API processor
-            api_processor = source_manager.get_connector_processor(connector)
+            # Create task proto
+            from ..protos.playbooks.source_task_definitions.signoz_task_pb2 import Signoz
+            from google.protobuf.wrappers_pb2 import StringValue, Int32Value
             
-            # Convert datetime to string format expected by the API processor
-            start_time_str = None
-            end_time_str = None
+            task = Signoz()
+            task.type = Signoz.TaskType.FETCH_TRACES_OR_LOGS
+            
+            traces_task = task.fetch_traces_or_logs
+            traces_task.data_type.CopyFrom(StringValue(value=data_type))
+            traces_task.limit.CopyFrom(Int32Value(value=limit))
             
             if start_time:
-                start_time_str = start_time.isoformat()
+                traces_task.start_time.CopyFrom(StringValue(value=start_time.isoformat()))
             if end_time:
-                end_time_str = end_time.isoformat()
+                traces_task.end_time.CopyFrom(StringValue(value=end_time.isoformat()))
+            if duration_minutes:
+                traces_task.duration.CopyFrom(StringValue(value=f"{duration_minutes}m"))
+            if service_name:
+                traces_task.service_name.CopyFrom(StringValue(value=service_name))
             
-            result = api_processor.fetch_traces_or_logs(
-                data_type=data_type,
-                start_time=start_time_str,
-                end_time=end_time_str,
-                duration=None,  # We're using start_time/end_time instead
-                service_name=service_name,
-                limit=limit
+            # Execute task
+            result = source_manager.execute_fetch_traces_or_logs(
+                time_range, task, connector
             )
             
-            if result is None:
-                return {"error": f"No data returned from Signoz {data_type} query"}
-            
-            return result
+            return proto_to_dict(result)
             
         except Exception as e:
             raise TaskExecutionError(f"Signoz {data_type} fetch failed: {e}")
@@ -497,8 +461,8 @@ class SignozSDK(BaseSDK):
             Alerts data as dictionary
         """
         try:
-            source_manager = self._get_source_manager()
-            connector = self._get_connector()
+            source_manager = self._get_source_manager('signoz')
+            connector = self._get_connector('signoz')
             
             # Execute task using source manager's direct API processor
             api_processor = source_manager.get_connector_processor(connector)
@@ -523,8 +487,8 @@ class SignozSDK(BaseSDK):
             Alert details as dictionary
         """
         try:
-            source_manager = self._get_source_manager()
-            connector = self._get_connector()
+            source_manager = self._get_source_manager('signoz')
+            connector = self._get_connector('signoz')
             
             # Execute task using source manager's direct API processor
             api_processor = source_manager.get_connector_processor(connector)
@@ -538,18 +502,4 @@ class SignozSDK(BaseSDK):
         except Exception as e:
             raise TaskExecutionError(f"Signoz alert details fetch failed: {e}")
     
-    def test_connection(self) -> bool:
-        """
-        Test the connection to Signoz API
-        
-        Returns:
-            True if connection is successful, False otherwise
-        """
-        try:
-            source_manager = self._get_source_manager()
-            connector = self._get_connector()
-            api_processor = source_manager.get_connector_processor(connector)
-            return api_processor.test_connection()
-        except Exception as e:
-            logger.error(f"Signoz connection test failed: {e}")
-            return False 
+ 
