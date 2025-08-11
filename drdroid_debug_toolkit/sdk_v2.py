@@ -9,7 +9,6 @@ from .exceptions import ConfigurationError, ConnectionError, ValidationError, Ta
 from .core.sdk_factory import SDKFactory
 from .core.sources.grafana_sdk import GrafanaSDK
 from .core.sources.signoz_sdk import SignozSDK
-from .core.sources.datadog_sdk import DatadogSDK
 from .core.sources.newrelic_sdk import NewRelicSDK
 from .core.sources.postgres_sdk import PostgresSDK
 from .core.sources.posthog_sdk import PostHogSDK
@@ -96,7 +95,7 @@ class DroidSDK:
     # Dynamic SDK Access
     # ============================================================================
     
-    def get_sdk(self, source_name: str) -> Union[GrafanaSDK, SignozSDK, DatadogSDK, NewRelicSDK, PostgresSDK, PostHogSDK, SqlDatabaseConnectionSDK, ClickHouseSDK]:
+    def get_sdk(self, source_name: str) -> Union[GrafanaSDK, SignozSDK, NewRelicSDK, PostgresSDK, PostHogSDK, SqlDatabaseConnectionSDK, ClickHouseSDK]:
         """
         Get source-specific SDK by name
         
@@ -141,11 +140,7 @@ class DroidSDK:
     def get_signoz_sdk(self) -> SignozSDK:
         """Get Signoz SDK instance (convenience method)"""
         return self.get_sdk('signoz')
-    
-    def get_datadog_sdk(self) -> DatadogSDK:
-        """Get Datadog SDK instance (convenience method)"""
-        return self.get_sdk('datadog')
-    
+
     def get_newrelic_sdk(self) -> NewRelicSDK:
         """Get NewRelic SDK instance (convenience method)"""
         return self.get_sdk('newrelic')

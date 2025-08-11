@@ -13,7 +13,6 @@ from .sources.bash_sdk import BashSDK
 from .sources.kubernetes_sdk import KubernetesSDK
 from .sources.cloudwatch_sdk import CloudWatchSDK
 from .sources.sentry_sdk import SentrySDK
-from .sources.datadog_sdk import DatadogSDK
 from .sources.newrelic_sdk import NewRelicSDK
 from .sources.postgres_sdk import PostgresSDK
 from .sources.posthog_sdk import PostHogSDK
@@ -38,7 +37,6 @@ class SDKFactory:
         'kubernetes': KubernetesSDK,
         'cloudwatch': CloudWatchSDK,
         'sentry': SentrySDK,
-        'datadog': DatadogSDK,
         'newrelic': NewRelicSDK,
         'postgres': PostgresSDK,
         'posthog': PostHogSDK,
@@ -124,10 +122,6 @@ class SDKFactory:
     def get_sentry_sdk(self) -> SentrySDK:
         """Get Sentry SDK instance"""
         return self.get_sdk('sentry')
-    
-    def get_datadog_sdk(self) -> DatadogSDK:
-        """Get Datadog SDK instance"""
-        return self.get_sdk('datadog')
     
     def get_newrelic_sdk(self) -> NewRelicSDK:
         """Get NewRelic SDK instance"""
