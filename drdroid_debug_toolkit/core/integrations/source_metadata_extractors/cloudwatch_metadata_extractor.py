@@ -595,3 +595,137 @@ class CloudwatchSourceMetadataExtractor(SourceMetadataExtractor):
         if len(model_data) > 0:
             self.create_or_update_model_metadata(model_type, model_data)
 
+    @log_function_call
+    def extract_dashboard_by_name(self, dashboard_name: str) -> dict:
+        """Extract a specific CloudWatch dashboard by name.
+        
+        Args:
+            dashboard_name: Name of the dashboard to extract
+            
+        Returns:
+            dict: Dashboard metadata with widgets and configuration
+        """
+        try:
+            cloudwatch_boto3_processor = AWSBoto3ApiProcessor('cloudwatch', self.__region, self.__aws_access_key,
+                                                          self.__aws_secret_key, self.__aws_assumed_role_arn,
+                                                          self.__aws_drd_cloud_role_arn)
+
+            # Get dashboard details
+            dashboard_detail = cloudwatch_boto3_processor.cloudwatch_get_dashboard(dashboard_name)
+            if not dashboard_detail:
+                logger.warning(f"Could not fetch details for dashboard '{dashboard_name}'")
+                return {'error': f"Could not fetch details for dashboard '{dashboard_name}'"}
+
+            dashboard_body_str = dashboard_detail.get('DashboardBody')
+            if not dashboard_body_str:
+                return {'error': f"No dashboard body found for dashboard '{dashboard_name}'"}
+
+            dashboard_body = json.loads(dashboard_body_str)
+            widgets_data = []
+            
+            for widget in dashboard_body.get('widgets', []):
+                widget_type = widget.get('type', 'metric')
+                properties = widget.get('properties', {})
+                region = properties.get('region', self.__region)
+                title = properties.get('title', '')
+
+                if widget_type == 'metric':
+                    metrics = properties.get('metrics', [])
+                    period = properties.get('period', 300)
+                    stat = properties.get('stat', 'Average')
+
+                    # Metrics can be defined in a nested list structure for 'metric' type
+                    flat_metrics = []
+                    if isinstance(metrics, list):
+                        for item in metrics:
+                            # If item is a list, it represents a single metric definition
+                            if isinstance(item, list):
+                                flat_metrics.append(item)
+                            # It might be a list containing lists (older format?)
+                            elif isinstance(item, list) and all(isinstance(sub_item, list) for sub_item in item):
+                                 flat_metrics.extend(item)
+                            # Skip other unexpected structures
+                            else:
+                                logger.warning(f"Skipping unexpected item format in 'metric' widget metrics list: {item}")
+
+                    for metric_details_list in flat_metrics:
+                        # Expecting list like: [ Namespace, MetricName, [DimName1, DimValue1], ..., { options } ]
+                        # Or simpler: [ Namespace, MetricName, DimName1, DimValue1, ... ]
+
+                        if not isinstance(metric_details_list, list) or len(metric_details_list) < 2:
+                            logger.warning(f"Skipping invalid metric format in 'metric' widget: {metric_details_list}")
+                            continue
+
+                        namespace = metric_details_list[0]
+                        metric_name = metric_details_list[1]
+                        dimensions = []
+                        widget_stat = stat # Use widget-level stat unless overridden in options
+                        widget_period = int(period)
+                        unit = None # Default unit
+
+                        # Check for options dict at the end
+                        metric_options = {}
+                        if len(metric_details_list) > 2 and isinstance(metric_details_list[-1], dict):
+                            metric_options = metric_details_list.pop() # Remove options dict
+                            widget_stat = metric_options.get('stat', stat)
+                            widget_period = metric_options.get('period', period)
+                            unit = metric_options.get('unit', None)
+                            region = metric_options.get('region', region)
+
+                        # Process remaining items as dimensions (assuming pairs or Name/Value dicts)
+                        dim_items = metric_details_list[2:]
+                        i = 0
+                        while i < len(dim_items):
+                            # Check for {Name: ..., Value: ...} dict - less common?
+                            if isinstance(dim_items[i], dict) and 'Name' in dim_items[i] and 'Value' in dim_items[i]:
+                                dimensions.append({'Name': dim_items[i]['Name'], 'Value': dim_items[i]['Value']})
+                                i += 1
+                            # Assume Name, Value pairs
+                            elif i + 1 < len(dim_items):
+                                dimensions.append({'Name': str(dim_items[i]), 'Value': str(dim_items[i+1])})
+                                i += 2
+                            else:
+                                logger.warning(f"Skipping dimension pair in 'metric' widget due to uneven items: {dim_items[i:]}")
+                                break # Stop processing dimensions for this metric
+
+                        if namespace and metric_name:
+                            widgets_data.append({
+                                'namespace': namespace,
+                                'metric_name': metric_name,
+                                'dimensions': dimensions,
+                                'statistic': widget_stat,
+                                'period': int(widget_period),
+                                'region': region,
+                                'unit': unit,
+                                'widget_title': title
+                            })
+                        else:
+                             logger.warning(f"Missing namespace or metric name in parsed metric widget details: {metric_details_list}")
+
+                elif widget_type == 'explorer':
+                    logger.warning(f"Skipping widget type 'explorer' in dashboard '{dashboard_name}' as it's not directly mappable to specific metrics.")
+                    continue # Skip explorer widgets for now
+
+                elif widget_type in ['log', 'alarm', 'text']:
+                     logger.info(f"Skipping widget type '{widget_type}' in dashboard '{dashboard_name}'.")
+                     continue # Skip log, alarm, text for now, primary focus is metrics.
+
+                else:
+                    logger.warning(f"Skipping unknown widget type '{widget_type}' in dashboard '{dashboard_name}'.")
+                    continue
+
+            if widgets_data:
+                dashboard_metadata = {
+                    'dashboard_name': dashboard_name,
+                    'dashboard_arn': dashboard_detail.get('DashboardArn'),
+                    'widgets': widgets_data,
+                    'region': self.__region # Store the primary region this was extracted from
+                }
+                return dashboard_metadata
+            else:
+                return {'error': f"No metric widgets found in dashboard '{dashboard_name}'"}
+
+        except Exception as e:
+            logger.error(f'Error extracting dashboard {dashboard_name}: {e}')
+            return {'error': f'Error extracting dashboard: {str(e)}'}
+
