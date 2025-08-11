@@ -7,6 +7,7 @@ from google.protobuf.wrappers_pb2 import StringValue, DoubleValue, UInt64Value, 
 from google.protobuf.struct_pb2 import Struct
 
 from core.integrations.source_api_processors.aws_boto_3_api_processor import AWSBoto3ApiProcessor
+from core.integrations.source_metadata_extractors.cloudwatch_metadata_extractor import CloudwatchSourceMetadataExtractor
 from core.protos.base_pb2 import TimeRange, Source, SourceModelType
 from core.protos.connectors.connector_pb2 import Connector as ConnectorProto
 from core.protos.literal_pb2 import LiteralType, Literal
@@ -14,13 +15,10 @@ from core.protos.playbooks.playbook_commons_pb2 import TimeseriesResult, LabelVa
     PlaybookTaskResultType, TableResult, TextResult, ApiResponseResult
 from core.protos.playbooks.source_task_definitions.cloudwatch_task_pb2 import Cloudwatch
 from core.protos.ui_definition_pb2 import FormField, FormFieldType
-from core.protos.assets.cloudwatch_asset_pb2 import CloudwatchDashboardAssetModel, CloudwatchDashboardAssetOptions, CloudwatchAssetModel
-from core.protos.assets.asset_pb2 import AccountConnectorAssetsModelFilters, AccountConnectorAssets
 from core.integrations.source_manager import SourceManager
 from core.utils.credentilal_utils import generate_credentials_dict
-from core.utils.proto_utils import proto_to_dict, dict_to_proto
+from core.utils.proto_utils import dict_to_proto
 from core.utils.time_utils import calculate_timeseries_bucket_size
-from core.utils.playbooks_client import PrototypeClient
 
 logger = logging.getLogger(__name__)
 
@@ -706,24 +704,36 @@ class CloudwatchSourceManager(SourceManager):
             if not dashboard_name:
                  raise ValueError("Dashboard name is required for FETCH_DASHBOARD task")
 
-            dashboard_asset_filter = AccountConnectorAssetsModelFilters(
-                cloudwatch_dashboard_model_filters=CloudwatchDashboardAssetOptions(dashboard_names=[dashboard_name])
+            # Get connector credentials
+            generated_credentials = generate_credentials_dict(cloudwatch_connector.type, cloudwatch_connector.keys)
+            
+            # Create metadata extractor instance
+            cloudwatch_metadata_extractor = CloudwatchSourceMetadataExtractor(
+                request_id="dashboard_fetch_request",
+                connector_name=cloudwatch_connector.name.value,
+                region=generated_credentials.get('region'),
+                aws_access_key=generated_credentials.get('aws_access_key'),
+                aws_secret_key=generated_credentials.get('aws_secret_key'),
+                aws_assumed_role_arn=generated_credentials.get('aws_assumed_role_arn'),
+                aws_drd_cloud_role_arn=generated_credentials.get('aws_drd_cloud_role_arn')
             )
-            # Use PrototypeClient to fetch the Dashboard Asset
-            client = PrototypeClient()
-            assets_result: AccountConnectorAssets = client.get_connector_assets(
-                connector_type="CLOUDWATCH",
-                connector_id=cloudwatch_connector.id.value,
-                asset_type=SourceModelType.CLOUDWATCH_DASHBOARD,
-                filters=proto_to_dict(dashboard_asset_filter)
-            )
-            if not assets_result:
-                logger.error(f"Dashboard asset not found or empty for name: {dashboard_name}")
-                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT, text=TextResult(output=StringValue(
-                    value=f"Could not find dashboard asset information for '{dashboard_name}'. Please ensure metadata extraction ran successfully.")))
 
-            dashboard_asset_model: CloudwatchAssetModel = assets_result.cloudwatch.assets[0]
-            dashboard_data: CloudwatchDashboardAssetModel = dashboard_asset_model.cloudwatch_dashboard
+            # Use metadata extractor to get dashboard data directly
+            dashboard_data = cloudwatch_metadata_extractor.extract_dashboard_by_name(dashboard_name)
+
+            if dashboard_data.get('error'):
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value=dashboard_data['error'])),
+                    source=self.source,
+                )
+
+            if not dashboard_data.get('widgets'):
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value=f"No widgets found in dashboard '{dashboard_name}'")),
+                    source=self.source,
+                )
 
             # 2. Iterate through widgets and fetch metrics, creating individual results
             task_results = []
@@ -735,24 +745,13 @@ class CloudwatchSourceManager(SourceManager):
             # Keep track of unique boto processors per region needed
             boto_processors = {}
 
-            for widget in dashboard_data.widgets:
-                namespace = widget.namespace.value
-                metric_name = widget.metric_name.value
-                # Convert Struct dimensions back to list of dicts {Name: ..., Value: ...}
-                dimensions = []
-                for dim_struct in widget.dimensions:
-                    dim_dict = proto_to_dict(dim_struct)
-                    # Ensure the structure is as expected
-                    if 'Name' in dim_dict and 'Value' in dim_dict:
-                         dimensions.append({'Name': dim_dict['Name'], 'Value': dim_dict['Value']})
-                    else:
-                        logger.warning(f"Skipping invalid dimension structure in widget for dashboard {dashboard_name}: {dim_dict}")
-                        continue # Skip this dimension if structure is wrong
-
-                statistic = widget.statistic.value if widget.HasField('statistic') else 'Average'
-
-                # Use widget region if specified, otherwise fallback to connector default
-                region = widget.region.value if widget.HasField('region') and widget.region.value else cloudwatch_connector.region # Fallback to connector region
+            for widget in dashboard_data['widgets']:
+                namespace = widget.get('namespace')
+                metric_name = widget.get('metric_name')
+                dimensions = widget.get('dimensions', [])
+                statistic = widget.get('statistic', 'Average')
+                region = widget.get('region', generated_credentials.get('region'))
+                widget_title = widget.get('widget_title', '')
 
                 if not namespace or not metric_name:
                     logger.warning(f"Skipping widget in dashboard {dashboard_name} due to missing namespace or metric name.")
@@ -771,7 +770,7 @@ class CloudwatchSourceManager(SourceManager):
                     continue # Skip if processor creation failed for this region
 
                 # Construct the desired display name using the widget title
-                display_name_for_legend = widget.widget_title.value if widget.HasField('widget_title') and widget.widget_title.value else f"{namespace}.{metric_name}"
+                display_name_for_legend = widget_title if widget_title else f"{namespace}.{metric_name}"
 
                 labeled_timeseries = self._fetch_single_metric_timeseries(
                     boto_processors[region], namespace, metric_name, start_time_dt, end_time_dt,
@@ -798,13 +797,32 @@ class CloudwatchSourceManager(SourceManager):
                         source=self.source
                     )
                     task_results.append(single_task_result)
-
             if not task_results:
                 return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT, text=TextResult(output=StringValue(
                     value=f"No metric data could be fetched for any widget in dashboard '{dashboard_name}'.")))
 
-            # Return the list of individual PlaybookTaskResults
-            return task_results
+            # Combine all timeseries into a single result
+            all_labeled_timeseries = []
+            for task_result in task_results:
+                if task_result.type == PlaybookTaskResultType.TIMESERIES and task_result.timeseries:
+                    all_labeled_timeseries.extend(task_result.timeseries.labeled_metric_timeseries)
+
+            if not all_labeled_timeseries:
+                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT, text=TextResult(output=StringValue(
+                    value=f"No valid timeseries data could be extracted from dashboard '{dashboard_name}'.")))
+
+            # Create a single combined timeseries result
+            combined_timeseries_result = TimeseriesResult(
+                metric_expression=StringValue(value=f"Dashboard: {dashboard_name}"),
+                metric_name=StringValue(value=f"CloudWatch Dashboard: {dashboard_name}"),
+                labeled_metric_timeseries=all_labeled_timeseries
+            )
+
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.TIMESERIES,
+                timeseries=combined_timeseries_result,
+                source=self.source
+            )
 
         except ValueError as ve:
              logger.error(f"Configuration error executing FETCH_DASHBOARD for '{cloudwatch_task.fetch_dashboard.dashboard_name.value}': {ve}")

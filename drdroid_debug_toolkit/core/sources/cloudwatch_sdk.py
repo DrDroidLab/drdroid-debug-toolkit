@@ -33,8 +33,8 @@ class CloudWatchSDK(BaseSDK):
     def _get_key_type_mapping(self) -> Dict[str, SourceKeyType]:
         """Get CloudWatch-specific key type mapping"""
         return {
-            'aws_access_key_id': SourceKeyType.AWS_ACCESS_KEY_ID,
-            'aws_secret_access_key': SourceKeyType.AWS_SECRET_ACCESS_KEY,
+            'aws_access_key_id': SourceKeyType.AWS_ACCESS_KEY,
+            'aws_secret_access_key': SourceKeyType.AWS_SECRET_KEY,
             'aws_region': SourceKeyType.AWS_REGION,
         }
     
