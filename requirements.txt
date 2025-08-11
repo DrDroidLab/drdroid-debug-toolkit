@@ -1,7 +1,7 @@
 # Core dependencies
 PyYAML>=6.0.0
 requests>=2.28.0
-protobuf>=4.21.0,<6.0.0
+protobuf==5.29.5
 
 # gRPC tools for protobuf compilation
 grpcio-tools==1.70.0
