@@ -17,7 +17,7 @@ from core.protos.playbooks.source_task_definitions.cloudwatch_task_pb2 import Cl
 from core.protos.ui_definition_pb2 import FormField, FormFieldType
 from core.integrations.source_manager import SourceManager
 from core.utils.credentilal_utils import generate_credentials_dict
-from core.utils.proto_utils import proto_to_dict, dict_to_proto
+from core.utils.proto_utils import dict_to_proto
 from core.utils.time_utils import calculate_timeseries_bucket_size
 
 logger = logging.getLogger(__name__)
@@ -802,8 +802,28 @@ class CloudwatchSourceManager(SourceManager):
                 return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT, text=TextResult(output=StringValue(
                     value=f"No metric data could be fetched for any widget in dashboard '{dashboard_name}'.")))
 
-            # Return the list of individual PlaybookTaskResults
-            return task_results
+            # Combine all timeseries into a single result
+            all_labeled_timeseries = []
+            for task_result in task_results:
+                if task_result.type == PlaybookTaskResultType.TIMESERIES and task_result.timeseries:
+                    all_labeled_timeseries.extend(task_result.timeseries.labeled_metric_timeseries)
+
+            if not all_labeled_timeseries:
+                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT, text=TextResult(output=StringValue(
+                    value=f"No valid timeseries data could be extracted from dashboard '{dashboard_name}'.")))
+
+            # Create a single combined timeseries result
+            combined_timeseries_result = TimeseriesResult(
+                metric_expression=StringValue(value=f"Dashboard: {dashboard_name}"),
+                metric_name=StringValue(value=f"CloudWatch Dashboard: {dashboard_name}"),
+                labeled_metric_timeseries=all_labeled_timeseries
+            )
+
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.TIMESERIES,
+                timeseries=combined_timeseries_result,
+                source=self.source
+            )
 
         except ValueError as ve:
              logger.error(f"Configuration error executing FETCH_DASHBOARD for '{cloudwatch_task.fetch_dashboard.dashboard_name.value}': {ve}")
