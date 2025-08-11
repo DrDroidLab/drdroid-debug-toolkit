@@ -31,12 +31,22 @@ class Signoz(google.protobuf.message.Message):
         CLICKHOUSE_QUERY: Signoz._TaskType.ValueType  # 1
         BUILDER_QUERY: Signoz._TaskType.ValueType  # 2
         DASHBOARD_DATA: Signoz._TaskType.ValueType  # 3
+        FETCH_DASHBOARDS: Signoz._TaskType.ValueType  # 4
+        FETCH_DASHBOARD_DETAILS: Signoz._TaskType.ValueType  # 5
+        FETCH_SERVICES: Signoz._TaskType.ValueType  # 6
+        FETCH_APM_METRICS: Signoz._TaskType.ValueType  # 7
+        FETCH_TRACES_OR_LOGS: Signoz._TaskType.ValueType  # 8
 
     class TaskType(_TaskType, metaclass=_TaskTypeEnumTypeWrapper): ...
     UNKNOWN: Signoz.TaskType.ValueType  # 0
     CLICKHOUSE_QUERY: Signoz.TaskType.ValueType  # 1
     BUILDER_QUERY: Signoz.TaskType.ValueType  # 2
     DASHBOARD_DATA: Signoz.TaskType.ValueType  # 3
+    FETCH_DASHBOARDS: Signoz.TaskType.ValueType  # 4
+    FETCH_DASHBOARD_DETAILS: Signoz.TaskType.ValueType  # 5
+    FETCH_SERVICES: Signoz.TaskType.ValueType  # 6
+    FETCH_APM_METRICS: Signoz.TaskType.ValueType  # 7
+    FETCH_TRACES_OR_LOGS: Signoz.TaskType.ValueType  # 8
 
     @typing_extensions.final
     class ClickhouseQueryTask(google.protobuf.message.Message):
@@ -115,10 +125,140 @@ class Signoz(google.protobuf.message.Message):
         def HasField(self, field_name: typing_extensions.Literal["dashboard_name", b"dashboard_name", "panel_type", b"panel_type", "step", b"step", "variables_json", b"variables_json"]) -> builtins.bool: ...
         def ClearField(self, field_name: typing_extensions.Literal["dashboard_name", b"dashboard_name", "panel_type", b"panel_type", "step", b"step", "variables_json", b"variables_json"]) -> None: ...
 
+    @typing_extensions.final
+    class FetchDashboardsTask(google.protobuf.message.Message):
+        """No additional parameters needed for fetching all dashboards"""
+
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        def __init__(
+            self,
+        ) -> None: ...
+
+    @typing_extensions.final
+    class FetchDashboardDetailsTask(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        DASHBOARD_ID_FIELD_NUMBER: builtins.int
+        @property
+        def dashboard_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        def __init__(
+            self,
+            *,
+            dashboard_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["dashboard_id", b"dashboard_id"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["dashboard_id", b"dashboard_id"]) -> None: ...
+
+    @typing_extensions.final
+    class FetchServicesTask(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        START_TIME_FIELD_NUMBER: builtins.int
+        END_TIME_FIELD_NUMBER: builtins.int
+        DURATION_FIELD_NUMBER: builtins.int
+        @property
+        def start_time(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def end_time(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def duration(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        def __init__(
+            self,
+            *,
+            start_time: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            end_time: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            duration: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["duration", b"duration", "end_time", b"end_time", "start_time", b"start_time"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["duration", b"duration", "end_time", b"end_time", "start_time", b"start_time"]) -> None: ...
+
+    @typing_extensions.final
+    class FetchApmMetricsTask(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        SERVICE_NAME_FIELD_NUMBER: builtins.int
+        START_TIME_FIELD_NUMBER: builtins.int
+        END_TIME_FIELD_NUMBER: builtins.int
+        WINDOW_FIELD_NUMBER: builtins.int
+        OPERATION_NAMES_FIELD_NUMBER: builtins.int
+        METRICS_FIELD_NUMBER: builtins.int
+        DURATION_FIELD_NUMBER: builtins.int
+        @property
+        def service_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def start_time(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def end_time(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def window(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def operation_names(self) -> google.protobuf.wrappers_pb2.StringValue:
+            """JSON array as string"""
+        @property
+        def metrics(self) -> google.protobuf.wrappers_pb2.StringValue:
+            """JSON array as string"""
+        @property
+        def duration(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        def __init__(
+            self,
+            *,
+            service_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            start_time: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            end_time: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            window: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            operation_names: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            metrics: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            duration: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["duration", b"duration", "end_time", b"end_time", "metrics", b"metrics", "operation_names", b"operation_names", "service_name", b"service_name", "start_time", b"start_time", "window", b"window"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["duration", b"duration", "end_time", b"end_time", "metrics", b"metrics", "operation_names", b"operation_names", "service_name", b"service_name", "start_time", b"start_time", "window", b"window"]) -> None: ...
+
+    @typing_extensions.final
+    class FetchTracesOrLogsTask(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        DATA_TYPE_FIELD_NUMBER: builtins.int
+        START_TIME_FIELD_NUMBER: builtins.int
+        END_TIME_FIELD_NUMBER: builtins.int
+        DURATION_FIELD_NUMBER: builtins.int
+        SERVICE_NAME_FIELD_NUMBER: builtins.int
+        LIMIT_FIELD_NUMBER: builtins.int
+        @property
+        def data_type(self) -> google.protobuf.wrappers_pb2.StringValue:
+            """"traces" or "logs" """
+        @property
+        def start_time(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def end_time(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def duration(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def service_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def limit(self) -> google.protobuf.wrappers_pb2.Int32Value: ...
+        def __init__(
+            self,
+            *,
+            data_type: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            start_time: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            end_time: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            duration: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            service_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            limit: google.protobuf.wrappers_pb2.Int32Value | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["data_type", b"data_type", "duration", b"duration", "end_time", b"end_time", "limit", b"limit", "service_name", b"service_name", "start_time", b"start_time"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["data_type", b"data_type", "duration", b"duration", "end_time", b"end_time", "limit", b"limit", "service_name", b"service_name", "start_time", b"start_time"]) -> None: ...
+
     TYPE_FIELD_NUMBER: builtins.int
     CLICKHOUSE_QUERY_FIELD_NUMBER: builtins.int
     BUILDER_QUERY_FIELD_NUMBER: builtins.int
     DASHBOARD_DATA_FIELD_NUMBER: builtins.int
+    FETCH_DASHBOARDS_FIELD_NUMBER: builtins.int
+    FETCH_DASHBOARD_DETAILS_FIELD_NUMBER: builtins.int
+    FETCH_SERVICES_FIELD_NUMBER: builtins.int
+    FETCH_APM_METRICS_FIELD_NUMBER: builtins.int
+    FETCH_TRACES_OR_LOGS_FIELD_NUMBER: builtins.int
     type: global___Signoz.TaskType.ValueType
     @property
     def clickhouse_query(self) -> global___Signoz.ClickhouseQueryTask: ...
@@ -126,6 +266,16 @@ class Signoz(google.protobuf.message.Message):
     def builder_query(self) -> global___Signoz.BuilderQueryTask: ...
     @property
     def dashboard_data(self) -> global___Signoz.DashboardDataTask: ...
+    @property
+    def fetch_dashboards(self) -> global___Signoz.FetchDashboardsTask: ...
+    @property
+    def fetch_dashboard_details(self) -> global___Signoz.FetchDashboardDetailsTask: ...
+    @property
+    def fetch_services(self) -> global___Signoz.FetchServicesTask: ...
+    @property
+    def fetch_apm_metrics(self) -> global___Signoz.FetchApmMetricsTask: ...
+    @property
+    def fetch_traces_or_logs(self) -> global___Signoz.FetchTracesOrLogsTask: ...
     def __init__(
         self,
         *,
@@ -133,9 +283,14 @@ class Signoz(google.protobuf.message.Message):
         clickhouse_query: global___Signoz.ClickhouseQueryTask | None = ...,
         builder_query: global___Signoz.BuilderQueryTask | None = ...,
         dashboard_data: global___Signoz.DashboardDataTask | None = ...,
+        fetch_dashboards: global___Signoz.FetchDashboardsTask | None = ...,
+        fetch_dashboard_details: global___Signoz.FetchDashboardDetailsTask | None = ...,
+        fetch_services: global___Signoz.FetchServicesTask | None = ...,
+        fetch_apm_metrics: global___Signoz.FetchApmMetricsTask | None = ...,
+        fetch_traces_or_logs: global___Signoz.FetchTracesOrLogsTask | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["builder_query", b"builder_query", "clickhouse_query", b"clickhouse_query", "dashboard_data", b"dashboard_data", "task", b"task"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["builder_query", b"builder_query", "clickhouse_query", b"clickhouse_query", "dashboard_data", b"dashboard_data", "task", b"task", "type", b"type"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing_extensions.Literal["task", b"task"]) -> typing_extensions.Literal["clickhouse_query", "builder_query", "dashboard_data"] | None: ...
+    def HasField(self, field_name: typing_extensions.Literal["builder_query", b"builder_query", "clickhouse_query", b"clickhouse_query", "dashboard_data", b"dashboard_data", "fetch_apm_metrics", b"fetch_apm_metrics", "fetch_dashboard_details", b"fetch_dashboard_details", "fetch_dashboards", b"fetch_dashboards", "fetch_services", b"fetch_services", "fetch_traces_or_logs", b"fetch_traces_or_logs", "task", b"task"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["builder_query", b"builder_query", "clickhouse_query", b"clickhouse_query", "dashboard_data", b"dashboard_data", "fetch_apm_metrics", b"fetch_apm_metrics", "fetch_dashboard_details", b"fetch_dashboard_details", "fetch_dashboards", b"fetch_dashboards", "fetch_services", b"fetch_services", "fetch_traces_or_logs", b"fetch_traces_or_logs", "task", b"task", "type", b"type"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing_extensions.Literal["task", b"task"]) -> typing_extensions.Literal["clickhouse_query", "builder_query", "dashboard_data", "fetch_dashboards", "fetch_dashboard_details", "fetch_services", "fetch_apm_metrics", "fetch_traces_or_logs"] | None: ...
 
 global___Signoz = Signoz
