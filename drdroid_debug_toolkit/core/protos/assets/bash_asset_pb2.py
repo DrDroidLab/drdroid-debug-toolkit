@@ -16,19 +16,19 @@ from google.protobuf import wrappers_pb2 as google_dot_protobuf_dot_wrappers__pb
 from protos import base_pb2 as protos_dot_base__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1eprotos/assets/bash_asset.proto\x12\x11protos.connectors\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x11protos/base.proto\"E\n\x17\x42\x61shSshServerAssetModel\x12*\n\x04name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"0\n\x19\x42\x61shSshServerAssetOptions\x12\x13\n\x0bssh_servers\x18\x01 \x03(\t\"\xea\x01\n\x0e\x42\x61shAssetModel\x12(\n\x02id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.UInt64Value\x12&\n\x0e\x63onnector_type\x18\x02 \x01(\x0e\x32\x0e.protos.Source\x12%\n\x04type\x18\x03 \x01(\x0e\x32\x17.protos.SourceModelType\x12\x14\n\x0clast_updated\x18\x04 \x01(\x10\x12@\n\nssh_server\x18\x05 \x01(\x0b\x32*.protos.connectors.BashSshServerAssetModelH\x00\x42\x07\n\x05\x61sset\"?\n\nBashAssets\x12\x31\n\x06\x61ssets\x18\x01 \x03(\x0b\x32!.protos.connectors.BashAssetModelb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1eprotos/assets/bash_asset.proto\x12\x16\x63ore.protos.connectors\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x11protos/base.proto\"E\n\x17\x42\x61shSshServerAssetModel\x12*\n\x04name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"0\n\x19\x42\x61shSshServerAssetOptions\x12\x13\n\x0bssh_servers\x18\x01 \x03(\t\"\xf9\x01\n\x0e\x42\x61shAssetModel\x12(\n\x02id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.UInt64Value\x12+\n\x0e\x63onnector_type\x18\x02 \x01(\x0e\x32\x13.core.protos.Source\x12*\n\x04type\x18\x03 \x01(\x0e\x32\x1c.core.protos.SourceModelType\x12\x14\n\x0clast_updated\x18\x04 \x01(\x10\x12\x45\n\nssh_server\x18\x05 \x01(\x0b\x32/.core.protos.connectors.BashSshServerAssetModelH\x00\x42\x07\n\x05\x61sset\"D\n\nBashAssets\x12\x36\n\x06\x61ssets\x18\x01 \x03(\x0b\x32&.core.protos.connectors.BashAssetModelb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'protos.assets.bash_asset_pb2', _globals)
 if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
-  _globals['_BASHSSHSERVERASSETMODEL']._serialized_start=104
-  _globals['_BASHSSHSERVERASSETMODEL']._serialized_end=173
-  _globals['_BASHSSHSERVERASSETOPTIONS']._serialized_start=175
-  _globals['_BASHSSHSERVERASSETOPTIONS']._serialized_end=223
-  _globals['_BASHASSETMODEL']._serialized_start=226
-  _globals['_BASHASSETMODEL']._serialized_end=460
-  _globals['_BASHASSETS']._serialized_start=462
-  _globals['_BASHASSETS']._serialized_end=525
+  _globals['_BASHSSHSERVERASSETMODEL']._serialized_start=109
+  _globals['_BASHSSHSERVERASSETMODEL']._serialized_end=178
+  _globals['_BASHSSHSERVERASSETOPTIONS']._serialized_start=180
+  _globals['_BASHSSHSERVERASSETOPTIONS']._serialized_end=228
+  _globals['_BASHASSETMODEL']._serialized_start=231
+  _globals['_BASHASSETMODEL']._serialized_end=480
+  _globals['_BASHASSETS']._serialized_start=482
+  _globals['_BASHASSETS']._serialized_end=550
 # @@protoc_insertion_point(module_scope)

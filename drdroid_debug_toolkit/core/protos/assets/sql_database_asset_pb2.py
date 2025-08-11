@@ -17,29 +17,29 @@ from protos import base_pb2 as protos_dot_base__pb2
 from protos.connectors import connector_pb2 as protos_dot_connectors_dot_connector__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n&protos/assets/sql_database_asset.proto\x12\x11protos.connectors\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x11protos/base.proto\x1a!protos/connectors/connector.proto\"G\n\x15SqlDatabaseAssetModel\x12.\n\x08\x64\x61tabase\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\",\n\x17SqlDatabaseAssetOptions\x12\x11\n\tdatabases\x18\x01 \x03(\t\"\xc7\x03\n\x0eSqlColumnModel\x12*\n\x04name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12/\n\tdata_type\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12/\n\x0bis_nullable\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.BoolValue\x12\x33\n\rdefault_value\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x32\n\x0eis_primary_key\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.BoolValue\x12\x31\n\x0b\x64\x65scription\x18\x06 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12/\n\nmax_length\x18\x07 \x01(\x0b\x32\x1b.google.protobuf.Int64Value\x12.\n\tprecision\x18\x08 \x01(\x0b\x32\x1b.google.protobuf.Int32Value\x12*\n\x05scale\x18\t \x01(\x0b\x32\x1b.google.protobuf.Int32Value\"\xe8\x01\n\x12SqlForeignKeyModel\x12\x31\n\x0b\x63olumn_name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x34\n\x0e\x66oreign_schema\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x33\n\rforeign_table\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x34\n\x0e\x66oreign_column\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"\xa7\x01\n\rSqlIndexModel\x12*\n\x04name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04type\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12-\n\tis_unique\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.BoolValue\x12\x0f\n\x07\x63olumns\x18\x04 \x03(\t\"\x8a\x03\n\x12SqlTableAssetModel\x12\x33\n\rdatabase_name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x30\n\ntable_name\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x31\n\x0bschema_name\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x31\n\x0b\x64\x65scription\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04size\x18\x05 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x32\n\x07\x63olumns\x18\x06 \x03(\x0b\x32!.protos.connectors.SqlColumnModel\x12\x14\n\x0cprimary_keys\x18\x07 \x03(\t\x12\x31\n\x07indexes\x18\x08 \x03(\x0b\x32 .protos.connectors.SqlIndexModel\"7\n\x14SqlTableAssetOptions\x12\x0e\n\x06tables\x18\x01 \x03(\t\x12\x0f\n\x07schemas\x18\x02 \x03(\t\"\xe3\x01\n\rSqlAssetModel\x12(\n\x02id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.UInt64Value\x12&\n\x0e\x63onnector_type\x18\x02 \x01(\x0e\x32\x0e.protos.Source\x12%\n\x04type\x18\x03 \x01(\x0e\x32\x17.protos.SourceModelType\x12\x14\n\x0clast_updated\x18\x04 \x01(\x10\x12:\n\tsql_table\x18\x05 \x01(\x0b\x32%.protos.connectors.SqlTableAssetModelH\x00\x42\x07\n\x05\x61sset\"=\n\tSqlAssets\x12\x30\n\x06\x61ssets\x18\x01 \x03(\x0b\x32 .protos.connectors.SqlAssetModelb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n&protos/assets/sql_database_asset.proto\x12\x16\x63ore.protos.connectors\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x11protos/base.proto\x1a!protos/connectors/connector.proto\"G\n\x15SqlDatabaseAssetModel\x12.\n\x08\x64\x61tabase\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\",\n\x17SqlDatabaseAssetOptions\x12\x11\n\tdatabases\x18\x01 \x03(\t\"\xc7\x03\n\x0eSqlColumnModel\x12*\n\x04name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12/\n\tdata_type\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12/\n\x0bis_nullable\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.BoolValue\x12\x33\n\rdefault_value\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x32\n\x0eis_primary_key\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.BoolValue\x12\x31\n\x0b\x64\x65scription\x18\x06 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12/\n\nmax_length\x18\x07 \x01(\x0b\x32\x1b.google.protobuf.Int64Value\x12.\n\tprecision\x18\x08 \x01(\x0b\x32\x1b.google.protobuf.Int32Value\x12*\n\x05scale\x18\t \x01(\x0b\x32\x1b.google.protobuf.Int32Value\"\xe8\x01\n\x12SqlForeignKeyModel\x12\x31\n\x0b\x63olumn_name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x34\n\x0e\x66oreign_schema\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x33\n\rforeign_table\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x34\n\x0e\x66oreign_column\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"\xa7\x01\n\rSqlIndexModel\x12*\n\x04name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04type\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12-\n\tis_unique\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.BoolValue\x12\x0f\n\x07\x63olumns\x18\x04 \x03(\t\"\x94\x03\n\x12SqlTableAssetModel\x12\x33\n\rdatabase_name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x30\n\ntable_name\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x31\n\x0bschema_name\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x31\n\x0b\x64\x65scription\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04size\x18\x05 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x37\n\x07\x63olumns\x18\x06 \x03(\x0b\x32&.core.protos.connectors.SqlColumnModel\x12\x14\n\x0cprimary_keys\x18\x07 \x03(\t\x12\x36\n\x07indexes\x18\x08 \x03(\x0b\x32%.core.protos.connectors.SqlIndexModel\"7\n\x14SqlTableAssetOptions\x12\x0e\n\x06tables\x18\x01 \x03(\t\x12\x0f\n\x07schemas\x18\x02 \x03(\t\"\xf2\x01\n\rSqlAssetModel\x12(\n\x02id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.UInt64Value\x12+\n\x0e\x63onnector_type\x18\x02 \x01(\x0e\x32\x13.core.protos.Source\x12*\n\x04type\x18\x03 \x01(\x0e\x32\x1c.core.protos.SourceModelType\x12\x14\n\x0clast_updated\x18\x04 \x01(\x10\x12?\n\tsql_table\x18\x05 \x01(\x0b\x32*.core.protos.connectors.SqlTableAssetModelH\x00\x42\x07\n\x05\x61sset\"B\n\tSqlAssets\x12\x35\n\x06\x61ssets\x18\x01 \x03(\x0b\x32%.core.protos.connectors.SqlAssetModelb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'protos.assets.sql_database_asset_pb2', _globals)
 if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
-  _globals['_SQLDATABASEASSETMODEL']._serialized_start=147
-  _globals['_SQLDATABASEASSETMODEL']._serialized_end=218
-  _globals['_SQLDATABASEASSETOPTIONS']._serialized_start=220
-  _globals['_SQLDATABASEASSETOPTIONS']._serialized_end=264
-  _globals['_SQLCOLUMNMODEL']._serialized_start=267
-  _globals['_SQLCOLUMNMODEL']._serialized_end=722
-  _globals['_SQLFOREIGNKEYMODEL']._serialized_start=725
-  _globals['_SQLFOREIGNKEYMODEL']._serialized_end=957
-  _globals['_SQLINDEXMODEL']._serialized_start=960
-  _globals['_SQLINDEXMODEL']._serialized_end=1127
-  _globals['_SQLTABLEASSETMODEL']._serialized_start=1130
-  _globals['_SQLTABLEASSETMODEL']._serialized_end=1524
-  _globals['_SQLTABLEASSETOPTIONS']._serialized_start=1526
-  _globals['_SQLTABLEASSETOPTIONS']._serialized_end=1581
-  _globals['_SQLASSETMODEL']._serialized_start=1584
-  _globals['_SQLASSETMODEL']._serialized_end=1811
-  _globals['_SQLASSETS']._serialized_start=1813
-  _globals['_SQLASSETS']._serialized_end=1874
+  _globals['_SQLDATABASEASSETMODEL']._serialized_start=152
+  _globals['_SQLDATABASEASSETMODEL']._serialized_end=223
+  _globals['_SQLDATABASEASSETOPTIONS']._serialized_start=225
+  _globals['_SQLDATABASEASSETOPTIONS']._serialized_end=269
+  _globals['_SQLCOLUMNMODEL']._serialized_start=272
+  _globals['_SQLCOLUMNMODEL']._serialized_end=727
+  _globals['_SQLFOREIGNKEYMODEL']._serialized_start=730
+  _globals['_SQLFOREIGNKEYMODEL']._serialized_end=962
+  _globals['_SQLINDEXMODEL']._serialized_start=965
+  _globals['_SQLINDEXMODEL']._serialized_end=1132
+  _globals['_SQLTABLEASSETMODEL']._serialized_start=1135
+  _globals['_SQLTABLEASSETMODEL']._serialized_end=1539
+  _globals['_SQLTABLEASSETOPTIONS']._serialized_start=1541
+  _globals['_SQLTABLEASSETOPTIONS']._serialized_end=1596
+  _globals['_SQLASSETMODEL']._serialized_start=1599
+  _globals['_SQLASSETMODEL']._serialized_end=1841
+  _globals['_SQLASSETS']._serialized_start=1843
+  _globals['_SQLASSETS']._serialized_end=1909
 # @@protoc_insertion_point(module_scope)

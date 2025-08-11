@@ -17,15 +17,15 @@ from protos.connectors import connector_pb2 as protos_dot_connectors_dot_connect
 from protos import base_pb2 as protos_dot_base__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1bprotos/connectors/api.proto\x12\x11protos.connectors\x1a\x1egoogle/protobuf/wrappers.proto\x1a!protos/connectors/connector.proto\x1a\x11protos/base.proto\"G\n\x14TestConnectorRequest\x12/\n\tconnector\x18\x01 \x01(\x0b\x32\x1c.protos.connectors.Connector\"f\n\x15TestConnectorResponse\x12+\n\x07success\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.BoolValue\x12 \n\x07message\x18\x02 \x01(\x0b\x32\x0f.protos.Messageb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1bprotos/connectors/api.proto\x12\x16\x63ore.protos.connectors\x1a\x1egoogle/protobuf/wrappers.proto\x1a!protos/connectors/connector.proto\x1a\x11protos/base.proto\"L\n\x14TestConnectorRequest\x12\x34\n\tconnector\x18\x01 \x01(\x0b\x32!.core.protos.connectors.Connector\"k\n\x15TestConnectorResponse\x12+\n\x07success\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.BoolValue\x12%\n\x07message\x18\x02 \x01(\x0b\x32\x14.core.protos.Messageb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'protos.connectors.api_pb2', _globals)
 if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
-  _globals['_TESTCONNECTORREQUEST']._serialized_start=136
-  _globals['_TESTCONNECTORREQUEST']._serialized_end=207
-  _globals['_TESTCONNECTORRESPONSE']._serialized_start=209
-  _globals['_TESTCONNECTORRESPONSE']._serialized_end=311
+  _globals['_TESTCONNECTORREQUEST']._serialized_start=141
+  _globals['_TESTCONNECTORREQUEST']._serialized_end=217
+  _globals['_TESTCONNECTORRESPONSE']._serialized_start=219
+  _globals['_TESTCONNECTORRESPONSE']._serialized_end=326
 # @@protoc_insertion_point(module_scope)

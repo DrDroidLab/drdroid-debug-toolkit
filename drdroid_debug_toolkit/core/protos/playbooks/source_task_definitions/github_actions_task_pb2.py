@@ -15,17 +15,17 @@ _sym_db = _symbol_database.Default()
 from google.protobuf import wrappers_pb2 as google_dot_protobuf_dot_wrappers__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\nBprotos/playbooks/source_task_definitions/github_actions_task.proto\x12\x10protos.playbooks\x1a\x1egoogle/protobuf/wrappers.proto\"\xfb\x02\n\rGithubActions\x12\x36\n\x04type\x18\x01 \x01(\x0e\x32(.protos.playbooks.GithubActions.TaskType\x12S\n\x15\x66\x65tch_action_run_info\x18\x02 \x01(\x0b\x32\x32.protos.playbooks.GithubActions.FetchActionRunInfoH\x00\x1a\xa0\x01\n\x12\x46\x65tchActionRunInfo\x12+\n\x05owner\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04repo\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x31\n\x0bworkflow_id\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"2\n\x08TaskType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x19\n\x15\x46\x45TCH_ACTION_RUN_INFO\x10\x01\x42\x06\n\x04taskb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\nBprotos/playbooks/source_task_definitions/github_actions_task.proto\x12\x15\x63ore.protos.playbooks\x1a\x1egoogle/protobuf/wrappers.proto\"\x85\x03\n\rGithubActions\x12;\n\x04type\x18\x01 \x01(\x0e\x32-.core.protos.playbooks.GithubActions.TaskType\x12X\n\x15\x66\x65tch_action_run_info\x18\x02 \x01(\x0b\x32\x37.core.protos.playbooks.GithubActions.FetchActionRunInfoH\x00\x1a\xa0\x01\n\x12\x46\x65tchActionRunInfo\x12+\n\x05owner\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04repo\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x31\n\x0bworkflow_id\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"2\n\x08TaskType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x19\n\x15\x46\x45TCH_ACTION_RUN_INFO\x10\x01\x42\x06\n\x04taskb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'protos.playbooks.source_task_definitions.github_actions_task_pb2', _globals)
 if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
-  _globals['_GITHUBACTIONS']._serialized_start=121
-  _globals['_GITHUBACTIONS']._serialized_end=500
-  _globals['_GITHUBACTIONS_FETCHACTIONRUNINFO']._serialized_start=280
-  _globals['_GITHUBACTIONS_FETCHACTIONRUNINFO']._serialized_end=440
-  _globals['_GITHUBACTIONS_TASKTYPE']._serialized_start=442
-  _globals['_GITHUBACTIONS_TASKTYPE']._serialized_end=492
+  _globals['_GITHUBACTIONS']._serialized_start=126
+  _globals['_GITHUBACTIONS']._serialized_end=515
+  _globals['_GITHUBACTIONS_FETCHACTIONRUNINFO']._serialized_start=295
+  _globals['_GITHUBACTIONS_FETCHACTIONRUNINFO']._serialized_end=455
+  _globals['_GITHUBACTIONS_TASKTYPE']._serialized_start=457
+  _globals['_GITHUBACTIONS_TASKTYPE']._serialized_end=507
 # @@protoc_insertion_point(module_scope)

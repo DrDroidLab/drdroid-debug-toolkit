@@ -16,21 +16,21 @@ from google.protobuf import wrappers_pb2 as google_dot_protobuf_dot_wrappers__pb
 from google.protobuf import struct_pb2 as google_dot_protobuf_dot_struct__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n:protos/playbooks/source_task_definitions/signoz_task.proto\x12\x10protos.playbooks\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1cgoogle/protobuf/struct.proto\"\xc4\x07\n\x06Signoz\x12/\n\x04type\x18\x01 \x01(\x0e\x32!.protos.playbooks.Signoz.TaskType\x12H\n\x10\x63lickhouse_query\x18\x02 \x01(\x0b\x32,.protos.playbooks.Signoz.ClickhouseQueryTaskH\x00\x12\x42\n\rbuilder_query\x18\x03 \x01(\x0b\x32).protos.playbooks.Signoz.BuilderQueryTaskH\x00\x12\x44\n\x0e\x64\x61shboard_data\x18\x04 \x01(\x0b\x32*.protos.playbooks.Signoz.DashboardDataTaskH\x00\x1a\xce\x01\n\x13\x43lickhouseQueryTask\x12+\n\x05query\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12)\n\x04step\x18\x02 \x01(\x0b\x32\x1b.google.protobuf.Int32Value\x12-\n\tfill_gaps\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.BoolValue\x12\x30\n\npanel_type\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1a\xa6\x01\n\x10\x42uilderQueryTask\x12\x35\n\x0f\x62uilder_queries\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12)\n\x04step\x18\x02 \x01(\x0b\x32\x1b.google.protobuf.Int32Value\x12\x30\n\npanel_type\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1a\xdc\x01\n\x11\x44\x61shboardDataTask\x12\x34\n\x0e\x64\x61shboard_name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12)\n\x04step\x18\x02 \x01(\x0b\x32\x1b.google.protobuf.Int32Value\x12\x30\n\npanel_type\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x34\n\x0evariables_json\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"T\n\x08TaskType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x14\n\x10\x43LICKHOUSE_QUERY\x10\x01\x12\x11\n\rBUILDER_QUERY\x10\x02\x12\x12\n\x0e\x44\x41SHBOARD_DATA\x10\x03\x42\x06\n\x04taskb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n:protos/playbooks/source_task_definitions/signoz_task.proto\x12\x15\x63ore.protos.playbooks\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1cgoogle/protobuf/struct.proto\"\xd8\x07\n\x06Signoz\x12\x34\n\x04type\x18\x01 \x01(\x0e\x32&.core.protos.playbooks.Signoz.TaskType\x12M\n\x10\x63lickhouse_query\x18\x02 \x01(\x0b\x32\x31.core.protos.playbooks.Signoz.ClickhouseQueryTaskH\x00\x12G\n\rbuilder_query\x18\x03 \x01(\x0b\x32..core.protos.playbooks.Signoz.BuilderQueryTaskH\x00\x12I\n\x0e\x64\x61shboard_data\x18\x04 \x01(\x0b\x32/.core.protos.playbooks.Signoz.DashboardDataTaskH\x00\x1a\xce\x01\n\x13\x43lickhouseQueryTask\x12+\n\x05query\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12)\n\x04step\x18\x02 \x01(\x0b\x32\x1b.google.protobuf.Int32Value\x12-\n\tfill_gaps\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.BoolValue\x12\x30\n\npanel_type\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1a\xa6\x01\n\x10\x42uilderQueryTask\x12\x35\n\x0f\x62uilder_queries\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12)\n\x04step\x18\x02 \x01(\x0b\x32\x1b.google.protobuf.Int32Value\x12\x30\n\npanel_type\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1a\xdc\x01\n\x11\x44\x61shboardDataTask\x12\x34\n\x0e\x64\x61shboard_name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12)\n\x04step\x18\x02 \x01(\x0b\x32\x1b.google.protobuf.Int32Value\x12\x30\n\npanel_type\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x34\n\x0evariables_json\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"T\n\x08TaskType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x14\n\x10\x43LICKHOUSE_QUERY\x10\x01\x12\x11\n\rBUILDER_QUERY\x10\x02\x12\x12\n\x0e\x44\x41SHBOARD_DATA\x10\x03\x42\x06\n\x04taskb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'protos.playbooks.source_task_definitions.signoz_task_pb2', _globals)
 if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
-  _globals['_SIGNOZ']._serialized_start=143
-  _globals['_SIGNOZ']._serialized_end=1107
-  _globals['_SIGNOZ_CLICKHOUSEQUERYTASK']._serialized_start=415
-  _globals['_SIGNOZ_CLICKHOUSEQUERYTASK']._serialized_end=621
-  _globals['_SIGNOZ_BUILDERQUERYTASK']._serialized_start=624
-  _globals['_SIGNOZ_BUILDERQUERYTASK']._serialized_end=790
-  _globals['_SIGNOZ_DASHBOARDDATATASK']._serialized_start=793
-  _globals['_SIGNOZ_DASHBOARDDATATASK']._serialized_end=1013
-  _globals['_SIGNOZ_TASKTYPE']._serialized_start=1015
-  _globals['_SIGNOZ_TASKTYPE']._serialized_end=1099
+  _globals['_SIGNOZ']._serialized_start=148
+  _globals['_SIGNOZ']._serialized_end=1132
+  _globals['_SIGNOZ_CLICKHOUSEQUERYTASK']._serialized_start=440
+  _globals['_SIGNOZ_CLICKHOUSEQUERYTASK']._serialized_end=646
+  _globals['_SIGNOZ_BUILDERQUERYTASK']._serialized_start=649
+  _globals['_SIGNOZ_BUILDERQUERYTASK']._serialized_end=815
+  _globals['_SIGNOZ_DASHBOARDDATATASK']._serialized_start=818
+  _globals['_SIGNOZ_DASHBOARDDATATASK']._serialized_end=1038
+  _globals['_SIGNOZ_TASKTYPE']._serialized_start=1040
+  _globals['_SIGNOZ_TASKTYPE']._serialized_end=1124
 # @@protoc_insertion_point(module_scope)

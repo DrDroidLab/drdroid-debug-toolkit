@@ -15,17 +15,17 @@ _sym_db = _symbol_database.Default()
 from google.protobuf import wrappers_pb2 as google_dot_protobuf_dot_wrappers__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n9protos/playbooks/source_task_definitions/email_task.proto\x12\x10protos.playbooks\x1a\x1egoogle/protobuf/wrappers.proto\"\xb1\x02\n\x04SMTP\x12-\n\x04type\x18\x01 \x01(\x0e\x32\x1f.protos.playbooks.SMTP.TaskType\x12\x36\n\nsend_email\x18\x02 \x01(\x0b\x32 .protos.playbooks.SMTP.SendEmailH\x00\x1a\x90\x01\n\tSendEmail\x12(\n\x02to\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12-\n\x07subject\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04\x62ody\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"\'\n\x08TaskType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x0e\n\nSEND_EMAIL\x10\x01\x42\x06\n\x04taskb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n9protos/playbooks/source_task_definitions/email_task.proto\x12\x15\x63ore.protos.playbooks\x1a\x1egoogle/protobuf/wrappers.proto\"\xbb\x02\n\x04SMTP\x12\x32\n\x04type\x18\x01 \x01(\x0e\x32$.core.protos.playbooks.SMTP.TaskType\x12;\n\nsend_email\x18\x02 \x01(\x0b\x32%.core.protos.playbooks.SMTP.SendEmailH\x00\x1a\x90\x01\n\tSendEmail\x12(\n\x02to\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12-\n\x07subject\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04\x62ody\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"\'\n\x08TaskType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x0e\n\nSEND_EMAIL\x10\x01\x42\x06\n\x04taskb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'protos.playbooks.source_task_definitions.email_task_pb2', _globals)
 if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
-  _globals['_SMTP']._serialized_start=112
-  _globals['_SMTP']._serialized_end=417
-  _globals['_SMTP_SENDEMAIL']._serialized_start=224
-  _globals['_SMTP_SENDEMAIL']._serialized_end=368
-  _globals['_SMTP_TASKTYPE']._serialized_start=370
-  _globals['_SMTP_TASKTYPE']._serialized_end=409
+  _globals['_SMTP']._serialized_start=117
+  _globals['_SMTP']._serialized_end=432
+  _globals['_SMTP_SENDEMAIL']._serialized_start=239
+  _globals['_SMTP_SENDEMAIL']._serialized_end=383
+  _globals['_SMTP_TASKTYPE']._serialized_start=385
+  _globals['_SMTP_TASKTYPE']._serialized_end=424
 # @@protoc_insertion_point(module_scope)

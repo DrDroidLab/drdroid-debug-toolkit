@@ -16,27 +16,27 @@ from google.protobuf import wrappers_pb2 as google_dot_protobuf_dot_wrappers__pb
 from protos import base_pb2 as protos_dot_base__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1dprotos/assets/gke_asset.proto\x12\x11protos.connectors\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x11protos/base.proto\"k\n\nGkeCommand\x12*\n\x04type\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x31\n\x0b\x64\x65scription\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"H\n\x0cGkeNamespace\x12*\n\x04name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x0c\n\x04pods\x18\x02 \x03(\t\"m\n\nGkeCluster\x12*\n\x04name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x33\n\nnamespaces\x18\x02 \x03(\x0b\x32\x1f.protos.connectors.GkeNamespace\"j\n\x0bZoneCluster\x12*\n\x04zone\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12/\n\x08\x63lusters\x18\x02 \x03(\x0b\x32\x1d.protos.connectors.GkeCluster\"\xa4\x01\n\x14GkeClusterAssetModel\x12*\n\x04zone\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12/\n\x08\x63lusters\x18\x02 \x03(\x0b\x32\x1d.protos.connectors.GkeCluster\x12/\n\x08\x63ommands\x18\x03 \x03(\x0b\x32\x1d.protos.connectors.GkeCommand\"G\n\x16GkeClusterAssetOptions\x12-\n\x05zones\x18\x01 \x03(\x0b\x32\x1e.protos.connectors.ZoneCluster\"\xe7\x01\n\rGkeAssetModel\x12(\n\x02id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.UInt64Value\x12&\n\x0e\x63onnector_type\x18\x02 \x01(\x0e\x32\x0e.protos.Source\x12%\n\x04type\x18\x03 \x01(\x0e\x32\x17.protos.SourceModelType\x12\x14\n\x0clast_updated\x18\x04 \x01(\x10\x12>\n\x0bgke_cluster\x18\x05 \x01(\x0b\x32\'.protos.connectors.GkeClusterAssetModelH\x00\x42\x07\n\x05\x61sset\"=\n\tGkeAssets\x12\x30\n\x06\x61ssets\x18\x01 \x03(\x0b\x32 .protos.connectors.GkeAssetModelb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1dprotos/assets/gke_asset.proto\x12\x16\x63ore.protos.connectors\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x11protos/base.proto\"k\n\nGkeCommand\x12*\n\x04type\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x31\n\x0b\x64\x65scription\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"H\n\x0cGkeNamespace\x12*\n\x04name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x0c\n\x04pods\x18\x02 \x03(\t\"r\n\nGkeCluster\x12*\n\x04name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x38\n\nnamespaces\x18\x02 \x03(\x0b\x32$.core.protos.connectors.GkeNamespace\"o\n\x0bZoneCluster\x12*\n\x04zone\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x34\n\x08\x63lusters\x18\x02 \x03(\x0b\x32\".core.protos.connectors.GkeCluster\"\xae\x01\n\x14GkeClusterAssetModel\x12*\n\x04zone\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x34\n\x08\x63lusters\x18\x02 \x03(\x0b\x32\".core.protos.connectors.GkeCluster\x12\x34\n\x08\x63ommands\x18\x03 \x03(\x0b\x32\".core.protos.connectors.GkeCommand\"L\n\x16GkeClusterAssetOptions\x12\x32\n\x05zones\x18\x01 \x03(\x0b\x32#.core.protos.connectors.ZoneCluster\"\xf6\x01\n\rGkeAssetModel\x12(\n\x02id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.UInt64Value\x12+\n\x0e\x63onnector_type\x18\x02 \x01(\x0e\x32\x13.core.protos.Source\x12*\n\x04type\x18\x03 \x01(\x0e\x32\x1c.core.protos.SourceModelType\x12\x14\n\x0clast_updated\x18\x04 \x01(\x10\x12\x43\n\x0bgke_cluster\x18\x05 \x01(\x0b\x32,.core.protos.connectors.GkeClusterAssetModelH\x00\x42\x07\n\x05\x61sset\"B\n\tGkeAssets\x12\x35\n\x06\x61ssets\x18\x01 \x03(\x0b\x32%.core.protos.connectors.GkeAssetModelb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'protos.assets.gke_asset_pb2', _globals)
 if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
-  _globals['_GKECOMMAND']._serialized_start=103
-  _globals['_GKECOMMAND']._serialized_end=210
-  _globals['_GKENAMESPACE']._serialized_start=212
-  _globals['_GKENAMESPACE']._serialized_end=284
-  _globals['_GKECLUSTER']._serialized_start=286
-  _globals['_GKECLUSTER']._serialized_end=395
-  _globals['_ZONECLUSTER']._serialized_start=397
-  _globals['_ZONECLUSTER']._serialized_end=503
-  _globals['_GKECLUSTERASSETMODEL']._serialized_start=506
-  _globals['_GKECLUSTERASSETMODEL']._serialized_end=670
-  _globals['_GKECLUSTERASSETOPTIONS']._serialized_start=672
-  _globals['_GKECLUSTERASSETOPTIONS']._serialized_end=743
-  _globals['_GKEASSETMODEL']._serialized_start=746
-  _globals['_GKEASSETMODEL']._serialized_end=977
-  _globals['_GKEASSETS']._serialized_start=979
-  _globals['_GKEASSETS']._serialized_end=1040
+  _globals['_GKECOMMAND']._serialized_start=108
+  _globals['_GKECOMMAND']._serialized_end=215
+  _globals['_GKENAMESPACE']._serialized_start=217
+  _globals['_GKENAMESPACE']._serialized_end=289
+  _globals['_GKECLUSTER']._serialized_start=291
+  _globals['_GKECLUSTER']._serialized_end=405
+  _globals['_ZONECLUSTER']._serialized_start=407
+  _globals['_ZONECLUSTER']._serialized_end=518
+  _globals['_GKECLUSTERASSETMODEL']._serialized_start=521
+  _globals['_GKECLUSTERASSETMODEL']._serialized_end=695
+  _globals['_GKECLUSTERASSETOPTIONS']._serialized_start=697
+  _globals['_GKECLUSTERASSETOPTIONS']._serialized_end=773
+  _globals['_GKEASSETMODEL']._serialized_start=776
+  _globals['_GKEASSETMODEL']._serialized_end=1022
+  _globals['_GKEASSETS']._serialized_start=1024
+  _globals['_GKEASSETS']._serialized_end=1090
 # @@protoc_insertion_point(module_scope)

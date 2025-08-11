@@ -16,17 +16,17 @@ from google.protobuf import wrappers_pb2 as google_dot_protobuf_dot_wrappers__pb
 from google.protobuf import struct_pb2 as google_dot_protobuf_dot_struct__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n;protos/playbooks/source_task_definitions/posthog_task.proto\x12\x10protos.playbooks\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1cgoogle/protobuf/struct.proto\"\xed\x01\n\x07PostHog\x12\x30\n\x04type\x18\x01 \x01(\x0e\x32\".protos.playbooks.PostHog.TaskType\x12?\n\x0bhogql_query\x18\x02 \x01(\x0b\x32(.protos.playbooks.PostHog.HogQLQueryTaskH\x00\x1a=\n\x0eHogQLQueryTask\x12+\n\x05query\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"(\n\x08TaskType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x0f\n\x0bHOGQL_QUERY\x10\x01\x42\x06\n\x04taskb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n;protos/playbooks/source_task_definitions/posthog_task.proto\x12\x15\x63ore.protos.playbooks\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1cgoogle/protobuf/struct.proto\"\xf7\x01\n\x07PostHog\x12\x35\n\x04type\x18\x01 \x01(\x0e\x32\'.core.protos.playbooks.PostHog.TaskType\x12\x44\n\x0bhogql_query\x18\x02 \x01(\x0b\x32-.core.protos.playbooks.PostHog.HogQLQueryTaskH\x00\x1a=\n\x0eHogQLQueryTask\x12+\n\x05query\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"(\n\x08TaskType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x0f\n\x0bHOGQL_QUERY\x10\x01\x42\x06\n\x04taskb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'protos.playbooks.source_task_definitions.posthog_task_pb2', _globals)
 if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
-  _globals['_POSTHOG']._serialized_start=144
-  _globals['_POSTHOG']._serialized_end=381
-  _globals['_POSTHOG_HOGQLQUERYTASK']._serialized_start=270
-  _globals['_POSTHOG_HOGQLQUERYTASK']._serialized_end=331
-  _globals['_POSTHOG_TASKTYPE']._serialized_start=333
-  _globals['_POSTHOG_TASKTYPE']._serialized_end=373
+  _globals['_POSTHOG']._serialized_start=149
+  _globals['_POSTHOG']._serialized_end=396
+  _globals['_POSTHOG_HOGQLQUERYTASK']._serialized_start=285
+  _globals['_POSTHOG_HOGQLQUERYTASK']._serialized_end=346
+  _globals['_POSTHOG_TASKTYPE']._serialized_start=348
+  _globals['_POSTHOG_TASKTYPE']._serialized_end=388
 # @@protoc_insertion_point(module_scope)

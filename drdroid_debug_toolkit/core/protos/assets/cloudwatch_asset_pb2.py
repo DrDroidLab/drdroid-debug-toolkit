@@ -17,53 +17,53 @@ from google.protobuf import struct_pb2 as google_dot_protobuf_dot_struct__pb2
 from protos import base_pb2 as protos_dot_base__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n$protos/assets/cloudwatch_asset.proto\x12\x11protos.connectors\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x11protos/base.proto\"`\n\x1c\x43loudwatchLogGroupAssetModel\x12,\n\x06region\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x12\n\nlog_groups\x18\x02 \x03(\t\"e\n!CloudwatchLogGroupQueryAssetModel\x12/\n\tlog_group\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x0f\n\x07queries\x18\x02 \x03(\t\"1\n\x1e\x43loudwatchLogGroupAssetOptions\x12\x0f\n\x07regions\x18\x01 \x03(\t\"9\n#CloudwatchLogGroupQueryAssetOptions\x12\x12\n\nlog_groups\x18\x01 \x03(\t\"\xa5\x03\n\x1a\x43loudwatchMetricAssetModel\x12/\n\tnamespace\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12^\n\x14region_dimension_map\x18\x02 \x03(\x0b\x32@.protos.connectors.CloudwatchMetricAssetModel.RegionDimensionMap\x1a^\n\x0fMetricDimension\x12*\n\x04name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x0e\n\x06values\x18\x02 \x03(\t\x12\x0f\n\x07metrics\x18\x03 \x03(\t\x1a\x95\x01\n\x12RegionDimensionMap\x12,\n\x06region\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12Q\n\ndimensions\x18\x02 \x03(\x0b\x32=.protos.connectors.CloudwatchMetricAssetModel.MetricDimension\"2\n\x1c\x43loudwatchMetricAssetOptions\x12\x12\n\nnamespaces\x18\x01 \x03(\t\"u\n\x19\x43loudwatchAlarmAssetModel\x12\x30\n\nalarm_name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12&\n\x05\x61larm\x18\x02 \x01(\x0b\x32\x17.google.protobuf.Struct\"2\n\x1b\x43loudwatchAlarmAssetOptions\x12\x13\n\x0b\x61larm_names\x18\x01 \x03(\t\"*\n\x16\x45\x63sClusterAssetOptions\x12\x10\n\x08\x63lusters\x18\x01 \x03(\t\"$\n\x13\x45\x63sTaskAssetOptions\x12\r\n\x05tasks\x18\x01 \x03(\t\"*\n\x16\x45\x63sServiceAssetOptions\x12\x10\n\x08services\x18\x01 \x03(\t\"\xc9\x01\n\x14\x45\x63sClusterAssetModel\x12*\n\x04name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12)\n\x03\x61rn\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12,\n\x06status\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12,\n\x06region\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"\xc4\x02\n\x11\x45\x63sTaskAssetModel\x12)\n\x03\x61rn\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x32\n\x0c\x63luster_name\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x31\n\x0b\x63luster_arn\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x39\n\x13task_definition_arn\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12,\n\x06status\x18\x05 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x34\n\x0e\x63ontainer_name\x18\x06 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"\x82\x02\n\x14\x45\x63sServiceAssetModel\x12)\n\x03\x61rn\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04name\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x32\n\x0c\x63luster_name\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x31\n\x0b\x63luster_arn\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12,\n\x06status\x18\x05 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"\x95\x03\n\x16\x43loudwatchMetricWidget\x12/\n\tnamespace\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x31\n\x0bmetric_name\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12+\n\ndimensions\x18\x03 \x03(\x0b\x32\x17.google.protobuf.Struct\x12/\n\tstatistic\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04unit\x18\x05 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12+\n\x06period\x18\x06 \x01(\x0b\x32\x1b.google.protobuf.Int32Value\x12,\n\x06region\x18\x07 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x32\n\x0cwidget_title\x18\x08 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"\xc6\x01\n\x1d\x43loudwatchDashboardAssetModel\x12\x34\n\x0e\x64\x61shboard_name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x33\n\rdashboard_arn\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12:\n\x07widgets\x18\x03 \x03(\x0b\x32).protos.connectors.CloudwatchMetricWidget\":\n\x1f\x43loudwatchDashboardAssetOptions\x12\x17\n\x0f\x64\x61shboard_names\x18\x01 \x03(\t\"\xfd\x05\n\x14\x43loudwatchAssetModel\x12(\n\x02id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.UInt64Value\x12&\n\x0e\x63onnector_type\x18\x02 \x01(\x0e\x32\x0e.protos.Source\x12%\n\x04type\x18\x03 \x01(\x0e\x32\x17.protos.SourceModelType\x12\x14\n\x0clast_updated\x18\x04 \x01(\x10\x12O\n\x14\x63loudwatch_log_group\x18\x05 \x01(\x0b\x32/.protos.connectors.CloudwatchLogGroupAssetModelH\x00\x12J\n\x11\x63loudwatch_metric\x18\x06 \x01(\x0b\x32-.protos.connectors.CloudwatchMetricAssetModelH\x00\x12Z\n\x1a\x63loudwatch_log_group_query\x18\x07 \x01(\x0b\x32\x34.protos.connectors.CloudwatchLogGroupQueryAssetModelH\x00\x12H\n\x10\x63loudwatch_alarm\x18\x08 \x01(\x0b\x32,.protos.connectors.CloudwatchAlarmAssetModelH\x00\x12>\n\x0b\x65\x63s_cluster\x18\t \x01(\x0b\x32\'.protos.connectors.EcsClusterAssetModelH\x00\x12\x38\n\x08\x65\x63s_task\x18\n \x01(\x0b\x32$.protos.connectors.EcsTaskAssetModelH\x00\x12>\n\x0b\x65\x63s_service\x18\x0b \x01(\x0b\x32\'.protos.connectors.EcsServiceAssetModelH\x00\x12P\n\x14\x63loudwatch_dashboard\x18\x0c \x01(\x0b\x32\x30.protos.connectors.CloudwatchDashboardAssetModelH\x00\x42\x07\n\x05\x61sset\"K\n\x10\x43loudwatchAssets\x12\x37\n\x06\x61ssets\x18\x01 \x03(\x0b\x32\'.protos.connectors.CloudwatchAssetModelb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n$protos/assets/cloudwatch_asset.proto\x12\x16\x63ore.protos.connectors\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x11protos/base.proto\"`\n\x1c\x43loudwatchLogGroupAssetModel\x12,\n\x06region\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x12\n\nlog_groups\x18\x02 \x03(\t\"e\n!CloudwatchLogGroupQueryAssetModel\x12/\n\tlog_group\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x0f\n\x07queries\x18\x02 \x03(\t\"1\n\x1e\x43loudwatchLogGroupAssetOptions\x12\x0f\n\x07regions\x18\x01 \x03(\t\"9\n#CloudwatchLogGroupQueryAssetOptions\x12\x12\n\nlog_groups\x18\x01 \x03(\t\"\xaf\x03\n\x1a\x43loudwatchMetricAssetModel\x12/\n\tnamespace\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x63\n\x14region_dimension_map\x18\x02 \x03(\x0b\x32\x45.core.protos.connectors.CloudwatchMetricAssetModel.RegionDimensionMap\x1a^\n\x0fMetricDimension\x12*\n\x04name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x0e\n\x06values\x18\x02 \x03(\t\x12\x0f\n\x07metrics\x18\x03 \x03(\t\x1a\x9a\x01\n\x12RegionDimensionMap\x12,\n\x06region\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12V\n\ndimensions\x18\x02 \x03(\x0b\x32\x42.core.protos.connectors.CloudwatchMetricAssetModel.MetricDimension\"2\n\x1c\x43loudwatchMetricAssetOptions\x12\x12\n\nnamespaces\x18\x01 \x03(\t\"u\n\x19\x43loudwatchAlarmAssetModel\x12\x30\n\nalarm_name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12&\n\x05\x61larm\x18\x02 \x01(\x0b\x32\x17.google.protobuf.Struct\"2\n\x1b\x43loudwatchAlarmAssetOptions\x12\x13\n\x0b\x61larm_names\x18\x01 \x03(\t\"*\n\x16\x45\x63sClusterAssetOptions\x12\x10\n\x08\x63lusters\x18\x01 \x03(\t\"$\n\x13\x45\x63sTaskAssetOptions\x12\r\n\x05tasks\x18\x01 \x03(\t\"*\n\x16\x45\x63sServiceAssetOptions\x12\x10\n\x08services\x18\x01 \x03(\t\"\xc9\x01\n\x14\x45\x63sClusterAssetModel\x12*\n\x04name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12)\n\x03\x61rn\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12,\n\x06status\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12,\n\x06region\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"\xc4\x02\n\x11\x45\x63sTaskAssetModel\x12)\n\x03\x61rn\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x32\n\x0c\x63luster_name\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x31\n\x0b\x63luster_arn\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x39\n\x13task_definition_arn\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12,\n\x06status\x18\x05 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x34\n\x0e\x63ontainer_name\x18\x06 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"\x82\x02\n\x14\x45\x63sServiceAssetModel\x12)\n\x03\x61rn\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04name\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x32\n\x0c\x63luster_name\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x31\n\x0b\x63luster_arn\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12,\n\x06status\x18\x05 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"\x95\x03\n\x16\x43loudwatchMetricWidget\x12/\n\tnamespace\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x31\n\x0bmetric_name\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12+\n\ndimensions\x18\x03 \x03(\x0b\x32\x17.google.protobuf.Struct\x12/\n\tstatistic\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04unit\x18\x05 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12+\n\x06period\x18\x06 \x01(\x0b\x32\x1b.google.protobuf.Int32Value\x12,\n\x06region\x18\x07 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x32\n\x0cwidget_title\x18\x08 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"\xcb\x01\n\x1d\x43loudwatchDashboardAssetModel\x12\x34\n\x0e\x64\x61shboard_name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x33\n\rdashboard_arn\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12?\n\x07widgets\x18\x03 \x03(\x0b\x32..core.protos.connectors.CloudwatchMetricWidget\":\n\x1f\x43loudwatchDashboardAssetOptions\x12\x17\n\x0f\x64\x61shboard_names\x18\x01 \x03(\t\"\xaf\x06\n\x14\x43loudwatchAssetModel\x12(\n\x02id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.UInt64Value\x12+\n\x0e\x63onnector_type\x18\x02 \x01(\x0e\x32\x13.core.protos.Source\x12*\n\x04type\x18\x03 \x01(\x0e\x32\x1c.core.protos.SourceModelType\x12\x14\n\x0clast_updated\x18\x04 \x01(\x10\x12T\n\x14\x63loudwatch_log_group\x18\x05 \x01(\x0b\x32\x34.core.protos.connectors.CloudwatchLogGroupAssetModelH\x00\x12O\n\x11\x63loudwatch_metric\x18\x06 \x01(\x0b\x32\x32.core.protos.connectors.CloudwatchMetricAssetModelH\x00\x12_\n\x1a\x63loudwatch_log_group_query\x18\x07 \x01(\x0b\x32\x39.core.protos.connectors.CloudwatchLogGroupQueryAssetModelH\x00\x12M\n\x10\x63loudwatch_alarm\x18\x08 \x01(\x0b\x32\x31.core.protos.connectors.CloudwatchAlarmAssetModelH\x00\x12\x43\n\x0b\x65\x63s_cluster\x18\t \x01(\x0b\x32,.core.protos.connectors.EcsClusterAssetModelH\x00\x12=\n\x08\x65\x63s_task\x18\n \x01(\x0b\x32).core.protos.connectors.EcsTaskAssetModelH\x00\x12\x43\n\x0b\x65\x63s_service\x18\x0b \x01(\x0b\x32,.core.protos.connectors.EcsServiceAssetModelH\x00\x12U\n\x14\x63loudwatch_dashboard\x18\x0c \x01(\x0b\x32\x35.core.protos.connectors.CloudwatchDashboardAssetModelH\x00\x42\x07\n\x05\x61sset\"P\n\x10\x43loudwatchAssets\x12<\n\x06\x61ssets\x18\x01 \x03(\x0b\x32,.core.protos.connectors.CloudwatchAssetModelb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'protos.assets.cloudwatch_asset_pb2', _globals)
 if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
-  _globals['_CLOUDWATCHLOGGROUPASSETMODEL']._serialized_start=140
-  _globals['_CLOUDWATCHLOGGROUPASSETMODEL']._serialized_end=236
-  _globals['_CLOUDWATCHLOGGROUPQUERYASSETMODEL']._serialized_start=238
-  _globals['_CLOUDWATCHLOGGROUPQUERYASSETMODEL']._serialized_end=339
-  _globals['_CLOUDWATCHLOGGROUPASSETOPTIONS']._serialized_start=341
-  _globals['_CLOUDWATCHLOGGROUPASSETOPTIONS']._serialized_end=390
-  _globals['_CLOUDWATCHLOGGROUPQUERYASSETOPTIONS']._serialized_start=392
-  _globals['_CLOUDWATCHLOGGROUPQUERYASSETOPTIONS']._serialized_end=449
-  _globals['_CLOUDWATCHMETRICASSETMODEL']._serialized_start=452
-  _globals['_CLOUDWATCHMETRICASSETMODEL']._serialized_end=873
-  _globals['_CLOUDWATCHMETRICASSETMODEL_METRICDIMENSION']._serialized_start=627
-  _globals['_CLOUDWATCHMETRICASSETMODEL_METRICDIMENSION']._serialized_end=721
-  _globals['_CLOUDWATCHMETRICASSETMODEL_REGIONDIMENSIONMAP']._serialized_start=724
-  _globals['_CLOUDWATCHMETRICASSETMODEL_REGIONDIMENSIONMAP']._serialized_end=873
-  _globals['_CLOUDWATCHMETRICASSETOPTIONS']._serialized_start=875
-  _globals['_CLOUDWATCHMETRICASSETOPTIONS']._serialized_end=925
-  _globals['_CLOUDWATCHALARMASSETMODEL']._serialized_start=927
-  _globals['_CLOUDWATCHALARMASSETMODEL']._serialized_end=1044
-  _globals['_CLOUDWATCHALARMASSETOPTIONS']._serialized_start=1046
-  _globals['_CLOUDWATCHALARMASSETOPTIONS']._serialized_end=1096
-  _globals['_ECSCLUSTERASSETOPTIONS']._serialized_start=1098
-  _globals['_ECSCLUSTERASSETOPTIONS']._serialized_end=1140
-  _globals['_ECSTASKASSETOPTIONS']._serialized_start=1142
-  _globals['_ECSTASKASSETOPTIONS']._serialized_end=1178
-  _globals['_ECSSERVICEASSETOPTIONS']._serialized_start=1180
-  _globals['_ECSSERVICEASSETOPTIONS']._serialized_end=1222
-  _globals['_ECSCLUSTERASSETMODEL']._serialized_start=1225
-  _globals['_ECSCLUSTERASSETMODEL']._serialized_end=1426
-  _globals['_ECSTASKASSETMODEL']._serialized_start=1429
-  _globals['_ECSTASKASSETMODEL']._serialized_end=1753
-  _globals['_ECSSERVICEASSETMODEL']._serialized_start=1756
-  _globals['_ECSSERVICEASSETMODEL']._serialized_end=2014
-  _globals['_CLOUDWATCHMETRICWIDGET']._serialized_start=2017
-  _globals['_CLOUDWATCHMETRICWIDGET']._serialized_end=2422
-  _globals['_CLOUDWATCHDASHBOARDASSETMODEL']._serialized_start=2425
-  _globals['_CLOUDWATCHDASHBOARDASSETMODEL']._serialized_end=2623
-  _globals['_CLOUDWATCHDASHBOARDASSETOPTIONS']._serialized_start=2625
-  _globals['_CLOUDWATCHDASHBOARDASSETOPTIONS']._serialized_end=2683
-  _globals['_CLOUDWATCHASSETMODEL']._serialized_start=2686
-  _globals['_CLOUDWATCHASSETMODEL']._serialized_end=3451
-  _globals['_CLOUDWATCHASSETS']._serialized_start=3453
-  _globals['_CLOUDWATCHASSETS']._serialized_end=3528
+  _globals['_CLOUDWATCHLOGGROUPASSETMODEL']._serialized_start=145
+  _globals['_CLOUDWATCHLOGGROUPASSETMODEL']._serialized_end=241
+  _globals['_CLOUDWATCHLOGGROUPQUERYASSETMODEL']._serialized_start=243
+  _globals['_CLOUDWATCHLOGGROUPQUERYASSETMODEL']._serialized_end=344
+  _globals['_CLOUDWATCHLOGGROUPASSETOPTIONS']._serialized_start=346
+  _globals['_CLOUDWATCHLOGGROUPASSETOPTIONS']._serialized_end=395
+  _globals['_CLOUDWATCHLOGGROUPQUERYASSETOPTIONS']._serialized_start=397
+  _globals['_CLOUDWATCHLOGGROUPQUERYASSETOPTIONS']._serialized_end=454
+  _globals['_CLOUDWATCHMETRICASSETMODEL']._serialized_start=457
+  _globals['_CLOUDWATCHMETRICASSETMODEL']._serialized_end=888
+  _globals['_CLOUDWATCHMETRICASSETMODEL_METRICDIMENSION']._serialized_start=637
+  _globals['_CLOUDWATCHMETRICASSETMODEL_METRICDIMENSION']._serialized_end=731
+  _globals['_CLOUDWATCHMETRICASSETMODEL_REGIONDIMENSIONMAP']._serialized_start=734
+  _globals['_CLOUDWATCHMETRICASSETMODEL_REGIONDIMENSIONMAP']._serialized_end=888
+  _globals['_CLOUDWATCHMETRICASSETOPTIONS']._serialized_start=890
+  _globals['_CLOUDWATCHMETRICASSETOPTIONS']._serialized_end=940
+  _globals['_CLOUDWATCHALARMASSETMODEL']._serialized_start=942
+  _globals['_CLOUDWATCHALARMASSETMODEL']._serialized_end=1059
+  _globals['_CLOUDWATCHALARMASSETOPTIONS']._serialized_start=1061
+  _globals['_CLOUDWATCHALARMASSETOPTIONS']._serialized_end=1111
+  _globals['_ECSCLUSTERASSETOPTIONS']._serialized_start=1113
+  _globals['_ECSCLUSTERASSETOPTIONS']._serialized_end=1155
+  _globals['_ECSTASKASSETOPTIONS']._serialized_start=1157
+  _globals['_ECSTASKASSETOPTIONS']._serialized_end=1193
+  _globals['_ECSSERVICEASSETOPTIONS']._serialized_start=1195
+  _globals['_ECSSERVICEASSETOPTIONS']._serialized_end=1237
+  _globals['_ECSCLUSTERASSETMODEL']._serialized_start=1240
+  _globals['_ECSCLUSTERASSETMODEL']._serialized_end=1441
+  _globals['_ECSTASKASSETMODEL']._serialized_start=1444
+  _globals['_ECSTASKASSETMODEL']._serialized_end=1768
+  _globals['_ECSSERVICEASSETMODEL']._serialized_start=1771
+  _globals['_ECSSERVICEASSETMODEL']._serialized_end=2029
+  _globals['_CLOUDWATCHMETRICWIDGET']._serialized_start=2032
+  _globals['_CLOUDWATCHMETRICWIDGET']._serialized_end=2437
+  _globals['_CLOUDWATCHDASHBOARDASSETMODEL']._serialized_start=2440
+  _globals['_CLOUDWATCHDASHBOARDASSETMODEL']._serialized_end=2643
+  _globals['_CLOUDWATCHDASHBOARDASSETOPTIONS']._serialized_start=2645
+  _globals['_CLOUDWATCHDASHBOARDASSETOPTIONS']._serialized_end=2703
+  _globals['_CLOUDWATCHASSETMODEL']._serialized_start=2706
+  _globals['_CLOUDWATCHASSETMODEL']._serialized_end=3521
+  _globals['_CLOUDWATCHASSETS']._serialized_start=3523
+  _globals['_CLOUDWATCHASSETS']._serialized_end=3603
 # @@protoc_insertion_point(module_scope)

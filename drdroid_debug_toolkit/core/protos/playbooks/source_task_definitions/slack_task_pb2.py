@@ -16,19 +16,19 @@ from google.protobuf import wrappers_pb2 as google_dot_protobuf_dot_wrappers__pb
 from google.protobuf import struct_pb2 as google_dot_protobuf_dot_struct__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n9protos/playbooks/source_task_definitions/slack_task.proto\x12\x10protos.playbooks\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1cgoogle/protobuf/struct.proto\"\xbf\x05\n\x05Slack\x12.\n\x04type\x18\x01 \x01(\x0e\x32 .protos.playbooks.Slack.TaskType\x12;\n\x0csend_message\x18\x02 \x01(\x0b\x32#.protos.playbooks.Slack.SendMessageH\x00\x12\x44\n\x11send_thread_reply\x18\x03 \x01(\x0b\x32\'.protos.playbooks.Slack.SendThreadReplyH\x00\x1a\xc0\x01\n\x0bSendMessage\x12-\n\x07\x63hannel\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04text\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\'\n\x06\x62locks\x18\x03 \x01(\x0b\x32\x17.google.protobuf.Struct\x12-\n\x0c\x66ile_uploads\x18\x04 \x01(\x0b\x32\x17.google.protobuf.Struct\x1a\xf5\x01\n\x0fSendThreadReply\x12-\n\x07\x63hannel\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12/\n\tthread_ts\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04text\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\'\n\x06\x62locks\x18\x04 \x01(\x0b\x32\x17.google.protobuf.Struct\x12-\n\x0c\x66ile_uploads\x18\x05 \x01(\x0b\x32\x17.google.protobuf.Struct\"@\n\x08TaskType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x10\n\x0cSEND_MESSAGE\x10\x01\x12\x15\n\x11SEND_THREAD_REPLY\x10\x02\x42\x06\n\x04taskb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n9protos/playbooks/source_task_definitions/slack_task.proto\x12\x15\x63ore.protos.playbooks\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1cgoogle/protobuf/struct.proto\"\xce\x05\n\x05Slack\x12\x33\n\x04type\x18\x01 \x01(\x0e\x32%.core.protos.playbooks.Slack.TaskType\x12@\n\x0csend_message\x18\x02 \x01(\x0b\x32(.core.protos.playbooks.Slack.SendMessageH\x00\x12I\n\x11send_thread_reply\x18\x03 \x01(\x0b\x32,.core.protos.playbooks.Slack.SendThreadReplyH\x00\x1a\xc0\x01\n\x0bSendMessage\x12-\n\x07\x63hannel\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04text\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\'\n\x06\x62locks\x18\x03 \x01(\x0b\x32\x17.google.protobuf.Struct\x12-\n\x0c\x66ile_uploads\x18\x04 \x01(\x0b\x32\x17.google.protobuf.Struct\x1a\xf5\x01\n\x0fSendThreadReply\x12-\n\x07\x63hannel\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12/\n\tthread_ts\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04text\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\'\n\x06\x62locks\x18\x04 \x01(\x0b\x32\x17.google.protobuf.Struct\x12-\n\x0c\x66ile_uploads\x18\x05 \x01(\x0b\x32\x17.google.protobuf.Struct\"@\n\x08TaskType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x10\n\x0cSEND_MESSAGE\x10\x01\x12\x15\n\x11SEND_THREAD_REPLY\x10\x02\x42\x06\n\x04taskb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'protos.playbooks.source_task_definitions.slack_task_pb2', _globals)
 if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
-  _globals['_SLACK']._serialized_start=142
-  _globals['_SLACK']._serialized_end=845
-  _globals['_SLACK_SENDMESSAGE']._serialized_start=331
-  _globals['_SLACK_SENDMESSAGE']._serialized_end=523
-  _globals['_SLACK_SENDTHREADREPLY']._serialized_start=526
-  _globals['_SLACK_SENDTHREADREPLY']._serialized_end=771
-  _globals['_SLACK_TASKTYPE']._serialized_start=773
-  _globals['_SLACK_TASKTYPE']._serialized_end=837
+  _globals['_SLACK']._serialized_start=147
+  _globals['_SLACK']._serialized_end=865
+  _globals['_SLACK_SENDMESSAGE']._serialized_start=351
+  _globals['_SLACK_SENDMESSAGE']._serialized_end=543
+  _globals['_SLACK_SENDTHREADREPLY']._serialized_start=546
+  _globals['_SLACK_SENDTHREADREPLY']._serialized_end=791
+  _globals['_SLACK_TASKTYPE']._serialized_start=793
+  _globals['_SLACK_TASKTYPE']._serialized_end=857
 # @@protoc_insertion_point(module_scope)

@@ -2,7 +2,7 @@ syntax = "proto3";
 import "google/protobuf/wrappers.proto";
 import "protos/literal.proto";
 
-package protos;
+package core.protos;
 
 enum FormFieldType {
   UNKNOWN_FT = 0;

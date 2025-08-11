@@ -16,17 +16,17 @@ from google.protobuf import struct_pb2 as google_dot_protobuf_dot_struct__pb2
 from google.protobuf import wrappers_pb2 as google_dot_protobuf_dot_wrappers__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\nCprotos/playbooks/source_task_definitions/lambda_function_task.proto\x12\x10protos.playbooks\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1egoogle/protobuf/wrappers.proto\"\x9c\x02\n\x06Lambda\x12/\n\x04type\x18\x01 \x01(\x0e\x32!.protos.playbooks.Lambda.TaskType\x12\x35\n\x08\x66unction\x18\x03 \x01(\x0b\x32!.protos.playbooks.Lambda.FunctionH\x00\x1a{\n\x08\x46unction\x12\x30\n\ndefinition\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x14\n\x0crequirements\x18\x02 \x03(\t\x12\'\n\x06inputs\x18\x03 \x01(\x0b\x32\x17.google.protobuf.Struct\"%\n\x08TaskType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x0c\n\x08\x46UNCTION\x10\x01\x42\x06\n\x04taskb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\nCprotos/playbooks/source_task_definitions/lambda_function_task.proto\x12\x15\x63ore.protos.playbooks\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1egoogle/protobuf/wrappers.proto\"\xa6\x02\n\x06Lambda\x12\x34\n\x04type\x18\x01 \x01(\x0e\x32&.core.protos.playbooks.Lambda.TaskType\x12:\n\x08\x66unction\x18\x03 \x01(\x0b\x32&.core.protos.playbooks.Lambda.FunctionH\x00\x1a{\n\x08\x46unction\x12\x30\n\ndefinition\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x14\n\x0crequirements\x18\x02 \x03(\t\x12\'\n\x06inputs\x18\x03 \x01(\x0b\x32\x17.google.protobuf.Struct\"%\n\x08TaskType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x0c\n\x08\x46UNCTION\x10\x01\x42\x06\n\x04taskb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'protos.playbooks.source_task_definitions.lambda_function_task_pb2', _globals)
 if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
-  _globals['_LAMBDA']._serialized_start=152
-  _globals['_LAMBDA']._serialized_end=436
-  _globals['_LAMBDA_FUNCTION']._serialized_start=266
-  _globals['_LAMBDA_FUNCTION']._serialized_end=389
-  _globals['_LAMBDA_TASKTYPE']._serialized_start=391
-  _globals['_LAMBDA_TASKTYPE']._serialized_end=428
+  _globals['_LAMBDA']._serialized_start=157
+  _globals['_LAMBDA']._serialized_end=451
+  _globals['_LAMBDA_FUNCTION']._serialized_start=281
+  _globals['_LAMBDA_FUNCTION']._serialized_end=404
+  _globals['_LAMBDA_TASKTYPE']._serialized_start=406
+  _globals['_LAMBDA_TASKTYPE']._serialized_end=443
 # @@protoc_insertion_point(module_scope)

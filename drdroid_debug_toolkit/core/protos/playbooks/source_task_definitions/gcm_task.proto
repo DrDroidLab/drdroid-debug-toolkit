@@ -1,5 +1,5 @@
 syntax = "proto3";
-package protos.playbooks;
+package core.protos.playbooks;
 
 import "google/protobuf/wrappers.proto";
 import "google/protobuf/timestamp.proto";

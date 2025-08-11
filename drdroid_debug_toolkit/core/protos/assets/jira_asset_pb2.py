@@ -16,23 +16,23 @@ from google.protobuf import wrappers_pb2 as google_dot_protobuf_dot_wrappers__pb
 from protos import base_pb2 as protos_dot_base__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1eprotos/assets/jira_asset.proto\x12\x11protos.connectors\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x11protos/base.proto\"\xaa\x01\n\x12JiraUserAssetModel\x12\x30\n\naccount_id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x32\n\x0c\x64isplay_name\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12.\n\x08self_url\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"-\n\x14JiraUserAssetOptions\x12\x15\n\rdisplay_names\x18\x01 \x03(\t\"\xc8\x01\n\x15JiraProjectAssetModel\x12(\n\x02id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12)\n\x03key\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04name\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12.\n\x08self_url\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"(\n\x17JiraProjectAssetOptions\x12\r\n\x05names\x18\x02 \x03(\t\"\xa6\x02\n\x0eJiraAssetModel\x12(\n\x02id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.UInt64Value\x12&\n\x0e\x63onnector_type\x18\x02 \x01(\x0e\x32\x0e.protos.Source\x12%\n\x04type\x18\x03 \x01(\x0e\x32\x17.protos.SourceModelType\x12\x14\n\x0clast_updated\x18\x04 \x01(\x10\x12@\n\x0cjira_project\x18\x65 \x01(\x0b\x32(.protos.connectors.JiraProjectAssetModelH\x00\x12:\n\tjira_user\x18\x66 \x01(\x0b\x32%.protos.connectors.JiraUserAssetModelH\x00\x42\x07\n\x05\x61sset\"?\n\nJiraAssets\x12\x31\n\x06\x61ssets\x18\x01 \x03(\x0b\x32!.protos.connectors.JiraAssetModelb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1eprotos/assets/jira_asset.proto\x12\x16\x63ore.protos.connectors\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x11protos/base.proto\"\xaa\x01\n\x12JiraUserAssetModel\x12\x30\n\naccount_id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x32\n\x0c\x64isplay_name\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12.\n\x08self_url\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"-\n\x14JiraUserAssetOptions\x12\x15\n\rdisplay_names\x18\x01 \x03(\t\"\xc8\x01\n\x15JiraProjectAssetModel\x12(\n\x02id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12)\n\x03key\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04name\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12.\n\x08self_url\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"(\n\x17JiraProjectAssetOptions\x12\r\n\x05names\x18\x02 \x03(\t\"\xba\x02\n\x0eJiraAssetModel\x12(\n\x02id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.UInt64Value\x12+\n\x0e\x63onnector_type\x18\x02 \x01(\x0e\x32\x13.core.protos.Source\x12*\n\x04type\x18\x03 \x01(\x0e\x32\x1c.core.protos.SourceModelType\x12\x14\n\x0clast_updated\x18\x04 \x01(\x10\x12\x45\n\x0cjira_project\x18\x65 \x01(\x0b\x32-.core.protos.connectors.JiraProjectAssetModelH\x00\x12?\n\tjira_user\x18\x66 \x01(\x0b\x32*.core.protos.connectors.JiraUserAssetModelH\x00\x42\x07\n\x05\x61sset\"D\n\nJiraAssets\x12\x36\n\x06\x61ssets\x18\x01 \x03(\x0b\x32&.core.protos.connectors.JiraAssetModelb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'protos.assets.jira_asset_pb2', _globals)
 if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
-  _globals['_JIRAUSERASSETMODEL']._serialized_start=105
-  _globals['_JIRAUSERASSETMODEL']._serialized_end=275
-  _globals['_JIRAUSERASSETOPTIONS']._serialized_start=277
-  _globals['_JIRAUSERASSETOPTIONS']._serialized_end=322
-  _globals['_JIRAPROJECTASSETMODEL']._serialized_start=325
-  _globals['_JIRAPROJECTASSETMODEL']._serialized_end=525
-  _globals['_JIRAPROJECTASSETOPTIONS']._serialized_start=527
-  _globals['_JIRAPROJECTASSETOPTIONS']._serialized_end=567
-  _globals['_JIRAASSETMODEL']._serialized_start=570
-  _globals['_JIRAASSETMODEL']._serialized_end=864
-  _globals['_JIRAASSETS']._serialized_start=866
-  _globals['_JIRAASSETS']._serialized_end=929
+  _globals['_JIRAUSERASSETMODEL']._serialized_start=110
+  _globals['_JIRAUSERASSETMODEL']._serialized_end=280
+  _globals['_JIRAUSERASSETOPTIONS']._serialized_start=282
+  _globals['_JIRAUSERASSETOPTIONS']._serialized_end=327
+  _globals['_JIRAPROJECTASSETMODEL']._serialized_start=330
+  _globals['_JIRAPROJECTASSETMODEL']._serialized_end=530
+  _globals['_JIRAPROJECTASSETOPTIONS']._serialized_start=532
+  _globals['_JIRAPROJECTASSETOPTIONS']._serialized_end=572
+  _globals['_JIRAASSETMODEL']._serialized_start=575
+  _globals['_JIRAASSETMODEL']._serialized_end=889
+  _globals['_JIRAASSETS']._serialized_start=891
+  _globals['_JIRAASSETS']._serialized_end=959
 # @@protoc_insertion_point(module_scope)

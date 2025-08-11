@@ -16,17 +16,17 @@ from google.protobuf import wrappers_pb2 as google_dot_protobuf_dot_wrappers__pb
 from google.protobuf import struct_pb2 as google_dot_protobuf_dot_struct__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n<protos/playbooks/source_task_definitions/ms_teams_task.proto\x12\x10protos.playbooks\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1cgoogle/protobuf/struct.proto\"\xb3\x02\n\x07MSTeams\x12\x30\n\x04type\x18\x01 \x01(\x0e\x32\".protos.playbooks.MSTeams.TaskType\x12L\n\x14send_message_webhook\x18\x02 \x01(\x0b\x32,.protos.playbooks.MSTeams.SendMessageWebhookH\x00\x1am\n\x12SendMessageWebhook\x12-\n\x07webhook\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12(\n\x07payload\x18\x02 \x01(\x0b\x32\x17.google.protobuf.Struct\"1\n\x08TaskType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x18\n\x14SEND_MESSAGE_WEBHOOK\x10\x01\x42\x06\n\x04taskb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n<protos/playbooks/source_task_definitions/ms_teams_task.proto\x12\x15\x63ore.protos.playbooks\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1cgoogle/protobuf/struct.proto\"\xbd\x02\n\x07MSTeams\x12\x35\n\x04type\x18\x01 \x01(\x0e\x32\'.core.protos.playbooks.MSTeams.TaskType\x12Q\n\x14send_message_webhook\x18\x02 \x01(\x0b\x32\x31.core.protos.playbooks.MSTeams.SendMessageWebhookH\x00\x1am\n\x12SendMessageWebhook\x12-\n\x07webhook\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12(\n\x07payload\x18\x02 \x01(\x0b\x32\x17.google.protobuf.Struct\"1\n\x08TaskType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x18\n\x14SEND_MESSAGE_WEBHOOK\x10\x01\x42\x06\n\x04taskb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'protos.playbooks.source_task_definitions.ms_teams_task_pb2', _globals)
 if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
-  _globals['_MSTEAMS']._serialized_start=145
-  _globals['_MSTEAMS']._serialized_end=452
-  _globals['_MSTEAMS_SENDMESSAGEWEBHOOK']._serialized_start=284
-  _globals['_MSTEAMS_SENDMESSAGEWEBHOOK']._serialized_end=393
-  _globals['_MSTEAMS_TASKTYPE']._serialized_start=395
-  _globals['_MSTEAMS_TASKTYPE']._serialized_end=444
+  _globals['_MSTEAMS']._serialized_start=150
+  _globals['_MSTEAMS']._serialized_end=467
+  _globals['_MSTEAMS_SENDMESSAGEWEBHOOK']._serialized_start=299
+  _globals['_MSTEAMS_SENDMESSAGEWEBHOOK']._serialized_end=408
+  _globals['_MSTEAMS_TASKTYPE']._serialized_start=410
+  _globals['_MSTEAMS_TASKTYPE']._serialized_end=459
 # @@protoc_insertion_point(module_scope)

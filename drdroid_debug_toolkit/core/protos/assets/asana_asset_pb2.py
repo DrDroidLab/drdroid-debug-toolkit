@@ -16,23 +16,23 @@ from google.protobuf import wrappers_pb2 as google_dot_protobuf_dot_wrappers__pb
 from protos import base_pb2 as protos_dot_base__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1fprotos/assets/asana_asset.proto\x12\x11protos.connectors\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x11protos/base.proto\"L\n\x1a\x41sanaAlertOpsConfiguration\x12.\n\nis_enabled\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.BoolValue\"\x8d\x03\n\x16\x41sanaProjectAssetModel\x12\x30\n\nproject_id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x32\n\x0cproject_name\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x46\n\tworkspace\x18\x03 \x01(\x0b\x32\x33.protos.connectors.AsanaProjectAssetModel.Workspace\x12N\n\x17\x61lert_ops_configuration\x18\x04 \x01(\x0b\x32-.protos.connectors.AsanaAlertOpsConfiguration\x1au\n\tWorkspace\x12\x32\n\x0cworkspace_id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x34\n\x0eworkspace_name\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"/\n\x18\x41sanaProjectAssetOptions\x12\x13\n\x0bproject_ids\x18\x01 \x03(\t\"\xed\x01\n\x0f\x41sanaAssetModel\x12(\n\x02id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.UInt64Value\x12&\n\x0e\x63onnector_type\x18\x02 \x01(\x0e\x32\x0e.protos.Source\x12%\n\x04type\x18\x03 \x01(\x0e\x32\x17.protos.SourceModelType\x12\x14\n\x0clast_updated\x18\x04 \x01(\x10\x12\x42\n\rasana_project\x18\x05 \x01(\x0b\x32).protos.connectors.AsanaProjectAssetModelH\x00\x42\x07\n\x05\x61sset\"A\n\x0b\x41sanaAssets\x12\x32\n\x06\x61ssets\x18\x01 \x03(\x0b\x32\".protos.connectors.AsanaAssetModelb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1fprotos/assets/asana_asset.proto\x12\x16\x63ore.protos.connectors\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x11protos/base.proto\"L\n\x1a\x41sanaAlertOpsConfiguration\x12.\n\nis_enabled\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.BoolValue\"\x97\x03\n\x16\x41sanaProjectAssetModel\x12\x30\n\nproject_id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x32\n\x0cproject_name\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12K\n\tworkspace\x18\x03 \x01(\x0b\x32\x38.core.protos.connectors.AsanaProjectAssetModel.Workspace\x12S\n\x17\x61lert_ops_configuration\x18\x04 \x01(\x0b\x32\x32.core.protos.connectors.AsanaAlertOpsConfiguration\x1au\n\tWorkspace\x12\x32\n\x0cworkspace_id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x34\n\x0eworkspace_name\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"/\n\x18\x41sanaProjectAssetOptions\x12\x13\n\x0bproject_ids\x18\x01 \x03(\t\"\xfc\x01\n\x0f\x41sanaAssetModel\x12(\n\x02id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.UInt64Value\x12+\n\x0e\x63onnector_type\x18\x02 \x01(\x0e\x32\x13.core.protos.Source\x12*\n\x04type\x18\x03 \x01(\x0e\x32\x1c.core.protos.SourceModelType\x12\x14\n\x0clast_updated\x18\x04 \x01(\x10\x12G\n\rasana_project\x18\x05 \x01(\x0b\x32..core.protos.connectors.AsanaProjectAssetModelH\x00\x42\x07\n\x05\x61sset\"F\n\x0b\x41sanaAssets\x12\x37\n\x06\x61ssets\x18\x01 \x03(\x0b\x32\'.core.protos.connectors.AsanaAssetModelb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'protos.assets.asana_asset_pb2', _globals)
 if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
-  _globals['_ASANAALERTOPSCONFIGURATION']._serialized_start=105
-  _globals['_ASANAALERTOPSCONFIGURATION']._serialized_end=181
-  _globals['_ASANAPROJECTASSETMODEL']._serialized_start=184
-  _globals['_ASANAPROJECTASSETMODEL']._serialized_end=581
-  _globals['_ASANAPROJECTASSETMODEL_WORKSPACE']._serialized_start=464
-  _globals['_ASANAPROJECTASSETMODEL_WORKSPACE']._serialized_end=581
-  _globals['_ASANAPROJECTASSETOPTIONS']._serialized_start=583
-  _globals['_ASANAPROJECTASSETOPTIONS']._serialized_end=630
-  _globals['_ASANAASSETMODEL']._serialized_start=633
-  _globals['_ASANAASSETMODEL']._serialized_end=870
-  _globals['_ASANAASSETS']._serialized_start=872
-  _globals['_ASANAASSETS']._serialized_end=937
+  _globals['_ASANAALERTOPSCONFIGURATION']._serialized_start=110
+  _globals['_ASANAALERTOPSCONFIGURATION']._serialized_end=186
+  _globals['_ASANAPROJECTASSETMODEL']._serialized_start=189
+  _globals['_ASANAPROJECTASSETMODEL']._serialized_end=596
+  _globals['_ASANAPROJECTASSETMODEL_WORKSPACE']._serialized_start=479
+  _globals['_ASANAPROJECTASSETMODEL_WORKSPACE']._serialized_end=596
+  _globals['_ASANAPROJECTASSETOPTIONS']._serialized_start=598
+  _globals['_ASANAPROJECTASSETOPTIONS']._serialized_end=645
+  _globals['_ASANAASSETMODEL']._serialized_start=648
+  _globals['_ASANAASSETMODEL']._serialized_end=900
+  _globals['_ASANAASSETS']._serialized_start=902
+  _globals['_ASANAASSETS']._serialized_end=972
 # @@protoc_insertion_point(module_scope)

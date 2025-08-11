@@ -16,17 +16,17 @@ from google.protobuf import wrappers_pb2 as google_dot_protobuf_dot_wrappers__pb
 from google.protobuf import struct_pb2 as google_dot_protobuf_dot_struct__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n>protos/playbooks/source_task_definitions/pager_duty_task.proto\x12\x10protos.playbooks\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1cgoogle/protobuf/struct.proto\"\xbd\x02\n\tPagerDuty\x12\x32\n\x04type\x18\x01 \x01(\x0e\x32$.protos.playbooks.PagerDuty.TaskType\x12\x39\n\tsend_note\x18\x02 \x01(\x0b\x32$.protos.playbooks.PagerDuty.SendNoteH\x00\x1a\x90\x01\n\x08SendNote\x12-\n\x07service\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12.\n\x08incident\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12%\n\x04note\x18\x03 \x01(\x0b\x32\x17.google.protobuf.Struct\"&\n\x08TaskType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\r\n\tSEND_NOTE\x10\x01\x42\x06\n\x04taskb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n>protos/playbooks/source_task_definitions/pager_duty_task.proto\x12\x15\x63ore.protos.playbooks\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1cgoogle/protobuf/struct.proto\"\xc7\x02\n\tPagerDuty\x12\x37\n\x04type\x18\x01 \x01(\x0e\x32).core.protos.playbooks.PagerDuty.TaskType\x12>\n\tsend_note\x18\x02 \x01(\x0b\x32).core.protos.playbooks.PagerDuty.SendNoteH\x00\x1a\x90\x01\n\x08SendNote\x12-\n\x07service\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12.\n\x08incident\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12%\n\x04note\x18\x03 \x01(\x0b\x32\x17.google.protobuf.Struct\"&\n\x08TaskType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\r\n\tSEND_NOTE\x10\x01\x42\x06\n\x04taskb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'protos.playbooks.source_task_definitions.pager_duty_task_pb2', _globals)
 if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
-  _globals['_PAGERDUTY']._serialized_start=147
-  _globals['_PAGERDUTY']._serialized_end=464
-  _globals['_PAGERDUTY_SENDNOTE']._serialized_start=272
-  _globals['_PAGERDUTY_SENDNOTE']._serialized_end=416
-  _globals['_PAGERDUTY_TASKTYPE']._serialized_start=418
-  _globals['_PAGERDUTY_TASKTYPE']._serialized_end=456
+  _globals['_PAGERDUTY']._serialized_start=152
+  _globals['_PAGERDUTY']._serialized_end=479
+  _globals['_PAGERDUTY_SENDNOTE']._serialized_start=287
+  _globals['_PAGERDUTY_SENDNOTE']._serialized_end=431
+  _globals['_PAGERDUTY_TASKTYPE']._serialized_start=433
+  _globals['_PAGERDUTY_TASKTYPE']._serialized_end=471
 # @@protoc_insertion_point(module_scope)
