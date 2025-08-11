@@ -797,7 +797,6 @@ class CloudwatchSourceManager(SourceManager):
                         source=self.source
                     )
                     task_results.append(single_task_result)
-            print(f"task_results: {task_results}")
             if not task_results:
                 return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT, text=TextResult(output=StringValue(
                     value=f"No metric data could be fetched for any widget in dashboard '{dashboard_name}'.")))
