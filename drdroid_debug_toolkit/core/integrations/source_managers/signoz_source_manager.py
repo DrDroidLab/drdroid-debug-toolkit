@@ -2,6 +2,7 @@ import json
 import logging
 import typing
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from datetime import datetime, timezone
 
 from google.protobuf.struct_pb2 import Struct
 from google.protobuf.wrappers_pb2 import (
@@ -1138,13 +1139,12 @@ class SignozSourceManager(SourceManager):
         signoz_task: Signoz,
         signoz_connector: ConnectorProto,
     ) -> list[PlaybookTaskResult]:
-        """Executes queries for all panels in a specified Signoz dashboard."""
-        task_results = []
+        """Executes queries for all panels in a specified Signoz dashboard using the processor's fetch_dashboard_data method."""
         try:
             if not signoz_connector:
                 return [
                     PlaybookTaskResult(
-                        type=PlaybookTaskResultType.ERROR,
+                        type=PlaybookTaskResultType.API_RESPONSE,
                         text=TextResult(output=StringValue(value="Signoz connector not found.")),
                         source=self.source,
                     )
@@ -1155,104 +1155,50 @@ class SignozSourceManager(SourceManager):
             if not dashboard_name:
                 return [
                     PlaybookTaskResult(
-                        type=PlaybookTaskResultType.ERROR,
+                        type=PlaybookTaskResultType.API_RESPONSE,
                         text=TextResult(output=StringValue(value="Dashboard name must be provided.")),
                         source=self.source,
                     )
                 ]
 
-            # 1. Parse Variables
-            variables_dict, error_result = self._parse_dashboard_variables(task)
-            if error_result:
-                return [error_result]
+            # Get parameters
+            step = task.step.value if task.HasField("step") else None
+            variables_json = task.variables_json.value if task.HasField("variables_json") else None
 
-            # 2. Find Dashboard Asset
-            dashboard = self._find_dashboard_asset(signoz_connector, dashboard_name)
-            if not dashboard:
-                return [
-                    PlaybookTaskResult(
-                        type=PlaybookTaskResultType.TEXT,
-                        text=TextResult(output=StringValue(value=f"Dashboard '{dashboard_name}' not found.")),
-                        source=self.source,
-                    )
-                ]
+            # Convert time range to start/end times for the processor
+            start_time = datetime.fromtimestamp(time_range.time_geq, tz=timezone.utc).isoformat()
+            end_time = datetime.fromtimestamp(time_range.time_lt, tz=timezone.utc).isoformat()
 
-            # 3. Prepare Panel Queries using QueryBuilder
-            global_step = self._get_step_interval(time_range, task)
-            query_builder = SignozDashboardQueryBuilder(global_step=global_step, variables=variables_dict)
-            panel_queries_map = self._prepare_panel_queries(dashboard, query_builder)
-
-            if not panel_queries_map:
-                return [
-                    PlaybookTaskResult(
-                        type=PlaybookTaskResultType.TEXT,
-                        text=TextResult(output=StringValue(value=f"No builder queries found or prepared for dashboard: {dashboard_name}")),
-                        source=self.source,
-                    )
-                ]
-
-            # 4. Execute Queries Concurrently
             signoz_api_processor = self.get_connector_processor(signoz_connector)
-            futures_map = {}
-            # Consider making max_workers configurable or dynamic
-            max_workers = min(10, len(panel_queries_map))  # Limit workers, but don't exceed number of panels
+            result = signoz_api_processor.fetch_dashboard_data(
+                dashboard_name, start_time, end_time, step, variables_json
+            )
 
-            logger.info(f"Executing queries for {len(panel_queries_map)} panels from dashboard '{dashboard_name}'...")
-
-            with ThreadPoolExecutor(max_workers=max_workers) as executor:
-                for panel_id, panel_info in panel_queries_map.items():
-                    future = executor.submit(
-                        self._execute_panel_queries,  # Pass the QueryBuilder instance
-                        panel_info,
-                        time_range,
-                        signoz_api_processor,
-                        query_builder,
-                    )
-                    futures_map[future] = {"panel_id": panel_id, "panel_title": panel_info["panel_title"]}
-
-                # Collect results
-                for future in as_completed(futures_map):
-                    context = futures_map[future]
-                    try:
-                        panel_result = future.result()  # Returns PlaybookTaskResult or None
-                        if panel_result:
-                            task_results.append(panel_result)
-                        else:
-                            # Logged within _execute_panel_queries if None is returned due to no data/error
-                            pass
-                    except Exception as exc:
-                        # This catches errors *within* the future execution if not handled internally
-                        logger.error(f"Panel execution failed for '{context['panel_title']}' (ID: {context['panel_id']}): {exc}", exc_info=True)
-                        # Optionally add an error task result for this panel
-                        task_results.append(
-                            PlaybookTaskResult(
-                                type=PlaybookTaskResultType.ERROR,
-                                text=TextResult(output=StringValue(value=f"Failed to execute queries for panel '{context['panel_title']}': {exc}")),
-                                source=self.source,
-                            )
-                        )
-
-            logger.info(f"Finished execution. Collected {len(task_results)} results for dashboard '{dashboard_name}'.")
-
-            # Handle case where no panels yielded any processable data after execution
-            if not task_results:
+            if result and result.get("status") == "success":
+                # Convert the result to a structured response
+                response_struct = dict_to_proto(result, Struct)
                 return [
                     PlaybookTaskResult(
-                        type=PlaybookTaskResultType.TEXT,
-                        text=TextResult(output=StringValue(value=f"No data could be processed for any panel in dashboard: {dashboard_name}")),
+                        type=PlaybookTaskResultType.API_RESPONSE,
+                        api_response=ApiResponseResult(response_body=response_struct),
                         source=self.source,
                     )
                 ]
-
-            return task_results
+            else:
+                error_msg = result.get("message", "Failed to fetch dashboard data") if result else "Failed to fetch dashboard data"
+                return [
+                    PlaybookTaskResult(
+                        type=PlaybookTaskResultType.API_RESPONSE,
+                        text=TextResult(output=StringValue(value=error_msg)),
+                        source=self.source,
+                    )
+                ]
 
         except Exception as e:
-            logger.error(
-                f"Critical error during Signoz dashboard data task for '{task.dashboard_name.value if task else 'Unknown'}': {e}", exc_info=True
-            )
+            logger.error(f"Error while executing Signoz dashboard data task: {e}", exc_info=True)
             return [
                 PlaybookTaskResult(
-                    type=PlaybookTaskResultType.ERROR,
+                    type=PlaybookTaskResultType.API_RESPONSE,
                     text=TextResult(output=StringValue(value=f"Unexpected error executing dashboard task: {e}")),
                     source=self.source,
                 )
@@ -1347,6 +1293,53 @@ class SignozSourceManager(SourceManager):
         except Exception as e:
             logger.error(f"Error while executing Signoz fetch dashboard details task: {e}")
             raise Exception(f"Error while executing Signoz fetch dashboard details task: {e}") from e
+
+    def execute_fetch_services(
+        self,
+        time_range: TimeRange,
+        signoz_task: Signoz,
+        signoz_connector: ConnectorProto,
+    ) -> PlaybookTaskResult:
+        """Executes fetch services task."""
+        try:
+            if not signoz_connector:
+                raise Exception("Task execution Failed:: No Signoz source found")
+
+            task = signoz_task.fetch_services
+            start_time = task.start_time.value if task.HasField("start_time") else None
+            end_time = task.end_time.value if task.HasField("end_time") else None
+            duration = task.duration.value if task.HasField("duration") else None
+
+            signoz_api_processor = self.get_connector_processor(signoz_connector)
+            result = signoz_api_processor.fetch_services(start_time, end_time, duration)
+
+            if result:
+                # Handle different response formats from fetch_services
+                if isinstance(result, list):
+                    # If result is a list of services, wrap it in a dictionary
+                    response_data = {"services": result}
+                elif isinstance(result, dict):
+                    # If result is already a dictionary (e.g., error response), use it as is
+                    response_data = result
+                else:
+                    # Fallback: wrap in a generic structure
+                    response_data = {"data": result}
+                
+                response_struct = dict_to_proto(response_data, Struct)
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.API_RESPONSE,
+                    api_response=ApiResponseResult(response_body=response_struct),
+                    source=self.source,
+                )
+            else:
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.API_RESPONSE,
+                    text=TextResult(output=StringValue(value="Failed to fetch services")),
+                    source=self.source,
+                )
+        except Exception as e:
+            logger.error(f"Error while executing Signoz fetch services task: {e}")
+            raise Exception(f"Error while executing Signoz fetch services task: {e}") from e
 
     def execute_fetch_apm_metrics(
         self,
