@@ -10,18 +10,18 @@ import sys
 from setuptools import setup, find_packages
 
 def generate_protobuf_files():
-    """Generate protobuf files using the proto_codegen.sh script"""
+    """Generate protobuf files using Python-based script"""
     try:
         # Get the current directory (project root)
         project_root = os.getcwd()
-        proto_script = os.path.join(project_root, "drdroid_debug_toolkit", "core", "proto_codegen.sh")
+        python_script = os.path.join(project_root, "generate_protos_python.py")
         
-        if os.path.exists(proto_script):
+        if os.path.exists(python_script):
             print("🔄 Generating protobuf files...")
             
-            # Run the script from the project root
+            # Run the Python-based generation script
             result = subprocess.run(
-                ["bash", proto_script],
+                [sys.executable, python_script],
                 cwd=project_root,
                 capture_output=True,
                 text=True,
@@ -30,7 +30,7 @@ def generate_protobuf_files():
             print("✅ Protobuf files generated successfully")
             return True
         else:
-            print(f"⚠️  Proto codegen script not found at {proto_script}")
+            print(f"⚠️  Python generation script not found at {python_script}")
             return False
     except subprocess.CalledProcessError as e:
         print(f"❌ Failed to generate protobuf files: {e}")
