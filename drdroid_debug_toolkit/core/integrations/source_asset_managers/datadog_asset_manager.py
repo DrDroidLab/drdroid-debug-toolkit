@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Datadog Asset Manager for processing raw metadata extractor data."""
 
-from datetime import timezone
+from datetime import datetime, timezone
 from typing import Dict, Any, List
 
 from google.protobuf.struct_pb2 import Struct
@@ -141,7 +141,7 @@ class DatadogAssetManager(SourceAssetManager):
                 id=UInt64Value(value=0),  # No database ID in real-time mode
                 connector_type=connector.type,
                 type=model_type,
-                last_updated=int(timezone.utc.timestamp()),
+                last_updated=int(datetime.now(timezone.utc).timestamp()),
                 datadog_service=DatadogServiceAssetModel(
                     service_name=StringValue(value=service_name),
                     environments=env_list,
@@ -289,7 +289,7 @@ class DatadogAssetManager(SourceAssetManager):
                 id=UInt64Value(value=0),  # No database ID in real-time mode
                 connector_type=connector.type,
                 type=model_type,
-                last_updated=int(timezone.utc.timestamp()),
+                last_updated=int(datetime.now(timezone.utc).timestamp()),
                 datadog_dashboard=DatadogDashboardModel(
                     id=StringValue(value=dashboard_id),
                     url=StringValue(value=dashboard_url),

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """NewRelic Asset Manager for processing raw metadata extractor data."""
 
-from datetime import timezone
+from datetime import datetime, timezone
 from typing import Dict, Any, List
 
 from google.protobuf.wrappers_pb2 import UInt64Value, StringValue
@@ -107,7 +107,7 @@ class NewRelicAssetManager(SourceAssetManager):
                 id=UInt64Value(value=0),  # No database ID in real-time mode
                 connector_type=connector.type,
                 type=model_type,
-                last_updated=int(timezone.utc.timestamp()),
+                last_updated=int(datetime.now(timezone.utc).timestamp()),
                 new_relic_entity_application=NewRelicApplicationEntityAssetModel(
                     application_entity_guid=StringValue(value=app_guid),
                     application_name=StringValue(value=app_data.get('name')),
@@ -253,7 +253,7 @@ class NewRelicAssetManager(SourceAssetManager):
                 id=UInt64Value(value=0),  # No database ID in real-time mode
                 connector_type=connector.type,
                 type=model_type,
-                last_updated=int(timezone.utc.timestamp()),
+                last_updated=int(datetime.now(timezone.utc).timestamp()),
                 new_relic_entity_dashboard=NewRelicDashboardEntityAssetModel(
                     dashboard_guid=StringValue(value=dashboard_guid),
                     dashboard_name=StringValue(value=dashboard_data.get('name')),
@@ -355,7 +355,7 @@ class NewRelicAssetManager(SourceAssetManager):
                     id=UInt64Value(value=0),  # No database ID in real-time mode
                     connector_type=connector.type,
                     type=SourceModelType.NEW_RELIC_ENTITY_DASHBOARD_V2,
-                    last_updated=int(timezone.utc.timestamp()),
+                    last_updated=int(datetime.now(timezone.utc).timestamp()),
                     new_relic_entity_dashboard_v2=NewRelicDashboardEntityAssetModelV2(
                         dashboard_guid=StringValue(value=dashboard_guid),
                         dashboard_name=StringValue(value=dashboard_data.get('name')),
