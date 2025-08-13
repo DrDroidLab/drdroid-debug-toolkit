@@ -29,6 +29,52 @@ import "core/protos/assets/posthog_asset.proto";
 import "core/protos/assets/sql_database_asset.proto";
 import "core/protos/assets/mongodb_asset.proto";
 
+message ConnectorModelTypeOptions {
+  ConnectorMetadataModelType model_type = 1;
+  oneof options {
+    CloudwatchLogGroupAssetOptions cloudwatch_log_group_model_options = 2;
+    CloudwatchMetricAssetOptions cloudwatch_metric_model_options = 3;
+    GrafanaTargetMetricPromQlAssetOptions grafana_target_metric_promql_model_options = 4;
+    ClickhouseDatabaseAssetOptions clickhouse_database_model_options = 5;
+    SlackChannelAssetOptions slack_channel_model_options = 6;
+    NewRelicApplicationEntityAssetOptions new_relic_entity_application_model_options = 7;
+    NewRelicDashboardEntityAssetOptions new_relic_entity_dashboard_model_options = 8;
+    DatadogServiceAssetOptions datadog_service_model_options = 9;
+    PostgresDatabaseAssetOptions postgres_database_model_options = 10;
+    EksClusterAssetOptions eks_cluster_model_options = 11;
+    BashSshServerAssetOptions ssh_server_model_options = 12;
+    AzureWorkspaceAssetOptions azure_workspace_model_options = 13;
+    GrafanaDatasourceAssetOptions grafana_prometheus_datasource_model_options = 14;
+    GkeClusterAssetOptions gke_cluster_model_options = 15;
+    ElasticSearchIndexAssetOptions elastic_search_index_model_options = 16;
+    OpenSearchIndexAssetOptions open_search_index_model_options = 17;
+    GcmMetricAssetOptions gcm_metric_model_options = 18;
+    DatadogServiceAssetOptions datadog_oauth_service_model_options = 19;
+    CloudwatchLogGroupQueryAssetOptions cloudwatch_log_group_query_model_options = 20;
+    AsanaProjectAssetOptions asana_project_model_options = 21;
+    GrafanaAlertRuleAssetOptions grafana_alert_rule_model_options = 22;
+    CloudwatchAlarmAssetOptions cloudwatch_alarm_model_options = 23;
+    DatadogDashboardAssetOptions datadog_dashboard_model_options = 24;
+    DatadogDashboardAssetOptions datadog_oauth_dashboard_model_options = 25;
+    GithubRepositoryAssetOptions github_repository_model_options = 26;
+    GithubMemberAssetOptions github_member_model_options = 27;
+    JiraUserAssetOptions jira_user_model_options = 28;
+    JiraProjectAssetOptions jira_project_model_options = 29;
+    ArgoCDAppsAssetOptions argocd_apps_model_options = 30;
+    AzureResourceAssetOptions azure_resource_model_options = 31;
+    JenkinsAppsAssetOptions jenkins_apps_model_options = 32;
+    MongoDBDatabaseAssetOptions mongodb_database_model_options = 33;
+    MongoDBCollectionAssetOptions mongodb_collection_model_options = 34;
+    PosthogPropertyAssetOptions posthog_property_model_options = 35;
+    EcsClusterAssetOptions ecs_cluster_model_options = 36;
+    EcsTaskAssetOptions ecs_task_model_options = 37;
+    EcsServiceAssetOptions ecs_service_model_options = 38;
+    GcmDashboardEntityAssetOptions gcm_dashboard_model_options = 39;
+    GcmCloudRunServiceAssetOptions gcm_cloud_run_service_model_options = 40;
+    SignozDashboardAssetOptions signoz_dashboard_model_options = 41;
+    SignozAlertAssetOptions signoz_alert_model_options = 42;
+  }
+}
 
 message AccountConnectorAssets {
   Connector connector = 1;
