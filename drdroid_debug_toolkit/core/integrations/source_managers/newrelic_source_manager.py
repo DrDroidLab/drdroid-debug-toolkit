@@ -1131,6 +1131,8 @@ class NewRelicSourceManager(SourceManager):
         for guid, entities in entities_by_guid.items():
             for entity in entities: # Check all names associated with this GUID
                 current_dashboard_name = entity.get('dashboard_name', '')
+                print(f"current_dashboard_name: {current_dashboard_name}")
+                logger.info(f"current_dashboard_name: {current_dashboard_name}")
                 match = False
                 if page_name:
                     target_name = f"{dashboard_name} / {page_name}"
