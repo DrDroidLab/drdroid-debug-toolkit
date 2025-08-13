@@ -20,6 +20,7 @@ from core.protos.assets.asset_pb2 import AccountConnectorAssets, AccountConnecto
 from core.utils.credentilal_utils import generate_credentials_dict
 from core.utils.string_utils import is_partial_match
 from core.integrations.source_metadata_extractors.newrelic_metadata_extractor import NewrelicSourceMetadataExtractor
+from core.integrations.source_asset_managers.newrelic_asset_manager import NewRelicAssetManager
 from core.utils.time_utils import calculate_timeseries_bucket_size
 from core.utils.proto_utils import dict_to_proto, proto_to_dict
 from core.utils.static_mappings import NEWRELIC_APM_QUERIES
@@ -532,11 +533,26 @@ class NewRelicSourceManager(SourceManager):
         if not dashboard_entities_data:
             raise Exception(f"No dashboard assets found for the account {nr_connector.account_id.value}")
 
+        # Use asset manager to process the raw data
+        newrelic_asset_manager = NewRelicAssetManager()
+        filters = AccountConnectorAssetsModelFilters()
+        assets = newrelic_asset_manager.get_asset_values(
+            nr_connector, filters, SourceModelType.NEW_RELIC_ENTITY_DASHBOARD, dashboard_entities_data
+        )
+
+        if not assets or not assets.new_relic or not assets.new_relic.assets:
+            raise Exception(f"No dashboard assets found for the account {nr_connector.account_id.value}")
+
         matching_widgets = []
         dashboard_found = False
 
-        for dashboard_guid, dashboard_entity_data in dashboard_entities_data.items():
-            current_dashboard_name = dashboard_entity_data.get('dashboard_name', '')
+        newrelic_assets = assets.new_relic.assets
+        all_dashboard_entities = [newrelic_asset.new_relic_entity_dashboard for newrelic_asset
+                                  in newrelic_assets if
+                                  newrelic_asset.type == SourceModelType.NEW_RELIC_ENTITY_DASHBOARD]
+
+        for dashboard_entity in all_dashboard_entities:
+            current_dashboard_name = dashboard_entity.dashboard_name.value
             match = False
 
             if page_name:
@@ -550,23 +566,21 @@ class NewRelicSourceManager(SourceManager):
 
             if match:
                 dashboard_found = True
-                pages = dashboard_entity_data.get('pages', [])
-                for page in pages:
+                for page in dashboard_entity.pages:
                     # If a specific page name is given, only process that page if names match case-insensitively
-                    if page_name and page.get('page_name', '').lower() != page_name.lower():
+                    if page_name and page.page_name.value.lower() != page_name.lower():
                         continue
 
-                    widgets = page.get('widgets', [])
-                    for widget in widgets:
-                        widget_title = widget.get('widget_title', '') or f"Widget {widget.get('widget_id', '')}"
+                    for widget in page.widgets:
+                        widget_title = widget.widget_title.value if widget.widget_title.value else f"Widget {widget.widget_id.value}"
                         if widget_names and not is_partial_match(widget_title, widget_names):
                             continue
 
                         matching_widgets.append({
                             'title': widget_title,
-                            'nrql': widget.get('widget_nrql_expression', ''),
-                            'type': widget.get('widget_type', ''),
-                            'id': widget.get('widget_id', '')
+                            'nrql': widget.widget_nrql_expression.value,
+                            'type': widget.widget_type.value,
+                            'id': widget.widget_id.value
                         })
 
                 # If we were looking for a specific page and found it, stop searching further dashboards.
@@ -1117,20 +1131,36 @@ class NewRelicSourceManager(SourceManager):
             # Return empty list instead of raising Exception here, let caller handle no data
             return []
 
+        # Use asset manager to process the raw data
+        newrelic_asset_manager = NewRelicAssetManager()
+        filters = AccountConnectorAssetsModelFilters()
+        assets = newrelic_asset_manager.get_asset_values(
+            nr_connector, filters, SourceModelType.NEW_RELIC_ENTITY_DASHBOARD_V2, dashboard_entities_v2_data
+        )
+
+        if not assets or not assets.new_relic or not assets.new_relic.assets:
+            logger.warning(f"No V2 dashboard assets found for the account {nr_connector.account_id.value}")
+            return []
+
         # 1. Group entities by dashboard_guid
         entities_by_guid = {}
-        for entity_guid, entity_data in dashboard_entities_v2_data.items():
-            guid = entity_data.get('dashboard_guid', '')
+        newrelic_assets = assets.new_relic.assets
+        all_dashboard_entities_v2 = [newrelic_asset.new_relic_entity_dashboard_v2 for newrelic_asset
+                                     in newrelic_assets if
+                                     newrelic_asset.type == SourceModelType.NEW_RELIC_ENTITY_DASHBOARD_V2]
+
+        for dashboard_entity in all_dashboard_entities_v2:
+            guid = dashboard_entity.dashboard_guid.value
             if guid not in entities_by_guid:
                 entities_by_guid[guid] = []
-            entities_by_guid[guid].append(entity_data)
+            entities_by_guid[guid].append(dashboard_entity)
 
         # 2. Find GUIDs matching the input dashboard_name using V1 logic
         matched_guids = set()
         dashboard_found = False
         for guid, entities in entities_by_guid.items():
             for entity in entities: # Check all names associated with this GUID
-                current_dashboard_name = entity.get('dashboard_name', '')
+                current_dashboard_name = entity.dashboard_name.value
                 print(f"current_dashboard_name: {current_dashboard_name}")
                 logger.info(f"current_dashboard_name: {current_dashboard_name}")
                 match = False
@@ -1158,10 +1188,9 @@ class NewRelicSourceManager(SourceManager):
             processed_pages_in_guid = set()
 
             for entity in entities_by_guid[guid]: # Iterate entities for this matched GUID
-                pages = entity.get('pages', [])
-                for page in pages:
-                    page_guid = page.get('page_guid', '')
-                    current_page_name = page.get('page_name', '')
+                for page in entity.pages:
+                    page_guid = page.page_guid.value
+                    current_page_name = page.page_name.value
 
                     # Skip if page already processed for this GUID
                     if page_guid in processed_pages_in_guid:
@@ -1175,10 +1204,9 @@ class NewRelicSourceManager(SourceManager):
                     processed_pages_in_guid.add(page_guid)
 
                     # Process widgets on this unique page
-                    widgets = page.get('widgets', [])
-                    for widget in widgets:
-                        widget_id = widget.get('widget_id', '')
-                        widget_title = widget.get('widget_title', '') or f"Widget_{widget_id}"
+                    for widget in page.widgets:
+                        widget_id = widget.widget_id.value
+                        widget_title = widget.widget_title.value or f"Widget_{widget_id}"
 
                         # Apply widget name filter (if provided)
                         if widget_names and not is_partial_match(widget_title, widget_names):
@@ -1188,11 +1216,11 @@ class NewRelicSourceManager(SourceManager):
                         widget_key = (guid, page_guid, widget_id)
 
                         if widget_key not in unique_widgets_data:
-                             nrql_expressions = [expr for expr in widget.get('widget_nrql_expressions', []) if expr]
+                             nrql_expressions = [expr.value for expr in widget.widget_nrql_expressions if expr.value]
                              unique_widgets_data[widget_key] = {
                                  'title': widget_title,
                                  'nrql_expressions': nrql_expressions,
-                                 'type': widget.get('widget_type', ''),
+                                 'type': widget.widget_type.value,
                                  'id': widget_id,
                                  'dashboard_guid': guid,
                                  'page_guid': page_guid
@@ -1395,10 +1423,29 @@ class NewRelicSourceManager(SourceManager):
                                               value=f"Application asset with GUID '{application_name}' not found")),
                                           source=self.source)
 
+            # Use asset manager to process the raw data
+            newrelic_asset_manager = NewRelicAssetManager()
+            filters = AccountConnectorAssetsModelFilters()
+            assets = newrelic_asset_manager.get_asset_values(
+                nr_connector, filters, SourceModelType.NEW_RELIC_ENTITY_APPLICATION, application_entities_data
+            )
+
+            if not assets or not assets.new_relic or not assets.new_relic.assets:
+                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
+                                          text=TextResult(output=StringValue(
+                                              value=f"Application asset with GUID '{application_name}' not found")),
+                                          source=self.source)
+
+            # Find the specific application asset
             application_asset = None
-            for app_guid, app_data in application_entities_data.items():
-                if app_guid == application_name:
-                    application_asset = app_data
+            newrelic_assets = assets.new_relic.assets
+            all_application_entities = [newrelic_asset.new_relic_entity_application for newrelic_asset
+                                       in newrelic_assets if
+                                       newrelic_asset.type == SourceModelType.NEW_RELIC_ENTITY_APPLICATION]
+            
+            for app_entity in all_application_entities:
+                if app_entity.application_entity_guid.value == application_name:
+                    application_asset = app_entity
                     break
 
             if not application_asset:
@@ -1408,7 +1455,7 @@ class NewRelicSourceManager(SourceManager):
                                            source=self.source)
 
             # 2. Filter APM metrics if requested
-            all_apm_metrics = application_asset.get('apm_summary', [])
+            all_apm_metrics = application_asset.apm_metrics
             if not all_apm_metrics:
                 return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
                                           text=TextResult(output=StringValue(
@@ -1418,7 +1465,7 @@ class NewRelicSourceManager(SourceManager):
             metrics_to_process = []
             if filter_metric_names:
                 for metric in all_apm_metrics:
-                    if metric.get('name', '').lower() in filter_metric_names:
+                    if metric.metric_name.value.lower() in filter_metric_names:
                         metrics_to_process.append(metric)
                 if not metrics_to_process:
                      return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
@@ -1434,9 +1481,9 @@ class NewRelicSourceManager(SourceManager):
 
             for apm_metric in metrics_to_process:
                 try:
-                    metric_name = apm_metric.get('name', '')
-                    unit = apm_metric.get('unit', '')
-                    base_nrql_expression = apm_metric.get('query', '')
+                    metric_name = apm_metric.metric_name.value
+                    unit = apm_metric.metric_unit.value
+                    base_nrql_expression = apm_metric.metric_nrql_expression.value
 
                     if not base_nrql_expression:
                          logger.warning(f"Skipping APM metric '{metric_name}' for application '{application_name}' as it has no NRQL query.")

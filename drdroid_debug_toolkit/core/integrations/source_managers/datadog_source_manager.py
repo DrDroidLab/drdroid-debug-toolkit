@@ -21,6 +21,7 @@ from core.utils.credentilal_utils import generate_credentials_dict
 from core.utils.proto_utils import proto_to_dict, dict_to_proto
 from core.utils.string_utils import is_partial_match
 from core.integrations.source_metadata_extractors.datadog_metadata_extractor import DatadogSourceMetadataExtractor
+from core.integrations.source_asset_managers.datadog_asset_manager import DatadogAssetManager
 
 logger = logging.getLogger(__name__)
 
@@ -394,20 +395,35 @@ class DatadogSourceManager(SourceManager):
                     dd_api_domain=generated_credentials.get('dd_api_domain', 'datadoghq.com')
                 )
 
-                # Get dashboards data directly from metadata extractor
+                                # Get dashboards data directly from metadata extractor
                 dashboards_data = datadog_metadata_extractor.get_dashboards_data()
 
                 if not dashboards_data:
                     return [PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
-                                             text=TextResult(output=StringValue(
-                                             value=f"No dashboard assets found for the account")),
-                                             source=self.source)]
+                                               text=TextResult(output=StringValue(
+                                               value=f"No dashboard assets found for the account")),
+                                               source=self.source)]
+
+                # Use asset manager to process the raw data
+                datadog_asset_manager = DatadogAssetManager()
+                filters = AccountConnectorAssetsModelFilters()
+                assets = datadog_asset_manager.get_asset_values(
+                    datadog_connector, filters, SourceModelType.DATADOG_DASHBOARD, dashboards_data
+                )
+
+                if not assets or not assets.datadog or not assets.datadog.assets:
+                    return [PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
+                                               text=TextResult(output=StringValue(
+                                               value=f"No dashboard assets found for the account")),
+                                               source=self.source)]
 
                 # Find the matching dashboard
-                for dashboard_id, dashboard_data in dashboards_data.items():
-                    if is_partial_match(dashboard_data.get('title', ''), [dashboard_name]):
-                        # Convert the dashboard data to the expected format
-                        dashboard_entity = self._convert_dashboard_data_to_proto(dashboard_data)
+                dd_assets = assets.datadog.assets
+                all_dashboard_asset = [dd_asset.datadog_dashboard for dd_asset in dd_assets if
+                                       dd_asset.type == SourceModelType.DATADOG_DASHBOARD]
+                for dashboard_entity_item in all_dashboard_asset:
+                    if is_partial_match(dashboard_entity_item.title.value, [dashboard_name]):
+                        dashboard_entity = dashboard_entity_item
                         break
             
             # Process the dashboard entity if found
@@ -902,11 +918,27 @@ class DatadogSourceManager(SourceManager):
                     text=TextResult(output=StringValue(value="No dashboard assets found for the account")),
                     source=self.source)
             
+            # Use asset manager to process the raw data
+            datadog_asset_manager = DatadogAssetManager()
+            filters = AccountConnectorAssetsModelFilters()
+            assets = datadog_asset_manager.get_asset_values(
+                datadog_connector, filters, SourceModelType.DATADOG_DASHBOARD, dashboards_data
+            )
+
+            if not assets or not assets.datadog or not assets.datadog.assets:
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value="No dashboard assets found for the account")),
+                    source=self.source)
+            
             # Find the matching dashboard
             matching_dashboard = None
-            for dashboard_id, dashboard_data in dashboards_data.items():
-                if is_partial_match(dashboard_data.get('title', ''), [dashboard_name]):
-                    matching_dashboard = self._convert_dashboard_data_to_proto(dashboard_data)
+            dd_assets = assets.datadog.assets
+            all_dashboard_asset = [dd_asset.datadog_dashboard for dd_asset in dd_assets if
+                                   dd_asset.type == SourceModelType.DATADOG_DASHBOARD]
+            for dashboard_entity_item in all_dashboard_asset:
+                if is_partial_match(dashboard_entity_item.title.value, [dashboard_name]):
+                    matching_dashboard = dashboard_entity_item
                     break
                     
             if matching_dashboard:
@@ -1096,32 +1128,4 @@ class DatadogSourceManager(SourceManager):
                 result.append(task_result)
         return result
 
-    def _convert_dashboard_data_to_proto(self, dashboard_data):
-        """Convert dashboard data from metadata extractor to proto format."""
-        # This is a simplified conversion - in practice, you'd need to handle the full proto structure
-        # For now, we'll create a minimal structure that works with the existing code
-        from core.protos.assets.datadog_asset_pb2 import DatadogDashboardModel
-        
-        dashboard_proto = DatadogDashboardModel()
-        dashboard_proto.id.value = str(dashboard_data.get('id', ''))
-        dashboard_proto.title.value = dashboard_data.get('title', '')
-        
-        # Handle template variables if present
-        if 'template_variables' in dashboard_data:
-            for var_data in dashboard_data['template_variables']:
-                var_proto = dashboard_proto.template_variables.add()
-                var_proto.name.value = var_data.get('name', '')
-                var_proto.default.value = var_data.get('default', '')
-                var_proto.prefix.value = var_data.get('prefix', '')
-        
-        # Handle panels and widgets if present
-        if 'widgets' in dashboard_data:
-            panel_proto = dashboard_proto.panels.add()
-            for widget_data in dashboard_data['widgets']:
-                widget_proto = panel_proto.widgets.add()
-                widget_proto.id.value = str(widget_data.get('id', ''))
-                widget_proto.title.value = widget_data.get('title', '')
-                widget_proto.widget_type.value = widget_proto.get('widget_type', 'timeseries')
-                widget_proto.response_type.value = widget_proto.get('response_type', 'timeseries')
-        
-        return dashboard_proto
+
