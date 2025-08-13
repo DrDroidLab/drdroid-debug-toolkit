@@ -39,6 +39,187 @@ else:
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
 @typing_extensions.final
+class ConnectorModelTypeOptions(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    MODEL_TYPE_FIELD_NUMBER: builtins.int
+    CLOUDWATCH_LOG_GROUP_MODEL_OPTIONS_FIELD_NUMBER: builtins.int
+    CLOUDWATCH_METRIC_MODEL_OPTIONS_FIELD_NUMBER: builtins.int
+    GRAFANA_TARGET_METRIC_PROMQL_MODEL_OPTIONS_FIELD_NUMBER: builtins.int
+    CLICKHOUSE_DATABASE_MODEL_OPTIONS_FIELD_NUMBER: builtins.int
+    SLACK_CHANNEL_MODEL_OPTIONS_FIELD_NUMBER: builtins.int
+    NEW_RELIC_ENTITY_APPLICATION_MODEL_OPTIONS_FIELD_NUMBER: builtins.int
+    NEW_RELIC_ENTITY_DASHBOARD_MODEL_OPTIONS_FIELD_NUMBER: builtins.int
+    DATADOG_SERVICE_MODEL_OPTIONS_FIELD_NUMBER: builtins.int
+    POSTGRES_DATABASE_MODEL_OPTIONS_FIELD_NUMBER: builtins.int
+    EKS_CLUSTER_MODEL_OPTIONS_FIELD_NUMBER: builtins.int
+    SSH_SERVER_MODEL_OPTIONS_FIELD_NUMBER: builtins.int
+    AZURE_WORKSPACE_MODEL_OPTIONS_FIELD_NUMBER: builtins.int
+    GRAFANA_PROMETHEUS_DATASOURCE_MODEL_OPTIONS_FIELD_NUMBER: builtins.int
+    GKE_CLUSTER_MODEL_OPTIONS_FIELD_NUMBER: builtins.int
+    ELASTIC_SEARCH_INDEX_MODEL_OPTIONS_FIELD_NUMBER: builtins.int
+    OPEN_SEARCH_INDEX_MODEL_OPTIONS_FIELD_NUMBER: builtins.int
+    GCM_METRIC_MODEL_OPTIONS_FIELD_NUMBER: builtins.int
+    DATADOG_OAUTH_SERVICE_MODEL_OPTIONS_FIELD_NUMBER: builtins.int
+    CLOUDWATCH_LOG_GROUP_QUERY_MODEL_OPTIONS_FIELD_NUMBER: builtins.int
+    ASANA_PROJECT_MODEL_OPTIONS_FIELD_NUMBER: builtins.int
+    GRAFANA_ALERT_RULE_MODEL_OPTIONS_FIELD_NUMBER: builtins.int
+    CLOUDWATCH_ALARM_MODEL_OPTIONS_FIELD_NUMBER: builtins.int
+    DATADOG_DASHBOARD_MODEL_OPTIONS_FIELD_NUMBER: builtins.int
+    DATADOG_OAUTH_DASHBOARD_MODEL_OPTIONS_FIELD_NUMBER: builtins.int
+    GITHUB_REPOSITORY_MODEL_OPTIONS_FIELD_NUMBER: builtins.int
+    GITHUB_MEMBER_MODEL_OPTIONS_FIELD_NUMBER: builtins.int
+    JIRA_USER_MODEL_OPTIONS_FIELD_NUMBER: builtins.int
+    JIRA_PROJECT_MODEL_OPTIONS_FIELD_NUMBER: builtins.int
+    ARGOCD_APPS_MODEL_OPTIONS_FIELD_NUMBER: builtins.int
+    AZURE_RESOURCE_MODEL_OPTIONS_FIELD_NUMBER: builtins.int
+    JENKINS_APPS_MODEL_OPTIONS_FIELD_NUMBER: builtins.int
+    MONGODB_DATABASE_MODEL_OPTIONS_FIELD_NUMBER: builtins.int
+    MONGODB_COLLECTION_MODEL_OPTIONS_FIELD_NUMBER: builtins.int
+    POSTHOG_PROPERTY_MODEL_OPTIONS_FIELD_NUMBER: builtins.int
+    ECS_CLUSTER_MODEL_OPTIONS_FIELD_NUMBER: builtins.int
+    ECS_TASK_MODEL_OPTIONS_FIELD_NUMBER: builtins.int
+    ECS_SERVICE_MODEL_OPTIONS_FIELD_NUMBER: builtins.int
+    GCM_DASHBOARD_MODEL_OPTIONS_FIELD_NUMBER: builtins.int
+    GCM_CLOUD_RUN_SERVICE_MODEL_OPTIONS_FIELD_NUMBER: builtins.int
+    SIGNOZ_DASHBOARD_MODEL_OPTIONS_FIELD_NUMBER: builtins.int
+    SIGNOZ_ALERT_MODEL_OPTIONS_FIELD_NUMBER: builtins.int
+    model_type: core.protos.connectors.connector_pb2.ConnectorMetadataModelType.ValueType
+    @property
+    def cloudwatch_log_group_model_options(self) -> core.protos.assets.cloudwatch_asset_pb2.CloudwatchLogGroupAssetOptions: ...
+    @property
+    def cloudwatch_metric_model_options(self) -> core.protos.assets.cloudwatch_asset_pb2.CloudwatchMetricAssetOptions: ...
+    @property
+    def grafana_target_metric_promql_model_options(self) -> core.protos.assets.grafana_asset_pb2.GrafanaTargetMetricPromQlAssetOptions: ...
+    @property
+    def clickhouse_database_model_options(self) -> core.protos.assets.clickhouse_asset_pb2.ClickhouseDatabaseAssetOptions: ...
+    @property
+    def slack_channel_model_options(self) -> core.protos.assets.slack_asset_pb2.SlackChannelAssetOptions: ...
+    @property
+    def new_relic_entity_application_model_options(self) -> core.protos.assets.newrelic_asset_pb2.NewRelicApplicationEntityAssetOptions: ...
+    @property
+    def new_relic_entity_dashboard_model_options(self) -> core.protos.assets.newrelic_asset_pb2.NewRelicDashboardEntityAssetOptions: ...
+    @property
+    def datadog_service_model_options(self) -> core.protos.assets.datadog_asset_pb2.DatadogServiceAssetOptions: ...
+    @property
+    def postgres_database_model_options(self) -> core.protos.assets.postgres_asset_pb2.PostgresDatabaseAssetOptions: ...
+    @property
+    def eks_cluster_model_options(self) -> core.protos.assets.eks_asset_pb2.EksClusterAssetOptions: ...
+    @property
+    def ssh_server_model_options(self) -> core.protos.assets.bash_asset_pb2.BashSshServerAssetOptions: ...
+    @property
+    def azure_workspace_model_options(self) -> core.protos.assets.azure_asset_pb2.AzureWorkspaceAssetOptions: ...
+    @property
+    def grafana_prometheus_datasource_model_options(self) -> core.protos.assets.grafana_asset_pb2.GrafanaDatasourceAssetOptions: ...
+    @property
+    def gke_cluster_model_options(self) -> core.protos.assets.gke_asset_pb2.GkeClusterAssetOptions: ...
+    @property
+    def elastic_search_index_model_options(self) -> core.protos.assets.elastic_search_asset_pb2.ElasticSearchIndexAssetOptions: ...
+    @property
+    def open_search_index_model_options(self) -> core.protos.assets.open_search_asset_pb2.OpenSearchIndexAssetOptions: ...
+    @property
+    def gcm_metric_model_options(self) -> core.protos.assets.gcm_asset_pb2.GcmMetricAssetOptions: ...
+    @property
+    def datadog_oauth_service_model_options(self) -> core.protos.assets.datadog_asset_pb2.DatadogServiceAssetOptions: ...
+    @property
+    def cloudwatch_log_group_query_model_options(self) -> core.protos.assets.cloudwatch_asset_pb2.CloudwatchLogGroupQueryAssetOptions: ...
+    @property
+    def asana_project_model_options(self) -> core.protos.assets.asana_asset_pb2.AsanaProjectAssetOptions: ...
+    @property
+    def grafana_alert_rule_model_options(self) -> core.protos.assets.grafana_asset_pb2.GrafanaAlertRuleAssetOptions: ...
+    @property
+    def cloudwatch_alarm_model_options(self) -> core.protos.assets.cloudwatch_asset_pb2.CloudwatchAlarmAssetOptions: ...
+    @property
+    def datadog_dashboard_model_options(self) -> core.protos.assets.datadog_asset_pb2.DatadogDashboardAssetOptions: ...
+    @property
+    def datadog_oauth_dashboard_model_options(self) -> core.protos.assets.datadog_asset_pb2.DatadogDashboardAssetOptions: ...
+    @property
+    def github_repository_model_options(self) -> core.protos.assets.github_asset_pb2.GithubRepositoryAssetOptions: ...
+    @property
+    def github_member_model_options(self) -> core.protos.assets.github_asset_pb2.GithubMemberAssetOptions: ...
+    @property
+    def jira_user_model_options(self) -> core.protos.assets.jira_asset_pb2.JiraUserAssetOptions: ...
+    @property
+    def jira_project_model_options(self) -> core.protos.assets.jira_asset_pb2.JiraProjectAssetOptions: ...
+    @property
+    def argocd_apps_model_options(self) -> core.protos.assets.argocd_asset_pb2.ArgoCDAppsAssetOptions: ...
+    @property
+    def azure_resource_model_options(self) -> core.protos.assets.azure_asset_pb2.AzureResourceAssetOptions: ...
+    @property
+    def jenkins_apps_model_options(self) -> core.protos.assets.jenkins_asset_pb2.JenkinsAppsAssetOptions: ...
+    @property
+    def mongodb_database_model_options(self) -> core.protos.assets.mongodb_asset_pb2.MongoDBDatabaseAssetOptions: ...
+    @property
+    def mongodb_collection_model_options(self) -> core.protos.assets.mongodb_asset_pb2.MongoDBCollectionAssetOptions: ...
+    @property
+    def posthog_property_model_options(self) -> core.protos.assets.posthog_asset_pb2.PosthogPropertyAssetOptions: ...
+    @property
+    def ecs_cluster_model_options(self) -> core.protos.assets.cloudwatch_asset_pb2.EcsClusterAssetOptions: ...
+    @property
+    def ecs_task_model_options(self) -> core.protos.assets.cloudwatch_asset_pb2.EcsTaskAssetOptions: ...
+    @property
+    def ecs_service_model_options(self) -> core.protos.assets.cloudwatch_asset_pb2.EcsServiceAssetOptions: ...
+    @property
+    def gcm_dashboard_model_options(self) -> core.protos.assets.gcm_asset_pb2.GcmDashboardEntityAssetOptions: ...
+    @property
+    def gcm_cloud_run_service_model_options(self) -> core.protos.assets.gcm_asset_pb2.GcmCloudRunServiceAssetOptions: ...
+    @property
+    def signoz_dashboard_model_options(self) -> core.protos.assets.signoz_asset_pb2.SignozDashboardAssetOptions: ...
+    @property
+    def signoz_alert_model_options(self) -> core.protos.assets.signoz_asset_pb2.SignozAlertAssetOptions: ...
+    def __init__(
+        self,
+        *,
+        model_type: core.protos.connectors.connector_pb2.ConnectorMetadataModelType.ValueType = ...,
+        cloudwatch_log_group_model_options: core.protos.assets.cloudwatch_asset_pb2.CloudwatchLogGroupAssetOptions | None = ...,
+        cloudwatch_metric_model_options: core.protos.assets.cloudwatch_asset_pb2.CloudwatchMetricAssetOptions | None = ...,
+        grafana_target_metric_promql_model_options: core.protos.assets.grafana_asset_pb2.GrafanaTargetMetricPromQlAssetOptions | None = ...,
+        clickhouse_database_model_options: core.protos.assets.clickhouse_asset_pb2.ClickhouseDatabaseAssetOptions | None = ...,
+        slack_channel_model_options: core.protos.assets.slack_asset_pb2.SlackChannelAssetOptions | None = ...,
+        new_relic_entity_application_model_options: core.protos.assets.newrelic_asset_pb2.NewRelicApplicationEntityAssetOptions | None = ...,
+        new_relic_entity_dashboard_model_options: core.protos.assets.newrelic_asset_pb2.NewRelicDashboardEntityAssetOptions | None = ...,
+        datadog_service_model_options: core.protos.assets.datadog_asset_pb2.DatadogServiceAssetOptions | None = ...,
+        postgres_database_model_options: core.protos.assets.postgres_asset_pb2.PostgresDatabaseAssetOptions | None = ...,
+        eks_cluster_model_options: core.protos.assets.eks_asset_pb2.EksClusterAssetOptions | None = ...,
+        ssh_server_model_options: core.protos.assets.bash_asset_pb2.BashSshServerAssetOptions | None = ...,
+        azure_workspace_model_options: core.protos.assets.azure_asset_pb2.AzureWorkspaceAssetOptions | None = ...,
+        grafana_prometheus_datasource_model_options: core.protos.assets.grafana_asset_pb2.GrafanaDatasourceAssetOptions | None = ...,
+        gke_cluster_model_options: core.protos.assets.gke_asset_pb2.GkeClusterAssetOptions | None = ...,
+        elastic_search_index_model_options: core.protos.assets.elastic_search_asset_pb2.ElasticSearchIndexAssetOptions | None = ...,
+        open_search_index_model_options: core.protos.assets.open_search_asset_pb2.OpenSearchIndexAssetOptions | None = ...,
+        gcm_metric_model_options: core.protos.assets.gcm_asset_pb2.GcmMetricAssetOptions | None = ...,
+        datadog_oauth_service_model_options: core.protos.assets.datadog_asset_pb2.DatadogServiceAssetOptions | None = ...,
+        cloudwatch_log_group_query_model_options: core.protos.assets.cloudwatch_asset_pb2.CloudwatchLogGroupQueryAssetOptions | None = ...,
+        asana_project_model_options: core.protos.assets.asana_asset_pb2.AsanaProjectAssetOptions | None = ...,
+        grafana_alert_rule_model_options: core.protos.assets.grafana_asset_pb2.GrafanaAlertRuleAssetOptions | None = ...,
+        cloudwatch_alarm_model_options: core.protos.assets.cloudwatch_asset_pb2.CloudwatchAlarmAssetOptions | None = ...,
+        datadog_dashboard_model_options: core.protos.assets.datadog_asset_pb2.DatadogDashboardAssetOptions | None = ...,
+        datadog_oauth_dashboard_model_options: core.protos.assets.datadog_asset_pb2.DatadogDashboardAssetOptions | None = ...,
+        github_repository_model_options: core.protos.assets.github_asset_pb2.GithubRepositoryAssetOptions | None = ...,
+        github_member_model_options: core.protos.assets.github_asset_pb2.GithubMemberAssetOptions | None = ...,
+        jira_user_model_options: core.protos.assets.jira_asset_pb2.JiraUserAssetOptions | None = ...,
+        jira_project_model_options: core.protos.assets.jira_asset_pb2.JiraProjectAssetOptions | None = ...,
+        argocd_apps_model_options: core.protos.assets.argocd_asset_pb2.ArgoCDAppsAssetOptions | None = ...,
+        azure_resource_model_options: core.protos.assets.azure_asset_pb2.AzureResourceAssetOptions | None = ...,
+        jenkins_apps_model_options: core.protos.assets.jenkins_asset_pb2.JenkinsAppsAssetOptions | None = ...,
+        mongodb_database_model_options: core.protos.assets.mongodb_asset_pb2.MongoDBDatabaseAssetOptions | None = ...,
+        mongodb_collection_model_options: core.protos.assets.mongodb_asset_pb2.MongoDBCollectionAssetOptions | None = ...,
+        posthog_property_model_options: core.protos.assets.posthog_asset_pb2.PosthogPropertyAssetOptions | None = ...,
+        ecs_cluster_model_options: core.protos.assets.cloudwatch_asset_pb2.EcsClusterAssetOptions | None = ...,
+        ecs_task_model_options: core.protos.assets.cloudwatch_asset_pb2.EcsTaskAssetOptions | None = ...,
+        ecs_service_model_options: core.protos.assets.cloudwatch_asset_pb2.EcsServiceAssetOptions | None = ...,
+        gcm_dashboard_model_options: core.protos.assets.gcm_asset_pb2.GcmDashboardEntityAssetOptions | None = ...,
+        gcm_cloud_run_service_model_options: core.protos.assets.gcm_asset_pb2.GcmCloudRunServiceAssetOptions | None = ...,
+        signoz_dashboard_model_options: core.protos.assets.signoz_asset_pb2.SignozDashboardAssetOptions | None = ...,
+        signoz_alert_model_options: core.protos.assets.signoz_asset_pb2.SignozAlertAssetOptions | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["argocd_apps_model_options", b"argocd_apps_model_options", "asana_project_model_options", b"asana_project_model_options", "azure_resource_model_options", b"azure_resource_model_options", "azure_workspace_model_options", b"azure_workspace_model_options", "clickhouse_database_model_options", b"clickhouse_database_model_options", "cloudwatch_alarm_model_options", b"cloudwatch_alarm_model_options", "cloudwatch_log_group_model_options", b"cloudwatch_log_group_model_options", "cloudwatch_log_group_query_model_options", b"cloudwatch_log_group_query_model_options", "cloudwatch_metric_model_options", b"cloudwatch_metric_model_options", "datadog_dashboard_model_options", b"datadog_dashboard_model_options", "datadog_oauth_dashboard_model_options", b"datadog_oauth_dashboard_model_options", "datadog_oauth_service_model_options", b"datadog_oauth_service_model_options", "datadog_service_model_options", b"datadog_service_model_options", "ecs_cluster_model_options", b"ecs_cluster_model_options", "ecs_service_model_options", b"ecs_service_model_options", "ecs_task_model_options", b"ecs_task_model_options", "eks_cluster_model_options", b"eks_cluster_model_options", "elastic_search_index_model_options", b"elastic_search_index_model_options", "gcm_cloud_run_service_model_options", b"gcm_cloud_run_service_model_options", "gcm_dashboard_model_options", b"gcm_dashboard_model_options", "gcm_metric_model_options", b"gcm_metric_model_options", "github_member_model_options", b"github_member_model_options", "github_repository_model_options", b"github_repository_model_options", "gke_cluster_model_options", b"gke_cluster_model_options", "grafana_alert_rule_model_options", b"grafana_alert_rule_model_options", "grafana_prometheus_datasource_model_options", b"grafana_prometheus_datasource_model_options", "grafana_target_metric_promql_model_options", b"grafana_target_metric_promql_model_options", "jenkins_apps_model_options", b"jenkins_apps_model_options", "jira_project_model_options", b"jira_project_model_options", "jira_user_model_options", b"jira_user_model_options", "mongodb_collection_model_options", b"mongodb_collection_model_options", "mongodb_database_model_options", b"mongodb_database_model_options", "new_relic_entity_application_model_options", b"new_relic_entity_application_model_options", "new_relic_entity_dashboard_model_options", b"new_relic_entity_dashboard_model_options", "open_search_index_model_options", b"open_search_index_model_options", "options", b"options", "postgres_database_model_options", b"postgres_database_model_options", "posthog_property_model_options", b"posthog_property_model_options", "signoz_alert_model_options", b"signoz_alert_model_options", "signoz_dashboard_model_options", b"signoz_dashboard_model_options", "slack_channel_model_options", b"slack_channel_model_options", "ssh_server_model_options", b"ssh_server_model_options"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["argocd_apps_model_options", b"argocd_apps_model_options", "asana_project_model_options", b"asana_project_model_options", "azure_resource_model_options", b"azure_resource_model_options", "azure_workspace_model_options", b"azure_workspace_model_options", "clickhouse_database_model_options", b"clickhouse_database_model_options", "cloudwatch_alarm_model_options", b"cloudwatch_alarm_model_options", "cloudwatch_log_group_model_options", b"cloudwatch_log_group_model_options", "cloudwatch_log_group_query_model_options", b"cloudwatch_log_group_query_model_options", "cloudwatch_metric_model_options", b"cloudwatch_metric_model_options", "datadog_dashboard_model_options", b"datadog_dashboard_model_options", "datadog_oauth_dashboard_model_options", b"datadog_oauth_dashboard_model_options", "datadog_oauth_service_model_options", b"datadog_oauth_service_model_options", "datadog_service_model_options", b"datadog_service_model_options", "ecs_cluster_model_options", b"ecs_cluster_model_options", "ecs_service_model_options", b"ecs_service_model_options", "ecs_task_model_options", b"ecs_task_model_options", "eks_cluster_model_options", b"eks_cluster_model_options", "elastic_search_index_model_options", b"elastic_search_index_model_options", "gcm_cloud_run_service_model_options", b"gcm_cloud_run_service_model_options", "gcm_dashboard_model_options", b"gcm_dashboard_model_options", "gcm_metric_model_options", b"gcm_metric_model_options", "github_member_model_options", b"github_member_model_options", "github_repository_model_options", b"github_repository_model_options", "gke_cluster_model_options", b"gke_cluster_model_options", "grafana_alert_rule_model_options", b"grafana_alert_rule_model_options", "grafana_prometheus_datasource_model_options", b"grafana_prometheus_datasource_model_options", "grafana_target_metric_promql_model_options", b"grafana_target_metric_promql_model_options", "jenkins_apps_model_options", b"jenkins_apps_model_options", "jira_project_model_options", b"jira_project_model_options", "jira_user_model_options", b"jira_user_model_options", "model_type", b"model_type", "mongodb_collection_model_options", b"mongodb_collection_model_options", "mongodb_database_model_options", b"mongodb_database_model_options", "new_relic_entity_application_model_options", b"new_relic_entity_application_model_options", "new_relic_entity_dashboard_model_options", b"new_relic_entity_dashboard_model_options", "open_search_index_model_options", b"open_search_index_model_options", "options", b"options", "postgres_database_model_options", b"postgres_database_model_options", "posthog_property_model_options", b"posthog_property_model_options", "signoz_alert_model_options", b"signoz_alert_model_options", "signoz_dashboard_model_options", b"signoz_dashboard_model_options", "slack_channel_model_options", b"slack_channel_model_options", "ssh_server_model_options", b"ssh_server_model_options"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing_extensions.Literal["options", b"options"]) -> typing_extensions.Literal["cloudwatch_log_group_model_options", "cloudwatch_metric_model_options", "grafana_target_metric_promql_model_options", "clickhouse_database_model_options", "slack_channel_model_options", "new_relic_entity_application_model_options", "new_relic_entity_dashboard_model_options", "datadog_service_model_options", "postgres_database_model_options", "eks_cluster_model_options", "ssh_server_model_options", "azure_workspace_model_options", "grafana_prometheus_datasource_model_options", "gke_cluster_model_options", "elastic_search_index_model_options", "open_search_index_model_options", "gcm_metric_model_options", "datadog_oauth_service_model_options", "cloudwatch_log_group_query_model_options", "asana_project_model_options", "grafana_alert_rule_model_options", "cloudwatch_alarm_model_options", "datadog_dashboard_model_options", "datadog_oauth_dashboard_model_options", "github_repository_model_options", "github_member_model_options", "jira_user_model_options", "jira_project_model_options", "argocd_apps_model_options", "azure_resource_model_options", "jenkins_apps_model_options", "mongodb_database_model_options", "mongodb_collection_model_options", "posthog_property_model_options", "ecs_cluster_model_options", "ecs_task_model_options", "ecs_service_model_options", "gcm_dashboard_model_options", "gcm_cloud_run_service_model_options", "signoz_dashboard_model_options", "signoz_alert_model_options"] | None: ...
+
+global___ConnectorModelTypeOptions = ConnectorModelTypeOptions
+
+@typing_extensions.final
 class AccountConnectorAssets(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 

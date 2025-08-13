@@ -7,16 +7,279 @@ import collections.abc
 import core.protos.base_pb2
 import google.protobuf.descriptor
 import google.protobuf.internal.containers
+import google.protobuf.internal.enum_type_wrapper
 import google.protobuf.message
 import google.protobuf.wrappers_pb2
 import sys
+import typing
 
-if sys.version_info >= (3, 8):
+if sys.version_info >= (3, 10):
     import typing as typing_extensions
 else:
     import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
+
+class _ConnectorMetadataModelType:
+    ValueType = typing.NewType("ValueType", builtins.int)
+    V: typing_extensions.TypeAlias = ValueType
+
+class _ConnectorMetadataModelTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_ConnectorMetadataModelType.ValueType], builtins.type):
+    DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+    UNKNOWN_MT: _ConnectorMetadataModelType.ValueType  # 0
+    NEW_RELIC_POLICY: _ConnectorMetadataModelType.ValueType  # 1
+    """New Relic Models"""
+    NEW_RELIC_CONDITION: _ConnectorMetadataModelType.ValueType  # 2
+    NEW_RELIC_ENTITY: _ConnectorMetadataModelType.ValueType  # 3
+    NEW_RELIC_ENTITY_DASHBOARD: _ConnectorMetadataModelType.ValueType  # 4
+    NEW_RELIC_ENTITY_APPLICATION: _ConnectorMetadataModelType.ValueType  # 5
+    NEW_RELIC_NRQL: _ConnectorMetadataModelType.ValueType  # 6
+    NEW_RELIC_ENTITY_DASHBOARD_V2: _ConnectorMetadataModelType.ValueType  # 7
+    DATADOG_MONITOR: _ConnectorMetadataModelType.ValueType  # 101
+    """Datadog Models"""
+    DATADOG_DASHBOARD: _ConnectorMetadataModelType.ValueType  # 102
+    DATADOG_LIVE_INTEGRATION_AWS: _ConnectorMetadataModelType.ValueType  # 103
+    DATADOG_LIVE_INTEGRATION_AWS_LOG: _ConnectorMetadataModelType.ValueType  # 104
+    DATADOG_LIVE_INTEGRATION_AZURE: _ConnectorMetadataModelType.ValueType  # 105
+    DATADOG_LIVE_INTEGRATION_CLOUDFLARE: _ConnectorMetadataModelType.ValueType  # 106
+    DATADOG_LIVE_INTEGRATION_FASTLY: _ConnectorMetadataModelType.ValueType  # 107
+    DATADOG_LIVE_INTEGRATION_GCP: _ConnectorMetadataModelType.ValueType  # 108
+    DATADOG_LIVE_INTEGRATION_CONFLUENT: _ConnectorMetadataModelType.ValueType  # 109
+    DATADOG_SERVICE: _ConnectorMetadataModelType.ValueType  # 110
+    DATADOG_METRIC: _ConnectorMetadataModelType.ValueType  # 111
+    DATADOG_QUERY: _ConnectorMetadataModelType.ValueType  # 112
+    DATADOG_APM: _ConnectorMetadataModelType.ValueType  # 113
+    CLOUDWATCH_METRIC: _ConnectorMetadataModelType.ValueType  # 201
+    """Cloudwatch Models"""
+    CLOUDWATCH_LOG_GROUP: _ConnectorMetadataModelType.ValueType  # 202
+    CLOUDWATCH_LOG_GROUP_QUERY: _ConnectorMetadataModelType.ValueType  # 203
+    CLOUDWATCH_ALARMS: _ConnectorMetadataModelType.ValueType  # 204
+    RDS_INSTANCES: _ConnectorMetadataModelType.ValueType  # 205
+    CLOUDWATCH_DASHBOARD: _ConnectorMetadataModelType.ValueType  # 206
+    GRAFANA_DATASOURCE: _ConnectorMetadataModelType.ValueType  # 301
+    """Grafana Models"""
+    GRAFANA_DASHBOARD: _ConnectorMetadataModelType.ValueType  # 302
+    GRAFANA_TARGET_METRIC_PROMQL: _ConnectorMetadataModelType.ValueType  # 303
+    GRAFANA_PROMETHEUS_DATASOURCE: _ConnectorMetadataModelType.ValueType  # 304
+    GRAFANA_ALERT_RULE: _ConnectorMetadataModelType.ValueType  # 305
+    CLICKHOUSE_DATABASE: _ConnectorMetadataModelType.ValueType  # 401
+    """Clickhouse Models"""
+    CLICKHOUSE_TABLE: _ConnectorMetadataModelType.ValueType  # 402
+    SLACK_CHANNEL: _ConnectorMetadataModelType.ValueType  # 501
+    """Slack Models"""
+    MARKDOWN: _ConnectorMetadataModelType.ValueType  # 601
+    """Documentation Models"""
+    IFRAME: _ConnectorMetadataModelType.ValueType  # 602
+    POSTGRES_QUERY: _ConnectorMetadataModelType.ValueType  # 701
+    """Postgres Models"""
+    POSTGRES_TABLE: _ConnectorMetadataModelType.ValueType  # 702
+    EKS_CLUSTER: _ConnectorMetadataModelType.ValueType  # 801
+    """EKS Models"""
+    SQL_DATABASE_CONNECTION_RAW_QUERY: _ConnectorMetadataModelType.ValueType  # 901
+    """Sql Database Connection Models"""
+    SQL_DATABASE_TABLE: _ConnectorMetadataModelType.ValueType  # 902
+    AZURE_WORKSPACE: _ConnectorMetadataModelType.ValueType  # 1001
+    """Azure Models"""
+    AZURE_RESOURCE: _ConnectorMetadataModelType.ValueType  # 1002
+    SSH_SERVER: _ConnectorMetadataModelType.ValueType  # 1100
+    """Remote Server Models"""
+    SSH_USER: _ConnectorMetadataModelType.ValueType  # 1101
+    GRAFANA_MIMIR_PROMQL: _ConnectorMetadataModelType.ValueType  # 1201
+    """Mimir Server Models"""
+    GKE_CLUSTER: _ConnectorMetadataModelType.ValueType  # 1301
+    """GKE Models"""
+    MS_TEAMS_CHANNEL: _ConnectorMetadataModelType.ValueType  # 1401
+    """MS TEAMS Models"""
+    PAGERDUTY_INCIDENT: _ConnectorMetadataModelType.ValueType  # 1501
+    """Pagerduty Models"""
+    ELASTIC_SEARCH_INDEX: _ConnectorMetadataModelType.ValueType  # 1601
+    """Elastic Search Models"""
+    ELASTIC_SEARCH_SERVICES: _ConnectorMetadataModelType.ValueType  # 1602
+    ELASTIC_SEARCH_DASHBOARDS: _ConnectorMetadataModelType.ValueType  # 1603
+    GCM_METRIC: _ConnectorMetadataModelType.ValueType  # 1701
+    """GCM Models"""
+    GCM_DASHBOARD: _ConnectorMetadataModelType.ValueType  # 1702
+    GCM_CLOUD_RUN_SERVICE_DASHBOARD: _ConnectorMetadataModelType.ValueType  # 1703
+    ZENDUTY_INCIDENT: _ConnectorMetadataModelType.ValueType  # 1801
+    """Zen Duty Models"""
+    ROOTLY_INCIDENT: _ConnectorMetadataModelType.ValueType  # 1901
+    """ROOTLY Models"""
+    OPS_GENIE_ESCALATION: _ConnectorMetadataModelType.ValueType  # 2001
+    """OPS GENIE Models"""
+    OPS_GENIE_TEAM: _ConnectorMetadataModelType.ValueType  # 2002
+    GOOGLE_CHAT_SPACE: _ConnectorMetadataModelType.ValueType  # 2101
+    """Google Chat Models"""
+    MONGODB_DATABASE: _ConnectorMetadataModelType.ValueType  # 2201
+    """MongoDB Models"""
+    MONGODB_COLLECTION: _ConnectorMetadataModelType.ValueType  # 2202
+    OPEN_SEARCH_INDEX: _ConnectorMetadataModelType.ValueType  # 2301
+    """Open Search Models"""
+    ASANA_PROJECT: _ConnectorMetadataModelType.ValueType  # 2401
+    """Asana Models"""
+    MODELS_ACTIVE: _ConnectorMetadataModelType.ValueType  # 2501
+    """Custom Strategies"""
+    GITHUB_REPOSITORY: _ConnectorMetadataModelType.ValueType  # 2601
+    """Github Models"""
+    GITHUB_MEMBER: _ConnectorMetadataModelType.ValueType  # 2602
+    JIRA_PROJECT: _ConnectorMetadataModelType.ValueType  # 2701
+    """Jira Models"""
+    JIRA_USER: _ConnectorMetadataModelType.ValueType  # 2702
+    ARGOCD_APPS: _ConnectorMetadataModelType.ValueType  # 2801
+    """ArgoCd Models"""
+    JENKINS_JOBS: _ConnectorMetadataModelType.ValueType  # 2901
+    """jenkins Models"""
+    POSTHOG_PERSON: _ConnectorMetadataModelType.ValueType  # 3001
+    """PostHog Models"""
+    POSTHOG_GROUP: _ConnectorMetadataModelType.ValueType  # 3002
+    POSTHOG_COHORT: _ConnectorMetadataModelType.ValueType  # 3003
+    POSTHOG_PROPERTY: _ConnectorMetadataModelType.ValueType  # 3004
+    ECS_CLUSTER: _ConnectorMetadataModelType.ValueType  # 4001
+    """ECS Models"""
+    ECS_TASK: _ConnectorMetadataModelType.ValueType  # 4002
+    ECS_SERVICE: _ConnectorMetadataModelType.ValueType  # 4003
+    SIGNOZ_DASHBOARD: _ConnectorMetadataModelType.ValueType  # 5001
+    """SignOz Models"""
+    SIGNOZ_ALERT: _ConnectorMetadataModelType.ValueType  # 5002
+    SIGNOZ_METRIC: _ConnectorMetadataModelType.ValueType  # 5003
+    KUBERNETES_NAMESPACE: _ConnectorMetadataModelType.ValueType  # 6001
+    """Kubernetes Models"""
+    KUBERNETES_SERVICE: _ConnectorMetadataModelType.ValueType  # 6002
+    KUBERNETES_DEPLOYMENT: _ConnectorMetadataModelType.ValueType  # 6003
+    KUBERNETES_INGRESS: _ConnectorMetadataModelType.ValueType  # 6004
+    KUBERNETES_NETWORK_POLICY: _ConnectorMetadataModelType.ValueType  # 6005
+    KUBERNETES_HPA: _ConnectorMetadataModelType.ValueType  # 6006
+    KUBERNETES_REPLICASET: _ConnectorMetadataModelType.ValueType  # 6007
+    KUBERNETES_STATEFULSET: _ConnectorMetadataModelType.ValueType  # 6008
+    SENTRY_PROJECT: _ConnectorMetadataModelType.ValueType  # 7001
+
+class ConnectorMetadataModelType(_ConnectorMetadataModelType, metaclass=_ConnectorMetadataModelTypeEnumTypeWrapper): ...
+
+UNKNOWN_MT: ConnectorMetadataModelType.ValueType  # 0
+NEW_RELIC_POLICY: ConnectorMetadataModelType.ValueType  # 1
+"""New Relic Models"""
+NEW_RELIC_CONDITION: ConnectorMetadataModelType.ValueType  # 2
+NEW_RELIC_ENTITY: ConnectorMetadataModelType.ValueType  # 3
+NEW_RELIC_ENTITY_DASHBOARD: ConnectorMetadataModelType.ValueType  # 4
+NEW_RELIC_ENTITY_APPLICATION: ConnectorMetadataModelType.ValueType  # 5
+NEW_RELIC_NRQL: ConnectorMetadataModelType.ValueType  # 6
+NEW_RELIC_ENTITY_DASHBOARD_V2: ConnectorMetadataModelType.ValueType  # 7
+DATADOG_MONITOR: ConnectorMetadataModelType.ValueType  # 101
+"""Datadog Models"""
+DATADOG_DASHBOARD: ConnectorMetadataModelType.ValueType  # 102
+DATADOG_LIVE_INTEGRATION_AWS: ConnectorMetadataModelType.ValueType  # 103
+DATADOG_LIVE_INTEGRATION_AWS_LOG: ConnectorMetadataModelType.ValueType  # 104
+DATADOG_LIVE_INTEGRATION_AZURE: ConnectorMetadataModelType.ValueType  # 105
+DATADOG_LIVE_INTEGRATION_CLOUDFLARE: ConnectorMetadataModelType.ValueType  # 106
+DATADOG_LIVE_INTEGRATION_FASTLY: ConnectorMetadataModelType.ValueType  # 107
+DATADOG_LIVE_INTEGRATION_GCP: ConnectorMetadataModelType.ValueType  # 108
+DATADOG_LIVE_INTEGRATION_CONFLUENT: ConnectorMetadataModelType.ValueType  # 109
+DATADOG_SERVICE: ConnectorMetadataModelType.ValueType  # 110
+DATADOG_METRIC: ConnectorMetadataModelType.ValueType  # 111
+DATADOG_QUERY: ConnectorMetadataModelType.ValueType  # 112
+DATADOG_APM: ConnectorMetadataModelType.ValueType  # 113
+CLOUDWATCH_METRIC: ConnectorMetadataModelType.ValueType  # 201
+"""Cloudwatch Models"""
+CLOUDWATCH_LOG_GROUP: ConnectorMetadataModelType.ValueType  # 202
+CLOUDWATCH_LOG_GROUP_QUERY: ConnectorMetadataModelType.ValueType  # 203
+CLOUDWATCH_ALARMS: ConnectorMetadataModelType.ValueType  # 204
+RDS_INSTANCES: ConnectorMetadataModelType.ValueType  # 205
+CLOUDWATCH_DASHBOARD: ConnectorMetadataModelType.ValueType  # 206
+GRAFANA_DATASOURCE: ConnectorMetadataModelType.ValueType  # 301
+"""Grafana Models"""
+GRAFANA_DASHBOARD: ConnectorMetadataModelType.ValueType  # 302
+GRAFANA_TARGET_METRIC_PROMQL: ConnectorMetadataModelType.ValueType  # 303
+GRAFANA_PROMETHEUS_DATASOURCE: ConnectorMetadataModelType.ValueType  # 304
+GRAFANA_ALERT_RULE: ConnectorMetadataModelType.ValueType  # 305
+CLICKHOUSE_DATABASE: ConnectorMetadataModelType.ValueType  # 401
+"""Clickhouse Models"""
+CLICKHOUSE_TABLE: ConnectorMetadataModelType.ValueType  # 402
+SLACK_CHANNEL: ConnectorMetadataModelType.ValueType  # 501
+"""Slack Models"""
+MARKDOWN: ConnectorMetadataModelType.ValueType  # 601
+"""Documentation Models"""
+IFRAME: ConnectorMetadataModelType.ValueType  # 602
+POSTGRES_QUERY: ConnectorMetadataModelType.ValueType  # 701
+"""Postgres Models"""
+POSTGRES_TABLE: ConnectorMetadataModelType.ValueType  # 702
+EKS_CLUSTER: ConnectorMetadataModelType.ValueType  # 801
+"""EKS Models"""
+SQL_DATABASE_CONNECTION_RAW_QUERY: ConnectorMetadataModelType.ValueType  # 901
+"""Sql Database Connection Models"""
+SQL_DATABASE_TABLE: ConnectorMetadataModelType.ValueType  # 902
+AZURE_WORKSPACE: ConnectorMetadataModelType.ValueType  # 1001
+"""Azure Models"""
+AZURE_RESOURCE: ConnectorMetadataModelType.ValueType  # 1002
+SSH_SERVER: ConnectorMetadataModelType.ValueType  # 1100
+"""Remote Server Models"""
+SSH_USER: ConnectorMetadataModelType.ValueType  # 1101
+GRAFANA_MIMIR_PROMQL: ConnectorMetadataModelType.ValueType  # 1201
+"""Mimir Server Models"""
+GKE_CLUSTER: ConnectorMetadataModelType.ValueType  # 1301
+"""GKE Models"""
+MS_TEAMS_CHANNEL: ConnectorMetadataModelType.ValueType  # 1401
+"""MS TEAMS Models"""
+PAGERDUTY_INCIDENT: ConnectorMetadataModelType.ValueType  # 1501
+"""Pagerduty Models"""
+ELASTIC_SEARCH_INDEX: ConnectorMetadataModelType.ValueType  # 1601
+"""Elastic Search Models"""
+ELASTIC_SEARCH_SERVICES: ConnectorMetadataModelType.ValueType  # 1602
+ELASTIC_SEARCH_DASHBOARDS: ConnectorMetadataModelType.ValueType  # 1603
+GCM_METRIC: ConnectorMetadataModelType.ValueType  # 1701
+"""GCM Models"""
+GCM_DASHBOARD: ConnectorMetadataModelType.ValueType  # 1702
+GCM_CLOUD_RUN_SERVICE_DASHBOARD: ConnectorMetadataModelType.ValueType  # 1703
+ZENDUTY_INCIDENT: ConnectorMetadataModelType.ValueType  # 1801
+"""Zen Duty Models"""
+ROOTLY_INCIDENT: ConnectorMetadataModelType.ValueType  # 1901
+"""ROOTLY Models"""
+OPS_GENIE_ESCALATION: ConnectorMetadataModelType.ValueType  # 2001
+"""OPS GENIE Models"""
+OPS_GENIE_TEAM: ConnectorMetadataModelType.ValueType  # 2002
+GOOGLE_CHAT_SPACE: ConnectorMetadataModelType.ValueType  # 2101
+"""Google Chat Models"""
+MONGODB_DATABASE: ConnectorMetadataModelType.ValueType  # 2201
+"""MongoDB Models"""
+MONGODB_COLLECTION: ConnectorMetadataModelType.ValueType  # 2202
+OPEN_SEARCH_INDEX: ConnectorMetadataModelType.ValueType  # 2301
+"""Open Search Models"""
+ASANA_PROJECT: ConnectorMetadataModelType.ValueType  # 2401
+"""Asana Models"""
+MODELS_ACTIVE: ConnectorMetadataModelType.ValueType  # 2501
+"""Custom Strategies"""
+GITHUB_REPOSITORY: ConnectorMetadataModelType.ValueType  # 2601
+"""Github Models"""
+GITHUB_MEMBER: ConnectorMetadataModelType.ValueType  # 2602
+JIRA_PROJECT: ConnectorMetadataModelType.ValueType  # 2701
+"""Jira Models"""
+JIRA_USER: ConnectorMetadataModelType.ValueType  # 2702
+ARGOCD_APPS: ConnectorMetadataModelType.ValueType  # 2801
+"""ArgoCd Models"""
+JENKINS_JOBS: ConnectorMetadataModelType.ValueType  # 2901
+"""jenkins Models"""
+POSTHOG_PERSON: ConnectorMetadataModelType.ValueType  # 3001
+"""PostHog Models"""
+POSTHOG_GROUP: ConnectorMetadataModelType.ValueType  # 3002
+POSTHOG_COHORT: ConnectorMetadataModelType.ValueType  # 3003
+POSTHOG_PROPERTY: ConnectorMetadataModelType.ValueType  # 3004
+ECS_CLUSTER: ConnectorMetadataModelType.ValueType  # 4001
+"""ECS Models"""
+ECS_TASK: ConnectorMetadataModelType.ValueType  # 4002
+ECS_SERVICE: ConnectorMetadataModelType.ValueType  # 4003
+SIGNOZ_DASHBOARD: ConnectorMetadataModelType.ValueType  # 5001
+"""SignOz Models"""
+SIGNOZ_ALERT: ConnectorMetadataModelType.ValueType  # 5002
+SIGNOZ_METRIC: ConnectorMetadataModelType.ValueType  # 5003
+KUBERNETES_NAMESPACE: ConnectorMetadataModelType.ValueType  # 6001
+"""Kubernetes Models"""
+KUBERNETES_SERVICE: ConnectorMetadataModelType.ValueType  # 6002
+KUBERNETES_DEPLOYMENT: ConnectorMetadataModelType.ValueType  # 6003
+KUBERNETES_INGRESS: ConnectorMetadataModelType.ValueType  # 6004
+KUBERNETES_NETWORK_POLICY: ConnectorMetadataModelType.ValueType  # 6005
+KUBERNETES_HPA: ConnectorMetadataModelType.ValueType  # 6006
+KUBERNETES_REPLICASET: ConnectorMetadataModelType.ValueType  # 6007
+KUBERNETES_STATEFULSET: ConnectorMetadataModelType.ValueType  # 6008
+SENTRY_PROJECT: ConnectorMetadataModelType.ValueType  # 7001
+global___ConnectorMetadataModelType = ConnectorMetadataModelType
 
 @typing_extensions.final
 class Connector(google.protobuf.message.Message):

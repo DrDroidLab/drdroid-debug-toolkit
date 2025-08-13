@@ -20,7 +20,8 @@ from core.protos.ui_definition_pb2 import FormField, FormFieldType
 from core.utils.credentilal_utils import generate_credentials_dict
 from core.utils.proto_utils import proto_to_dict, dict_to_proto
 from core.utils.string_utils import is_partial_match
-from core.utils.playbooks_client import PrototypeClient
+from core.integrations.source_metadata_extractors.datadog_metadata_extractor import DatadogSourceMetadataExtractor
+from core.integrations.source_asset_managers.datadog_asset_manager import DatadogAssetManager
 
 logger = logging.getLogger(__name__)
 
@@ -380,26 +381,46 @@ class DatadogSourceManager(SourceManager):
             widget_title = None
             template_variables_map = {}  # Map to store template variable names to default values
             
-            # If dashboard_entity is not provided, fetch it from assets
+            # If dashboard_entity is not provided, fetch it from metadata extractor
             if dashboard_entity is None:
-                # Get all dashboard entities
-                prototype_client = PrototypeClient()
-                assets: AccountConnectorAssets = prototype_client.get_connector_assets(
-                    "DATADOG",
-                    datadog_connector.id.value,
-                    SourceModelType.DATADOG_DASHBOARD,
-                    proto_to_dict(AccountConnectorAssetsModelFilters())
+                # Get connector credentials
+                generated_credentials = generate_credentials_dict(datadog_connector.type, datadog_connector.keys)
+                
+                # Create metadata extractor instance
+                datadog_metadata_extractor = DatadogSourceMetadataExtractor(
+                    request_id="dashboard_fetch_request",
+                    connector_name=datadog_connector.name.value,
+                    dd_app_key=generated_credentials.get('dd_app_key'),
+                    dd_api_key=generated_credentials.get('dd_api_key'),
+                    dd_api_domain=generated_credentials.get('dd_api_domain', 'datadoghq.com')
                 )
 
-                if not assets:
-                    return [PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
-                                             text=TextResult(output=StringValue(
-                                             value=f"No dashboard assets found for the account")),
-                                             source=self.source)]
+                                # Get dashboards data directly from metadata extractor
+                dashboards_data = datadog_metadata_extractor.get_dashboards_data()
 
-                dd_assets: [DatadogDashboardModel] = assets.datadog.assets
-                all_dashboard_asset: [DatadogDashboardModel] = [dd_asset.datadog_dashboard for dd_asset in dd_assets if
-                                                               dd_asset.type == SourceModelType.DATADOG_DASHBOARD]
+                if not dashboards_data:
+                    return [PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
+                                               text=TextResult(output=StringValue(
+                                               value=f"No dashboard assets found for the account")),
+                                               source=self.source)]
+
+                # Use asset manager to process the raw data
+                datadog_asset_manager = DatadogAssetManager()
+                filters = AccountConnectorAssetsModelFilters()
+                assets = datadog_asset_manager.get_asset_values(
+                    datadog_connector, filters, SourceModelType.DATADOG_DASHBOARD, dashboards_data
+                )
+
+                if not assets or not assets.datadog or not assets.datadog.assets:
+                    return [PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
+                                               text=TextResult(output=StringValue(
+                                               value=f"No dashboard assets found for the account")),
+                                               source=self.source)]
+
+                # Find the matching dashboard
+                dd_assets = assets.datadog.assets
+                all_dashboard_asset = [dd_asset.datadog_dashboard for dd_asset in dd_assets if
+                                       dd_asset.type == SourceModelType.DATADOG_DASHBOARD]
                 for dashboard_entity_item in all_dashboard_asset:
                     if is_partial_match(dashboard_entity_item.title.value, [dashboard_name]):
                         dashboard_entity = dashboard_entity_item
@@ -878,30 +899,46 @@ class DatadogSourceManager(SourceManager):
             result = []
             dashboard_name = task.dashboard_name.value
             
-            # Fetch dashboard assets once
-            prototype_client = PrototypeClient()
-            assets: AccountConnectorAssets = prototype_client.get_connector_assets(
-                "DATADOG",
-                datadog_connector.id.value,
-                SourceModelType.DATADOG_DASHBOARD,
-                proto_to_dict(AccountConnectorAssetsModelFilters())
+            # Fetch dashboard assets using metadata extractor
+            generated_credentials = generate_credentials_dict(datadog_connector.type, datadog_connector.keys)
+            
+            datadog_metadata_extractor = DatadogSourceMetadataExtractor(
+                request_id="dashboard_fetch_request",
+                connector_name=datadog_connector.name.value,
+                dd_app_key=generated_credentials.get('dd_app_key'),
+                dd_api_key=generated_credentials.get('dd_api_key'),
+                dd_api_domain=generated_credentials.get('dd_api_domain', 'datadoghq.com')
             )
+
+            dashboards_data = datadog_metadata_extractor.get_dashboards_data()
                 
-            if not assets:
+            if not dashboards_data:
                 return PlaybookTaskResult(
                     type=PlaybookTaskResultType.TEXT,
                     text=TextResult(output=StringValue(value="No dashboard assets found for the account")),
                     source=self.source)
-                    
-            dd_assets: [DatadogDashboardModel] = assets.datadog.assets
-            all_dashboard_asset: [DatadogDashboardModel] = [dd_asset.datadog_dashboard for dd_asset in dd_assets if 
-                                                            dd_asset.type == SourceModelType.DATADOG_DASHBOARD]
+            
+            # Use asset manager to process the raw data
+            datadog_asset_manager = DatadogAssetManager()
+            filters = AccountConnectorAssetsModelFilters()
+            assets = datadog_asset_manager.get_asset_values(
+                datadog_connector, filters, SourceModelType.DATADOG_DASHBOARD, dashboards_data
+            )
+
+            if not assets or not assets.datadog or not assets.datadog.assets:
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value="No dashboard assets found for the account")),
+                    source=self.source)
             
             # Find the matching dashboard
             matching_dashboard = None
-            for dashboard in all_dashboard_asset:
-                if is_partial_match(dashboard.title.value, [dashboard_name]):
-                    matching_dashboard = dashboard
+            dd_assets = assets.datadog.assets
+            all_dashboard_asset = [dd_asset.datadog_dashboard for dd_asset in dd_assets if
+                                   dd_asset.type == SourceModelType.DATADOG_DASHBOARD]
+            for dashboard_entity_item in all_dashboard_asset:
+                if is_partial_match(dashboard_entity_item.title.value, [dashboard_name]):
+                    matching_dashboard = dashboard_entity_item
                     break
                     
             if matching_dashboard:
@@ -927,42 +964,47 @@ class DatadogSourceManager(SourceManager):
 
     def filter_using_assets(self, dd_connector: ConnectorProto, service_name, filters: dict = None):
         try:
-            prototype_client = PrototypeClient()
-            assets: AccountConnectorAssets = prototype_client.get_connector_assets(
-                "DATADOG",
-                dd_connector.id.value,
-                SourceModelType.DATADOG_SERVICE,
-                proto_to_dict(AccountConnectorAssetsModelFilters())
-            )
+            # Get connector credentials
+            generated_credentials = generate_credentials_dict(dd_connector.type, dd_connector.keys)
             
-            if not assets:
+            # Create metadata extractor instance
+            datadog_metadata_extractor = DatadogSourceMetadataExtractor(
+                request_id="service_filter_request",
+                connector_name=dd_connector.name.value,
+                dd_app_key=generated_credentials.get('dd_app_key'),
+                dd_api_key=generated_credentials.get('dd_api_key'),
+                dd_api_domain=generated_credentials.get('dd_api_domain', 'datadoghq.com')
+            )
+
+            # Get services data directly from metadata extractor
+            services_data = datadog_metadata_extractor.get_services_data()
+            
+            if not services_data:
                 logger.warning(f"DatadogSourceManager.filter_using_assets:: No assets "
                                f"found for account: {dd_connector.account_id.value}, connector: {dd_connector.id.value}")
                 return "[]"
 
-            dd_assets: [DatadogServiceAssetModel] = assets.datadog.assets
-            all_service_asset: [DatadogServiceAssetModel] = [dd_asset.datadog_service for dd_asset in dd_assets if
-                                                           dd_asset.type == SourceModelType.DATADOG_SERVICE]
-
             matching_metrics = []
             # Iterate through each service asset
-            for service_asset in all_service_asset:
+            for service_name_key, service_data in services_data.items():
                 # Check if this is the service we're looking for
-                if service_asset.service_name.value == service_name:
+                if service_name_key == service_name:
                     # Iterate through each metric in the service asset
-                    for metric in service_asset.metrics:
+                    metrics = service_data.get('metrics', [])
+                    for metric in metrics:
                         # Check if the metric family is "trace"
-                        if metric.metric_family.value == "trace":
+                        if metric.get('family') == "trace":
                             # Check if the metric has a tag with "service:service_name"
                             service_tag_found = False
-                            for tag in metric.tags:
-                                if tag.value == f"service:{service_name}":
+                            tags = metric.get('tags', [])
+                            for tag in tags:
+                                if tag == f"service:{service_name}":
                                     service_tag_found = True
                                     break
                             
                             # If both conditions are met, add the metric value to our results
                             if service_tag_found:
-                                matching_metrics.append(metric.metric.value)
+                                matching_metrics.append(metric.get('id', ''))
             return matching_metrics
         except Exception as e:
             logger.error(f"Error while accessing assets: {dd_connector.account_id.value}, connector: "
@@ -1085,3 +1127,5 @@ class DatadogSourceManager(SourceManager):
                 )
                 result.append(task_result)
         return result
+
+

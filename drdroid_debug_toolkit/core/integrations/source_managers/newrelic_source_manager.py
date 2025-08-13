@@ -19,7 +19,8 @@ from core.protos.assets.asset_pb2 import AccountConnectorAssets, AccountConnecto
 
 from core.utils.credentilal_utils import generate_credentials_dict
 from core.utils.string_utils import is_partial_match
-from core.utils.playbooks_client import PrototypeClient
+from core.integrations.source_metadata_extractors.newrelic_metadata_extractor import NewrelicSourceMetadataExtractor
+from core.integrations.source_asset_managers.newrelic_asset_manager import NewRelicAssetManager
 from core.utils.time_utils import calculate_timeseries_bucket_size
 from core.utils.proto_utils import dict_to_proto, proto_to_dict
 from core.utils.static_mappings import NEWRELIC_APM_QUERIES
@@ -514,15 +515,32 @@ class NewRelicSourceManager(SourceManager):
                                          page_name: Optional[str] = None, widget_names: Optional[list[str]] = None) -> \
             list[dict]:
         """Finds a dashboard by name and returns its filtered widgets."""
-        prototype_client = PrototypeClient()
-        assets: AccountConnectorAssets = prototype_client.get_connector_assets(
-            "NEW_RELIC",
-            nr_connector.id.value,
-            SourceModelType.NEW_RELIC_ENTITY_DASHBOARD,
-            proto_to_dict(AccountConnectorAssetsModelFilters())
+        # Get connector credentials
+        generated_credentials = generate_credentials_dict(nr_connector.type, nr_connector.keys)
+        
+        # Create metadata extractor instance
+        newrelic_metadata_extractor = NewrelicSourceMetadataExtractor(
+            request_id="dashboard_widgets_request",
+            connector_name=nr_connector.name.value,
+            nr_api_key=generated_credentials.get('nr_api_key'),
+            nr_app_id=generated_credentials.get('nr_app_id'),
+            nr_api_domain=generated_credentials.get('nr_api_domain', 'api.newrelic.com')
         )
 
-        if not assets:
+        # Get dashboard entities data directly from metadata extractor
+        dashboard_entities_data = newrelic_metadata_extractor.get_dashboard_entities_data()
+
+        if not dashboard_entities_data:
+            raise Exception(f"No dashboard assets found for the account {nr_connector.account_id.value}")
+
+        # Use asset manager to process the raw data
+        newrelic_asset_manager = NewRelicAssetManager()
+        filters = AccountConnectorAssetsModelFilters()
+        assets = newrelic_asset_manager.get_asset_values(
+            nr_connector, filters, SourceModelType.NEW_RELIC_ENTITY_DASHBOARD, dashboard_entities_data
+        )
+
+        if not assets or not assets.new_relic or not assets.new_relic.assets:
             raise Exception(f"No dashboard assets found for the account {nr_connector.account_id.value}")
 
         matching_widgets = []
@@ -1092,40 +1110,49 @@ class NewRelicSourceManager(SourceManager):
                                              page_name: Optional[str] = None, widget_names: Optional[list[str]] = None) -> \
                 list[dict]:
         """Finds V2 dashboards/widgets using the exact filtering logic from V1."""
-        prototype_client = PrototypeClient()
-        assets_data: AccountConnectorAssets = prototype_client.get_connector_assets(
-            "NEW_RELIC",
-            nr_connector.id.value,
-            SourceModelType.NEW_RELIC_ENTITY_DASHBOARD_V2, # Fetch V2 model type
-            proto_to_dict(AccountConnectorAssetsModelFilters())
+        # Get connector credentials
+        generated_credentials = generate_credentials_dict(nr_connector.type, nr_connector.keys)
+        
+        # Create metadata extractor instance
+        newrelic_metadata_extractor = NewrelicSourceMetadataExtractor(
+            request_id="dashboard_widgets_v2_request",
+            connector_name=nr_connector.name.value,
+            nr_api_key=generated_credentials.get('nr_api_key'),
+            nr_app_id=generated_credentials.get('nr_app_id'),
+            nr_api_domain=generated_credentials.get('nr_api_domain', 'api.newrelic.com')
         )
 
-        # Check if the primary list or the nested assets are missing/empty
-        if not assets_data or not assets_data.new_relic:
+        # Get dashboard entities v2 data directly from metadata extractor
+        dashboard_entities_v2_data = newrelic_metadata_extractor.get_dashboard_entities_v2_data()
+
+        # Check if the data is missing/empty
+        if not dashboard_entities_v2_data:
             logger.warning(f"No V2 dashboard assets found for the account {nr_connector.account_id.value}")
             # Return empty list instead of raising Exception here, let caller handle no data
             return []
 
-        newrelic_assets = assets_data.new_relic.assets
-
-        # Filter for V2 dashboard assets specifically
-        all_dashboard_entities_v2 = [
-            asset.new_relic_entity_dashboard_v2
-            for asset in newrelic_assets
-            if asset.HasField('new_relic_entity_dashboard_v2')
-        ]
-
-        if not all_dashboard_entities_v2:
-             logger.warning(f"No V2 dashboard entities found in asset list for connector {nr_connector.id.value}")
-             return []
+        # Use asset manager to process the raw data
+        newrelic_asset_manager = NewRelicAssetManager()
+        filters = AccountConnectorAssetsModelFilters()
+        assets = newrelic_asset_manager.get_asset_values(
+            nr_connector, filters, SourceModelType.NEW_RELIC_ENTITY_DASHBOARD_V2, dashboard_entities_v2_data
+        )
+        if not assets or not assets.new_relic or not assets.new_relic.assets:
+            logger.warning(f"No V2 dashboard assets found for the account {nr_connector.account_id.value}")
+            return []
 
         # 1. Group entities by dashboard_guid
         entities_by_guid = {}
-        for entity in all_dashboard_entities_v2:
-            guid = entity.dashboard_guid.value
+        newrelic_assets = assets.new_relic.assets
+        all_dashboard_entities_v2 = [newrelic_asset.new_relic_entity_dashboard_v2 for newrelic_asset
+                                     in newrelic_assets if
+                                     newrelic_asset.type == SourceModelType.NEW_RELIC_ENTITY_DASHBOARD_V2]
+
+        for dashboard_entity in all_dashboard_entities_v2:
+            guid = dashboard_entity.dashboard_guid.value
             if guid not in entities_by_guid:
                 entities_by_guid[guid] = []
-            entities_by_guid[guid].append(entity)
+            entities_by_guid[guid].append(dashboard_entity)
 
         # 2. Find GUIDs matching the input dashboard_name using V1 logic
         matched_guids = set()
@@ -1133,6 +1160,8 @@ class NewRelicSourceManager(SourceManager):
         for guid, entities in entities_by_guid.items():
             for entity in entities: # Check all names associated with this GUID
                 current_dashboard_name = entity.dashboard_name.value
+                print(f"current_dashboard_name: {current_dashboard_name}")
+                logger.info(f"current_dashboard_name: {current_dashboard_name}")
                 match = False
                 if page_name:
                     target_name = f"{dashboard_name} / {page_name}"
@@ -1176,7 +1205,7 @@ class NewRelicSourceManager(SourceManager):
                     # Process widgets on this unique page
                     for widget in page.widgets:
                         widget_id = widget.widget_id.value
-                        widget_title = widget.widget_title.value if widget.widget_title.value else f"Widget_{widget_id}"
+                        widget_title = widget.widget_title.value or f"Widget_{widget_id}"
 
                         # Apply widget name filter (if provided)
                         if widget_names and not is_partial_match(widget_title, widget_names):
@@ -1372,25 +1401,50 @@ class NewRelicSourceManager(SourceManager):
             filter_metric_names = [name.strip().lower() for name in filter_metric_names_str.split(',') if name.strip()]
 
             # 1. Get the specific application asset
-            prototype_client = PrototypeClient()
-            assets: AccountConnectorAssets = prototype_client.get_connector_assets(
-                "NEW_RELIC",
-                nr_connector.id.value,
-                SourceModelType.NEW_RELIC_ENTITY_APPLICATION,
-                proto_to_dict(AccountConnectorAssetsModelFilters())
+            # Get connector credentials
+            generated_credentials = generate_credentials_dict(nr_connector.type, nr_connector.keys)
+            
+            # Create metadata extractor instance
+            newrelic_metadata_extractor = NewrelicSourceMetadataExtractor(
+                request_id="application_apm_request",
+                connector_name=nr_connector.name.value,
+                nr_api_key=generated_credentials.get('nr_api_key'),
+                nr_app_id=generated_credentials.get('nr_app_id'),
+                nr_api_domain=generated_credentials.get('nr_api_domain', 'api.newrelic.com')
             )
 
-            if not assets:
+            # Get application entities data directly from metadata extractor
+            application_entities_data = newrelic_metadata_extractor.get_application_entities_data()
+
+            if not application_entities_data:
                 return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
                                           text=TextResult(output=StringValue(
                                               value=f"Application asset with GUID '{application_name}' not found")),
                                           source=self.source)
 
+            # Use asset manager to process the raw data
+            newrelic_asset_manager = NewRelicAssetManager()
+            filters = AccountConnectorAssetsModelFilters()
+            assets = newrelic_asset_manager.get_asset_values(
+                nr_connector, filters, SourceModelType.NEW_RELIC_ENTITY_APPLICATION, application_entities_data
+            )
+
+            if not assets or not assets.new_relic or not assets.new_relic.assets:
+                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
+                                          text=TextResult(output=StringValue(
+                                              value=f"Application asset with GUID '{application_name}' not found")),
+                                          source=self.source)
+
+            # Find the specific application asset
             application_asset = None
-            for newrelic_asset in assets.new_relic.assets:
-                if newrelic_asset.type == SourceModelType.NEW_RELIC_ENTITY_APPLICATION and \
-                   newrelic_asset.new_relic_entity_application.application_name.value == application_name:
-                    application_asset = newrelic_asset.new_relic_entity_application
+            newrelic_assets = assets.new_relic.assets
+            all_application_entities = [newrelic_asset.new_relic_entity_application for newrelic_asset
+                                       in newrelic_assets if
+                                       newrelic_asset.type == SourceModelType.NEW_RELIC_ENTITY_APPLICATION]
+            
+            for app_entity in all_application_entities:
+                if app_entity.application_entity_guid.value == application_name:
+                    application_asset = app_entity
                     break
 
             if not application_asset:
@@ -1400,7 +1454,7 @@ class NewRelicSourceManager(SourceManager):
                                            source=self.source)
 
             # 2. Filter APM metrics if requested
-            all_apm_metrics = list(application_asset.apm_metrics)
+            all_apm_metrics = application_asset.apm_metrics
             if not all_apm_metrics:
                 return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
                                           text=TextResult(output=StringValue(
