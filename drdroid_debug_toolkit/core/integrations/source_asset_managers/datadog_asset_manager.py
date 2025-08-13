@@ -75,7 +75,7 @@ class DatadogAssetManager(SourceAssetManager):
                              model_type: SourceModelType,
                              raw_data: Dict[str, Any]) -> AccountConnectorAssets:
         """Get Datadog service values from raw metadata extractor data."""
-        which_one_of = filters.WhichOneOf('filters')
+        which_one_of = filters.WhichOneof('filters')
         if which_one_of and which_one_of != 'datadog_service_model_filters':
             raise ValueError(f"Invalid filter: {which_one_of}")
 
@@ -156,7 +156,7 @@ class DatadogAssetManager(SourceAssetManager):
                                model_type: SourceModelType,
                                raw_data: Dict[str, Any]) -> AccountConnectorAssets:
         """Get Datadog dashboard values from raw metadata extractor data."""
-        which_one_of = filters.WhichOneOf('filters')
+        which_one_of = filters.WhichOneof('filters')
         if which_one_of and which_one_of != 'datadog_dashboard_model_filters':
             raise ValueError(f"Invalid filter: {which_one_of}")
 

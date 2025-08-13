@@ -61,7 +61,7 @@ class NewRelicAssetManager(SourceAssetManager):
                                         model_type: SourceModelType,
                                         raw_data: Dict[str, Any]) -> AccountConnectorAssets:
         """Get NewRelic application entity values from raw metadata extractor data."""
-        which_one_of = filters.WhichOneOf('filters')
+        which_one_of = filters.WhichOneof('filters')
         if which_one_of and which_one_of != 'new_relic_entity_application_model_filters':
             raise ValueError(f"Invalid filter: {which_one_of}")
 
@@ -160,7 +160,7 @@ class NewRelicAssetManager(SourceAssetManager):
                                       model_type: SourceModelType,
                                       raw_data: Dict[str, Any]) -> AccountConnectorAssets:
         """Get NewRelic dashboard entity values from raw metadata extractor data."""
-        which_one_of = filters.WhichOneOf('filters')
+        which_one_of = filters.WhichOneof('filters')
         if which_one_of and which_one_of != 'new_relic_entity_dashboard_model_filters':
             raise ValueError(f"Invalid filter: {which_one_of}")
 
