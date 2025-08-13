@@ -1137,8 +1137,6 @@ class NewRelicSourceManager(SourceManager):
         assets = newrelic_asset_manager.get_asset_values(
             nr_connector, filters, SourceModelType.NEW_RELIC_ENTITY_DASHBOARD_V2, dashboard_entities_v2_data
         )
-        logger.info(f"assets kekw: {assets}")
-        print(f"assets kekw: {assets}")
         if not assets or not assets.new_relic or not assets.new_relic.assets:
             logger.warning(f"No V2 dashboard assets found for the account {nr_connector.account_id.value}")
             return []
