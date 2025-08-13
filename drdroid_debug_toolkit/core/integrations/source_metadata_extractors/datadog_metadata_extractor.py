@@ -17,6 +17,13 @@ class DatadogSourceMetadataExtractor(SourceMetadataExtractor):
     @log_function_call
     def extract_services(self):
         model_type = SourceModelType.DATADOG_SERVICE
+        model_data = self._collect_services_data()
+        if len(model_data) > 0:
+            self.create_or_update_model_metadata(model_type, model_data)
+        return model_data
+
+    def _collect_services_data(self):
+        """Collect services data - used by both extract_services and get_services_data."""
         model_data = {}
         prod_env_tags = ['prod', 'production', 'prd', 'prod_env', 'production_env', 'production_environment',
                          'prod_environment']
@@ -38,7 +45,7 @@ class DatadogSourceMetadataExtractor(SourceMetadataExtractor):
             logger.error(f'Error fetching datadog metrics: {e}')
             all_metrics = []
         if not all_metrics:
-            return
+            return model_data
         service_metric_map = {}
         for mt in all_metrics:
             try:
@@ -59,34 +66,56 @@ class DatadogSourceMetadataExtractor(SourceMetadataExtractor):
             service_model_data = model_data.get(service, {})
             service_model_data['metrics'] = metrics
             model_data[service] = service_model_data
-        if len(model_data) > 0:
-            self.create_or_update_model_metadata(model_type, model_data)
+        return model_data
+
+    def get_services_data(self):
+        """Get services data directly without storing to database."""
+        return self._collect_services_data()
+
+
 
     @log_function_call
     def extract_monitor(self):
         model_type = SourceModelType.DATADOG_MONITOR
+        model_data = self._collect_monitors_data()
+        if len(model_data) > 0:
+            self.create_or_update_model_metadata(model_type, model_data)
+        return model_data
+
+    def _collect_monitors_data(self):
+        """Collect monitors data - used by both extract_monitor and get_monitors_data."""
         model_data = {}
         try:
             monitors = self.__dd_api_processor.fetch_monitors()
             if not monitors or len(monitors) == 0:
-                return
+                return model_data
             for monitor in monitors:
                 monitor_dict = monitor.to_dict()
                 monitor_id = str(monitor_dict['id'])
                 model_data[monitor_id] = monitor_dict
         except Exception as e:
             logger.error(f'Error extracting monitors: {e}')
-        if len(model_data) > 0:
-            self.create_or_update_model_metadata(model_type, model_data)
+        return model_data
+
+    def get_monitors_data(self):
+        """Get monitors data directly without storing to database."""
+        return self._collect_monitors_data()
 
     @log_function_call
     def extract_dashboard(self):
         model_type = SourceModelType.DATADOG_DASHBOARD
+        model_data = self._collect_dashboards_data()
+        if len(model_data) > 0:
+            self.create_or_update_model_metadata(model_type, model_data)
+        return model_data
+
+    def _collect_dashboards_data(self):
+        """Collect dashboards data - used by both extract_dashboard and get_dashboards_data."""
         model_data = {}
         try:
             response = self.__dd_api_processor.fetch_dashboards()
             if not response or 'dashboards' not in response:
-                return
+                return model_data
             dashboards = response['dashboards']
             dashboard_ids = [dashboard['id'] for dashboard in dashboards]
             for dashboard_id in dashboard_ids:
@@ -101,8 +130,11 @@ class DatadogSourceMetadataExtractor(SourceMetadataExtractor):
                 model_data[dashboard_id] = dashboard
         except Exception as e:
             logger.error(f'Error extracting dashboards: {e}')
-        if len(model_data) > 0:
-            self.create_or_update_model_metadata(model_type, model_data)
+        return model_data
+
+    def get_dashboards_data(self):
+        """Get dashboards data directly without storing to database."""
+        return self._collect_dashboards_data()
 
     @log_function_call
     def extract_active_aws_integrations(self):
@@ -230,15 +262,22 @@ class DatadogSourceMetadataExtractor(SourceMetadataExtractor):
 
     @log_function_call
     def extract_metrics(self):
-        model_data = {}
         model_type = SourceModelType.DATADOG_METRIC
+        model_data = self._collect_metrics_data()
+        if len(model_data) > 0:
+            self.create_or_update_model_metadata(model_type, model_data)
+        return model_data
+
+    def _collect_metrics_data(self):
+        """Collect metrics data - used by both extract_metrics and get_metrics_data."""
+        model_data = {}
         try:
             all_metrics = self.__dd_api_processor.fetch_metrics().get('data', [])
         except Exception as e:
             logger.error(f'Error fetching metrics: {e}')
             all_metrics = []
         if not all_metrics:
-            return
+            return model_data
         for mt in all_metrics:
             try:
                 tags = self.__dd_api_processor.fetch_metric_tags(mt['id']).get('data', {}).get('attributes', {}).get(
@@ -248,5 +287,8 @@ class DatadogSourceMetadataExtractor(SourceMetadataExtractor):
                 tags = []
             family = mt['id'].split('.')[0]
             model_data[mt['id']] = {**mt, 'tags': tags, 'family': family}
-        if len(model_data) > 0:
-            self.create_or_update_model_metadata(model_type, model_data)
+        return model_data
+
+    def get_metrics_data(self):
+        """Get metrics data directly without storing to database."""
+        return self._collect_metrics_data()

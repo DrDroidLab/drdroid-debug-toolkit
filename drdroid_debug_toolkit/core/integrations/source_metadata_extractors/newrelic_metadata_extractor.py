@@ -14,11 +14,18 @@ class NewrelicSourceMetadataExtractor(SourceMetadataExtractor):
     @log_function_call
     def extract_policy(self):
         model_type = SourceModelType.NEW_RELIC_POLICY
+        model_data = self._collect_policies_data()
+        if len(model_data) > 0:
+            self.create_or_update_model_metadata(model_type, model_data)
+        return model_data
+
+    def _collect_policies_data(self):
+        """Collect policies data - used by both extract_policy and get_policies_data."""
         cursor = 'null'
         policies = []
         policies_search = self.__gql_processor.get_all_policies(cursor)
         if 'policies' not in policies_search:
-            return
+            return {}
         results = policies_search['policies']
         policies.extend(results)
         if 'nextCursor' in policies_search:
@@ -38,16 +45,26 @@ class NewrelicSourceMetadataExtractor(SourceMetadataExtractor):
         for policy in policies:
             policy_id = policy['id']
             model_data[policy_id] = policy
-        if len(model_data) > 0:
-            self.create_or_update_model_metadata(model_type, model_data)
+        return model_data
+
+    def get_policies_data(self):
+        """Get policies data directly without storing to database."""
+        return self._collect_policies_data()
 
     def extract_entity(self):
         model_type = SourceModelType.NEW_RELIC_ENTITY
+        model_data = self._collect_entities_data()
+        if len(model_data) > 0:
+            self.create_or_update_model_metadata(model_type, model_data)
+        return model_data
+
+    def _collect_entities_data(self):
+        """Collect entities data - used by both extract_entity and get_entities_data."""
         cursor = 'null'
         types = ['HOST', 'MONITOR', 'WORKLOAD']
         entity_search = self.__gql_processor.get_all_entities(cursor, types)
         if 'results' not in entity_search:
-            return
+            return {}
         results = entity_search['results']
         entities = []
         if 'entities' in results:
@@ -70,16 +87,26 @@ class NewrelicSourceMetadataExtractor(SourceMetadataExtractor):
         for entity in entities:
             entity_guid = entity['guid']
             model_data[entity_guid] = entity
-        if len(model_data) > 0:
-            self.create_or_update_model_metadata(model_type, model_data)
+        return model_data
+
+    def get_entities_data(self):
+        """Get entities data directly without storing to database."""
+        return self._collect_entities_data()
 
     def extract_condition(self):
         model_type = SourceModelType.NEW_RELIC_CONDITION
+        model_data = self._collect_conditions_data()
+        if len(model_data) > 0:
+            self.create_or_update_model_metadata(model_type, model_data)
+        return model_data
+
+    def _collect_conditions_data(self):
+        """Collect conditions data - used by both extract_condition and get_conditions_data."""
         cursor = 'null'
         conditions = []
         conditions_search = self.__gql_processor.get_all_conditions(cursor)
         if 'nrqlConditions' not in conditions_search:
-            return
+            return {}
         results = conditions_search['nrqlConditions']
         conditions.extend(results)
         if 'nextCursor' in conditions_search:
@@ -99,16 +126,26 @@ class NewrelicSourceMetadataExtractor(SourceMetadataExtractor):
         for condition in conditions:
             condition_id = condition['id']
             model_data[condition_id] = condition
-        if len(model_data) > 0:
-            self.create_or_update_model_metadata(model_type, model_data)
+        return model_data
+
+    def get_conditions_data(self):
+        """Get conditions data directly without storing to database."""
+        return self._collect_conditions_data()
 
     def extract_dashboard_entity(self):
         model_type = SourceModelType.NEW_RELIC_ENTITY_DASHBOARD
+        model_data = self._collect_dashboard_entities_data()
+        if len(model_data) > 0:
+            self.create_or_update_model_metadata(model_type, model_data)
+        return model_data
+
+    def _collect_dashboard_entities_data(self):
+        """Collect dashboard entities data - used by both extract_dashboard_entity and get_dashboard_entities_data."""
         cursor = 'null'
         types = ['DASHBOARD']
         entity_search = self.__gql_processor.get_all_entities(cursor, types)
         if 'results' not in entity_search:
-            return
+            return {}
         results = entity_search['results']
         entities = []
         if 'entities' in results:
@@ -136,16 +173,26 @@ class NewrelicSourceMetadataExtractor(SourceMetadataExtractor):
             for entity in dashboard_entity_search:
                 entity_id = entity['guid']
                 model_data[entity_id] = entity
-        if len(model_data) > 0:
-            self.create_or_update_model_metadata(model_type, model_data)
+        return model_data
+
+    def get_dashboard_entities_data(self):
+        """Get dashboard entities data directly without storing to database."""
+        return self._collect_dashboard_entities_data()
 
     def extract_application_entity(self):
         model_type = SourceModelType.NEW_RELIC_ENTITY_APPLICATION
+        model_data = self._collect_application_entities_data()
+        if len(model_data) > 0:
+            self.create_or_update_model_metadata(model_type, model_data)
+        return model_data
+
+    def _collect_application_entities_data(self):
+        """Collect application entities data - used by both extract_application_entity and get_application_entities_data."""
         cursor = 'null'
         types = ['APPLICATION']
         entity_search = self.__gql_processor.get_all_entities(cursor, types)
         if 'results' not in entity_search:
-            return
+            return {}
         results = entity_search['results']
         entities = []
         if 'entities' in results:
@@ -178,16 +225,26 @@ class NewrelicSourceMetadataExtractor(SourceMetadataExtractor):
                 entity['apm_summary'].append(apm_metric)
             
             model_data[entity_guid] = entity
-        if len(model_data) > 0:
-            self.create_or_update_model_metadata(model_type, model_data)
+        return model_data
+
+    def get_application_entities_data(self):
+        """Get application entities data directly without storing to database."""
+        return self._collect_application_entities_data()
 
     def extract_dashboard_entity_v2(self):
         model_type = SourceModelType.NEW_RELIC_ENTITY_DASHBOARD_V2  
+        model_data = self._collect_dashboard_entities_v2_data()
+        if len(model_data) > 0:
+            self.create_or_update_model_metadata(model_type, model_data)
+        return model_data
+
+    def _collect_dashboard_entities_v2_data(self):
+        """Collect dashboard entities v2 data - used by both extract_dashboard_entity_v2 and get_dashboard_entities_v2_data."""
         cursor = 'null'
         types = ['DASHBOARD']
         entity_search = self.__gql_processor.get_all_entities(cursor, types)
         if 'results' not in entity_search:
-            return
+            return {}
         results = entity_search['results']
         entities = []
         if 'entities' in results:
@@ -215,5 +272,8 @@ class NewrelicSourceMetadataExtractor(SourceMetadataExtractor):
             for entity in dashboard_entity_search:
                 entity_id = entity['guid']
                 model_data[entity_id] = entity
-        if len(model_data) > 0:
-            self.create_or_update_model_metadata(model_type, model_data)
+        return model_data
+
+    def get_dashboard_entities_v2_data(self):
+        """Get dashboard entities v2 data directly without storing to database."""
+        return self._collect_dashboard_entities_v2_data()

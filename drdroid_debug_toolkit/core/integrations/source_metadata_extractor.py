@@ -17,10 +17,15 @@ class SourceMetadataExtractor:
         self.source = source
         self.api_host = api_host
         self.api_token = api_token
+        # Store collected data for real-time access
+        self._collected_assets = {}
 
     @log_function_call
     def create_or_update_model_metadata(self, model_type, collected_models):
         try:
+            # Store the collected models for real-time access
+            self._collected_assets[model_type] = collected_models
+            
             if not self.api_host or not self.api_token:
                 logger.warning("API host or token not provided, skipping metadata update")
                 return
@@ -48,3 +53,21 @@ class SourceMetadataExtractor:
                               json={'connector': {'name': self.connector_name}, 'assets': asset_metadata_models})
         except Exception as e:
             logger.error(f'Error creating or updating model_type: {model_type} with error: {e}')
+
+    def get_collected_assets(self, model_type=None):
+        """
+        Get collected assets for real-time access.
+        
+        Args:
+            model_type: Optional model type to filter by. If None, returns all collected assets.
+            
+        Returns:
+            Dict containing the collected assets
+        """
+        if model_type is None:
+            return self._collected_assets
+        return self._collected_assets.get(model_type, {})
+
+    def clear_collected_assets(self):
+        """Clear all collected assets."""
+        self._collected_assets = {}
