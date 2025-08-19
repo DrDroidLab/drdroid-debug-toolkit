@@ -33,10 +33,11 @@ class BashSDK(BaseSDK):
     def _get_key_type_mapping(self) -> Dict[str, SourceKeyType]:
         """Get Bash-specific key type mapping"""
         return {
-            'remote_host': SourceKeyType.REMOTE_HOST,
-            'remote_user': SourceKeyType.REMOTE_USER,
-            'remote_password': SourceKeyType.REMOTE_PASSWORD,
-            'remote_private_key': SourceKeyType.REMOTE_PRIVATE_KEY,
+            'remote_host': SourceKeyType.REMOTE_SERVER_HOST,
+            'remote_user': SourceKeyType.REMOTE_SERVER_USER,
+            'remote_password': SourceKeyType.REMOTE_SERVER_PASSWORD,
+            'remote_pem': SourceKeyType.REMOTE_SERVER_PEM,
+            'port': SourceKeyType.REMOTE_SERVER_PORT,
         }
     
     def execute_command(self,
