@@ -287,10 +287,13 @@ If you encounter import errors:
    uv pip install git+https://github.com/DrDroidLab/drdroid-debug-toolkit.git@fix/setup-fixes
    ```
 
+**Important**: Please ensure the credential file is in the correct format and Python version is >= 3.12.
+
 ### Common Issues
 
 - **ModuleNotFoundError**: Use the correct import name: `drdroid_debug_toolkit`
 - **ConfigurationError**: Verify your credentials file format and path
+- **grpc_tools.protoc not found**: Install grpcio-tools: `pip install grpcio-tools>=1.59.0`
 
 ## Contributing
 
