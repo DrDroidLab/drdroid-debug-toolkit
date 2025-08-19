@@ -28,7 +28,7 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: System :: Monitoring",
 ]
-requires-python = ">=3.8"
+requires-python = ">=3.12"
 dependencies = [
     "PyYAML>=6.0.0",
     "requests>=2.28.0",
