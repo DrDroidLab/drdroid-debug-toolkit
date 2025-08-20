@@ -4,6 +4,7 @@ DroidSpace SDK v2 - Improved modular implementation
 
 import logging
 from typing import Dict, Any, List, Union
+from google.protobuf.struct_pb2 import Struct
 
 from .exceptions import ConfigurationError, ConnectionError, ValidationError, TaskExecutionError
 from .core.sdk_factory import SDKFactory
@@ -15,6 +16,9 @@ from .core.sources.posthog_sdk import PostHogSDK
 from .core.sources.sql_database_connection_sdk import SqlDatabaseConnectionSDK
 from .core.sources.clickhouse_sdk import ClickHouseSDK
 from .core.protos.literal_pb2 import LiteralType
+from .core.protos.playbooks.playbook_pb2 import PlaybookTask
+from .core.utils.proto_utils import dict_to_proto, proto_to_dict
+from .core.integrations.utils.executor_utils import check_multiple_task_results
 
 logger = logging.getLogger(__name__)
 
@@ -435,8 +439,58 @@ class DroidSDK:
                     f"Available tools: {available_tools}"
                 )
             
-            # Execute the task using the existing SDK infrastructure
-            return sdk.execute_task(source_name, task_type_name, **kwargs)
+            # Build a PlaybookTask for execution through the SourceManager
+            # Create minimal task dict structure expected by SourceManager.get_resolved_task
+            # 1) Determine source enum value
+            from .core.protos.base_pb2 import Source as SourceEnum, TimeRange
+            try:
+                source_enum_value = getattr(SourceEnum, source_name.upper())
+            except AttributeError:
+                raise ValidationError(f"Unsupported source '{source_name}'")
+
+            # 2) Prepare task dictionary
+            # Map kwargs directly as the task-type specific message payload
+            source_key = source_name.lower()
+            task_dict = {
+                "source": source_enum_value,
+                source_key: {
+                    "type": matching_task_type,
+                    task_type_name: kwargs or {}
+                }
+            }
+
+            # 3) Convert to PlaybookTask proto
+            task_proto: PlaybookTask = dict_to_proto(task_dict, PlaybookTask)
+
+            # 4) Create a default time range (last 1 hour)
+            from datetime import datetime, timedelta
+            end_time = int(datetime.now().timestamp())
+            start_time = int((datetime.now() - timedelta(hours=1)).timestamp())
+            tr = TimeRange(time_geq=start_time, time_lt=end_time)
+
+            # 5) Resolve task and execute via SourceManager
+            resolved_task, resolved_source_task, task_local_variable_map = source_manager.get_resolved_task(
+                Struct(), task_proto
+            )
+
+            playbook_task_result = source_manager.task_type_callable_map[matching_task_type]['executor'](
+                tr, resolved_source_task, sdk._get_connector(source_name)
+            )
+
+            # 6) Post-process result and return as dict
+            if check_multiple_task_results(playbook_task_result):
+                task_results = []
+                for result in playbook_task_result:
+                    processed_result = source_manager.postprocess_task_result(
+                        result, resolved_task, task_local_variable_map
+                    )
+                    task_results.append(processed_result)
+                return {"results": [proto_to_dict(r) for r in task_results]}
+            else:
+                processed_result = source_manager.postprocess_task_result(
+                    playbook_task_result, resolved_task, task_local_variable_map
+                )
+                return proto_to_dict(processed_result)
             
         except ValidationError:
             raise
