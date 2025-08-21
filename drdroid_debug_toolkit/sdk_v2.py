@@ -378,6 +378,40 @@ class DroidSDK:
             logger.error(f"Failed to generate LLM tools for {source_name}: {e}")
             return []
 
+    def get_openai_functions(self, source_name: str) -> List[Dict[str, Any]]:
+        """
+        Generate OpenAI function format tools for a given source.
+        
+        Returns tools in the OpenAI function calling format, eliminating the need
+        for manual conversion loops.
+        
+        Args:
+            source_name: Name of the source (e.g., "grafana")
+            
+        Returns:
+            A list of OpenAI function format dicts with structure:
+            {
+                "type": "function",
+                "function": {
+                    "name": "tool_name",
+                    "description": "tool_description", 
+                    "parameters": {...}
+                }
+            }
+        """
+        tools = self.get_llm_tools(source_name)
+        return [
+            {
+                "type": "function",
+                "function": {
+                    "name": tool["name"],
+                    "description": tool["description"],
+                    "parameters": tool["parameters"]
+                }
+            }
+            for tool in tools
+        ]
+
     def execute_llm_tool(self, source_name: str, tool_name: str, **kwargs) -> Dict[str, Any]:
         """
         Execute an LLM tool by name with the provided arguments.
