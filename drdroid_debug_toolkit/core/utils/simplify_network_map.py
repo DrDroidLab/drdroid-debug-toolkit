@@ -1,99 +1,145 @@
 import json
 import logging
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, Set
+from collections import defaultdict
 
 logger = logging.getLogger(__name__)
 
 
-def simplify_network_map(raw_network_map: Dict[str, Any]) -> Dict[str, Any]:
+def extract_service_key(workload: dict, namespace: str) -> str:
+    """Extract a unique service key from workload and namespace."""
+    name = workload.get("name", "")
+    kind = workload.get("kind", "")
+    return f"{namespace}/{name}" if namespace else name
+
+
+def extract_target_key(target: dict, source_namespace: str) -> str:
+    """Extract a unique target key from a target object."""
+    if "kubernetes" in target:
+        k8s = target["kubernetes"]
+        name = k8s.get("name", "")
+        # Handle cross-namespace references (e.g., "apm-server-apm-server.tracing")
+        if "." in name:
+            service_name, target_namespace = name.split(".", 1)
+            return f"{target_namespace}/{service_name}"
+        else:
+            # Same namespace as source
+            return f"{source_namespace}/{name}"
+    elif "service" in target:
+        service_name = target["service"].get("name", "")
+        # Services like "kubernetes.default" are typically cluster-wide
+        if "." in service_name:
+            return service_name
+        else:
+            return f"{source_namespace}/{service_name}"
+    return ""
+
+
+def build_service_map_from_client_intents(data: List[dict]) -> Dict[str, dict]:
+    """Build a simplified service map from the ClientIntents data."""
+    
+    # Track upstream relationships (who each service calls)
+    upstream_map = defaultdict(set)
+    
+    # Track all services we've seen
+    all_services = set()
+    
+    for intent in data:
+        if intent.get("kind") != "ClientIntents":
+            continue
+            
+        metadata = intent.get("metadata", {})
+        spec = intent.get("spec", {})
+        
+        namespace = metadata.get("namespace", "")
+        workload = spec.get("workload", {})
+        targets = spec.get("targets", [])
+        
+        # Extract source service
+        source_key = extract_service_key(workload, namespace)
+        if not source_key:
+            continue
+            
+        all_services.add(source_key)
+        
+        # Extract target services (upstream dependencies)
+        for target in targets:
+            target_key = extract_target_key(target, namespace)
+            if target_key:
+                upstream_map[source_key].add(target_key)
+                all_services.add(target_key)
+    
+    # Build downstream relationships (who calls each service)
+    downstream_map = defaultdict(set)
+    for source, upstreams in upstream_map.items():
+        for upstream in upstreams:
+            downstream_map[upstream].add(source)
+    
+    # Create the final simplified structure
+    service_map = {}
+    for service in sorted(all_services):
+        # Parse namespace and name
+        if "/" in service:
+            namespace, name = service.split("/", 1)
+        else:
+            namespace = ""
+            name = service
+            
+        service_map[service] = {
+            "name": name,
+            "namespace": namespace,
+            "upstream": sorted(list(upstream_map[service])),
+            "downstream": sorted(list(downstream_map[service]))
+        }
+    
+    return service_map
+
+
+def simplify_network_map(raw_network_map: List[Dict[str, Any]]) -> Dict[str, Any]:
     """
-    Simplify and clean up the raw network map data from otterize network-mapper.
+    Simplify and clean up ClientIntents data into service relationship map.
     
     Args:
-        raw_network_map: Raw JSON output from 'otterize network-mapper export --format json'
+        raw_network_map: List of ClientIntents objects from network mapping tools
     
     Returns:
-        Simplified network map structure
+        Simplified network map structure with service relationships
     """
     try:
         if not raw_network_map:
             return {}
         
-        simplified = {
+        # Process ClientIntents format
+        service_map = build_service_map_from_client_intents(raw_network_map)
+        
+        # Calculate summary statistics
+        total_upstream = sum(len(service["upstream"]) for service in service_map.values())
+        total_downstream = sum(len(service["downstream"]) for service in service_map.values())
+        namespaces = set(service["namespace"] for service in service_map.values() if service["namespace"])
+        
+        return {
             'metadata': {
-                'extraction_time': raw_network_map.get('metadata', {}).get('timestamp'),
-                'version': raw_network_map.get('metadata', {}).get('version'),
-                'cluster_info': raw_network_map.get('metadata', {}).get('cluster')
+                'total_services': len(service_map),
+                'total_upstream_connections': total_upstream,
+                'total_downstream_connections': total_downstream,
+                'namespaces': sorted(list(namespaces)),
+                'description': 'Simplified service relationship map from ClientIntents'
             },
-            'services': [],
-            'connections': [],
-            'summary': {
-                'total_services': 0,
-                'total_connections': 0,
-                'namespaces': set()
-            }
+            'services': service_map
         }
-        
-        # Extract services
-        services = raw_network_map.get('services', [])
-        for service in services:
-            if not service:
-                continue
-                
-            simplified_service = {
-                'name': service.get('name'),
-                'namespace': service.get('namespace', 'default'),
-                'type': service.get('type'),
-                'labels': service.get('labels', {}),
-                'ports': service.get('ports', []),
-                'selectors': service.get('selectors', {})
-            }
-            
-            simplified['services'].append(simplified_service)
-            simplified['summary']['namespaces'].add(simplified_service['namespace'])
-        
-        # Extract network connections
-        connections = raw_network_map.get('connections', [])
-        for connection in connections:
-            if not connection:
-                continue
-                
-            simplified_connection = {
-                'source': {
-                    'name': connection.get('source', {}).get('name'),
-                    'namespace': connection.get('source', {}).get('namespace', 'default'),
-                    'type': connection.get('source', {}).get('type')
-                },
-                'destination': {
-                    'name': connection.get('destination', {}).get('name'),
-                    'namespace': connection.get('destination', {}).get('namespace', 'default'),
-                    'type': connection.get('destination', {}).get('type')
-                },
-                'protocol': connection.get('protocol', 'TCP'),
-                'port': connection.get('port'),
-                'is_internet': connection.get('is_internet', False)
-            }
-            
-            simplified['connections'].append(simplified_connection)
-        
-        # Update summary
-        simplified['summary']['total_services'] = len(simplified['services'])
-        simplified['summary']['total_connections'] = len(simplified['connections'])
-        simplified['summary']['namespaces'] = list(simplified['summary']['namespaces'])
-        
-        logger.info(f"Simplified network map: {simplified['summary']['total_services']} services, "
-                   f"{simplified['summary']['total_connections']} connections across "
-                   f"{len(simplified['summary']['namespaces'])} namespaces")
-        
-        return simplified
         
     except Exception as e:
         logger.error(f"Error simplifying network map: {e}")
         return {
             'error': str(e),
-            'services': [],
-            'connections': [],
-            'summary': {'total_services': 0, 'total_connections': 0, 'namespaces': []}
+            'metadata': {
+                'total_services': 0,
+                'total_upstream_connections': 0,
+                'total_downstream_connections': 0,
+                'namespaces': [],
+                'description': 'Error processing ClientIntents data'
+            },
+            'services': {}
         }
 
 
@@ -108,19 +154,37 @@ def validate_network_map_data(network_map: Dict[str, Any]) -> bool:
         True if valid, False otherwise
     """
     try:
-        required_keys = ['services', 'connections', 'summary']
-        for key in required_keys:
-            if key not in network_map:
-                logger.warning(f"Missing required key in network map: {key}")
-                return False
+        # Check for required metadata
+        if 'metadata' not in network_map:
+            logger.warning("Missing required key in network map: metadata")
+            return False
         
-        if not isinstance(network_map['services'], list):
-            logger.warning("Network map 'services' should be a list")
+        # Check for services key
+        if 'services' not in network_map:
+            logger.warning("Missing required key in network map: services")
             return False
+        
+        # Services should be a dict with service mappings
+        if not isinstance(network_map['services'], dict):
+            logger.warning("Network map 'services' should be a dict")
+            return False
+        
+        # Validate service structure
+        for service_key, service_data in network_map['services'].items():
+            required_service_keys = ['name', 'namespace', 'upstream', 'downstream']
+            for key in required_service_keys:
+                if key not in service_data:
+                    logger.warning(f"Missing required key '{key}' in service '{service_key}'")
+                    return False
             
-        if not isinstance(network_map['connections'], list):
-            logger.warning("Network map 'connections' should be a list")
-            return False
+            # Validate that upstream and downstream are lists
+            if not isinstance(service_data['upstream'], list):
+                logger.warning(f"Service '{service_key}' upstream should be a list")
+                return False
+            
+            if not isinstance(service_data['downstream'], list):
+                logger.warning(f"Service '{service_key}' downstream should be a list")
+                return False
             
         return True
         
