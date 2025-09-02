@@ -110,3 +110,50 @@ class KubectlApiProcessor(Processor):
         except Exception as e:
             logger.error(f"Exception occurred while executing kubectl command with error: {e}")
             raise e
+
+    def execute_non_kubectl_command(self, command_args):
+        """
+        Execute a non-kubectl command directly using subprocess.
+        This is useful for tools that need to run in the same environment as kubectl
+        but are not kubectl commands themselves (e.g., otterize network-mapper).
+        
+        Args:
+            command_args: List of command arguments (e.g., ['otterize', 'network-mapper', 'export', '--format', 'json'])
+            
+        Returns:
+            Command output as string if successful, None if failed
+            
+        Raises:
+            Exception: If command execution fails
+        """
+        try:
+            # Only allow this in native connection mode for security
+            if not self.native_connection_mode:
+                logger.warning("Non-kubectl commands are only supported in native connection mode")
+                return None
+                
+            logger.info(f"Executing non-kubectl command: {' '.join(command_args)}")
+            
+            process = subprocess.Popen(
+                command_args,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True
+            )
+            stdout, stderr = process.communicate()
+            
+            if process.returncode == 0:
+                logger.debug(f"Command executed successfully: {' '.join(command_args)}")
+                return stdout
+            else:
+                logger.error(f"Command failed with return code {process.returncode}: {' '.join(command_args)}")
+                if stderr:
+                    logger.error(f"Command stderr: {stderr}")
+                return None
+                
+        except FileNotFoundError:
+            logger.error(f"Command not found: {command_args[0]}. Make sure it's installed and in PATH.")
+            return None
+        except Exception as e:
+            logger.error(f"Exception occurred while executing non-kubectl command {' '.join(command_args)}: {e}")
+            raise e

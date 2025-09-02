@@ -6,6 +6,7 @@ from core.integrations.source_api_processors.kubectl_api_processor import Kubect
 from core.protos.base_pb2 import Source, SourceModelType
 
 from core.utils.logging_utils import log_function_call
+from core.utils.simplify_network_map import simplify_network_map, validate_network_map_data
 
 logger = logging.getLogger(__name__)
 
@@ -189,3 +190,63 @@ class KubernetesMetadataExtractor(SourceMetadataExtractor):
                 self.create_or_update_model_metadata(model_type, model_data)
         except Exception as e:
             logger.error(f"Error extracting Kubernetes statefulsets: {e}")
+
+    @log_function_call
+    def extract_network_map(self):
+        """
+        Extract network map using otterize network-mapper.
+        This feature only works in native Kubernetes mode.
+        """
+        model_type = SourceModelType.KUBERNETES_NETWORK_MAP
+        model_data = {}
+        
+        # Check if we're in native connection mode
+        if not self.__kubectl_api_processor.native_connection_mode:
+            logger.info("Network map extraction is only available in native Kubernetes mode. Skipping.")
+            return None
+        
+        try:
+            # Execute otterize network-mapper export command using the API processor
+            command_args = ["otterize", "network-mapper", "export", "--format", "json"]
+            logger.info("Executing otterize network-mapper command to extract network map")
+            
+            # Use the API processor's method for non-kubectl commands
+            raw_output = self.__kubectl_api_processor.execute_non_kubectl_command(command_args)
+            
+            if raw_output is None:
+                logger.warning("No output received from otterize network-mapper command")
+                return None
+            
+            if not raw_output.strip():
+                logger.warning("Empty output received from otterize network-mapper command")
+                return None
+            
+            # Parse JSON output
+            try:
+                raw_network_map = json.loads(raw_output)
+            except json.JSONDecodeError as e:
+                logger.error(f"Failed to parse otterize network-mapper JSON output: {e}")
+                logger.debug(f"Raw output was: {raw_output[:500]}...")  # Log first 500 chars for debugging
+                return None
+            
+            # Simplify and clean up the network map data
+            simplified_network_map = simplify_network_map(raw_network_map)
+            
+            # Validate the simplified data
+            if not validate_network_map_data(simplified_network_map):
+                logger.error("Network map data validation failed")
+                return None
+            
+            # Store the network map with a single key
+            model_data["cluster_network_map"] = simplified_network_map
+            
+            logger.info(f"Successfully extracted network map with {simplified_network_map.get('summary', {}).get('total_services', 0)} services "
+                       f"and {simplified_network_map.get('summary', {}).get('total_connections', 0)} connections")
+            
+            if len(model_data) > 0:
+                self.create_or_update_model_metadata(model_type, model_data)
+                return simplified_network_map
+            
+        except Exception as e:
+            logger.error(f"Error extracting Kubernetes network map: {e}")
+            return None
