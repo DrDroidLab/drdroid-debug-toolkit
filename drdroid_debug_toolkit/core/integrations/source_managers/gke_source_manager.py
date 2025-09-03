@@ -145,6 +145,30 @@ class GkeSourceManager(SourceManager):
             },
         }
 
+    def _safe_sort_by_age(self, table_rows, age_column_index):
+        """
+        Safely sort table rows by age, handling 'N/A' values gracefully.
+        Rows with 'N/A' age will be placed at the end of the sorted list.
+        """
+        def safe_age_key(row):
+            age_value = row.columns[age_column_index].value.value
+            if age_value == "N/A":
+                return float('inf')  # Place N/A values at the end
+            try:
+                # Extract numeric value from strings like "2.50 hours", "1.25m", "30.00s"
+                if 'hours' in age_value:
+                    return float(age_value.split()[0])
+                elif 'm' in age_value:
+                    return float(age_value.replace('m', '')) / 60  # Convert minutes to hours
+                elif 's' in age_value:
+                    return float(age_value.replace('s', '')) / 3600  # Convert seconds to hours
+                else:
+                    return float(age_value)
+            except (ValueError, IndexError):
+                return float('inf')  # Place invalid values at the end
+        
+        return sorted(table_rows, key=safe_age_key)
+
     def get_connector_processor(self, gke_connector, **kwargs):
         generated_credentials = generate_credentials_dict(gke_connector.type, gke_connector.keys)
         api_processor = GkeApiProcessor(**generated_credentials)
@@ -182,15 +206,23 @@ class GkeSourceManager(SourceManager):
                 table_columns.append(
                     TableResult.TableColumn(name=StringValue(value='NAME'), value=StringValue(value=pod_name)))
                 status = item['status']
-                container_statuses = status['container_statuses']
-                all_ready_count = [cs['ready'] for cs in container_statuses].count(True)
-                total_container_count = len(container_statuses)
+                container_statuses = status.get('container_statuses')
+                
+                # Handle case where container_statuses is None
+                if container_statuses is None:
+                    all_ready_count = 0
+                    total_container_count = 0
+                    restart_count = 0
+                else:
+                    all_ready_count = [cs['ready'] for cs in container_statuses].count(True)
+                    total_container_count = len(container_statuses)
+                    restart_count = sum([cs['restart_count'] for cs in container_statuses])
+                
                 table_columns.append(TableResult.TableColumn(name=StringValue(value='READY'), value=StringValue(
                     value=f"{all_ready_count}/{total_container_count}")))
                 phase = status['phase']
                 table_columns.append(
                     TableResult.TableColumn(name=StringValue(value='STATUS'), value=StringValue(value=phase)))
-                restart_count = sum([cs['restart_count'] for cs in container_statuses])
                 table_columns.append(TableResult.TableColumn(name=StringValue(value='RESTARTS'),
                                                              value=StringValue(value=str(restart_count))))
                 start_time = status['start_time']
@@ -203,7 +235,10 @@ class GkeSourceManager(SourceManager):
                 table_columns.append(
                     TableResult.TableColumn(name=StringValue(value='AGE'), value=StringValue(value=age_str)))
                 table_rows.append(TableResult.TableRow(columns=table_columns))
-            table_rows = sorted(table_rows, key=lambda x: float(x.columns[4].value.value.split()[0]))
+            
+            # Use safe sorting that handles 'N/A' values
+            table_rows = self._safe_sort_by_age(table_rows, 4)
+            
             table = TableResult(raw_query=StringValue(value=f'Get Pods from {zone}, {cluster_name}, {namespace}'),
                                 rows=table_rows,
                                 total_count=UInt64Value(value=len(table_rows)))
@@ -259,7 +294,9 @@ class GkeSourceManager(SourceManager):
                     TableResult.TableColumn(name=StringValue(value='AGE'), value=StringValue(value=age_str)))
                 table_rows.append(TableResult.TableRow(columns=table_columns))
 
-            table_rows = sorted(table_rows, key=lambda x: float(x.columns[4].value.value.split()[0]))
+            # Use safe sorting that handles 'N/A' values
+            table_rows = self._safe_sort_by_age(table_rows, 4)
+            
             table = TableResult(
                 raw_query=StringValue(value=f'Get Deployments from {zone}, {cluster_name}, {namespace}'),
                 rows=table_rows,
@@ -370,7 +407,8 @@ class GkeSourceManager(SourceManager):
                 table_columns.append(
                     TableResult.TableColumn(name=StringValue(value='AGE'), value=StringValue(value=age_str)))
                 table_rows.append(TableResult.TableRow(columns=table_columns))
-            table_rows = sorted(table_rows, key=lambda x: float(x.columns[5].value.value.split()[0]))
+            # Use safe sorting that handles 'N/A' values
+            table_rows = self._safe_sort_by_age(table_rows, 5)
             table = TableResult(raw_query=StringValue(value=f'Get Services from {zone}, {cluster_name}, {namespace}'),
                                 rows=table_rows,
                                 total_count=UInt64Value(value=len(table_rows)))
