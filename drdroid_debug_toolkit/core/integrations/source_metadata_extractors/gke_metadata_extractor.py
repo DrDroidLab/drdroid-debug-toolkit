@@ -15,7 +15,7 @@ class GkeSourceMetadataExtractor(SourceMetadataExtractor):
         super().__init__(request_id, connector_name, Source.GKE)
 
     @log_function_call
-    def extract_clusters(self, save_to_db=False):
+    def extract_clusters(self):
         try:
             model_data = {}
             model_type = SourceModelType.GKE_CLUSTER
@@ -41,15 +41,12 @@ class GkeSourceMetadataExtractor(SourceMetadataExtractor):
                     'zone': zone,
                     'clusters': cluster_names
                 }
-                
-                if save_to_db:
-                    try:
-                        self.create_or_update_model_metadata(model_type, zone, metadata)
-                    except Exception as e:
-                        logger.error(f"Failed to save metadata for zone {zone}: {str(e)}")
-                else:
-                    model_data[zone] = metadata
-            
+
+                try:
+                    self.create_or_update_model_metadata(model_type, zone, metadata)
+                except Exception as e:
+                    logger.error(f"Failed to save metadata for zone {zone}: {str(e)}")
+
             return model_data
             
         except Exception as e:
