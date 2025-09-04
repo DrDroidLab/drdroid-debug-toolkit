@@ -1,12 +1,16 @@
 import logging
+import re
 
 from core.integrations.source_metadata_extractor import SourceMetadataExtractor
 from core.integrations.source_api_processors.elastic_search_api_processor import ElasticSearchApiProcessor
 from core.protos.base_pb2 import Source, SourceModelType
 from core.utils.logging_utils import log_function_call
-
+from core.integrations.source_managers.elastic_search_source_manager import ACCOUNT_INDEX_MAPPING
 logger = logging.getLogger(__name__)
 
+
+def get_account_index(account_id: int) -> str:
+    return ACCOUNT_INDEX_MAPPING.get(account_id, "traces-apm-*")
 
 class ElasticSearchSourceMetadataExtractor(SourceMetadataExtractor):
 
@@ -39,25 +43,105 @@ class ElasticSearchSourceMetadataExtractor(SourceMetadataExtractor):
             model_data[ind] = {}
         if len(model_data) > 0:
             self.create_or_update_model_metadata(model_type, model_data)
+        return model_data
+
+    def _extract_service_dependencies(self, service_name: str, index_pattern: str = None) -> dict:
+        """
+        Extract downstream services and resources for a given service
+        
+        Args:
+            service_name: Name of the service to analyze
+            index_pattern: Elasticsearch index pattern to search in
+            
+        Returns:
+            Dictionary containing downstream services and resources
+        """
+        if not index_pattern:
+            index_pattern = get_account_index(self.account_id)
+            
+        try:
+            # Get unique URL paths for this service
+            paths = self.__es_api_processor.get_unique_url_paths_for_service(service_name, index_pattern)
+            
+            # Normalize paths by replacing numbers with <param>
+            normalized_paths = set()
+            for path in paths:
+                normalized_path = re.sub(r'\d+', '<param>', path)
+                normalized_paths.add(normalized_path)
+            
+            # Get downstream services by analyzing traces
+            downstream_services = set()
+            paths_checked = set()
+            
+            for path in paths:
+                normalized_path = re.sub(r'\d+', '<param>', path)
+                if normalized_path in paths_checked:
+                    continue
+                    
+                # Skip certain paths that might not be relevant
+                if any(skip_path in normalized_path for skip_path in [
+                    '/api/sales-panel/sales/transaction/callback/update/',
+                    '/api/sales-panel/sales/transaction/update/',
+                    '/api/referral/public/get-payout-status/'
+                ]):
+                    continue
+                
+                # Get sample traces for this path
+                trace_ids = self.__es_api_processor.get_trace_ids_for_service_and_path(
+                    service_name, path, limit=3, index_pattern=index_pattern
+                )
+                
+                # For each trace, get unique destinations
+                for trace_id in trace_ids:
+                    downstream_calls = self.__es_api_processor.get_downstream_calls_for_trace(
+                        trace_id, index_pattern
+                    )
+                    
+                    for call in downstream_calls:
+                        call_id = call.get('resource') or call.get('name')
+                        if call_id:
+                            downstream_services.add(call_id)
+                            
+                paths_checked.add(normalized_path)
+            
+            return {
+                'downstream': sorted(list(downstream_services)),
+                'resources': sorted(list(normalized_paths))
+            }
+
+        except Exception as e:
+            logger.error(f'Error extracting dependencies for service {service_name}: {e}')
+            return {'downstream': [], 'resources': []}
 
     @log_function_call
-    def extract_services(self, save_to_db=False):
-        """Extract all services from ElasticSearch APM indices"""
+    def extract_services(self):
+        """Extract all services from ElasticSearch APM indices with downstream dependencies and resources"""
         model_type = SourceModelType.ELASTIC_SEARCH_SERVICES
         model_data = {}
         try:
-            services = self.__es_api_processor.list_all_services()
+            services = self.__es_api_processor.list_all_services(index_pattern=get_account_index(self.account_id))
             for service in services:
                 service_name = service['name']
-                model_data[service_name] = service
-            if save_to_db and len(model_data) > 0:
+                
+                # Get base service metadata
+                service_metadata = {
+                    'name': service_name,
+                    'count': service.get('count', 0)
+                }
+                
+                # Extract downstream dependencies and resources
+                dependencies = self._extract_service_dependencies(service_name)
+                service_metadata.update(dependencies)
+                
+                model_data[service_name] = service_metadata
+                
                 self.create_or_update_model_metadata(model_type, model_data)
         except Exception as e:
             logger.error(f'Error extracting ElasticSearch services: {e}')
         return model_data
 
     @log_function_call
-    def extract_dashboards(self, save_to_db=False):
+    def extract_dashboards(self):
         """Extract all dashboards and their widget details from Kibana"""
         model_type = SourceModelType.ELASTIC_SEARCH_DASHBOARDS
         model_data = {}
@@ -80,7 +164,7 @@ class ElasticSearchSourceMetadataExtractor(SourceMetadataExtractor):
                         'widgets': dashboard_details.get('widgets', [])
                     }
             
-            if save_to_db and len(model_data) > 0:
+            if len(model_data) > 0:
                 self.create_or_update_model_metadata(model_type, model_data)
                         
         except Exception as e:

@@ -885,3 +885,205 @@ class ElasticSearchApiProcessor(Processor):
         except Exception as e:
             logger.error(f"Error listing services: {str(e)}")
             return []
+    
+    def get_unique_url_paths_for_service(self, service_name: str, index_pattern: str = "traces-apm-*") -> List[str]:
+        """
+        Get all unique URL paths for a given service (from transactions).
+        
+        Args:
+            service_name: Name of the service to get paths for
+            index_pattern: Elasticsearch index pattern to search in
+            
+        Returns:
+            List of unique URL paths
+        """
+        try:
+            query = {
+                "size": 0,
+                "query": {
+                    "bool": {
+                        "must": [
+                            {"term": {"service.name": service_name}},
+                            {"term": {"processor.event": "transaction"}}
+                        ]
+                    }
+                },
+                "aggs": {
+                    "paths": {
+                        "terms": {
+                            "field": "url.path",
+                            "size": 1000
+                        }
+                    }
+                }
+            }
+
+            client = self.get_connection()
+            try:
+                result = client.search(index=index_pattern, body=query)
+
+                # Convert response to dict
+                if hasattr(result, 'body'):
+                    result = result.body
+                elif hasattr(result, 'meta'):
+                    result = dict(result)
+
+                paths = []
+                if 'aggregations' in result and 'paths' in result['aggregations']:
+                    for bucket in result['aggregations']['paths']['buckets']:
+                        paths.append(bucket['key'])
+
+                return paths
+
+            except Exception as e:
+                logger.error(f"Error fetching URL paths for service {service_name}: {e}")
+                return []
+            finally:
+                client.close()
+
+        except Exception as e:
+            logger.error(f"Exception occurred while fetching URL paths: {e}")
+            return []
+
+    def get_trace_ids_for_service_and_path(self, service_name: str, url_path: str, limit: int = 5, 
+                                          index_pattern: str = "traces-apm-*") -> List[str]:
+        """
+        Get up to `limit` unique trace IDs for a given service and URL path.
+        
+        Args:
+            service_name: Name of the service
+            url_path: URL path to filter by
+            limit: Maximum number of trace IDs to return
+            index_pattern: Elasticsearch index pattern to search in
+            
+        Returns:
+            List of unique trace IDs
+        """
+        try:
+            query = {
+                "size": limit,
+                "_source": ["trace.id"],
+                "query": {
+                    "bool": {
+                        "must": [
+                            {"term": {"service.name": service_name}},
+                            {"term": {"processor.event": "transaction"}},
+                            {"term": {"url.path": url_path}}
+                        ]
+                    }
+                }
+            }
+
+            client = self.get_connection()
+            try:
+                result = client.search(index=index_pattern, body=query)
+
+                # Convert response to dict
+                if hasattr(result, 'body'):
+                    result = result.body
+                elif hasattr(result, 'meta'):
+                    result = dict(result)
+
+                trace_ids = set()
+                if 'hits' in result and 'hits' in result['hits']:
+                    for hit in result['hits']['hits']:
+                        tid = hit.get('_source', {}).get('trace', {}).get('id')
+                        if tid:
+                            trace_ids.add(tid)
+
+                return list(trace_ids)
+
+            except Exception as e:
+                logger.error(f"Error fetching trace IDs for service {service_name} and path {url_path}: {e}")
+                return []
+            finally:
+                client.close()
+
+        except Exception as e:
+            logger.error(f"Exception occurred while fetching trace IDs: {e}")
+            return []
+
+    def get_downstream_calls_for_trace(self, trace_id: str, index_pattern: str = "traces-apm-*") -> List[Dict[str, Any]]:
+        """
+        For a given trace ID, find all unique downstream calls from spans.
+        
+        Args:
+            trace_id: The trace ID to analyze
+            index_pattern: Elasticsearch index pattern to search in
+            
+        Returns:
+            List of dictionaries, each containing service and path information
+        """
+        try:
+            query = {
+                "size": 1000,
+                "_source": ["span", "destination", "service.name", "url.original"],
+                "query": {
+                    "bool": {
+                        "must": [
+                            {"term": {"trace.id": trace_id}},
+                            {"term": {"processor.event": "span"}},
+                            {"exists": {"field": "span.destination"}}
+                        ]
+                    }
+                }
+            }
+
+            client = self.get_connection()
+            try:
+                result = client.search(index=index_pattern, body=query)
+
+                # Convert response to dict
+                if hasattr(result, 'body'):
+                    result = result.body
+                elif hasattr(result, 'meta'):
+                    result = dict(result)
+
+                calls = []
+                if 'hits' in result and 'hits' in result['hits']:
+                    for hit in result['hits']['hits']:
+                        source = hit.get('_source', {})
+                        span = source.get('span', {})
+
+                        # Extract destination service information
+                        dest_service = (
+                            span.get('destination', {}).get('service', {}).get('resource') or
+                            span.get('destination', {}).get('service', {}).get('name') or
+                            span.get('service', {}).get('target', {}).get('name')
+                        )
+
+                        dest_type = span.get('destination', {}).get('service', {}).get('type')
+                        dest_resource = span.get('destination', {}).get('address')
+                        dest_name = span.get('destination', {}).get('service', {}).get('name')
+                        dest_path = source.get('url', {}).get('original')
+
+                        if dest_service and dest_service != source.get('service', {}).get('name'):
+                            calls.append({
+                                'service': dest_service, 
+                                'type': dest_type, 
+                                'name': dest_name, 
+                                'resource': dest_resource, 
+                                'path': dest_path, 
+                                'trace_id': trace_id
+                            })
+
+                # Remove duplicates while preserving order
+                seen = set()
+                unique_calls = []
+                for call in calls:
+                    call_tuple = tuple(sorted(call.items()))
+                    if call_tuple not in seen:
+                        seen.add(call_tuple)
+                        unique_calls.append(call)
+
+                return unique_calls
+
+            except Exception as e:
+                logger.error(f"Error fetching downstream calls for trace {trace_id}: {e}")
+                return []
+            finally:
+                client.close()
+
+        except Exception as e:
+            logger.error(f"Exception occurred while fetching downstream calls: {e}")
+            return []

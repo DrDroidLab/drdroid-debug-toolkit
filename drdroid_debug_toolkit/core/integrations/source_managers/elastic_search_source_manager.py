@@ -14,6 +14,10 @@ from core.protos.playbooks.source_task_definitions.elastic_search_task_pb2 impor
 from core.protos.ui_definition_pb2 import FormField, FormFieldType
 from core.utils.credentilal_utils import generate_credentials_dict
 
+ACCOUNT_INDEX_MAPPING = {
+    17: "apm-*"
+}
+
 
 class ElasticSearchSourceManager(SourceManager):
 
