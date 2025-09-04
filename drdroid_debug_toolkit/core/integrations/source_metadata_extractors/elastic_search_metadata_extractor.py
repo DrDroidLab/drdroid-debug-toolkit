@@ -9,8 +9,7 @@ from core.integrations.source_managers.elastic_search_source_manager import ACCO
 logger = logging.getLogger(__name__)
 
 
-def get_account_index(account_id: int) -> str:
-    return ACCOUNT_INDEX_MAPPING.get(account_id, "traces-apm-*")
+DEFAULT_INDEX_PATTERN = "*apm*"
 
 class ElasticSearchSourceMetadataExtractor(SourceMetadataExtractor):
 
@@ -57,7 +56,7 @@ class ElasticSearchSourceMetadataExtractor(SourceMetadataExtractor):
             Dictionary containing downstream services and resources
         """
         if not index_pattern:
-            index_pattern = get_account_index(self.account_id)
+            index_pattern = DEFAULT_INDEX_PATTERN
             
         try:
             # Get unique URL paths for this service
@@ -119,7 +118,7 @@ class ElasticSearchSourceMetadataExtractor(SourceMetadataExtractor):
         model_type = SourceModelType.ELASTIC_SEARCH_SERVICES
         model_data = {}
         try:
-            services = self.__es_api_processor.list_all_services(index_pattern=get_account_index(self.account_id))
+            services = self.__es_api_processor.list_all_services(index_pattern=DEFAULT_INDEX_PATTERN)
             for service in services:
                 service_name = service['name']
                 
