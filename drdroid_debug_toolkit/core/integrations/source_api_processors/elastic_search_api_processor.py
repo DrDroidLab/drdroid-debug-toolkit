@@ -843,7 +843,7 @@ class ElasticSearchApiProcessor(Processor):
             logger.error(f"Error listing dashboards: {str(e)}")
             return []
 
-    def list_all_services(self) -> List[Dict[str, Any]]:
+    def list_all_services(self, index_pattern: str = "traces-apm-*") -> List[Dict[str, Any]]:
         """
         List all services from APM indices
         Returns a list of dictionaries containing service name and document count
@@ -851,7 +851,7 @@ class ElasticSearchApiProcessor(Processor):
         try:
             client = self.get_connection()
             result = client.search(
-                index="traces-apm-*",
+                index=index_pattern,
                 body={
                     "size": 0,
                     "aggs": {
