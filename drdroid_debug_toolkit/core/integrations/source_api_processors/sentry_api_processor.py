@@ -4,6 +4,7 @@ import time
 import requests
 
 from core.integrations.processor import Processor
+from core.settings import EXTERNAL_CALL_TIMEOUT
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +20,7 @@ class SentryApiProcessor(Processor):
         try:
             url = f"https://sentry.io/api/0/organizations/{self.org_slug}/projects/"
             headers = {"Authorization": f"Bearer {self.__api_key}"}
-            response = requests.request("GET", url, headers=headers)
+            response = requests.request("GET", url, headers=headers, timeout=EXTERNAL_CALL_TIMEOUT)
             if response:
                 if response.status_code == 200:
                     return True
@@ -43,7 +44,7 @@ class SentryApiProcessor(Processor):
             url = f"https://sentry.io/api/0/issues/{issue_id}/"
             payload = {}
             headers = {"Authorization": f"Bearer {self.__api_key}"}
-            response = requests.request("GET", url, headers=headers, data=payload)
+            response = requests.request("GET", url, headers=headers, data=payload, timeout=EXTERNAL_CALL_TIMEOUT)
             if response:
                 if response.status_code == 200:
                     return response.json()
@@ -69,7 +70,7 @@ class SentryApiProcessor(Processor):
             url = f"https://sentry.io/api/0/organizations/{self.org_slug}/issues/{issue_id}/hashes/"
             payload = {}
             headers = {"Authorization": f"Bearer {self.__api_key}"}
-            response = requests.get(url, headers=headers, data=payload)
+            response = requests.get(url, headers=headers, data=payload, timeout=EXTERNAL_CALL_TIMEOUT)
             if response:
                 if response.status_code == 200:
                     events = response.json()
@@ -111,7 +112,7 @@ class SentryApiProcessor(Processor):
             if end_time:
                 params["end"] = end_time
 
-            response = requests.get(url, headers=headers, params=params)
+            response = requests.get(url, headers=headers, params=params, timeout=EXTERNAL_CALL_TIMEOUT)
 
             if response:
                 if response.status_code == 200:
@@ -142,7 +143,7 @@ class SentryApiProcessor(Processor):
             if end_time:
                 params["end"] = end_time
 
-            response = requests.get(url, headers=headers, params=params)
+            response = requests.get(url, headers=headers, params=params, timeout=EXTERNAL_CALL_TIMEOUT)
 
             if response:
                 if response.status_code == 200:
@@ -173,7 +174,7 @@ class SentryApiProcessor(Processor):
 
             headers = {"Authorization": f"Bearer {self.__api_key}"}
 
-            response = requests.get(url, headers=headers)
+            response = requests.get(url, headers=headers, timeout=EXTERNAL_CALL_TIMEOUT)
 
             if response:
                 if response.status_code == 200:

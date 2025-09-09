@@ -3,6 +3,7 @@ import requests
 from requests.auth import HTTPBasicAuth
 
 from core.integrations.processor import Processor
+from core.settings import EXTERNAL_CALL_TIMEOUT
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +20,7 @@ class OpenSearchApiProcessor(Processor):
     def _make_request(self, method, endpoint, data=None, params=None):
         url = f"{self.base_url}/{endpoint}"
         try:
-            response = requests.request(method, url, auth=self.auth, verify=self.verify_certs, json=data, params=params)
+            response = requests.request(method, url, auth=self.auth, verify=self.verify_certs, json=data, params=params, timeout=EXTERNAL_CALL_TIMEOUT)
             response.raise_for_status()
             return response.json()
         except requests.RequestException as e:

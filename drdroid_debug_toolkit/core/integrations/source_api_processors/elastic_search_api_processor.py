@@ -9,6 +9,7 @@ from core.protos.base_pb2 import TimeRange
 from elasticsearch import Elasticsearch
 
 from core.integrations.processor import Processor
+from core.settings import EXTERNAL_CALL_TIMEOUT
 
 logger = logging.getLogger(__name__)
 
@@ -470,7 +471,7 @@ class ElasticSearchApiProcessor(Processor):
         }
         
         try:
-            response = requests.get(url, headers=self.kibana_headers, params=params)
+            response = requests.get(url, headers=self.kibana_headers, params=params, timeout=EXTERNAL_CALL_TIMEOUT)
             response.raise_for_status()
             
             for obj in response.json().get('saved_objects', []):
@@ -653,7 +654,8 @@ class ElasticSearchApiProcessor(Processor):
             response = requests.post(
                 url, 
                 headers=self.apm_headers,
-                json=query
+                json=query,
+                timeout=EXTERNAL_CALL_TIMEOUT
             )
             response.raise_for_status()
             return response.json()
@@ -824,7 +826,7 @@ class ElasticSearchApiProcessor(Processor):
         }
         
         try:
-            response = requests.get(url, headers=self.kibana_headers, params=params)
+            response = requests.get(url, headers=self.kibana_headers, params=params, timeout=EXTERNAL_CALL_TIMEOUT)
             response.raise_for_status()
             
             dashboards = []

@@ -5,6 +5,7 @@ import base64
 from datetime import datetime, timezone
 
 from core.integrations.processor import Processor
+from core.settings import EXTERNAL_CALL_TIMEOUT
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +23,7 @@ class GithubAPIProcessor(Processor):
         try:
             headers = {'Authorization': f'Bearer {self.__api_key}'}
             commits_url = f"https://api.github.com/repos/{self.org}/{repo}/commits?path={file_path}"
-            response = requests.get(commits_url, headers=headers)
+            response = requests.get(commits_url, headers=headers, timeout=EXTERNAL_CALL_TIMEOUT)
             response.raise_for_status()
             commits = response.json()
             commit_search_datetime = datetime.fromtimestamp(timestamp, tz=timezone.utc)
@@ -41,7 +42,7 @@ class GithubAPIProcessor(Processor):
         try:
             url = f"{self.base_url}/repos/{self.org}/{repo}/branches/{branch}"
             headers = {'Authorization': f'Bearer {self.__api_key}'}
-            response = requests.get(url, headers=headers)
+            response = requests.get(url, headers=headers, timeout=EXTERNAL_CALL_TIMEOUT)
             return response.status_code == 200
         except Exception as e:
             logger.error(f"Error checking branch {branch} in {repo}: {e}")
@@ -54,7 +55,7 @@ class GithubAPIProcessor(Processor):
 
             # Get the latest commit SHA of the base branch
             url = f"{self.base_url}/repos/{self.org}/{repo}/git/refs/heads/{base_branch}"
-            response = requests.get(url, headers=headers)
+            response = requests.get(url, headers=headers, timeout=EXTERNAL_CALL_TIMEOUT)
             response.raise_for_status()
 
             latest_commit_sha = response.json()['object']['sha']
@@ -65,7 +66,7 @@ class GithubAPIProcessor(Processor):
                 "ref": f"refs/heads/{new_branch}",
                 "sha": latest_commit_sha
             }
-            response = requests.post(create_branch_url, headers=headers, json=payload)
+            response = requests.post(create_branch_url, headers=headers, json=payload, timeout=EXTERNAL_CALL_TIMEOUT)
             response.raise_for_status()
         except Exception as e:
             logger.error(f"Error creating branch {new_branch} from {base_branch} in {repo}: {e}")
@@ -80,7 +81,7 @@ class GithubAPIProcessor(Processor):
             for file in files_to_update:
                 file_path = file['path']
                 url = f"{self.base_url}/repos/{self.org}/{repo}/contents/{file_path}?ref={branch}"
-                response = requests.get(url, headers=headers)
+                response = requests.get(url, headers=headers, timeout=EXTERNAL_CALL_TIMEOUT)
 
                 if response.status_code == 200:
                     file_shas[file_path] = response.json().get('sha', None)
@@ -114,7 +115,7 @@ class GithubAPIProcessor(Processor):
                 if file_sha:
                     payload["sha"] = file_sha  # Required if updating an existing file
 
-                response = requests.put(update_url, headers=headers, json=payload)
+                response = requests.put(update_url, headers=headers, json=payload, timeout=EXTERNAL_CALL_TIMEOUT)
                 response.raise_for_status()
                 commit_count += 1
 
@@ -131,7 +132,7 @@ class GithubAPIProcessor(Processor):
             # First, check if head and base branches have differences
             compare_url = f"{self.base_url}/repos/{self.org}/{repo}/compare/{base}...{head}"
             headers = {'Authorization': f'Bearer {self.__api_key}', 'Accept': 'application/vnd.github+json'}
-            compare_response = requests.get(compare_url, headers=headers)
+            compare_response = requests.get(compare_url, headers=headers, timeout=EXTERNAL_CALL_TIMEOUT)
             compare_response.raise_for_status()
 
             compare_data = compare_response.json()
@@ -146,7 +147,7 @@ class GithubAPIProcessor(Processor):
                        "head": head,
                        "base": base,
                        "body": body}
-            response = requests.post(url, headers=headers, json=payload)
+            response = requests.post(url, headers=headers, json=payload, timeout=EXTERNAL_CALL_TIMEOUT)
             response.raise_for_status()
             return response.json()
 
@@ -169,7 +170,7 @@ class GithubAPIProcessor(Processor):
             headers = {
                 'Authorization': f'Bearer {self.__api_key}'
             }
-            response = requests.request("GET", url, headers=headers)
+            response = requests.request("GET", url, headers=headers, timeout=EXTERNAL_CALL_TIMEOUT)
             if response.status_code == 200:
                 return True
             else:
@@ -186,7 +187,7 @@ class GithubAPIProcessor(Processor):
             }
 
             # Fetch the latest commits for the file
-            response = requests.request("GET", commits_url, headers=headers)
+            response = requests.request("GET", commits_url, headers=headers, timeout=EXTERNAL_CALL_TIMEOUT)
             if response:
                 if response.status_code == 200:
                     return response.json()
@@ -234,7 +235,7 @@ class GithubAPIProcessor(Processor):
             headers = {
                 'Authorization': f'Bearer {self.__api_key}'
             }
-            response = requests.request("GET", commit_url, headers=headers, data=payload)
+            response = requests.request("GET", commit_url, headers=headers, data=payload, timeout=EXTERNAL_CALL_TIMEOUT)
             if response:
                 if response.status_code == 200:
                     return response.json()
@@ -258,7 +259,7 @@ class GithubAPIProcessor(Processor):
                 commit_sha = self._get_commit_before_timestamp(repo, file_path, timestamp)
                 if commit_sha:
                     file_url = f'https://api.github.com/repos/{self.org}/{repo}/contents/{file_path}?ref={commit_sha}'
-            response = requests.request("GET", file_url, headers=headers, data=payload)
+            response = requests.request("GET", file_url, headers=headers, data=payload, timeout=EXTERNAL_CALL_TIMEOUT)
             if response:
                 if response.status_code == 200:
                     return response.json()
@@ -284,7 +285,7 @@ class GithubAPIProcessor(Processor):
                     return None
                 payload['branch'] = branch_name
             headers = {'Authorization': f'Bearer {self.__api_key}'}
-            response = requests.request("PUT", file_url, headers=headers, json=payload)
+            response = requests.request("PUT", file_url, headers=headers, json=payload, timeout=EXTERNAL_CALL_TIMEOUT)
             if response.status_code == 200:
                 return response.json()
             else:
@@ -308,7 +309,7 @@ class GithubAPIProcessor(Processor):
                 data = {'page': page, 'per_page': 100, 'protected': 'false'}
                 if protected:
                     data = {'page': page, 'per_page': 100, 'protected': 'true'}
-                response = requests.request("GET", branch_url, headers=headers, params=data)
+                response = requests.request("GET", branch_url, headers=headers, params=data, timeout=EXTERNAL_CALL_TIMEOUT)
                 if response.status_code == 200:
                     if len(response.json()) > 0:
                         all_branches.extend(response.json())
@@ -439,7 +440,7 @@ class GithubAPIProcessor(Processor):
             headers = {
                 'Authorization': f'Bearer {self.__api_key}',
             }
-            response = requests.request("GET", branch_url, headers=headers)
+            response = requests.request("GET", branch_url, headers=headers, timeout=EXTERNAL_CALL_TIMEOUT)
             if response.status_code == 200:
                 return response.json()
             else:
@@ -479,7 +480,7 @@ class GithubAPIProcessor(Processor):
             headers = {
                 'Authorization': f'Bearer {self.__api_key}',
             }
-            response = requests.request("POST", github_ref_url, headers=headers, json=data)
+            response = requests.request("POST", github_ref_url, headers=headers, json=data, timeout=EXTERNAL_CALL_TIMEOUT)
             if response.status_code == 201:
                 return response.json()
             else:
@@ -507,7 +508,7 @@ class GithubAPIProcessor(Processor):
             }
 
             # Fetch the latest commits for the file
-            response = requests.request("GET", recent_commits_url, headers=headers)
+            response = requests.request("GET", recent_commits_url, headers=headers, timeout=EXTERNAL_CALL_TIMEOUT)
             if response:
                 if response.status_code == 200:
                     return response.json()
@@ -529,7 +530,7 @@ class GithubAPIProcessor(Processor):
             }
 
             # Fetch the latest commits for the file
-            response = requests.request("GET", recent_pulls_url, headers=headers)
+            response = requests.request("GET", recent_pulls_url, headers=headers, timeout=EXTERNAL_CALL_TIMEOUT)
             if response:
                 if response.status_code == 200:
                     recent_merges = response.json()

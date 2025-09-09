@@ -2,6 +2,7 @@ import opsgenie_sdk
 import requests
 
 from core.integrations.processor import Processor
+from core.settings import EXTERNAL_CALL_TIMEOUT
 
 
 class OpsGenieApiProcessor(Processor):
@@ -18,10 +19,10 @@ class OpsGenieApiProcessor(Processor):
         api = self.base_url + 'v2/escalations'
         headers = self.base_headers
         try:
-            response = requests.get(api, headers=headers)
+            response = requests.get(api, headers=headers, timeout=EXTERNAL_CALL_TIMEOUT)
             if response.status_code == 200:
                 api = self.base_url + 'v2/teams'
-                response = requests.get(api, headers=headers)
+                response = requests.get(api, headers=headers, timeout=EXTERNAL_CALL_TIMEOUT)
                 if response.status_code == 200:
                     return True
                 else:
@@ -36,7 +37,7 @@ class OpsGenieApiProcessor(Processor):
         api = self.base_url + 'v2/escalations'
         headers = self.base_headers
         try:
-            response = requests.get(api, headers=headers)
+            response = requests.get(api, headers=headers, timeout=EXTERNAL_CALL_TIMEOUT)
             if response.status_code == 200:
                 return response.json().get('data', [])
             else:
@@ -48,7 +49,7 @@ class OpsGenieApiProcessor(Processor):
         api = self.base_url + 'v2/teams'
         headers = self.base_headers
         try:
-            response = requests.get(api, headers=headers)
+            response = requests.get(api, headers=headers, timeout=EXTERNAL_CALL_TIMEOUT)
             if response.status_code == 200:
                 return response.json().get('data', [])
             else:

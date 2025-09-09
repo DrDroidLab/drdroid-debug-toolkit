@@ -2,6 +2,7 @@ import logging
 import requests
 
 from core.integrations.processor import Processor
+from core.settings import EXTERNAL_CALL_TIMEOUT
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +16,7 @@ class GithubActionsAPIProcessor(Processor):
             headers = {
                 'Authorization': f'Bearer {self.__api_key}'
             }
-            response = requests.request("GET", url, headers=headers)
+            response = requests.request("GET", url, headers=headers, timeout=EXTERNAL_CALL_TIMEOUT)
             if response.status_code == 200:
                 return True
             else:
@@ -32,7 +33,7 @@ class GithubActionsAPIProcessor(Processor):
                 'Authorization': f'Bearer {self.__api_key}'
             }
             # Fetch the latest commits for the file
-            response = requests.request("GET",run_url, headers=headers,data=payload)
+            response = requests.request("GET",run_url, headers=headers,data=payload, timeout=EXTERNAL_CALL_TIMEOUT)
             if response:
                 if response.status_code == 200:
                     return response.json()
@@ -51,7 +52,7 @@ class GithubActionsAPIProcessor(Processor):
             headers = {
                 'Authorization': f'Bearer {self.__api_key}'
             }
-            response = requests.request("GET", job_url, headers=headers, data=payload)
+            response = requests.request("GET", job_url, headers=headers, data=payload, timeout=EXTERNAL_CALL_TIMEOUT)
             if response:
                 if response.status_code == 200:
                     return response.json()

@@ -2,6 +2,7 @@ import logging
 import requests
 
 from core.integrations.processor import Processor
+from core.settings import EXTERNAL_CALL_TIMEOUT
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +32,7 @@ class RootlyApiProcessor(Processor):
             }
 
             # Make the POST request
-            response = requests.post(url, json=content_payload, headers=headers)
+            response = requests.post(url, json=content_payload, headers=headers, timeout=EXTERNAL_CALL_TIMEOUT)
 
             # Check if the request was successful
             response.raise_for_status()  # Raises an HTTPError for bad responses (4xx or 5xx)
@@ -53,7 +54,7 @@ class RootlyApiProcessor(Processor):
                 'Authorization': f'Bearer {self.__api_key}',
                 'Accept': 'application/vnd.api+json',
             }
-            response = requests.get(url, headers=headers)
+            response = requests.get(url, headers=headers, timeout=EXTERNAL_CALL_TIMEOUT)
             response.raise_for_status()
 
             logger.info("Test connection successful for Rootly")

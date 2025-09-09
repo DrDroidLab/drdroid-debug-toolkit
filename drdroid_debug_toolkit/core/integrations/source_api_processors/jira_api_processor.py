@@ -5,6 +5,7 @@ import re
 import requests
 from base64 import b64encode
 from core.integrations.processor import Processor
+from core.settings import EXTERNAL_CALL_TIMEOUT
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +43,7 @@ class JiraApiProcessor(Processor):
         """Test JIRA connection by fetching current user"""
         try:
             url = f"{self.base_url}/myself"
-            response = requests.get(url, headers=self._auth_headers, timeout=timeout)
+            response = requests.get(url, headers=self._auth_headers, timeout=timeout or EXTERNAL_CALL_TIMEOUT)
             if response.status_code == 200:
                 return True
             else:
@@ -59,7 +60,7 @@ class JiraApiProcessor(Processor):
         try:
             url = f"{self.base_url}/user/search"
             params = {"query": query}
-            response = requests.get(url, headers=self._auth_headers, params=params)
+            response = requests.get(url, headers=self._auth_headers, params=params, timeout=EXTERNAL_CALL_TIMEOUT)
 
             if response.status_code == 200:
                 return response.json()
@@ -75,7 +76,7 @@ class JiraApiProcessor(Processor):
     def list_all_projects(self):
         try:
             url = f"{self.base_url}/project"
-            response = requests.get(url, headers=self._auth_headers)
+            response = requests.get(url, headers=self._auth_headers, timeout=EXTERNAL_CALL_TIMEOUT)
             if response.status_code == 200:
                 return response.json()
             else:
@@ -90,7 +91,7 @@ class JiraApiProcessor(Processor):
     def list_all_users(self):
         try:
             url = f"{self.base_url}/users/search"
-            response = requests.get(url, headers=self._auth_headers)
+            response = requests.get(url, headers=self._auth_headers, timeout=EXTERNAL_CALL_TIMEOUT)
             if response.status_code == 200:
                 return response.json()
             else:
@@ -105,7 +106,7 @@ class JiraApiProcessor(Processor):
     def get_ticket(self, ticket_key):
         try:
             url = f"{self.base_url}/issue/{ticket_key}"
-            response = requests.get(url, headers=self._auth_headers)
+            response = requests.get(url, headers=self._auth_headers, timeout=EXTERNAL_CALL_TIMEOUT)
             if response.status_code == 200:
                 return response.json()
             else:
@@ -177,7 +178,7 @@ class JiraApiProcessor(Processor):
                                        f"ticket will be created unassigned for domain: {self.domain}")
             payload = {"fields": fields}
             logger.debug(f"Creating JIRA ticket with payload: {payload}")
-            response = requests.post(url, headers=self._auth_headers, json=payload)
+            response = requests.post(url, headers=self._auth_headers, json=payload, timeout=EXTERNAL_CALL_TIMEOUT)
             if response.status_code in (200, 201):
                 return response.json()
             elif response.status_code == 400:
@@ -189,7 +190,7 @@ class JiraApiProcessor(Processor):
                     if "priority" in fields:
                         del fields["priority"]
                     payload = {"fields": fields}
-                    response = requests.post(url, headers=self._auth_headers, json=payload)
+                    response = requests.post(url, headers=self._auth_headers, json=payload, timeout=EXTERNAL_CALL_TIMEOUT)
                     if response.status_code in (200, 201):
                         return response.json()
                 if 'assignee' in error_details:
@@ -198,7 +199,7 @@ class JiraApiProcessor(Processor):
                     if "assignee" in fields:
                         del fields["assignee"]
                     payload = {"fields": fields}
-                    response = requests.post(url, headers=self._auth_headers, json=payload)
+                    response = requests.post(url, headers=self._auth_headers, json=payload, timeout=EXTERNAL_CALL_TIMEOUT)
                     if response.status_code in (200, 201):
                         return response.json()
                 logger.error(f"JiraApiProcessor.create_ticket:: JIRA API error details: {error_details} for domain: "
@@ -237,7 +238,7 @@ class JiraApiProcessor(Processor):
             url = f"{self.base_url}/issue/{ticket_key}/assignee"
             payload = {"accountId": assignee}
 
-            response = requests.put(url, headers=self._auth_headers, json=payload)
+            response = requests.put(url, headers=self._auth_headers, json=payload, timeout=EXTERNAL_CALL_TIMEOUT)
 
             if response.status_code == 204:
                 return True
@@ -253,7 +254,7 @@ class JiraApiProcessor(Processor):
     def get_project_metadata(self, project_key):
         try:
             url = f"{self.base_url}/project/{project_key}"
-            response = requests.get(url, headers=self._auth_headers)
+            response = requests.get(url, headers=self._auth_headers, timeout=EXTERNAL_CALL_TIMEOUT)
             if response.status_code == 200:
                 return response.json()
             else:
@@ -269,7 +270,7 @@ class JiraApiProcessor(Processor):
         try:
             url = f"{self.base_url}/search/jql"
             payload = {"jql": query, "maxResults": max_results}
-            response = requests.post(url, headers=self._auth_headers, data=json.dumps(payload))
+            response = requests.post(url, headers=self._auth_headers, data=json.dumps(payload), timeout=EXTERNAL_CALL_TIMEOUT)
             if response.status_code == 200:
                 return response.json()
             else:

@@ -8,6 +8,7 @@ import time
 import paramiko
 
 from core.integrations.processor import Processor
+from core.settings import EXTERNAL_CALL_TIMEOUT
 
 logger = logging.getLogger(__name__)
 
@@ -174,7 +175,7 @@ class BashProcessor(Processor):
                     sftp.chmod(remote_script_path, 0o755)  # Make script executable
                     stdin, stdout, stderr = client.exec_command(exec_command)
                     # Wait for execution with timeout
-                    timeout = 100  # seconds
+                    timeout = EXTERNAL_CALL_TIMEOUT  # seconds
                     start_time = time.time()
                     channel = stdout.channel
 

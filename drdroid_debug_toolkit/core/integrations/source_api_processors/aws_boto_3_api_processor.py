@@ -8,6 +8,7 @@ from django.conf import settings
 
 from core.integrations.processor import Processor
 from core.utils.time_utils import current_milli_time
+from core.settings import EXTERNAL_CALL_TIMEOUT
 
 logger = logging.getLogger(__name__)
 
@@ -594,7 +595,7 @@ class AWSBoto3ApiProcessor(Processor):
             return None
 
         try:
-            response = requests.get(url)
+            response = requests.get(url, timeout=EXTERNAL_CALL_TIMEOUT)
             response.raise_for_status()
 
             # Try decoding the content as UTF-8
