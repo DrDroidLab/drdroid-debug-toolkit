@@ -5,6 +5,7 @@ from gql import Client, gql
 from gql.transport.requests import RequestsHTTPTransport
 
 from core.integrations.processor import Processor
+from core.settings import EXTERNAL_CALL_TIMEOUT
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +28,7 @@ class NewRelicGraphQlConnector(Processor):
 
             graphql_endpoint = "https://{}/graphql".format(self.nr_api_domain)
             transport = RequestsHTTPTransport(url=graphql_endpoint, use_json=True, headers=headers, verify=True,
-                                              retries=3)
+                                              retries=3, timeout=EXTERNAL_CALL_TIMEOUT)
 
             # Create a GraphQL client
             client = Client(transport=transport, fetch_schema_from_transport=False)

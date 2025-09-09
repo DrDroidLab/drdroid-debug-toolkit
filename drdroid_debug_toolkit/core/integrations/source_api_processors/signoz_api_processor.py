@@ -8,6 +8,7 @@ from dateutil import parser as dateparser
 
 from core.integrations.processor import Processor
 from core.protos.base_pb2 import TimeRange
+from core.settings import EXTERNAL_CALL_TIMEOUT
 
 logger = logging.getLogger(__name__)
 
@@ -140,7 +141,7 @@ class SignozApiProcessor(Processor):
                 f"{self.signoz_api_url}/api/v1/health", 
                 headers=self.headers,
                 verify=self.__ssl_verify,
-                timeout=30
+                timeout=EXTERNAL_CALL_TIMEOUT
             )
             
             if response.status_code < 300:
@@ -159,7 +160,7 @@ class SignozApiProcessor(Processor):
                 f"{self.signoz_api_url}/api/v1/dashboards", 
                 headers=self.headers,
                 verify=self.__ssl_verify,
-                timeout=30
+                timeout=EXTERNAL_CALL_TIMEOUT
             )
             
             if response.status_code == 200:
@@ -179,7 +180,7 @@ class SignozApiProcessor(Processor):
                 f"{self.signoz_api_url}/api/v1/dashboards/{dashboard_id}", 
                 headers=self.headers,
                 verify=self.__ssl_verify,
-                timeout=30
+                timeout=EXTERNAL_CALL_TIMEOUT
             )
             
             if response.status_code == 200:
@@ -203,7 +204,7 @@ class SignozApiProcessor(Processor):
                 f"{self.signoz_api_url}/api/v1/alerts", 
                 headers=self.headers,
                 verify=self.__ssl_verify,
-                timeout=30
+                timeout=EXTERNAL_CALL_TIMEOUT
             )
             
             if response.status_code == 200:
@@ -222,7 +223,7 @@ class SignozApiProcessor(Processor):
                 f"{self.signoz_api_url}/api/v1/alerts/{alert_id}", 
                 headers=self.headers,
                 verify=self.__ssl_verify,
-                timeout=30
+                timeout=EXTERNAL_CALL_TIMEOUT
             )
             
             if response.status_code == 200:
@@ -257,7 +258,7 @@ class SignozApiProcessor(Processor):
                 headers=self.headers,
                 json=payload,
                 verify=self.__ssl_verify,
-                timeout=30
+                timeout=EXTERNAL_CALL_TIMEOUT
             )
             
             if response.status_code == 200:
@@ -324,7 +325,7 @@ class SignozApiProcessor(Processor):
                 headers=self.headers,
                 json=query_payload,
                 verify=self.__ssl_verify,
-                timeout=30
+                timeout=EXTERNAL_CALL_TIMEOUT
             )
             
             if response.status_code == 200:
@@ -377,7 +378,7 @@ class SignozApiProcessor(Processor):
         try:
             url = f"{self.signoz_api_url}/api/v1/services"
             payload = {"start": str(start_ns), "end": str(end_ns), "tags": []}
-            response = requests.post(url, headers=self.headers, json=payload, verify=self.__ssl_verify, timeout=30)
+            response = requests.post(url, headers=self.headers, json=payload, verify=self.__ssl_verify, timeout=EXTERNAL_CALL_TIMEOUT)
             if response.status_code == 200:
                 return response.json()
             else:
@@ -484,7 +485,7 @@ class SignozApiProcessor(Processor):
         logger.debug(f"Querying: {payload}")
         logger.debug(f"URL: {url}")
         try:
-            response = requests.post(url, headers=self.headers, json=payload, verify=self.__ssl_verify, timeout=30)
+            response = requests.post(url, headers=self.headers, json=payload, verify=self.__ssl_verify, timeout=EXTERNAL_CALL_TIMEOUT)
             if response.status_code == 200:
                 try:
                     resp_json = response.json()

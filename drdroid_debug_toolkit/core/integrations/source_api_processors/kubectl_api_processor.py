@@ -7,6 +7,7 @@ import tempfile
 from django.conf import settings
 
 from core.integrations.processor import Processor
+from core.settings import EXTERNAL_CALL_TIMEOUT
 
 logger = logging.getLogger(__name__)
 

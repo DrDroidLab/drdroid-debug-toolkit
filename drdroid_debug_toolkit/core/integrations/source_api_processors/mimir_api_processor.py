@@ -2,6 +2,7 @@ import logging
 import requests
 
 from core.integrations.processor import Processor
+from core.settings import EXTERNAL_CALL_TIMEOUT
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +18,7 @@ class MimirApiProcessor(Processor):
     def test_connection(self):
         try:
             url = '{}/config'.format(self.__host)
-            response = requests.get(url, headers=self.headers, verify=self.__ssl_verify)
+            response = requests.get(url, headers=self.headers, verify=self.__ssl_verify, timeout=EXTERNAL_CALL_TIMEOUT)
             if response and response.status_code == 200:
                 return True
             else:
@@ -33,7 +34,7 @@ class MimirApiProcessor(Processor):
         try:
             url = '{}/api/datasources/proxy/uid/{}/api/v1/labels?match[]={}'.format(self.__host, promql_datasource_uid,
                                                                                     metric_name)
-            response = requests.get(url, headers=self.headers, verify=self.__ssl_verify)
+            response = requests.get(url, headers=self.headers, verify=self.__ssl_verify, timeout=EXTERNAL_CALL_TIMEOUT)
             if response and response.status_code == 200:
                 return response.json()
         except Exception as e:
@@ -45,7 +46,7 @@ class MimirApiProcessor(Processor):
             url = '{}/api/datasources/proxy/uid/{}/api/v1/label/{}/values?match[]={}'.format(self.__host,
                                                                                              promql_datasource_uid,
                                                                                              label_name, metric_name)
-            response = requests.get(url, headers=self.headers, verify=self.__ssl_verify)
+            response = requests.get(url, headers=self.headers, verify=self.__ssl_verify, timeout=EXTERNAL_CALL_TIMEOUT)
             if response and response.status_code == 200:
                 return response.json()
         except Exception as e:
@@ -56,7 +57,7 @@ class MimirApiProcessor(Processor):
         try:
             url = '{}/prometheus/api/v1/query_range?query={}&start={}&end={}&step={}'.format(
                 self.__host, query, start, end, step)
-            response = requests.get(url, headers=self.headers, verify=self.__ssl_verify)
+            response = requests.get(url, headers=self.headers, verify=self.__ssl_verify, timeout=EXTERNAL_CALL_TIMEOUT)
             if response and response.status_code == 200:
                 return response.json()
         except Exception as e:

@@ -5,6 +5,7 @@ import requests
 from requests.auth import HTTPBasicAuth
 
 from core.integrations.processor import Processor
+from core.settings import EXTERNAL_CALL_TIMEOUT
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +45,7 @@ class JenkinsAPIProcessor(Processor):
                     headers[self.crumb_header] = self.crumb
             kwargs['headers'] = headers
             kwargs['auth'] = self.auth
-            response = requests.request(method, url, **kwargs)
+            response = requests.request(method, url, timeout=EXTERNAL_CALL_TIMEOUT, **kwargs)
 
             # Handle crumb expiration
             if response.status_code == 403 and self.crumb_enabled:
@@ -54,7 +55,7 @@ class JenkinsAPIProcessor(Processor):
                 if self.crumb and self.crumb_header:
                     headers[self.crumb_header] = self.crumb
                     kwargs['headers'] = headers
-                    response = requests.request(method, url, **kwargs)
+                    response = requests.request(method, url, timeout=EXTERNAL_CALL_TIMEOUT, **kwargs)
 
             return response
         except Exception as e:
@@ -81,7 +82,7 @@ class JenkinsAPIProcessor(Processor):
         try:
             url = f"{self.config['url']}/crumbIssuer/api/json"
             # Use direct request here to avoid recursive _make_request call
-            response = requests.get(url, auth=self.auth)
+            response = requests.get(url, auth=self.auth, timeout=EXTERNAL_CALL_TIMEOUT)
 
             if response.status_code == 200:
                 crumb_data = response.json()

@@ -3,6 +3,7 @@ import logging
 import requests
 
 from core.integrations.processor import Processor
+from core.settings import EXTERNAL_CALL_TIMEOUT
 
 logger = logging.getLogger(__name__)
 
@@ -88,7 +89,7 @@ class ArgoCDAPIProcessor(Processor):
 
             payload = {"id": deployment_id, "revision": target_revision}
 
-            response = requests.post(url, headers=headers, json=payload, verify=False)
+            response = requests.post(url, headers=headers, json=payload, verify=False, timeout=EXTERNAL_CALL_TIMEOUT)
 
             if response.status_code in (200, 204):
                 logger.info(f"Successfully updated target revision to '{target_revision}' for application '{app_name}'.")
@@ -114,7 +115,7 @@ class ArgoCDAPIProcessor(Processor):
         try:
             url = f"{self.__server}/api/v1/applications/{app_name}"
             headers = {"Authorization": f"Bearer {self.__token}"}
-            response = requests.get(url, headers=headers, verify=False)
+            response = requests.get(url, headers=headers, verify=False, timeout=EXTERNAL_CALL_TIMEOUT)
             logger.info(f"ArgoCD application health response: {response.json()}")
             if response.status_code == 200:
                 app_data = response.json()

@@ -4,6 +4,7 @@ import requests
 
 from core.integrations.processor import Processor
 from core.protos.base_pb2 import Source
+from core.settings import EXTERNAL_CALL_TIMEOUT
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +30,7 @@ class VpcApiProcessor(Processor):
                 }
             else:
                 raise Exception(f"Parent source {Source.Name(self.__parent_source)} not supported")
-            response = requests.post(url, headers=self.headers, data=data)
+            response = requests.post(url, headers=self.headers, data=data, timeout=EXTERNAL_CALL_TIMEOUT)
             if response and response.status_code == 200:
                 return True
             else:

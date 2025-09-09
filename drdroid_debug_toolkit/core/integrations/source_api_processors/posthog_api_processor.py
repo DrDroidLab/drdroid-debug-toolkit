@@ -3,6 +3,7 @@ import logging
 import requests
 
 from core.integrations.processor import Processor
+from core.settings import EXTERNAL_CALL_TIMEOUT
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +20,7 @@ class PosthogApiProcessor(Processor):
     def test_connection(self):
         try:
             url = f"{self.__host}/api/users/@me/"
-            response = requests.get(url, headers=self.headers, timeout=20)
+            response = requests.get(url, headers=self.headers, timeout=EXTERNAL_CALL_TIMEOUT)
             response.raise_for_status()
             data = response.json()
             team = data.get("team", {}) if data else {}
@@ -34,7 +35,7 @@ class PosthogApiProcessor(Processor):
     def fetch_projects(self):
         try:
             url = f"{self.__host}/api/projects/"
-            response = requests.get(url, headers=self.headers)
+            response = requests.get(url, headers=self.headers, timeout=EXTERNAL_CALL_TIMEOUT)
             if response and response.status_code == 200:
                 return response.json()
             else:
@@ -46,7 +47,7 @@ class PosthogApiProcessor(Processor):
     def fetch_dashboard_templates(self):
         try:
             url = f"{self.__host}/api/dashboard_templates/"
-            response = requests.get(url, headers=self.headers)
+            response = requests.get(url, headers=self.headers, timeout=EXTERNAL_CALL_TIMEOUT)
             if response and response.status_code == 200:
                 return response.json()
             else:
@@ -200,7 +201,7 @@ class PosthogApiProcessor(Processor):
         """
         try:
             url = f"{self.__host}/api/projects/{self.__project_id}/groups_types/"
-            response = requests.get(url, headers=self.headers)
+            response = requests.get(url, headers=self.headers, timeout=EXTERNAL_CALL_TIMEOUT)
             if response.status_code == 200:
                 return response.json().get("results", [])
             else:

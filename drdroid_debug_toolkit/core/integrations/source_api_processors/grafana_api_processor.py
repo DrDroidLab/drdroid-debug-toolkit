@@ -5,6 +5,7 @@ import requests
 
 from core.integrations.processor import Processor
 from core.protos.base_pb2 import TimeRange
+from core.settings import EXTERNAL_CALL_TIMEOUT
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +24,7 @@ class GrafanaApiProcessor(Processor):
     def test_connection(self):
         try:
             url = '{}/api/datasources'.format(self.__host)
-            response = requests.get(url, headers=self.headers, verify=self.__ssl_verify, timeout=20)
+            response = requests.get(url, headers=self.headers, verify=self.__ssl_verify, timeout=EXTERNAL_CALL_TIMEOUT)
             if response and response.status_code == 200:
                 return True
             else:
@@ -37,7 +38,7 @@ class GrafanaApiProcessor(Processor):
     def check_api_health(self):
         try:
             url = '{}/api/health'.format(self.__host)
-            response = requests.get(url, headers=self.headers, verify=self.__ssl_verify, timeout=20)
+            response = requests.get(url, headers=self.headers, verify=self.__ssl_verify, timeout=EXTERNAL_CALL_TIMEOUT)
             if response and response.status_code == 200:
                 return response.json()
             else:
@@ -51,7 +52,7 @@ class GrafanaApiProcessor(Processor):
     def fetch_data_sources(self):
         try:
             url = '{}/api/datasources'.format(self.__host)
-            response = requests.get(url, headers=self.headers, verify=self.__ssl_verify)
+            response = requests.get(url, headers=self.headers, verify=self.__ssl_verify, timeout=EXTERNAL_CALL_TIMEOUT)
             if response and response.status_code == 200:
                 return response.json()
         except Exception as e:
@@ -61,7 +62,7 @@ class GrafanaApiProcessor(Processor):
     def fetch_dashboards(self):
         try:
             url = '{}/api/search'.format(self.__host)
-            response = requests.get(url, headers=self.headers, verify=self.__ssl_verify)
+            response = requests.get(url, headers=self.headers, verify=self.__ssl_verify, timeout=EXTERNAL_CALL_TIMEOUT)
             if response and response.status_code == 200:
                 return response.json()
         except Exception as e:
@@ -71,7 +72,7 @@ class GrafanaApiProcessor(Processor):
     def fetch_dashboard_details(self, uid):
         try:
             url = '{}/api/dashboards/uid/{}'.format(self.__host, uid)
-            response = requests.get(url, headers=self.headers, verify=self.__ssl_verify)
+            response = requests.get(url, headers=self.headers, verify=self.__ssl_verify, timeout=EXTERNAL_CALL_TIMEOUT)
             if response and response.status_code == 200:
                 return response.json()
         except Exception as e:
@@ -83,7 +84,7 @@ class GrafanaApiProcessor(Processor):
         try:
             url = '{}/api/datasources/proxy/uid/{}/api/v1/labels?match[]={}'.format(self.__host, promql_datasource_uid,
                                                                                     metric_name)
-            response = requests.get(url, headers=self.headers, verify=self.__ssl_verify)
+            response = requests.get(url, headers=self.headers, verify=self.__ssl_verify, timeout=EXTERNAL_CALL_TIMEOUT)
             if response and response.status_code == 200:
                 return response.json()
         except Exception as e:
@@ -95,7 +96,7 @@ class GrafanaApiProcessor(Processor):
             url = '{}/api/datasources/proxy/uid/{}/api/v1/label/{}/values?match[]={}'.format(self.__host,
                                                                                              promql_datasource_uid,
                                                                                              label_name, metric_name)
-            response = requests.get(url, headers=self.headers, verify=self.__ssl_verify)
+            response = requests.get(url, headers=self.headers, verify=self.__ssl_verify, timeout=EXTERNAL_CALL_TIMEOUT)
             if response and response.status_code == 200:
                 return response.json()
         except Exception as e:
@@ -107,7 +108,7 @@ class GrafanaApiProcessor(Processor):
         try:
             url = '{}/api/datasources/proxy/uid/{}/api/v1/query_range?query={}&start={}&end={}&step={}'.format(
                 self.__host, promql_datasource_uid, query, start, end, step)
-            response = requests.get(url, headers=self.headers, verify=self.__ssl_verify)
+            response = requests.get(url, headers=self.headers, verify=self.__ssl_verify, timeout=EXTERNAL_CALL_TIMEOUT)
             if response and response.status_code == 200:
                 return response.json()
         except Exception as e:
@@ -117,7 +118,7 @@ class GrafanaApiProcessor(Processor):
     def fetch_alert_rules(self):
         try:
             url = '{}/api/v1/provisioning/alert-rules'.format(self.__host)
-            response = requests.get(url, headers=self.headers, verify=self.__ssl_verify)
+            response = requests.get(url, headers=self.headers, verify=self.__ssl_verify, timeout=EXTERNAL_CALL_TIMEOUT)
             if response and response.status_code == 200:
                 return response.json()
             else:
@@ -135,7 +136,7 @@ class GrafanaApiProcessor(Processor):
             if metric_match_filter:
                 params['match[]'] = metric_match_filter
 
-            response = requests.get(url, headers=self.headers, params=params, verify=self.__ssl_verify)
+            response = requests.get(url, headers=self.headers, params=params, verify=self.__ssl_verify, timeout=EXTERNAL_CALL_TIMEOUT)
             if response and response.status_code == 200:
                 return response.json().get('data', [])
             else:
@@ -149,7 +150,7 @@ class GrafanaApiProcessor(Processor):
         """Fetches datasource details by its UID."""
         try:
             url = f'{self.__host}/api/datasources/uid/{ds_uid}'
-            response = requests.get(url, headers=self.headers, verify=self.__ssl_verify)
+            response = requests.get(url, headers=self.headers, verify=self.__ssl_verify, timeout=EXTERNAL_CALL_TIMEOUT)
             if response and response.status_code == 200:
                 return response.json()
             logger.error(f"Failed to get datasource for uid {ds_uid}. Status: {response.status_code}, Body: {response.text}")
@@ -343,7 +344,7 @@ class GrafanaApiProcessor(Processor):
             
             url = f'{self.__host}/api/datasources/proxy/uid/{ds_uid}/api/v1/query'
             params = {'query': query}
-            response = requests.get(url, headers=self.headers, params=params, verify=self.__ssl_verify)
+            response = requests.get(url, headers=self.headers, params=params, verify=self.__ssl_verify, timeout=EXTERNAL_CALL_TIMEOUT)
             if response and response.status_code == 200:
                 results = response.json().get('data', {}).get('result', [])
                 values = []
@@ -390,7 +391,7 @@ class GrafanaApiProcessor(Processor):
                 "to": str(to_tr)
             }
 
-            response = requests.post(url, headers=self.headers, json=payload)
+            response = requests.post(url, headers=self.headers, json=payload, timeout=EXTERNAL_CALL_TIMEOUT)
 
             if response.status_code == 429:
                 logger.info("Grafana query API responded with 429 (rate limited). Headers: %s", response.headers)
@@ -415,7 +416,7 @@ class GrafanaApiProcessor(Processor):
         """
         try:
             url = f'{self.__host}/api/folders'
-            response = requests.get(url, headers=self.headers, verify=self.__ssl_verify, timeout=20)
+            response = requests.get(url, headers=self.headers, verify=self.__ssl_verify, timeout=EXTERNAL_CALL_TIMEOUT)
             if response and response.status_code == 200:
                 return response.json()
             else:
@@ -438,7 +439,7 @@ class GrafanaApiProcessor(Processor):
         """
         try:
             url = f'{self.__host}/api/dashboards/uid/{dashboard_uid}'
-            response = requests.get(url, headers=self.headers, verify=self.__ssl_verify, timeout=20)
+            response = requests.get(url, headers=self.headers, verify=self.__ssl_verify, timeout=EXTERNAL_CALL_TIMEOUT)
             if response and response.status_code == 200:
                 dashboard_data = response.json()
                 return {

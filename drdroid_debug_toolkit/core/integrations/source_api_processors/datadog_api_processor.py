@@ -39,6 +39,7 @@ from datetime import datetime, timezone
 
 from core.integrations.processor import Processor
 from core.utils.http_utils import make_request_with_retry
+from core.settings import EXTERNAL_CALL_TIMEOUT
 
 logger = logging.getLogger(__name__)
 
@@ -476,7 +477,7 @@ class DatadogApiProcessor(Processor):
 
         result_dict = {}
         print(url, self.headers, payload_dict)
-        response = requests.request("POST", url, headers=self.headers, json=payload_dict)
+        response = requests.request("POST", url, headers=self.headers, json=payload_dict, timeout=EXTERNAL_CALL_TIMEOUT)
         print("Datadog R2D2 Handler Log:: Query V2 TS API", {"response": response.text})
         logger.info("Datadog R2D2 Handler Log:: Query V2 TS API", {"response": response.status_code})
         if response.status_code == 429:
@@ -655,7 +656,7 @@ class DatadogApiProcessor(Processor):
             if start and end:
                 url += "&start={}&end={}".format(int(start), int(end))
 
-            response = requests.request("GET", url, headers=self.headers)
+            response = requests.request("GET", url, headers=self.headers, timeout=EXTERNAL_CALL_TIMEOUT)
             if response.status_code == 200:
                 return response.json()
         except Exception as e:

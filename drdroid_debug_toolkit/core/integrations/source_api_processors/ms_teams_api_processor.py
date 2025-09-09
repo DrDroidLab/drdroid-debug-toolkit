@@ -2,6 +2,7 @@ import logging
 import requests
 
 from core.integrations.processor import Processor
+from core.settings import EXTERNAL_CALL_TIMEOUT
 
 logger = logging.getLogger(__name__)
 
@@ -13,7 +14,7 @@ class MSTeamsApiProcessor(Processor):
     def send_webhook_message(self, payload):
         try:
             headers = {'Content-Type': 'application/json'}
-            message_response = requests.post(self.__webhook_url, headers=headers, json=payload)
+            message_response = requests.post(self.__webhook_url, headers=headers, json=payload, timeout=EXTERNAL_CALL_TIMEOUT)
             if message_response.status_code == 200:
                 try:
                     if message_response.json() == 1:
@@ -30,7 +31,7 @@ class MSTeamsApiProcessor(Processor):
 
     def test_connection(self):
         try:
-            result = requests.post(self.__webhook_url, json={"text": "Test message"})
+            result = requests.post(self.__webhook_url, json={"text": "Test message"}, timeout=EXTERNAL_CALL_TIMEOUT)
             if result.json() == 1:
                 return True
             else:

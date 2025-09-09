@@ -4,6 +4,7 @@ from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
 from core.integrations.processor import Processor
+from core.settings import EXTERNAL_CALL_TIMEOUT
 
 logger = logging.getLogger(__name__)
 
@@ -36,11 +37,11 @@ class SlackApiProcessor(Processor):
             return self.client.conversations_history(channel=channel_id, cursor=next_cursor,
                                                      latest=latest_timestamp,
                                                      oldest=oldest_timestamp, limit=100,
-                                                     timeout=300)
+                                                     timeout=EXTERNAL_CALL_TIMEOUT)
         else:
             return self.client.conversations_history(channel=channel_id, cursor=next_cursor,
                                                      latest=latest_timestamp, limit=100,
-                                                     timeout=300)
+                                                     timeout=EXTERNAL_CALL_TIMEOUT)
 
     def send_bot_message(self, channel_id: str, text_message=None, reply_to=None, blocks=None):
         try:

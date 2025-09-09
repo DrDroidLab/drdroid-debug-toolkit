@@ -30,6 +30,7 @@ from datadog_api_client.v2.model.timeseries_formula_request_queries import Times
 from datadog_api_client.v2.model.timeseries_formula_request_type import TimeseriesFormulaRequestType
 
 from core.integrations.processor import Processor
+from core.settings import EXTERNAL_CALL_TIMEOUT
 
 logger = logging.getLogger(__name__)
 
@@ -156,7 +157,7 @@ class DatadogOauthApiProcessor(Processor):
                            "queries": queries, "to": end}, "type": "timeseries_request"}}
 
         result_dict = {}
-        response = requests.request("POST", url, headers=self.headers, json=payload_dict)
+            response = requests.request("POST", url, headers=self.headers, json=payload_dict, timeout=EXTERNAL_CALL_TIMEOUT)
         logger.info("Datadog R2D2 Handler Log:: Query V2 TS API", {"response": response.status_code})
         if response.status_code == 429:
             logger.info('Datadog R2D2 Handler Log:: Query V2 TS API Response: 429. response.headers', response.headers)
@@ -323,7 +324,7 @@ class DatadogOauthApiProcessor(Processor):
     def fetch_service_map(self, env):
         try:
             url = self.dd_dependencies_url + "/?env={}".format(env)
-            response = requests.request("GET", url, headers=self.headers)
+            response = requests.request("GET", url, headers=self.headers, timeout=EXTERNAL_CALL_TIMEOUT)
             if response.status_code == 200:
                 return response.json()
         except Exception as e:
