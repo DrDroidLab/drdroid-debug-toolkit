@@ -81,10 +81,10 @@ class GrafanaSourceManager(SourceManager):
                         display_name=StringValue(value="Query Type"),
                         description=StringValue(value='Select Query Type'),
                         data_type=LiteralType.STRING,
-                        default_value=Literal(literal_type=LiteralType.STRING, string=StringValue(value="PromQL")),
+                        default_value=Literal(type=LiteralType.STRING, string=StringValue(value="PromQL")),
                         valid_values=[
-                            Literal(literal_type=LiteralType.STRING, string=StringValue(value="PromQL")),
-                            Literal(literal_type=LiteralType.STRING, string=StringValue(value="Flux")),
+                            Literal(type=LiteralType.STRING, string=StringValue(value="PromQL")),
+                            Literal(type=LiteralType.STRING, string=StringValue(value="Flux")),
                         ],
                         form_field_type=FormFieldType.DROPDOWN_FT,
                         is_optional=True,
