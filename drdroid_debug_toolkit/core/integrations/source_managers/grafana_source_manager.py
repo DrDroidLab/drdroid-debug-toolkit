@@ -56,7 +56,6 @@ class GrafanaSourceManager(SourceManager):
         self.task_type_callable_map = {
             Grafana.TaskType.PROMETHEUS_DATASOURCE_METRIC_EXECUTION: {
                 "executor": self.execute_prometheus_datasource_metric_execution,
-                "asset_descriptor": self.execute_prometheus_datasource_metric_asset_descriptor,
                 "model_types": [SourceModelType.GRAFANA_PROMETHEUS_DATASOURCE],
                 "result_type": PlaybookTaskResultType.API_RESPONSE,
                 "display_name": "Query any of your Prometheus Data Sources from Grafana",
