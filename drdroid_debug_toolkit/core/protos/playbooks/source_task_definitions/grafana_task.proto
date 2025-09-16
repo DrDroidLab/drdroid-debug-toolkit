@@ -22,13 +22,6 @@ message Grafana {
     repeated uint32 timeseries_offsets = 9;
   }
 
-  message DatasourceQueryExecution {
-    google.protobuf.StringValue datasource_uid = 1;
-    google.protobuf.StringValue query_expression = 2;
-    google.protobuf.UInt64Value interval = 3;
-    google.protobuf.StringValue query_type = 4;
-  }
-
   message QueryDashboardPanelMetricTask {
     message Query {
       google.protobuf.StringValue expr = 1;
@@ -56,47 +49,23 @@ message Grafana {
     google.protobuf.StringValue dashboard_uid = 1;
   }
 
-  message GetDashboardConfigTask {
-    google.protobuf.StringValue dashboard_uid = 1;
-  }
-
-  message FetchAllDashboardsTask {
-    google.protobuf.UInt64Value limit = 1;
-  }
-
-  message FetchDatasourcesTask {
-    // No parameters needed for this task
-  }
-
-  message FetchFoldersTask {
-    // No parameters needed for this task
-  }
-
   enum TaskType {
     UNKNOWN = 0;
     PROMQL_METRIC_EXECUTION = 1;
-    DATASOURCE_QUERY_EXECUTION = 2;
+    PROMETHEUS_DATASOURCE_METRIC_EXECUTION = 2;
     QUERY_DASHBOARD_PANEL_METRIC = 3;
     EXECUTE_ALL_DASHBOARD_PANELS = 4;
     FETCH_DASHBOARD_VARIABLE_LABEL_VALUES = 5;
     FETCH_DASHBOARD_VARIABLES = 6;
-    GET_DASHBOARD_CONFIG = 7;
-    FETCH_ALL_DASHBOARDS = 8;
-    FETCH_DATASOURCES = 9;
-    FETCH_FOLDERS = 10;
   }
 
   TaskType type = 1;
   oneof task {
     PromQlMetricExecution promql_metric_execution = 3;
-    DatasourceQueryExecution datasource_query_execution = 4;
+    PromQl.PromQlMetricExecution prometheus_datasource_metric_execution = 4;
     QueryDashboardPanelMetricTask query_dashboard_panel_metric = 5;
     ExecuteAllDashboardPanelsTask execute_all_dashboard_panels = 6;
     FetchDashboardVariableLabelValuesTask fetch_dashboard_variable_label_values = 7;
     FetchDashboardVariablesTask fetch_dashboard_variables = 8;
-    GetDashboardConfigTask get_dashboard_config = 9;
-    FetchAllDashboardsTask fetch_all_dashboards = 10;
-    FetchDatasourcesTask fetch_datasources = 11;
-    FetchFoldersTask fetch_folders = 12;
   }
 }
