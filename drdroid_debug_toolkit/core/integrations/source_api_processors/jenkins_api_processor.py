@@ -36,6 +36,8 @@ class JenkinsAPIProcessor(Processor):
         """
         try:
             headers = kwargs.pop('headers', {})
+            # Extract timeout from kwargs if provided, otherwise use default
+            timeout = kwargs.pop('timeout', EXTERNAL_CALL_TIMEOUT)
 
             # Add crumb header if using crumb authentication
             if self.crumb_enabled:
@@ -45,7 +47,7 @@ class JenkinsAPIProcessor(Processor):
                     headers[self.crumb_header] = self.crumb
             kwargs['headers'] = headers
             kwargs['auth'] = self.auth
-            response = requests.request(method, url, timeout=EXTERNAL_CALL_TIMEOUT, **kwargs)
+            response = requests.request(method, url, timeout=timeout, **kwargs)
 
             # Handle crumb expiration
             if response.status_code == 403 and self.crumb_enabled:
@@ -55,7 +57,7 @@ class JenkinsAPIProcessor(Processor):
                 if self.crumb and self.crumb_header:
                     headers[self.crumb_header] = self.crumb
                     kwargs['headers'] = headers
-                    response = requests.request(method, url, timeout=EXTERNAL_CALL_TIMEOUT, **kwargs)
+                    response = requests.request(method, url, timeout=timeout, **kwargs)
 
             return response
         except Exception as e:
