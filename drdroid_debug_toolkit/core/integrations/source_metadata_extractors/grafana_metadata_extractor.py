@@ -81,28 +81,35 @@ class GrafanaSourceMetadataExtractor(SourceMetadataExtractor):
         model_type = SourceModelType.GRAFANA_DASHBOARD
         try:
             all_dashboards = self.__grafana_api_processor.fetch_dashboards()
+            logger.info(f'grafana_metadata_extractor.extract_dashboards: Fetched {len(all_dashboards)} dashboards')
         except Exception as e:
-            logger.error(f'Error fetching grafana dashboards: {e}')
+            logger.error(f'grafana_metadata_extractor.extract_dashboards: Error fetching grafana dashboards: {e}')
             return
         if not all_dashboards:
+            logger.info('grafana_metadata_extractor.extract_dashboards: No dashboards found')
             return
         all_db_dashboard_uids = []
         for db in all_dashboards:
             if db['type'] == 'dash-db':
                 all_db_dashboard_uids.append(db['uid'])
 
+        logger.info(f'grafana_metadata_extractor.extract_dashboards: Fetched {len(all_db_dashboard_uids)} dashboard uids')
         model_data = {}
         for uid in all_db_dashboard_uids:
             try:
                 dashboard_details = self.__grafana_api_processor.fetch_dashboard_details(uid)
             except Exception as e:
-                logger.error(f'Error fetching grafana dashboard details: {e}')
+                logger.error(f'grafana_metadata_extractor.extract_dashboards: Error fetching grafana dashboard details: {e}')
                 continue
             if not dashboard_details:
+                logger.info(f'grafana_metadata_extractor.extract_dashboards: No dashboard details found for uid: {uid}')
                 continue
             model_data[uid] = dashboard_details
+        logger.info(f'grafana_metadata_extractor.extract_dashboards: Fetched {len(model_data)} dashboard details')
         if len(model_data) > 0:
+            logger.info(f'grafana_metadata_extractor.extract_dashboards: Creating or updating model metadata for {len(model_data)} dashboards')
             self.create_or_update_model_metadata(model_type, model_data)
+        logger.info(f'grafana_metadata_extractor.extract_dashboards: Done')
 
     @log_function_call
     def extract_dashboard_target_metric_promql(self):
