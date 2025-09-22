@@ -94,7 +94,10 @@ class GrafanaSourceMetadataExtractor(SourceMetadataExtractor):
                 all_db_dashboard_uids.append(db['uid'])
 
         logger.info(f'grafana_metadata_extractor.extract_dashboards: Fetched {len(all_db_dashboard_uids)} dashboard uids')
-        model_data = {}
+        # Incremental persistence to avoid oversized payloads (e.g., HTTP 413)
+        batch_size = 15
+        batch_model_data = {}
+        total_saved = 0
         for uid in all_db_dashboard_uids:
             try:
                 dashboard_details = self.__grafana_api_processor.fetch_dashboard_details(uid)
@@ -104,12 +107,22 @@ class GrafanaSourceMetadataExtractor(SourceMetadataExtractor):
             if not dashboard_details:
                 logger.info(f'grafana_metadata_extractor.extract_dashboards: No dashboard details found for uid: {uid}')
                 continue
-            model_data[uid] = dashboard_details
-        logger.info(f'grafana_metadata_extractor.extract_dashboards: Fetched {len(model_data)} dashboard details')
-        if len(model_data) > 0:
-            logger.info(f'grafana_metadata_extractor.extract_dashboards: Creating or updating model metadata for {len(model_data)} dashboards')
-            self.create_or_update_model_metadata(model_type, model_data)
-        logger.info(f'grafana_metadata_extractor.extract_dashboards: Done')
+
+            batch_model_data[uid] = dashboard_details
+
+            if len(batch_model_data) >= batch_size:
+                logger.info(f'grafana_metadata_extractor.extract_dashboards: Persisting batch of {len(batch_model_data)} dashboards')
+                self.create_or_update_model_metadata(model_type, batch_model_data)
+                total_saved += len(batch_model_data)
+                batch_model_data = {}
+
+        # Persist any remaining dashboards
+        if len(batch_model_data) > 0:
+            logger.info(f'grafana_metadata_extractor.extract_dashboards: Persisting final batch of {len(batch_model_data)} dashboards')
+            self.create_or_update_model_metadata(model_type, batch_model_data)
+            total_saved += len(batch_model_data)
+
+        logger.info(f'grafana_metadata_extractor.extract_dashboards: Done. Total dashboards persisted: {total_saved}')
 
     @log_function_call
     def extract_dashboard_target_metric_promql(self):
