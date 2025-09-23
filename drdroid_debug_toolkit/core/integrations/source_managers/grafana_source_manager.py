@@ -190,10 +190,10 @@ class GrafanaSourceManager(SourceManager):
                         display_name=StringValue(value="Direction"),
                         description=StringValue(value="Query direction: backward (newest first) or forward (oldest first)"),
                         data_type=LiteralType.STRING,
-                        default_value=Literal(literal_type=LiteralType.STRING, string=StringValue(value="backward")),
+                        default_value=Literal(type=LiteralType.STRING, string=StringValue(value="backward")),
                         valid_values=[
-                            Literal(literal_type=LiteralType.STRING, string=StringValue(value="backward")),
-                            Literal(literal_type=LiteralType.STRING, string=StringValue(value="forward")),
+                            Literal(type=LiteralType.STRING, string=StringValue(value="backward")),
+                            Literal(type=LiteralType.STRING, string=StringValue(value="forward")),
                         ],
                         form_field_type=FormFieldType.DROPDOWN_FT,
                         is_optional=True,
