@@ -37,6 +37,7 @@ class Grafana(google.protobuf.message.Message):
         EXECUTE_ALL_DASHBOARD_PANELS: Grafana._TaskType.ValueType  # 4
         FETCH_DASHBOARD_VARIABLE_LABEL_VALUES: Grafana._TaskType.ValueType  # 5
         FETCH_DASHBOARD_VARIABLES: Grafana._TaskType.ValueType  # 6
+        LOKI_DATASOURCE_LOG_QUERY: Grafana._TaskType.ValueType  # 7
 
     class TaskType(_TaskType, metaclass=_TaskTypeEnumTypeWrapper): ...
     UNKNOWN: Grafana.TaskType.ValueType  # 0
@@ -46,6 +47,7 @@ class Grafana(google.protobuf.message.Message):
     EXECUTE_ALL_DASHBOARD_PANELS: Grafana.TaskType.ValueType  # 4
     FETCH_DASHBOARD_VARIABLE_LABEL_VALUES: Grafana.TaskType.ValueType  # 5
     FETCH_DASHBOARD_VARIABLES: Grafana.TaskType.ValueType  # 6
+    LOKI_DATASOURCE_LOG_QUERY: Grafana.TaskType.ValueType  # 7
 
     @typing_extensions.final
     class PromQlMetricExecution(google.protobuf.message.Message):
@@ -220,6 +222,33 @@ class Grafana(google.protobuf.message.Message):
         def HasField(self, field_name: typing_extensions.Literal["dashboard_uid", b"dashboard_uid"]) -> builtins.bool: ...
         def ClearField(self, field_name: typing_extensions.Literal["dashboard_uid", b"dashboard_uid"]) -> None: ...
 
+    @typing_extensions.final
+    class LokiDatasourceLogQueryTask(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        DATASOURCE_UID_FIELD_NUMBER: builtins.int
+        LOGQL_QUERY_FIELD_NUMBER: builtins.int
+        MAX_LINES_FIELD_NUMBER: builtins.int
+        DIRECTION_FIELD_NUMBER: builtins.int
+        @property
+        def datasource_uid(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def logql_query(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def max_lines(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+        @property
+        def direction(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        def __init__(
+            self,
+            *,
+            datasource_uid: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            logql_query: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            max_lines: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+            direction: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["datasource_uid", b"datasource_uid", "direction", b"direction", "logql_query", b"logql_query", "max_lines", b"max_lines"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["datasource_uid", b"datasource_uid", "direction", b"direction", "logql_query", b"logql_query", "max_lines", b"max_lines"]) -> None: ...
+
     TYPE_FIELD_NUMBER: builtins.int
     PROMQL_METRIC_EXECUTION_FIELD_NUMBER: builtins.int
     PROMETHEUS_DATASOURCE_METRIC_EXECUTION_FIELD_NUMBER: builtins.int
@@ -227,6 +256,7 @@ class Grafana(google.protobuf.message.Message):
     EXECUTE_ALL_DASHBOARD_PANELS_FIELD_NUMBER: builtins.int
     FETCH_DASHBOARD_VARIABLE_LABEL_VALUES_FIELD_NUMBER: builtins.int
     FETCH_DASHBOARD_VARIABLES_FIELD_NUMBER: builtins.int
+    LOKI_DATASOURCE_LOG_QUERY_FIELD_NUMBER: builtins.int
     type: global___Grafana.TaskType.ValueType
     @property
     def promql_metric_execution(self) -> global___Grafana.PromQlMetricExecution: ...
@@ -240,6 +270,8 @@ class Grafana(google.protobuf.message.Message):
     def fetch_dashboard_variable_label_values(self) -> global___Grafana.FetchDashboardVariableLabelValuesTask: ...
     @property
     def fetch_dashboard_variables(self) -> global___Grafana.FetchDashboardVariablesTask: ...
+    @property
+    def loki_datasource_log_query(self) -> global___Grafana.LokiDatasourceLogQueryTask: ...
     def __init__(
         self,
         *,
@@ -250,9 +282,10 @@ class Grafana(google.protobuf.message.Message):
         execute_all_dashboard_panels: global___Grafana.ExecuteAllDashboardPanelsTask | None = ...,
         fetch_dashboard_variable_label_values: global___Grafana.FetchDashboardVariableLabelValuesTask | None = ...,
         fetch_dashboard_variables: global___Grafana.FetchDashboardVariablesTask | None = ...,
+        loki_datasource_log_query: global___Grafana.LokiDatasourceLogQueryTask | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["execute_all_dashboard_panels", b"execute_all_dashboard_panels", "fetch_dashboard_variable_label_values", b"fetch_dashboard_variable_label_values", "fetch_dashboard_variables", b"fetch_dashboard_variables", "prometheus_datasource_metric_execution", b"prometheus_datasource_metric_execution", "promql_metric_execution", b"promql_metric_execution", "query_dashboard_panel_metric", b"query_dashboard_panel_metric", "task", b"task"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["execute_all_dashboard_panels", b"execute_all_dashboard_panels", "fetch_dashboard_variable_label_values", b"fetch_dashboard_variable_label_values", "fetch_dashboard_variables", b"fetch_dashboard_variables", "prometheus_datasource_metric_execution", b"prometheus_datasource_metric_execution", "promql_metric_execution", b"promql_metric_execution", "query_dashboard_panel_metric", b"query_dashboard_panel_metric", "task", b"task", "type", b"type"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing_extensions.Literal["task", b"task"]) -> typing_extensions.Literal["promql_metric_execution", "prometheus_datasource_metric_execution", "query_dashboard_panel_metric", "execute_all_dashboard_panels", "fetch_dashboard_variable_label_values", "fetch_dashboard_variables"] | None: ...
+    def HasField(self, field_name: typing_extensions.Literal["execute_all_dashboard_panels", b"execute_all_dashboard_panels", "fetch_dashboard_variable_label_values", b"fetch_dashboard_variable_label_values", "fetch_dashboard_variables", b"fetch_dashboard_variables", "loki_datasource_log_query", b"loki_datasource_log_query", "prometheus_datasource_metric_execution", b"prometheus_datasource_metric_execution", "promql_metric_execution", b"promql_metric_execution", "query_dashboard_panel_metric", b"query_dashboard_panel_metric", "task", b"task"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["execute_all_dashboard_panels", b"execute_all_dashboard_panels", "fetch_dashboard_variable_label_values", b"fetch_dashboard_variable_label_values", "fetch_dashboard_variables", b"fetch_dashboard_variables", "loki_datasource_log_query", b"loki_datasource_log_query", "prometheus_datasource_metric_execution", b"prometheus_datasource_metric_execution", "promql_metric_execution", b"promql_metric_execution", "query_dashboard_panel_metric", b"query_dashboard_panel_metric", "task", b"task", "type", b"type"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing_extensions.Literal["task", b"task"]) -> typing_extensions.Literal["promql_metric_execution", "prometheus_datasource_metric_execution", "query_dashboard_panel_metric", "execute_all_dashboard_panels", "fetch_dashboard_variable_label_values", "fetch_dashboard_variables", "loki_datasource_log_query"] | None: ...
 
 global___Grafana = Grafana

@@ -7,7 +7,7 @@ import ast
 from typing import Optional, Union
 
 from google.protobuf.struct_pb2 import Struct
-from google.protobuf.wrappers_pb2 import DoubleValue, StringValue, Int64Value
+from google.protobuf.wrappers_pb2 import DoubleValue, StringValue, Int64Value, UInt64Value
 
 from core.integrations.source_api_processors.grafana_api_processor import GrafanaApiProcessor
 from core.integrations.source_manager import SourceManager
@@ -22,6 +22,7 @@ from core.protos.playbooks.playbook_commons_pb2 import (
     PlaybookTaskResultType,
     TextResult,
     TimeseriesResult,
+    TableResult
 )
 from core.protos.playbooks.source_task_definitions.grafana_task_pb2 import Grafana
 from core.protos.ui_definition_pb2 import FormField, FormFieldType
@@ -152,6 +153,50 @@ class GrafanaSourceManager(SourceManager):
                         description=StringValue(value="MANDATORY: The unique identifier (UID) of the Grafana dashboard to fetch variables from. This will return all template variables defined in the dashboard along with their current values and available options."),
                         data_type=LiteralType.STRING,
                         form_field_type=FormFieldType.TYPING_DROPDOWN_FT,
+                    ),
+                ],
+            },
+            Grafana.TaskType.LOKI_DATASOURCE_LOG_QUERY: {
+                "executor": self.execute_loki_datasource_log_query,
+                "model_types": [SourceModelType.GRAFANA_LOKI_DATASOURCE],
+                "result_type": PlaybookTaskResultType.TABLE,
+                "display_name": "Query logs from Loki Data Source",
+                "category": "Logs",
+                "form_fields": [
+                    FormField(
+                        key_name=StringValue(value="datasource_uid"),
+                        display_name=StringValue(value="Data Source UID"),
+                        description=StringValue(value="Select Loki Data Source UID"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TYPING_DROPDOWN_FT,
+                    ),
+                    FormField(
+                        key_name=StringValue(value="logql_query"),
+                        display_name=StringValue(value="LogQL Query"),
+                        description=StringValue(value="Enter LogQL query expression (e.g., {app=\"myapp\"} |= `error`)"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.MULTILINE_FT,
+                    ),
+                    FormField(
+                        key_name=StringValue(value="max_lines"),
+                        display_name=StringValue(value="Max Lines"),
+                        description=StringValue(value="Maximum number of log lines to return (default: 1000)"),
+                        data_type=LiteralType.LONG,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=True,
+                    ),
+                    FormField(
+                        key_name=StringValue(value="direction"),
+                        display_name=StringValue(value="Direction"),
+                        description=StringValue(value="Query direction: backward (newest first) or forward (oldest first)"),
+                        data_type=LiteralType.STRING,
+                        default_value=Literal(literal_type=LiteralType.STRING, string=StringValue(value="backward")),
+                        valid_values=[
+                            Literal(literal_type=LiteralType.STRING, string=StringValue(value="backward")),
+                            Literal(literal_type=LiteralType.STRING, string=StringValue(value="forward")),
+                        ],
+                        form_field_type=FormFieldType.DROPDOWN_FT,
+                        is_optional=True,
                     ),
                 ],
             },
@@ -814,3 +859,241 @@ class GrafanaSourceManager(SourceManager):
             q["intervalMs"] = interval_ms
 
         return queries
+
+    def execute_loki_datasource_log_query(self, time_range: TimeRange, grafana_task: Grafana,
+                                         grafana_connector: ConnectorProto):
+        """Executes a LogQL query against a Loki datasource."""
+        try:
+            if not grafana_connector:
+                raise Exception("Task execution Failed:: No Grafana source found")
+
+            task = grafana_task.loki_datasource_log_query
+            datasource_uid = task.datasource_uid.value
+            logql_query = task.logql_query.value
+            max_lines = task.max_lines.value if task.max_lines and task.max_lines.value else 1000
+            direction = task.direction.value if task.direction and task.direction.value else "backward"
+
+            grafana_api_processor = self.get_connector_processor(grafana_connector)
+
+            print(
+                f"Playbook Task Downstream Request: Type -> Grafana Loki, Datasource_Uid -> {datasource_uid}, "
+                f"LogQL_Query -> {logql_query}, Max_Lines -> {max_lines}, Direction -> {direction}",
+                flush=True,
+            )
+
+            # Prepare the query for Loki datasource
+            queries = [{
+                "refId": "A",
+                "expr": logql_query,
+                "queryType": "range",
+                "datasource": {"type": "loki", "uid": datasource_uid},
+                "editorMode": "code",
+                "direction": direction,
+                "maxLines": max_lines,
+                "step": "",
+                "legendFormat": "",
+                "intervalMs": 2000,  # Default interval for Loki queries
+                "maxDataPoints": 1000
+            }]
+
+            # Format queries with time range
+            formatted_queries = self._format_query_step_interval(queries, time_range)
+
+            response = grafana_api_processor.panel_query_datasource_api(
+                tr=time_range, 
+                queries=formatted_queries,
+                interval_ms=2000
+            )
+
+            if not response:
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value=f"No data returned from Grafana Loki for query: {logql_query}")),
+                    source=self.source,
+                )
+
+            # Parse the Loki response into a structured format
+            parsed_logs = self._parse_loki_response(response, logql_query)
+
+            if not parsed_logs:
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value=f"No log entries found for query: {logql_query}")),
+                    source=self.source,
+                )
+
+            # Convert to table format
+            table_result = self._convert_logs_to_table(parsed_logs, logql_query, datasource_uid)
+            task_result = PlaybookTaskResult(source=self.source, type=PlaybookTaskResultType.TABLE,
+                                             table=table_result)
+            return task_result
+
+        except Exception as e:
+            raise Exception(f"Error while executing Grafana Loki task: {e}") from e
+
+    def _parse_loki_response(self, response: dict, query: str) -> list[dict]:
+        """Parses Loki response frames into structured log entries."""
+        parsed_logs = []
+
+        if "results" not in response:
+            return parsed_logs
+
+        for ref_id, result_data in response["results"].items():
+            if "frames" not in result_data:
+                continue
+
+            for frame in result_data.get("frames", []):
+                try:
+                    schema = frame.get("schema", {})
+                    data = frame.get("data", {})
+
+                    if not schema or not data or not data.get("values"):
+                        continue
+
+                    fields = schema.get("fields", [])
+                    if not fields:
+                        continue
+
+                    # Find field indices
+                    labels_idx = -1
+                    time_idx = -1
+                    line_idx = -1
+                    ts_ns_idx = -1
+                    id_idx = -1
+
+                    for i, field in enumerate(fields):
+                        field_name = field.get("name", "")
+                        if field_name == "labels":
+                            labels_idx = i
+                        elif field_name == "Time":
+                            time_idx = i
+                        elif field_name == "Line":
+                            line_idx = i
+                        elif field_name == "tsNs":
+                            ts_ns_idx = i
+                        elif field_name == "id":
+                            id_idx = i
+
+                    if time_idx == -1 or line_idx == -1:
+                        continue
+
+                    # Extract data arrays
+                    values = data["values"]
+                    labels_data = values[labels_idx] if labels_idx != -1 else []
+                    timestamps = values[time_idx] if time_idx != -1 else []
+                    log_lines = values[line_idx] if line_idx != -1 else []
+                    ts_ns_data = values[ts_ns_idx] if ts_ns_idx != -1 else []
+                    id_data = values[id_idx] if id_idx != -1 else []
+
+                    # Combine data into log entries
+                    num_entries = len(timestamps)
+                    for i in range(num_entries):
+                        log_entry = {
+                            "timestamp": timestamps[i] if i < len(timestamps) else None,
+                            "log_line": log_lines[i] if i < len(log_lines) else "",
+                            "labels": labels_data[i] if i < len(labels_data) else {},
+                            "ts_ns": ts_ns_data[i] if i < len(ts_ns_data) else None,
+                            "id": id_data[i] if i < len(id_data) else None,
+                            "query": query
+                        }
+                        parsed_logs.append(log_entry)
+
+                except Exception as frame_ex:
+                    logger.error(f"Error processing Loki frame: {frame_ex}")
+                    continue
+
+        return parsed_logs
+
+    def _extract_query_stats(self, response: dict) -> dict:
+        """Extracts query statistics from Loki response metadata."""
+        stats = {}
+
+        if "results" not in response:
+            return stats
+
+        for ref_id, result_data in response["results"].items():
+            if "frames" not in result_data:
+                continue
+
+            for frame in result_data.get("frames", []):
+                schema = frame.get("schema", {})
+                meta = schema.get("meta", {})
+
+                if "stats" in meta:
+                    for stat in meta["stats"]:
+                        display_name = stat.get("displayName", "")
+                        value = stat.get("value", 0)
+                        unit = stat.get("unit", "")
+
+                        # Clean up display name for use as key
+                        key = display_name.lower().replace(" ", "_").replace(":", "").replace("-", "_")
+                        stats[key] = {
+                            "value": value,
+                            "unit": unit,
+                            "display_name": display_name
+                        }
+
+                # Extract executed query string
+                if "executedQueryString" in meta:
+                    stats["executed_query"] = meta["executedQueryString"]
+
+        return stats
+
+    def _convert_logs_to_table(self, parsed_logs: list[dict], query: str, datasource_uid: str) -> TableResult:
+        """Converts parsed Loki logs into a table format."""
+        if not parsed_logs:
+            return TableResult(
+                raw_query=StringValue(value=f"Execute ```{query}```"),
+                total_count=UInt64Value(value=0),
+                rows=[]
+            )
+
+        # Convert logs to table rows following the Grafana Loki pattern
+        table_rows = []
+        for log_entry in parsed_logs:
+            labels = log_entry.get("labels", {})
+            timestamp = log_entry.get("timestamp")
+            log_line = log_entry.get("log_line", "")
+
+            # Format timestamp for display
+            formatted_timestamp = ""
+            if timestamp:
+                try:
+                    # Convert Unix timestamp (milliseconds) to readable format
+                    import datetime
+                    dt = datetime.datetime.fromtimestamp(timestamp / 1000, tz=datetime.timezone.utc)
+                    formatted_timestamp = dt.strftime("%Y-%m-%d %H:%M:%S UTC")
+                except (ValueError, TypeError):
+                    formatted_timestamp = str(timestamp)
+
+            # Create columns for this row - following the Grafana Loki pattern
+            table_columns = []
+
+            # Add timestamp column
+            table_columns.append(TableResult.TableColumn(
+                name=StringValue(value="timestamp"),
+                value=StringValue(value=formatted_timestamp)
+            ))
+
+            # Add log line column
+            table_columns.append(TableResult.TableColumn(
+                name=StringValue(value="log"),
+                value=StringValue(value=log_line)
+            ))
+
+            # Add all label columns
+            for label_key, label_value in labels.items():
+                table_columns.append(TableResult.TableColumn(
+                    name=StringValue(value=str(label_key)),
+                    value=StringValue(value=str(label_value))
+                ))
+
+            # Create the table row
+            table_row = TableResult.TableRow(columns=table_columns)
+            table_rows.append(table_row)
+
+        return TableResult(
+            raw_query=StringValue(value=f"Execute ```{query}```"),
+            total_count=UInt64Value(value=len(parsed_logs)),
+            rows=table_rows
+        )

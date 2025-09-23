@@ -49,6 +49,13 @@ message Grafana {
     google.protobuf.StringValue dashboard_uid = 1;
   }
 
+  message LokiDatasourceLogQueryTask {
+    google.protobuf.StringValue datasource_uid = 1;
+    google.protobuf.StringValue logql_query = 2;
+    google.protobuf.UInt64Value max_lines = 3;
+    google.protobuf.StringValue direction = 4;
+  }
+
   enum TaskType {
     UNKNOWN = 0;
     PROMQL_METRIC_EXECUTION = 1;
@@ -57,6 +64,7 @@ message Grafana {
     EXECUTE_ALL_DASHBOARD_PANELS = 4;
     FETCH_DASHBOARD_VARIABLE_LABEL_VALUES = 5;
     FETCH_DASHBOARD_VARIABLES = 6;
+    LOKI_DATASOURCE_LOG_QUERY = 7;
   }
 
   TaskType type = 1;
@@ -67,5 +75,6 @@ message Grafana {
     ExecuteAllDashboardPanelsTask execute_all_dashboard_panels = 6;
     FetchDashboardVariableLabelValuesTask fetch_dashboard_variable_label_values = 7;
     FetchDashboardVariablesTask fetch_dashboard_variables = 8;
+    LokiDatasourceLogQueryTask loki_datasource_log_query = 9;
   }
 }
