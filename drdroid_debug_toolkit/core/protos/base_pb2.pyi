@@ -586,6 +586,7 @@ class _SourceModelTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper
     GRAFANA_TARGET_METRIC_PROMQL: _SourceModelType.ValueType  # 303
     GRAFANA_PROMETHEUS_DATASOURCE: _SourceModelType.ValueType  # 304
     GRAFANA_ALERT_RULE: _SourceModelType.ValueType  # 305
+    GRAFANA_LOKI_DATASOURCE: _SourceModelType.ValueType  # 306
     CLICKHOUSE_DATABASE: _SourceModelType.ValueType  # 401
     """Clickhouse Models"""
     CLICKHOUSE_TABLE: _SourceModelType.ValueType  # 402
@@ -714,6 +715,7 @@ GRAFANA_DASHBOARD: SourceModelType.ValueType  # 302
 GRAFANA_TARGET_METRIC_PROMQL: SourceModelType.ValueType  # 303
 GRAFANA_PROMETHEUS_DATASOURCE: SourceModelType.ValueType  # 304
 GRAFANA_ALERT_RULE: SourceModelType.ValueType  # 305
+GRAFANA_LOKI_DATASOURCE: SourceModelType.ValueType  # 306
 CLICKHOUSE_DATABASE: SourceModelType.ValueType  # 401
 """Clickhouse Models"""
 CLICKHOUSE_TABLE: SourceModelType.ValueType  # 402

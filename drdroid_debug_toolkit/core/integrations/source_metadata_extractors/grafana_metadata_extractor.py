@@ -554,3 +554,21 @@ class GrafanaSourceMetadataExtractor(SourceMetadataExtractor):
                 'error': f'Error extracting dashboard variables: {str(e)}',
                 'dashboard_uid': dashboard_uid
             }
+
+    @log_function_call
+    def extract_loki_data_source(self):
+        model_type = SourceModelType.GRAFANA_LOKI_DATASOURCE
+        try:
+            all_data_sources = self.__grafana_api_processor.fetch_data_sources()
+            all_loki_data_sources = [ds for ds in all_data_sources if ds['type'] == 'loki']
+        except Exception as e:
+            logger.error(f'Error fetching grafana loki data sources: {e}')
+            return
+        if not all_loki_data_sources:
+            return
+        model_data = {}
+        for ds in all_loki_data_sources:
+            datasource_id = ds['uid']
+            model_data[datasource_id] = ds
+        self.create_or_update_model_metadata(model_type, model_data)
+        return model_data

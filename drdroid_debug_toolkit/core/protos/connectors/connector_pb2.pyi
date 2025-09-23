@@ -62,6 +62,7 @@ class _ConnectorMetadataModelTypeEnumTypeWrapper(google.protobuf.internal.enum_t
     GRAFANA_TARGET_METRIC_PROMQL: _ConnectorMetadataModelType.ValueType  # 303
     GRAFANA_PROMETHEUS_DATASOURCE: _ConnectorMetadataModelType.ValueType  # 304
     GRAFANA_ALERT_RULE: _ConnectorMetadataModelType.ValueType  # 305
+    GRAFANA_LOKI_DATASOURCE: _ConnectorMetadataModelType.ValueType  # 306
     CLICKHOUSE_DATABASE: _ConnectorMetadataModelType.ValueType  # 401
     """Clickhouse Models"""
     CLICKHOUSE_TABLE: _ConnectorMetadataModelType.ValueType  # 402
@@ -190,6 +191,7 @@ GRAFANA_DASHBOARD: ConnectorMetadataModelType.ValueType  # 302
 GRAFANA_TARGET_METRIC_PROMQL: ConnectorMetadataModelType.ValueType  # 303
 GRAFANA_PROMETHEUS_DATASOURCE: ConnectorMetadataModelType.ValueType  # 304
 GRAFANA_ALERT_RULE: ConnectorMetadataModelType.ValueType  # 305
+GRAFANA_LOKI_DATASOURCE: ConnectorMetadataModelType.ValueType  # 306
 CLICKHOUSE_DATABASE: ConnectorMetadataModelType.ValueType  # 401
 """Clickhouse Models"""
 CLICKHOUSE_TABLE: ConnectorMetadataModelType.ValueType  # 402

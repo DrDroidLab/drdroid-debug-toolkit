@@ -73,6 +73,7 @@ message ConnectorModelTypeOptions {
     GcmCloudRunServiceAssetOptions gcm_cloud_run_service_model_options = 40;
     SignozDashboardAssetOptions signoz_dashboard_model_options = 41;
     SignozAlertAssetOptions signoz_alert_model_options = 42;
+    GrafanaDatasourceAssetOptions grafana_loki_datasource_model_options = 63;
   }
 }
 
@@ -150,5 +151,6 @@ message AccountConnectorAssetsModelFilters {
     GcmDashboardEntityAssetOptions gcm_dashboard_model_filters = 40;
     GcmCloudRunServiceAssetOptions gcm_cloud_run_service_model_filters = 41;
     CloudwatchDashboardAssetOptions cloudwatch_dashboard_model_filters = 42;
+    GrafanaDatasourceAssetOptions grafana_loki_datasource_model_filters = 72;
   }
 }

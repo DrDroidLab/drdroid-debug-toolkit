@@ -75,6 +75,7 @@ message GrafanaDatasourceAssetOptions {
     google.protobuf.StringValue datasource_name = 3;
   }
   repeated GrafanaDatasourceOptions prometheus_datasources = 1;
+  repeated GrafanaDatasourceOptions loki_datasources = 2;
 }
 
 message GrafanaDashboardAssetOptions {
@@ -106,8 +107,9 @@ message GrafanaAssetModel {
   oneof asset {
     GrafanaTargetMetricPromQlAssetModel grafana_target_metric_promql = 5;
     GrafanaDatasourceAssetModel grafana_prometheus_datasource = 6;
-    GrafanaAlertRuleAssetModel grafana_alert_rule = 7;
-    GrafanaDashboardAssetModel grafana_dashboard = 8;
+    GrafanaDatasourceAssetModel grafana_loki_datasource = 7;
+    GrafanaAlertRuleAssetModel grafana_alert_rule = 8;
+    GrafanaDashboardAssetModel grafana_dashboard = 9;
   }
 }
 
