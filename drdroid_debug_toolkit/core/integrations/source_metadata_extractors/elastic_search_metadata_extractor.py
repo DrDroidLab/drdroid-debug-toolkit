@@ -31,17 +31,30 @@ class ElasticSearchSourceMetadataExtractor(SourceMetadataExtractor):
     def extract_index(self):
         model_type = SourceModelType.ELASTIC_SEARCH_INDEX
         try:
-            indexes = self.__es_api_processor.fetch_indices()
+            indexes = self.__es_api_processor.get_cat_indices()
         except Exception as e:
-            logger.error(f'Error fetching databases: {e}')
+            logger.error(f'Error fetching elastic search indexes: {e}')
             return
         if not indexes:
             return
         model_data = {}
-        for ind in indexes:
-            model_data[ind] = {}
-        if len(model_data) > 0:
-            self.create_or_update_model_metadata(model_type, model_data)
+        for index_info in indexes:
+            index_name = index_info.get('index', '')
+            if index_name:
+                # Extract comprehensive index metadata
+                index_metadata = {
+                    'health': index_info.get('health', ''),
+                    'status': index_info.get('status', ''),
+                    'uuid': index_info.get('uuid', ''),
+                    'pri': index_info.get('pri', ''),
+                    'rep': index_info.get('rep', ''),
+                    'docs_count': index_info.get('docs.count', ''),
+                    'docs_deleted': index_info.get('docs.deleted', ''),
+                    'store_size': index_info.get('store.size', ''),
+                    'pri_store_size': index_info.get('pri.store.size', '')
+                }
+                model_data[index_name] = index_metadata
+                self.create_or_update_model_metadata(model_type, model_data)
         return model_data
 
     def _extract_service_dependencies(self, service_name: str, index_pattern: str = None) -> dict:
