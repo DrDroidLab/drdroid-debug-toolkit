@@ -79,7 +79,7 @@ class KubectlApiProcessor(Processor):
         else:
             commands = [command]
         if self.native_connection_mode:
-            kubectl_command = ["kubectl"] + command.split()
+            kubectl_command = ["kubectl"] + commands[0].split()
         elif self.__ca_cert:
             kubectl_command = [
                                   "kubectl",
