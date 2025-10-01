@@ -1005,7 +1005,7 @@ class SignozSourceManager(SourceManager):
             return ""
         
         for key in signoz_connector.keys:
-            if key.key_type == 1 and key.key.value:  # SIGNOZ_API_URL = 1
+            if key.key_type == 136 and key.key.value:
                 return key.key.value
         
         return ""

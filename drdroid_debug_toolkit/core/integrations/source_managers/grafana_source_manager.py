@@ -339,7 +339,7 @@ class GrafanaSourceManager(SourceManager):
             return ""
         
         for key in grafana_connector.keys:
-            if key.key_type == 1 and key.key.value:  # GRAFANA_HOST = 1
+            if key.key_type == 21 and key.key.value:
                 return key.key.value
         
         return ""
