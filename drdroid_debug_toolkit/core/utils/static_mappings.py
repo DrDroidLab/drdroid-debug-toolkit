@@ -420,7 +420,7 @@ integrations_connector_type_connector_keys_map = {
             SourceKeyType.SENTRY_ORG_SLUG
         ]
     ],
-    Source.SIGN_OZ: [
+    Source.SIGNOZ: [
         [
             SourceKeyType.SIGNOZ_API_TOKEN,
             SourceKeyType.SIGNOZ_API_URL,
