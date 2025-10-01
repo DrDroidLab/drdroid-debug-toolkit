@@ -348,7 +348,7 @@ class GrafanaSourceManager(SourceManager):
         """Create metadata struct with Grafana URL."""
         grafana_url = build_grafana_url(grafana_host, url_type, params)
         metadata_dict = {
-            "grafana_url": grafana_url
+            "link": grafana_url
         }
         return dict_to_proto(metadata_dict, Struct)
 

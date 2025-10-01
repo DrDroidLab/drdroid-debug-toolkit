@@ -1014,7 +1014,7 @@ class SignozSourceManager(SourceManager):
         """Create metadata struct with SignOz URL."""
         signoz_url = buildSignozUrl(api_url, task_type, params)
         metadata_dict = {
-            "signoz_url": signoz_url
+            "link": signoz_url
         }
         return dict_to_proto(metadata_dict, Struct)
 
