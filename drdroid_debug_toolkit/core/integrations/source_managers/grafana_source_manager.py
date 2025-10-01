@@ -4,6 +4,7 @@ import re
 import string
 import requests
 import ast
+import urllib.parse
 from typing import Optional, Union
 
 from google.protobuf.struct_pb2 import Struct
@@ -30,6 +31,132 @@ from core.utils.credentilal_utils import generate_credentials_dict
 from core.utils.proto_utils import dict_to_proto, proto_to_dict
 
 logger = logging.getLogger(__name__)
+
+
+def build_grafana_url(grafana_host: str, url_type: str, params: dict = None) -> str:
+    """
+    Build Grafana URLs for different views and actions.
+    
+    Args:
+        grafana_host: Base Grafana host URL from connector
+        url_type: Type of URL to build ("dashboard", "explore", "panel")
+        params: Dictionary containing URL-specific parameters
+    
+    Returns:
+        Complete Grafana URL for the specific view/action
+    """
+    if not grafana_host:
+        return ""
+    
+    # Remove trailing slash from host URL if present
+    base_url = grafana_host.rstrip('/')
+    
+    if params is None:
+        params = {}
+    
+    if url_type == "dashboard":
+        if 'dashboard_uid' in params:
+            url_params = []
+            
+            # Add time range parameters
+            if 'from' in params and 'to' in params:
+                # Convert Unix timestamps to milliseconds for Grafana
+                from_ms = int(params['from']) * 1000
+                to_ms = int(params['to']) * 1000
+                url_params.append(f"from={from_ms}")
+                url_params.append(f"to={to_ms}")
+            
+            # Add template variables if provided
+            if 'template_variables' in params and isinstance(params['template_variables'], dict):
+                for var_name, var_value in params['template_variables'].items():
+                    if var_value is not None:
+                        # Handle list values by joining with comma
+                        if isinstance(var_value, list):
+                            var_value = ",".join(str(v) for v in var_value)
+                        url_params.append(f"var-{var_name}={urllib.parse.quote(str(var_value))}")
+            
+            # Add panel ID if specified
+            if 'panel_id' in params:
+                url_params.append(f"viewPanel={params['panel_id']}")
+            
+            query_string = "&".join(url_params)
+            dashboard_url = f"{base_url}/d/{params['dashboard_uid']}"
+            return f"{dashboard_url}?{query_string}" if query_string else dashboard_url
+        else:
+            return f"{base_url}/dashboards"
+    
+    elif url_type == "explore":
+        url_params = []
+        
+        # Add time range parameters
+        if 'from' in params and 'to' in params:
+            from_ms = int(params['from']) * 1000
+            to_ms = int(params['to']) * 1000
+            url_params.append(f"from={from_ms}")
+            url_params.append(f"to={to_ms}")
+        
+        # Build explore state for the query
+        explore_state = {
+            "datasource": params.get('datasource_uid', ''),
+            "queries": [
+                {
+                    "refId": "A",
+                    "expr": params.get('query', ''),
+                    "datasource": {
+                        "type": params.get('datasource_type', 'prometheus'),
+                        "uid": params.get('datasource_uid', '')
+                    }
+                }
+            ],
+            "range": {
+                "from": f"{int(params.get('from', 0)) * 1000}",
+                "to": f"{int(params.get('to', 0)) * 1000}"
+            }
+        }
+        
+        # For Loki queries, adjust the query structure
+        if params.get('datasource_type') == 'loki':
+            explore_state["queries"][0]["expr"] = params.get('query', '')
+            explore_state["queries"][0]["queryType"] = "range"
+        
+        # URL encode the explore state
+        explore_state_str = urllib.parse.quote(json.dumps(explore_state))
+        url_params.append(f"left={explore_state_str}")
+        
+        query_string = "&".join(url_params)
+        return f"{base_url}/explore?{query_string}"
+    
+    elif url_type == "panel":
+        # Direct link to a specific panel in a dashboard
+        if 'dashboard_uid' in params and 'panel_id' in params:
+            url_params = []
+            
+            # Add time range parameters
+            if 'from' in params and 'to' in params:
+                from_ms = int(params['from']) * 1000
+                to_ms = int(params['to']) * 1000
+                url_params.append(f"from={from_ms}")
+                url_params.append(f"to={to_ms}")
+            
+            # Add template variables if provided
+            if 'template_variables' in params and isinstance(params['template_variables'], dict):
+                for var_name, var_value in params['template_variables'].items():
+                    if var_value is not None:
+                        if isinstance(var_value, list):
+                            var_value = ",".join(str(v) for v in var_value)
+                        url_params.append(f"var-{var_name}={urllib.parse.quote(str(var_value))}")
+            
+            # Focus on specific panel
+            url_params.append(f"viewPanel={params['panel_id']}")
+            
+            query_string = "&".join(url_params)
+            return f"{base_url}/d/{params['dashboard_uid']}?{query_string}"
+        else:
+            return f"{base_url}/dashboards"
+    
+    else:
+        logger.warning(f"Unsupported Grafana URL type: {url_type}")
+        return base_url
 
 
 class GrafanaSourceManager(SourceManager):
@@ -206,6 +333,25 @@ class GrafanaSourceManager(SourceManager):
         generated_credentials = generate_credentials_dict(grafana_connector.type, grafana_connector.keys)
         return GrafanaApiProcessor(**generated_credentials)
 
+    def _extract_grafana_host_from_connector(self, grafana_connector: ConnectorProto) -> str:
+        """Extract the Grafana host URL from the connector."""
+        if not grafana_connector or not grafana_connector.keys:
+            return ""
+        
+        for key in grafana_connector.keys:
+            if key.key_type == 1 and key.key.value:  # GRAFANA_HOST = 1
+                return key.key.value
+        
+        return ""
+
+    def _create_metadata_with_grafana_url(self, grafana_host: str, url_type: str, params: dict = None) -> Struct:
+        """Create metadata struct with Grafana URL."""
+        grafana_url = build_grafana_url(grafana_host, url_type, params)
+        metadata_dict = {
+            "grafana_url": grafana_url
+        }
+        return dict_to_proto(metadata_dict, Struct)
+
     def execute_prometheus_datasource_metric_execution(self, time_range: TimeRange, grafana_task: Grafana,
                                                        grafana_connector: ConnectorProto):
         try:
@@ -242,11 +388,22 @@ class GrafanaSourceManager(SourceManager):
             response = grafana_api_processor.panel_query_datasource_api(tr=time_range, queries=formatted_queries,
                                                                         interval_ms=interval_ms)
 
+            # Extract Grafana host and create metadata with explore URL
+            grafana_host = self._extract_grafana_host_from_connector(grafana_connector)
+            metadata = self._create_metadata_with_grafana_url(grafana_host, "explore", {
+                'datasource_uid': datasource_uid,
+                'datasource_type': 'prometheus' if query_type == 'PromQL' else 'influxdb',
+                'query': metric_query,
+                'from': time_range.time_geq,
+                'to': time_range.time_lt
+            })
+
             if not response:
                 return PlaybookTaskResult(
                     type=PlaybookTaskResultType.TEXT,
                     text=TextResult(output=StringValue(value=f"No data returned from Grafana for query: {queries}")),
                     source=self.source,
+                    metadata=metadata,
                 )
 
             # --- TimeseriesResult logic ---
@@ -261,14 +418,15 @@ class GrafanaSourceManager(SourceManager):
             # Use the same timeseries parsing logic as dashboard panels
             timeseries_results = self._parse_grafana_response_frames(response, panel_ref_map)
             if timeseries_results:
-                # Only one query, so return the first result
+                # Only one query, so return the first result with metadata
+                timeseries_results[0].metadata.CopyFrom(metadata)
                 return timeseries_results[0]
 
             # Fallback: return API response if no timeseries data found
             response_struct = dict_to_proto(response, Struct)
             output = ApiResponseResult(response_body=response_struct)
             task_result = PlaybookTaskResult(source=self.source, type=PlaybookTaskResultType.API_RESPONSE,
-                                             api_response=output)
+                                             api_response=output, metadata=metadata)
             return task_result
         except Exception as e:
             raise Exception(f"Error while executing Grafana task: {e}") from e
@@ -316,11 +474,20 @@ class GrafanaSourceManager(SourceManager):
             # Use metadata extractor to get dashboard variables directly
             variables_data = grafana_metadata_extractor.extract_dashboard_variables(dashboard_uid)
 
+            # Extract Grafana host and create metadata with dashboard URL
+            grafana_host = self._extract_grafana_host_from_connector(grafana_connector)
+            metadata = self._create_metadata_with_grafana_url(grafana_host, "dashboard", {
+                'dashboard_uid': dashboard_uid,
+                'from': time_range.time_geq,
+                'to': time_range.time_lt
+            })
+
             if variables_data.get('error'):
                 return PlaybookTaskResult(
                     type=PlaybookTaskResultType.TEXT,
                     text=TextResult(output=StringValue(value=variables_data['error'])),
                     source=self.source,
+                    metadata=metadata,
                 )
 
             if not variables_data.get('variables'):
@@ -329,6 +496,7 @@ class GrafanaSourceManager(SourceManager):
                     type=PlaybookTaskResultType.TEXT,
                     text=TextResult(output=StringValue(value=message)),
                     source=self.source,
+                    metadata=metadata,
                 )
 
             # Ensure we have a proper Struct instance
@@ -341,14 +509,29 @@ class GrafanaSourceManager(SourceManager):
             output = ApiResponseResult(response_body=response_struct)
 
             task_result = PlaybookTaskResult(source=self.source, type=PlaybookTaskResultType.API_RESPONSE,
-                                             api_response=output)
+                                             api_response=output, metadata=metadata)
             return task_result
         except Exception as e:
             logger.error(f"Error while executing Grafana fetch dashboard variables task: {e}")
+            
+            # Try to create metadata even in error cases if we have the dashboard_uid
+            metadata = None
+            try:
+                if 'dashboard_uid' in locals():
+                    grafana_host = self._extract_grafana_host_from_connector(grafana_connector)
+                    metadata = self._create_metadata_with_grafana_url(grafana_host, "dashboard", {
+                        'dashboard_uid': dashboard_uid,
+                        'from': time_range.time_geq,
+                        'to': time_range.time_lt
+                    })
+            except:
+                pass  # Ignore metadata creation errors in exception handler
+            
             return PlaybookTaskResult(
                 type=PlaybookTaskResultType.TEXT,
                 text=TextResult(output=StringValue(value=f"Error executing dashboard variables task: {str(e)}")),
                 source=self.source,
+                metadata=metadata,
             )
 
 
@@ -748,6 +931,16 @@ class GrafanaSourceManager(SourceManager):
                 filter_message = f"matching filter IDs: {panel_ids_filter}" if panel_ids_filter else ""
                 logger.warning(
                     f"No valid queries could be prepared for dashboard UID: {dashboard_uid} {filter_message}")
+                
+                # Create metadata with dashboard URL even for error cases
+                grafana_host = self._extract_grafana_host_from_connector(grafana_connector)
+                dashboard_metadata = self._create_metadata_with_grafana_url(grafana_host, "dashboard", {
+                    'dashboard_uid': dashboard_uid,
+                    'from': time_range.time_geq,
+                    'to': time_range.time_lt,
+                    'template_variables': template_vars_dict
+                })
+                
                 return PlaybookTaskResult(
                     source=self.source,
                     type=PlaybookTaskResultType.TEXT,
@@ -755,6 +948,7 @@ class GrafanaSourceManager(SourceManager):
                         output=StringValue(
                             value=f"No valid metric queries could be found for dashboard UID: {dashboard_uid} {filter_message}")
                     ),
+                    metadata=dashboard_metadata,
                 )
 
             # 4. Execute API call
@@ -770,15 +964,63 @@ class GrafanaSourceManager(SourceManager):
 
             if not response:
                 logger.warning(f"No data returned from Grafana API for dashboard UID: {dashboard_uid}")
+                
+                # Create metadata with dashboard URL even for error cases
+                grafana_host = self._extract_grafana_host_from_connector(grafana_connector)
+                dashboard_metadata = self._create_metadata_with_grafana_url(grafana_host, "dashboard", {
+                    'dashboard_uid': dashboard_uid,
+                    'from': time_range.time_geq,
+                    'to': time_range.time_lt,
+                    'template_variables': template_vars_dict
+                })
+                
                 return PlaybookTaskResult(
                     source=self.source,
                     type=PlaybookTaskResultType.TEXT,
                     text=TextResult(output=StringValue(
                         value=f"No data returned from Grafana API for dashboard UID: {dashboard_uid}")),
+                    metadata=dashboard_metadata,
                 )
 
             # 5. Parse API response into Timeseries results
             all_task_results = self._parse_grafana_response_frames(response, panel_ref_map)
+
+            # 6. Add metadata with dashboard URL to all task results
+            grafana_host = self._extract_grafana_host_from_connector(grafana_connector)
+            dashboard_metadata = self._create_metadata_with_grafana_url(grafana_host, "dashboard", {
+                'dashboard_uid': dashboard_uid,
+                'from': time_range.time_geq,
+                'to': time_range.time_lt,
+                'template_variables': template_vars_dict
+            })
+
+            # Add metadata to each task result and create panel-specific URLs
+            for task_result in all_task_results:
+                # Find the panel info for this task result
+                panel_id = None
+                if hasattr(task_result, 'timeseries') and task_result.timeseries:
+                    # Extract panel_id from the timeseries labels
+                    for labeled_ts in task_result.timeseries.labeled_metric_timeseries:
+                        for label in labeled_ts.metric_label_values:
+                            if label.name.value == "panel_id":
+                                panel_id = label.value.value
+                                break
+                        if panel_id:
+                            break
+
+                # Create panel-specific metadata if panel_id is found
+                if panel_id:
+                    panel_metadata = self._create_metadata_with_grafana_url(grafana_host, "panel", {
+                        'dashboard_uid': dashboard_uid,
+                        'panel_id': panel_id,
+                        'from': time_range.time_geq,
+                        'to': time_range.time_lt,
+                        'template_variables': template_vars_dict
+                    })
+                    task_result.metadata.CopyFrom(panel_metadata)
+                else:
+                    # Use dashboard metadata as fallback
+                    task_result.metadata.CopyFrom(dashboard_metadata)
 
             return all_task_results
 
@@ -905,11 +1147,22 @@ class GrafanaSourceManager(SourceManager):
                 interval_ms=2000
             )
 
+            # Extract Grafana host and create metadata with Loki explore URL
+            grafana_host = self._extract_grafana_host_from_connector(grafana_connector)
+            metadata = self._create_metadata_with_grafana_url(grafana_host, "explore", {
+                'datasource_uid': datasource_uid,
+                'datasource_type': 'loki',
+                'query': logql_query,
+                'from': time_range.time_geq,
+                'to': time_range.time_lt
+            })
+
             if not response:
                 return PlaybookTaskResult(
                     type=PlaybookTaskResultType.TEXT,
                     text=TextResult(output=StringValue(value=f"No data returned from Grafana Loki for query: {logql_query}")),
                     source=self.source,
+                    metadata=metadata,
                 )
 
             # Parse the Loki response into a structured format
@@ -920,12 +1173,13 @@ class GrafanaSourceManager(SourceManager):
                     type=PlaybookTaskResultType.TEXT,
                     text=TextResult(output=StringValue(value=f"No log entries found for query: {logql_query}")),
                     source=self.source,
+                    metadata=metadata,
                 )
 
             # Convert to table format
             table_result = self._convert_logs_to_table(parsed_logs, logql_query, datasource_uid)
             task_result = PlaybookTaskResult(source=self.source, type=PlaybookTaskResultType.TABLE,
-                                             table=table_result)
+                                             table=table_result, metadata=metadata)
             return task_result
 
         except Exception as e:
