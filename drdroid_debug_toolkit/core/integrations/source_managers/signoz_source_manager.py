@@ -1002,19 +1002,21 @@ class SignozSourceManager(SourceManager):
     def _extract_api_url_from_connector(self, signoz_connector: ConnectorProto) -> str:
         """Extract the API URL from the SignOz connector."""
         if not signoz_connector or not signoz_connector.keys:
+            logger.warning("SignOz connector or keys not found")
             return ""
         
         for key in signoz_connector.keys:
-            if key.key_type == 1 and key.key.value:  # SIGNOZ_API_URL = 1
+            if key.key_type == 136 and key.key.value:  # SIGNOZ_API_URL = 136 (0x88)
                 return key.key.value
         
+        logger.warning(f"No SIGNOZ_API_URL found in connector keys. Available key types: {[k.key_type for k in signoz_connector.keys]}")
         return ""
 
     def _create_metadata_with_signoz_url(self, api_url: str, task_type: str, params: dict = None) -> Struct:
         """Create metadata struct with SignOz URL."""
         signoz_url = buildSignozUrl(api_url, task_type, params)
         metadata_dict = {
-            "signoz_url": signoz_url
+            "link": signoz_url
         }
         return dict_to_proto(metadata_dict, Struct)
 
