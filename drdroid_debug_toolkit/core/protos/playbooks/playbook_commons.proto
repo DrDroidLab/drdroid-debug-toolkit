@@ -102,6 +102,7 @@ message PlaybookTaskResult {
   google.protobuf.StringValue approval_request_id = 9;
   google.protobuf.StringValue approval_task_description = 10;
   google.protobuf.StringValue widget_id = 11; // currently solving for datadog dashboards @vidushee
+  google.protobuf.Struct metadata = 12; // metadata including signoz_url for SignOz tasks
   oneof result {
     TimeseriesResult timeseries = 101;
     TableResult table = 102;
