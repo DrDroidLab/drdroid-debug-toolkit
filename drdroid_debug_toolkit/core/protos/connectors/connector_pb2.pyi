@@ -97,6 +97,7 @@ class _ConnectorMetadataModelTypeEnumTypeWrapper(google.protobuf.internal.enum_t
     """Elastic Search Models"""
     ELASTIC_SEARCH_SERVICES: _ConnectorMetadataModelType.ValueType  # 1602
     ELASTIC_SEARCH_DASHBOARDS: _ConnectorMetadataModelType.ValueType  # 1603
+    ELASTIC_SEARCH_INDEX_PATTERNS: _ConnectorMetadataModelType.ValueType  # 1604
     GCM_METRIC: _ConnectorMetadataModelType.ValueType  # 1701
     """GCM Models"""
     GCM_DASHBOARD: _ConnectorMetadataModelType.ValueType  # 1702
@@ -226,6 +227,7 @@ ELASTIC_SEARCH_INDEX: ConnectorMetadataModelType.ValueType  # 1601
 """Elastic Search Models"""
 ELASTIC_SEARCH_SERVICES: ConnectorMetadataModelType.ValueType  # 1602
 ELASTIC_SEARCH_DASHBOARDS: ConnectorMetadataModelType.ValueType  # 1603
+ELASTIC_SEARCH_INDEX_PATTERNS: ConnectorMetadataModelType.ValueType  # 1604
 GCM_METRIC: ConnectorMetadataModelType.ValueType  # 1701
 """GCM Models"""
 GCM_DASHBOARD: ConnectorMetadataModelType.ValueType  # 1702
