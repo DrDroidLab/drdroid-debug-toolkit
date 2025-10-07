@@ -26,7 +26,7 @@ from google.protobuf import wrappers_pb2 as google_dot_protobuf_dot_wrappers__pb
 from core.protos import base_pb2 as core_dot_protos_dot_base__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n-core/protos/assets/elastic_search_asset.proto\x12\x16\x63ore.protos.connectors\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x16\x63ore/protos/base.proto\"K\n\x1c\x45lasticSearchIndexAssetModel\x12+\n\x05index\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"1\n\x1e\x45lasticSearchIndexAssetOptions\x12\x0f\n\x07indexes\x18\x01 \x03(\t\"\x91\x02\n\x17\x45lasticSearchAssetModel\x12(\n\x02id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.UInt64Value\x12+\n\x0e\x63onnector_type\x18\x02 \x01(\x0e\x32\x13.core.protos.Source\x12*\n\x04type\x18\x03 \x01(\x0e\x32\x1c.core.protos.SourceModelType\x12\x14\n\x0clast_updated\x18\x04 \x01(\x10\x12T\n\x14\x65lastic_search_index\x18\x05 \x01(\x0b\x32\x34.core.protos.connectors.ElasticSearchIndexAssetModelH\x00\x42\x07\n\x05\x61sset\"V\n\x13\x45lasticSearchAssets\x12?\n\x06\x61ssets\x18\x01 \x03(\x0b\x32/.core.protos.connectors.ElasticSearchAssetModelb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n-core/protos/assets/elastic_search_asset.proto\x12\x16\x63ore.protos.connectors\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x16\x63ore/protos/base.proto\"K\n\x1c\x45lasticSearchIndexAssetModel\x12+\n\x05index\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"1\n\x1e\x45lasticSearchIndexAssetOptions\x12\x0f\n\x07indexes\x18\x01 \x03(\t\"\xc0\x01\n\x1e\x45lasticSearchServiceAssetModel\x12\x32\n\x0cservice_name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x39\n\x13\x64ownstream_services\x18\x02 \x03(\x0b\x32\x1c.google.protobuf.StringValue\x12/\n\tresources\x18\x03 \x03(\x0b\x32\x1c.google.protobuf.StringValue\"9\n ElasticSearchServiceAssetOptions\x12\x15\n\rservice_names\x18\x01 \x03(\t\"\x8c\x01\n ElasticSearchDashboardAssetModel\x12\x34\n\x0e\x64\x61shboard_name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x32\n\x0c\x64\x61shboard_id\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\";\n\"ElasticSearchDashboardAssetOptions\x12\x15\n\rdashboard_ids\x18\x01 \x03(\t\"\x9d\x02\n#ElasticSearchIndexPatternAssetModel\x12\x36\n\x10index_pattern_id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12+\n\x05title\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x35\n\x0ftime_field_name\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04name\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12.\n\x08mappings\x18\x05 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"B\n%ElasticSearchIndexPatternAssetOptions\x12\x19\n\x11index_pattern_ids\x18\x01 \x03(\t\"\xae\x04\n\x17\x45lasticSearchAssetModel\x12(\n\x02id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.UInt64Value\x12+\n\x0e\x63onnector_type\x18\x02 \x01(\x0e\x32\x13.core.protos.Source\x12*\n\x04type\x18\x03 \x01(\x0e\x32\x1c.core.protos.SourceModelType\x12\x14\n\x0clast_updated\x18\x04 \x01(\x10\x12T\n\x14\x65lastic_search_index\x18\x05 \x01(\x0b\x32\x34.core.protos.connectors.ElasticSearchIndexAssetModelH\x00\x12X\n\x16\x65lastic_search_service\x18\x06 \x01(\x0b\x32\x36.core.protos.connectors.ElasticSearchServiceAssetModelH\x00\x12\\\n\x18\x65lastic_search_dashboard\x18\x07 \x01(\x0b\x32\x38.core.protos.connectors.ElasticSearchDashboardAssetModelH\x00\x12\x63\n\x1c\x65lastic_search_index_pattern\x18\x08 \x01(\x0b\x32;.core.protos.connectors.ElasticSearchIndexPatternAssetModelH\x00\x42\x07\n\x05\x61sset\"V\n\x13\x45lasticSearchAssets\x12?\n\x06\x61ssets\x18\x01 \x03(\x0b\x32/.core.protos.connectors.ElasticSearchAssetModelb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -37,8 +37,20 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_ELASTICSEARCHINDEXASSETMODEL']._serialized_end=204
   _globals['_ELASTICSEARCHINDEXASSETOPTIONS']._serialized_start=206
   _globals['_ELASTICSEARCHINDEXASSETOPTIONS']._serialized_end=255
-  _globals['_ELASTICSEARCHASSETMODEL']._serialized_start=258
-  _globals['_ELASTICSEARCHASSETMODEL']._serialized_end=531
-  _globals['_ELASTICSEARCHASSETS']._serialized_start=533
-  _globals['_ELASTICSEARCHASSETS']._serialized_end=619
+  _globals['_ELASTICSEARCHSERVICEASSETMODEL']._serialized_start=258
+  _globals['_ELASTICSEARCHSERVICEASSETMODEL']._serialized_end=450
+  _globals['_ELASTICSEARCHSERVICEASSETOPTIONS']._serialized_start=452
+  _globals['_ELASTICSEARCHSERVICEASSETOPTIONS']._serialized_end=509
+  _globals['_ELASTICSEARCHDASHBOARDASSETMODEL']._serialized_start=512
+  _globals['_ELASTICSEARCHDASHBOARDASSETMODEL']._serialized_end=652
+  _globals['_ELASTICSEARCHDASHBOARDASSETOPTIONS']._serialized_start=654
+  _globals['_ELASTICSEARCHDASHBOARDASSETOPTIONS']._serialized_end=713
+  _globals['_ELASTICSEARCHINDEXPATTERNASSETMODEL']._serialized_start=716
+  _globals['_ELASTICSEARCHINDEXPATTERNASSETMODEL']._serialized_end=1001
+  _globals['_ELASTICSEARCHINDEXPATTERNASSETOPTIONS']._serialized_start=1003
+  _globals['_ELASTICSEARCHINDEXPATTERNASSETOPTIONS']._serialized_end=1069
+  _globals['_ELASTICSEARCHASSETMODEL']._serialized_start=1072
+  _globals['_ELASTICSEARCHASSETMODEL']._serialized_end=1630
+  _globals['_ELASTICSEARCHASSETS']._serialized_start=1632
+  _globals['_ELASTICSEARCHASSETS']._serialized_end=1718
 # @@protoc_insertion_point(module_scope)

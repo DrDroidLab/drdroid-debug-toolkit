@@ -621,6 +621,7 @@ class _SourceModelTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper
     """Elastic Search Models"""
     ELASTIC_SEARCH_SERVICES: _SourceModelType.ValueType  # 1602
     ELASTIC_SEARCH_DASHBOARDS: _SourceModelType.ValueType  # 1603
+    ELASTIC_SEARCH_INDEX_PATTERNS: _SourceModelType.ValueType  # 1604
     GCM_METRIC: _SourceModelType.ValueType  # 1701
     """GCM Models"""
     GCM_DASHBOARD: _SourceModelType.ValueType  # 1702
@@ -750,6 +751,7 @@ ELASTIC_SEARCH_INDEX: SourceModelType.ValueType  # 1601
 """Elastic Search Models"""
 ELASTIC_SEARCH_SERVICES: SourceModelType.ValueType  # 1602
 ELASTIC_SEARCH_DASHBOARDS: SourceModelType.ValueType  # 1603
+ELASTIC_SEARCH_INDEX_PATTERNS: SourceModelType.ValueType  # 1604
 GCM_METRIC: SourceModelType.ValueType  # 1701
 """GCM Models"""
 GCM_DASHBOARD: SourceModelType.ValueType  # 1702

@@ -845,6 +845,133 @@ class ElasticSearchApiProcessor(Processor):
             logger.error(f"Error listing dashboards: {str(e)}")
             return []
 
+    def list_all_index_patterns(self) -> List[Dict[str, Any]]:
+        """
+        List all index patterns from Kibana with pagination support
+        Returns a list of dictionaries containing index pattern id, title, time field name, and name
+        """
+        if not self.kibana_host:
+            logger.warning("Kibana host not configured, cannot fetch index patterns")
+            return []
+
+        url = f"https://{self.kibana_host}/api/saved_objects/_find"
+        index_patterns = []
+        page = 1
+        per_page = 100  # Use smaller page size for better performance
+
+        try:
+            while True:
+                params = {
+                    "type": "index-pattern",
+                    "fields": ["title", "timeFieldName", "name"],
+                    "per_page": per_page,
+                    "page": page
+                }
+
+                response = requests.get(url, headers=self.kibana_headers, params=params)
+                response.raise_for_status()
+
+                response_data = response.json()
+                saved_objects = response_data.get('saved_objects', [])
+
+                # Process current page results
+                for obj in saved_objects:
+                    attributes = obj.get('attributes', {})
+                    index_pattern = {
+                        'id': obj.get('id'),
+                        'title': attributes.get('title'),
+                        'time_field_name': attributes.get('timeFieldName', ''),
+                        'name': attributes.get('name', '')
+                    }
+                    if index_pattern['id'] and index_pattern['title']:
+                        index_patterns.append(index_pattern)
+
+                # Check if we have more pages
+                total = response_data.get('total', 0)
+                current_count = (page - 1) * per_page + len(saved_objects)
+
+                if current_count >= total or len(saved_objects) < per_page:
+                    # No more pages or we got fewer results than requested
+                    break
+
+                page += 1
+
+                # Safety check to prevent infinite loops
+                if page > 100:  # Max 10,000 index patterns (100 pages * 100 per page)
+                    logger.warning("Reached maximum page limit while fetching index patterns")
+                    break
+
+            logger.info(f"Successfully fetched {len(index_patterns)} index patterns from Kibana")
+            return index_patterns
+
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Error listing index patterns: {str(e)}")
+            return []
+
+    def get_index_pattern_mapping(self, index_pattern_title: str) -> Dict[str, Any]:
+        """
+        Get the mapping for a specific index pattern from ElasticSearch
+        
+        Args:
+            index_pattern_title: The title/pattern of the index (e.g., "apm-*", "logs-*")
+            
+        Returns:
+            Dictionary containing the mapping information for the index pattern
+        """
+        try:
+            url = f"{self.protocol}://{self.host}:{self.port}/{index_pattern_title}/_mapping"
+
+            logger.info(f"Fetching mapping from URL: {url}")
+            logger.debug(f"Using headers: {dict(self.headers)}")
+
+            response = requests.get(url, headers=self.kibana_headers, verify=self.verify_certs)
+
+            logger.info(f"Response status code: {response.status_code}")
+
+            # Handle 404 - index pattern doesn't match any indices
+            if response.status_code == 404:
+                logger.warning(f"No indices found matching pattern '{index_pattern_title}' (404 response)")
+                return {}
+
+            response.raise_for_status()
+
+            # Log response size before parsing
+            response_text = response.text
+            logger.info(f"Response size: {len(response_text)} characters")
+
+            mapping_data = response.json()
+
+            # Check if we got any mappings
+            if not mapping_data:
+                logger.warning(f"Empty mapping response for index pattern '{index_pattern_title}'")
+                return {}
+
+            logger.info(f"Successfully fetched mapping for index pattern '{index_pattern_title}': {len(mapping_data)} indices")
+            logger.debug(f"Mapping keys: {list(mapping_data.keys())}")
+
+            return mapping_data
+
+        except requests.exceptions.RequestException as e:
+            # Handle index not found errors specifically
+            error_msg = str(e)
+            if "401" in error_msg or "unauthorized" in error_msg.lower():
+                logger.error(f"Authentication error for index pattern '{index_pattern_title}': {e}")
+                logger.error("Please check if the API key is valid and has the required permissions for accessing mappings")
+                return {}
+            elif "404" in error_msg or "index_not_found_exception" in error_msg.lower():
+                logger.warning(f"Index pattern '{index_pattern_title}' not found: {e}")
+                return {}
+            else:
+                logger.error(f"Error fetching mapping for index pattern '{index_pattern_title}': {str(e)}")
+                return {}
+        except json.JSONDecodeError as e:
+            logger.error(f"Failed to parse JSON response for index pattern '{index_pattern_title}': {e}")
+            logger.debug(f"Response content: {response.text[:1000]}...")  # Log first 1000 chars
+            return {}
+        except Exception as e:
+            logger.error(f"Unexpected error fetching mapping for index pattern '{index_pattern_title}': {str(e)}")
+            return {}
+
     def list_all_services(self, index_pattern: str = "traces-apm-*") -> List[Dict[str, Any]]:
         """
         List all services from APM indices

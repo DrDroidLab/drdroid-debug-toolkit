@@ -73,6 +73,9 @@ message ConnectorModelTypeOptions {
     GcmCloudRunServiceAssetOptions gcm_cloud_run_service_model_options = 40;
     SignozDashboardAssetOptions signoz_dashboard_model_options = 41;
     SignozAlertAssetOptions signoz_alert_model_options = 42;
+    ElasticSearchDashboardAssetOptions elastic_search_dashboard_model_options = 60;
+    ElasticSearchIndexPatternAssetOptions elastic_search_index_pattern_model_options = 61;
+    ElasticSearchServiceAssetOptions elastic_search_service_model_options = 62;
     GrafanaDatasourceAssetOptions grafana_loki_datasource_model_options = 63;
   }
 }
@@ -151,6 +154,9 @@ message AccountConnectorAssetsModelFilters {
     GcmDashboardEntityAssetOptions gcm_dashboard_model_filters = 40;
     GcmCloudRunServiceAssetOptions gcm_cloud_run_service_model_filters = 41;
     CloudwatchDashboardAssetOptions cloudwatch_dashboard_model_filters = 42;
+    ElasticSearchServiceAssetOptions elastic_search_service_model_filters = 61;
+    ElasticSearchDashboardAssetOptions elastic_search_dashboard_model_filters = 62;
+    ElasticSearchIndexPatternAssetOptions elastic_search_index_pattern_model_filters = 63;
     GrafanaDatasourceAssetOptions grafana_loki_datasource_model_filters = 72;
   }
 }
