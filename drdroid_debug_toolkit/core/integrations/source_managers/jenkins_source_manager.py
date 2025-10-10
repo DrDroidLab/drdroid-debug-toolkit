@@ -56,6 +56,20 @@ class JenkinsSourceManager(SourceManager):
                               form_field_type=FormFieldType.MULTILINE_FT)
                 ]
             },
+            Jenkins.TaskType.GET_ALL_BRANCHES: {
+                'executor': self.get_all_branches,
+                'model_types': [SourceModelType.JENKINS_JOBS],
+                'result_type': PlaybookTaskResultType.TABLE,
+                'display_name': 'Get All Branches',
+                'category': 'CI/CD',
+                'form_fields': [
+                    FormField(key_name=StringValue(value="job_name"),
+                              display_name=StringValue(value="Job Name"),
+                              description=StringValue(value='Enter Multibranch Job Name'),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT)
+                ]
+            },
         }
 
     def get_connector_processor(self, jenkins_connector, **kwargs):
@@ -71,6 +85,7 @@ class JenkinsSourceManager(SourceManager):
             if not run_job.job_name.value:
                 raise Exception("Task execution Failed:: Job Name is required")
 
+            # Get the job name, which might be a simple name or a full path (folder/job)
             job_name = run_job.job_name.value
             job_parameters_str = run_job.parameters.value if run_job.HasField('parameters') else None
             try:
@@ -115,12 +130,54 @@ class JenkinsSourceManager(SourceManager):
             if not fetch_last_build_details.job_name.value:
                 raise Exception("Task execution Failed:: Job Name is required")
 
+            # Get the job name and optional branch name
             job_name = fetch_last_build_details.job_name.value
+            branch_name = fetch_last_build_details.branch_name.value if fetch_last_build_details.HasField('branch_name') else None
+            
+            jenkins_processor = self.get_connector_processor(jenkins_connector)
+            print("Playbook Task Downstream Request: Type -> {}, Account -> {}".format("Jenkins",
+                                                                                       jenkins_connector.account_id.value),
+                  job_name, branch_name or "No branch specified", flush=True)
+            
+            result = jenkins_processor.get_last_build(job_name, branch_name)
+            table_rows: [TableResult.TableRow] = []
+            for r in list(result):
+                table_columns = []
+                for key, value in r.items():
+                    table_columns.append(TableResult.TableColumn(name=StringValue(value=str(key)),
+                                                                 value=StringValue(value=str(value))))
+                table_row = TableResult.TableRow(columns=table_columns)
+                table_rows.append(table_row)
+            
+            query_description = f"Last Build details for ```{job_name}```"
+            if branch_name:
+                query_description += f" (branch: ```{branch_name}```)"
+            
+            table = TableResult(raw_query=StringValue(value=query_description),
+                                total_count=UInt64Value(value=len(list(result))),
+                                rows=table_rows)
+            return PlaybookTaskResult(type=PlaybookTaskResultType.TABLE, table=table, source=self.source)
+        except Exception as e:
+            raise Exception(f"Error while executing Jenkins task: {e}")
+
+    def get_all_branches(self, time_range: TimeRange, jenkins_task: Jenkins,
+                        jenkins_connector: Connector):
+        try:
+            if not jenkins_connector:
+                raise Exception("Task execution Failed:: No Jenkins source found")
+
+            get_all_branches = jenkins_task.get_all_branches
+            if not get_all_branches.job_name.value:
+                raise Exception("Task execution Failed:: Job Name is required")
+
+            # Get the multibranch job name
+            job_name = get_all_branches.job_name.value
             jenkins_processor = self.get_connector_processor(jenkins_connector)
             print("Playbook Task Downstream Request: Type -> {}, Account -> {}".format("Jenkins",
                                                                                        jenkins_connector.account_id.value),
                   job_name, flush=True)
-            result = jenkins_processor.get_last_build(job_name)
+            
+            result = jenkins_processor.get_all_branches(job_name)
             table_rows: [TableResult.TableRow] = []
             for r in list(result):
                 table_columns = []
@@ -130,7 +187,8 @@ class JenkinsSourceManager(SourceManager):
 
                 table_row = TableResult.TableRow(columns=table_columns)
                 table_rows.append(table_row)
-            table = TableResult(raw_query=StringValue(value=f"Last Build details for ```{job_name}```"),
+            
+            table = TableResult(raw_query=StringValue(value=f"All branches for multibranch job ```{job_name}```"),
                                 total_count=UInt64Value(value=len(list(result))),
                                 rows=table_rows)
             return PlaybookTaskResult(type=PlaybookTaskResultType.TABLE, table=table, source=self.source)

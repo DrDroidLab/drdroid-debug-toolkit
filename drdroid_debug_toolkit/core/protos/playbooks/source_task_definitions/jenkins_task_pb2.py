@@ -26,7 +26,7 @@ from google.protobuf import wrappers_pb2 as google_dot_protobuf_dot_wrappers__pb
 from google.protobuf import struct_pb2 as google_dot_protobuf_dot_struct__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n@core/protos/playbooks/source_task_definitions/jenkins_task.proto\x12\x15\x63ore.protos.playbooks\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1cgoogle/protobuf/struct.proto\"\xfd\x03\n\x07Jenkins\x12\x35\n\x04type\x18\x01 \x01(\x0e\x32\'.core.protos.playbooks.Jenkins.TaskType\x12S\n\x18\x66\x65tch_last_build_details\x18\x02 \x01(\x0b\x32/.core.protos.playbooks.Jenkins.LastBuildDetailsH\x00\x12\x38\n\x07run_job\x18\x03 \x01(\x0b\x32%.core.protos.playbooks.Jenkins.RunJobH\x00\x1a\x42\n\x10LastBuildDetails\x12.\n\x08job_name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1a\x9b\x01\n\x06RunJob\x12.\n\x08job_name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x30\n\nparameters\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12/\n\x0eparameter_json\x18\x03 \x01(\x0b\x32\x17.google.protobuf.Struct\"B\n\x08TaskType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x1c\n\x18\x46\x45TCH_LAST_BUILD_DETAILS\x10\x01\x12\x0b\n\x07RUN_JOB\x10\x02\x42\x06\n\x04taskb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n@core/protos/playbooks/source_task_definitions/jenkins_task.proto\x12\x15\x63ore.protos.playbooks\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1cgoogle/protobuf/struct.proto\"\xd3\x05\n\x07Jenkins\x12\x35\n\x04type\x18\x01 \x01(\x0e\x32\'.core.protos.playbooks.Jenkins.TaskType\x12S\n\x18\x66\x65tch_last_build_details\x18\x02 \x01(\x0b\x32/.core.protos.playbooks.Jenkins.LastBuildDetailsH\x00\x12\x38\n\x07run_job\x18\x03 \x01(\x0b\x32%.core.protos.playbooks.Jenkins.RunJobH\x00\x12I\n\x10get_all_branches\x18\x04 \x01(\x0b\x32-.core.protos.playbooks.Jenkins.GetAllBranchesH\x00\x1au\n\x10LastBuildDetails\x12.\n\x08job_name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x31\n\x0b\x62ranch_name\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1a@\n\x0eGetAllBranches\x12.\n\x08job_name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1a\x9b\x01\n\x06RunJob\x12.\n\x08job_name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x30\n\nparameters\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12/\n\x0eparameter_json\x18\x03 \x01(\x0b\x32\x17.google.protobuf.Struct\"X\n\x08TaskType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x1c\n\x18\x46\x45TCH_LAST_BUILD_DETAILS\x10\x01\x12\x0b\n\x07RUN_JOB\x10\x02\x12\x14\n\x10GET_ALL_BRANCHES\x10\x03\x42\x06\n\x04taskb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -34,11 +34,13 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'core.protos.playbooks.sourc
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
   _globals['_JENKINS']._serialized_start=154
-  _globals['_JENKINS']._serialized_end=663
-  _globals['_JENKINS_LASTBUILDDETAILS']._serialized_start=363
-  _globals['_JENKINS_LASTBUILDDETAILS']._serialized_end=429
-  _globals['_JENKINS_RUNJOB']._serialized_start=432
-  _globals['_JENKINS_RUNJOB']._serialized_end=587
-  _globals['_JENKINS_TASKTYPE']._serialized_start=589
-  _globals['_JENKINS_TASKTYPE']._serialized_end=655
+  _globals['_JENKINS']._serialized_end=877
+  _globals['_JENKINS_LASTBUILDDETAILS']._serialized_start=438
+  _globals['_JENKINS_LASTBUILDDETAILS']._serialized_end=555
+  _globals['_JENKINS_GETALLBRANCHES']._serialized_start=557
+  _globals['_JENKINS_GETALLBRANCHES']._serialized_end=621
+  _globals['_JENKINS_RUNJOB']._serialized_start=624
+  _globals['_JENKINS_RUNJOB']._serialized_end=779
+  _globals['_JENKINS_TASKTYPE']._serialized_start=781
+  _globals['_JENKINS_TASKTYPE']._serialized_end=869
 # @@protoc_insertion_point(module_scope)
