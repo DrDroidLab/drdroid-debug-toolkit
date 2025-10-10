@@ -56,6 +56,20 @@ class JenkinsSourceManager(SourceManager):
                               form_field_type=FormFieldType.MULTILINE_FT)
                 ]
             },
+            Jenkins.TaskType.GET_ALL_BRANCHES: {
+                'executor': self.get_all_branches,
+                'model_types': [SourceModelType.JENKINS_JOBS],
+                'result_type': PlaybookTaskResultType.TABLE,
+                'display_name': 'Get All Branches',
+                'category': 'CI/CD',
+                'form_fields': [
+                    FormField(key_name=StringValue(value="job_name"),
+                              display_name=StringValue(value="Job Name"),
+                              description=StringValue(value='Enter Multibranch Job Name'),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT)
+                ]
+            },
         }
 
     def get_connector_processor(self, jenkins_connector, **kwargs):
