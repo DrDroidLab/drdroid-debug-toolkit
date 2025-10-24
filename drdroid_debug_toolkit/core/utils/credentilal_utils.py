@@ -26,7 +26,7 @@ DOCUMENTS = "Documents"
 
 
 def get_connector_key_type_string(key_type):
-    return SourceKeyType.KeyType.Name(key_type)
+    return SourceKeyType.Name(key_type)
 
 
 def generate_credentials_dict(connector_type, connector_keys):
