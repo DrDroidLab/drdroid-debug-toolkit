@@ -76,6 +76,8 @@ class FormField(google.protobuf.message.Message):
     IS_DATE_TIME_FIELD_FIELD_NUMBER: builtins.int
     FORM_FIELD_TYPE_FIELD_NUMBER: builtins.int
     DISABLED_FIELD_NUMBER: builtins.int
+    HELPER_TEXT_FIELD_NUMBER: builtins.int
+    IS_SENSITIVE_FIELD_NUMBER: builtins.int
     @property
     def key_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
@@ -96,6 +98,9 @@ class FormField(google.protobuf.message.Message):
     is_date_time_field: builtins.bool
     form_field_type: global___FormFieldType.ValueType
     disabled: builtins.bool
+    @property
+    def helper_text(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    is_sensitive: builtins.bool
     def __init__(
         self,
         *,
@@ -112,8 +117,10 @@ class FormField(google.protobuf.message.Message):
         is_date_time_field: builtins.bool = ...,
         form_field_type: global___FormFieldType.ValueType = ...,
         disabled: builtins.bool = ...,
+        helper_text: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        is_sensitive: builtins.bool = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["default_value", b"default_value", "description", b"description", "display_name", b"display_name", "key_name", b"key_name", "max_length_allowed", b"max_length_allowed"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["composite_fields", b"composite_fields", "data_type", b"data_type", "default_value", b"default_value", "description", b"description", "disabled", b"disabled", "display_name", b"display_name", "form_field_type", b"form_field_type", "is_composite", b"is_composite", "is_date_time_field", b"is_date_time_field", "is_optional", b"is_optional", "key_name", b"key_name", "max_length_allowed", b"max_length_allowed", "valid_values", b"valid_values"]) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["default_value", b"default_value", "description", b"description", "display_name", b"display_name", "helper_text", b"helper_text", "key_name", b"key_name", "max_length_allowed", b"max_length_allowed"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["composite_fields", b"composite_fields", "data_type", b"data_type", "default_value", b"default_value", "description", b"description", "disabled", b"disabled", "display_name", b"display_name", "form_field_type", b"form_field_type", "helper_text", b"helper_text", "is_composite", b"is_composite", "is_date_time_field", b"is_date_time_field", "is_optional", b"is_optional", "is_sensitive", b"is_sensitive", "key_name", b"key_name", "max_length_allowed", b"max_length_allowed", "valid_values", b"valid_values"]) -> None: ...
 
 global___FormField = FormField

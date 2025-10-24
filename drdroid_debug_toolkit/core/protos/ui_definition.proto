@@ -35,4 +35,6 @@ message FormField {
   bool is_date_time_field = 11;
   FormFieldType form_field_type = 12;
   bool disabled = 13;
+  google.protobuf.StringValue helper_text = 14;
+  bool is_sensitive = 15;
 }
