@@ -8,6 +8,22 @@ from core.protos.connectors.connector_pb2 import Connector, ConnectorKey
 DISPLAY_NAME = "display_name"
 CATEGORY = "category"
 
+ALERTING = "Alerting"
+TICKETING = "Ticketing"
+CI_CD = "CI/CD"
+APPLICATION_MONITORING = "Application Monitoring"
+EMAIL = "Email"
+CLOUD_MANAGED_SERVICES = "Cloud Managed Services"
+DATABASES = "Databases"
+KUBERNETES = "Kubernetes"
+CODE_REPOSITORY = "Code Repository"
+AI_ML = "AI/ML"
+CUSTOM = "Custom"
+ANALYTICS = "Analytics"
+WEB = "Web"
+DOCUMENTATION = "Documentation"
+DOCUMENTS = "Documents"
+
 
 def get_connector_key_type_string(key_type):
     return SourceKeyType.KeyType.Name(key_type)
