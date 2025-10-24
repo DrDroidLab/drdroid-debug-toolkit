@@ -5,6 +5,14 @@ from core.protos.base_pb2 import Source, SourceKeyType
 from core.protos.connectors.connector_pb2 import Connector, ConnectorKey
 
 
+DISPLAY_NAME = "display_name"
+CATEGORY = "category"
+
+
+def get_connector_key_type_string(key_type):
+    return SourceKeyType.KeyType.Name(key_type)
+
+
 def generate_credentials_dict(connector_type, connector_keys):
     credentials_dict = {}
     if connector_type == Source.NEW_RELIC:
