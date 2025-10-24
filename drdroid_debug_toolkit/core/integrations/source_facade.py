@@ -81,6 +81,38 @@ class SourceFacade:
             logger.error(f'Error while testing source connection: {str(e)}')
             return False, str(e)
 
+    def get_task_types(self, connector_type: Source):
+        playbook_source_manager = self.get_source_manager(connector_type)
+        task_protos = playbook_source_manager.task_proto
+        return task_protos
+
+    def check_required_connector_keys(self, connector: ConnectorProto):
+        playbook_source_manager = self.get_source_manager(connector.type)
+        return playbook_source_manager.check_required_connector_keys(connector)
+
+    def get_required_connector_key_types(self, connector_type: Source):
+        playbook_source_manager = self.get_source_manager(connector_type)
+        return playbook_source_manager.get_required_connector_key_types()
+
+    def get_connector_keys_display_name_map(self, connector_type: Source):
+        playbook_source_manager = self.get_source_manager(connector_type)
+        return playbook_source_manager.get_connector_keys_display_name_map()
+
+    def get_connector_type_details(self, connector_type: Source):
+        playbook_source_manager = self.get_source_manager(connector_type)
+        return playbook_source_manager.get_connector_type_details()
+
+    def get_connector_required_keys(self, connector_type: Source):
+        playbook_source_manager = self.get_source_manager(connector_type)
+        return playbook_source_manager.get_connector_required_keys()
+
+    def get_all_available_connector_integrations(self):
+        return self._map.keys()
+
+    def get_connector_masked_keys(self, connector_type: Source):
+        playbook_source_manager = self.get_source_manager(connector_type)
+        return playbook_source_manager.get_connector_masked_keys()
+
 
 source_facade = SourceFacade()
 source_facade.register(Source.CLOUDWATCH, CloudwatchSourceManager())
