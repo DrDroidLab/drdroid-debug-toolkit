@@ -334,6 +334,7 @@ class _SourceKeyTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     GOOGLE_CHAT_BOT_SPACES: _SourceKeyType.ValueType  # 17
     GRAFANA_HOST: _SourceKeyType.ValueType  # 21
     GRAFANA_API_KEY: _SourceKeyType.ValueType  # 22
+    GRAFANA_TEAM_HOST: _SourceKeyType.ValueType  # 153
     CLICKHOUSE_INTERFACE: _SourceKeyType.ValueType  # 24
     CLICKHOUSE_HOST: _SourceKeyType.ValueType  # 25
     CLICKHOUSE_PORT: _SourceKeyType.ValueType  # 26
@@ -453,6 +454,7 @@ GOOGLE_CHAT_BOT_OAUTH_TOKEN: SourceKeyType.ValueType  # 16
 GOOGLE_CHAT_BOT_SPACES: SourceKeyType.ValueType  # 17
 GRAFANA_HOST: SourceKeyType.ValueType  # 21
 GRAFANA_API_KEY: SourceKeyType.ValueType  # 22
+GRAFANA_TEAM_HOST: SourceKeyType.ValueType  # 153
 CLICKHOUSE_INTERFACE: SourceKeyType.ValueType  # 24
 CLICKHOUSE_HOST: SourceKeyType.ValueType  # 25
 CLICKHOUSE_PORT: SourceKeyType.ValueType  # 26
