@@ -28,7 +28,7 @@ from core.protos.playbooks.playbook_commons_pb2 import (
 from core.protos.playbooks.source_task_definitions.grafana_task_pb2 import Grafana
 from core.protos.ui_definition_pb2 import FormField, FormFieldType
 from core.protos.base_pb2 import Source, SourceKeyType
-from core.utils.credentilal_utils import generate_credentials_dict, get_connector_key_type_string, DISPLAY_NAME, CATEGORY
+from core.utils.credentilal_utils import generate_credentials_dict, get_connector_key_type_string, DISPLAY_NAME, CATEGORY, APPLICATION_MONITORING
 from core.utils.proto_utils import dict_to_proto, proto_to_dict
 
 logger = logging.getLogger(__name__)
