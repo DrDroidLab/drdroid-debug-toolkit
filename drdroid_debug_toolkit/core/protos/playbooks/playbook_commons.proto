@@ -124,6 +124,10 @@ message PlaybookSourceOptions {
     google.protobuf.StringValue connector_name = 2;
     google.protobuf.StringValue connector_type = 3;
     google.protobuf.StringValue display_name = 4;
+
+    // proxy agent metadata
+    google.protobuf.BoolValue is_proxy_enabled = 5;
+    google.protobuf.UInt64Value proxy_agent_id = 6;
   }
 
   message TaskTypeOption {

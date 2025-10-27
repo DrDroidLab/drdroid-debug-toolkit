@@ -451,6 +451,8 @@ class PlaybookSourceOptions(google.protobuf.message.Message):
         CONNECTOR_NAME_FIELD_NUMBER: builtins.int
         CONNECTOR_TYPE_FIELD_NUMBER: builtins.int
         DISPLAY_NAME_FIELD_NUMBER: builtins.int
+        IS_PROXY_ENABLED_FIELD_NUMBER: builtins.int
+        PROXY_AGENT_ID_FIELD_NUMBER: builtins.int
         @property
         def connector_id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
         @property
@@ -459,6 +461,11 @@ class PlaybookSourceOptions(google.protobuf.message.Message):
         def connector_type(self) -> google.protobuf.wrappers_pb2.StringValue: ...
         @property
         def display_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def is_proxy_enabled(self) -> google.protobuf.wrappers_pb2.BoolValue:
+            """proxy agent metadata"""
+        @property
+        def proxy_agent_id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
         def __init__(
             self,
             *,
@@ -466,9 +473,11 @@ class PlaybookSourceOptions(google.protobuf.message.Message):
             connector_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
             connector_type: google.protobuf.wrappers_pb2.StringValue | None = ...,
             display_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            is_proxy_enabled: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+            proxy_agent_id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
         ) -> None: ...
-        def HasField(self, field_name: typing_extensions.Literal["connector_id", b"connector_id", "connector_name", b"connector_name", "connector_type", b"connector_type", "display_name", b"display_name"]) -> builtins.bool: ...
-        def ClearField(self, field_name: typing_extensions.Literal["connector_id", b"connector_id", "connector_name", b"connector_name", "connector_type", b"connector_type", "display_name", b"display_name"]) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["connector_id", b"connector_id", "connector_name", b"connector_name", "connector_type", b"connector_type", "display_name", b"display_name", "is_proxy_enabled", b"is_proxy_enabled", "proxy_agent_id", b"proxy_agent_id"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["connector_id", b"connector_id", "connector_name", b"connector_name", "connector_type", b"connector_type", "display_name", b"display_name", "is_proxy_enabled", b"is_proxy_enabled", "proxy_agent_id", b"proxy_agent_id"]) -> None: ...
 
     @typing_extensions.final
     class TaskTypeOption(google.protobuf.message.Message):
