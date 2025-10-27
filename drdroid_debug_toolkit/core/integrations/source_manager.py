@@ -20,7 +20,35 @@ from core.protos.ui_definition_pb2 import FormField
 logger = logging.getLogger(__name__)
 
 
-class SourceManager:
+# Dependency Injection registry for SourceManager base
+_active_source_manager_base_class = None
+
+
+def set_source_manager_base_class(cls):
+    """
+    Allows overriding the base class used for SourceManager.
+    Must be called before importing modules that subclass SourceManager.
+    """
+    global _active_source_manager_base_class
+    _active_source_manager_base_class = cls
+    # If the dynamic class is already defined, update its base class to the new one
+    try:
+        if 'SourceManager' in globals() and isinstance(SourceManager, type):
+            SourceManager.__bases__ = (cls,)
+    except Exception:
+        # Best-effort: ignore if MRO update is not safe
+        pass
+
+
+def get_source_manager_base_class():
+    """
+    Returns the active base class for SourceManager. Falls back to the default
+    implementation defined in this module when no override is provided.
+    """
+    return _active_source_manager_base_class or _DefaultSourceManager
+
+
+class _DefaultSourceManager:
     source: Source = Source.UNKNOWN
     task_proto = None
     task_type_callable_map = {}
@@ -232,3 +260,8 @@ class SourceManager:
                 if field.is_sensitive:
                     masked_keys.append(key_type)
         return masked_keys
+
+
+# Exposed dynamic base for external subclasses
+class SourceManager(get_source_manager_base_class()):
+    pass
