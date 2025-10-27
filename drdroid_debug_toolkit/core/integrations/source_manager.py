@@ -20,6 +20,20 @@ from core.protos.ui_definition_pb2 import FormField
 logger = logging.getLogger(__name__)
 
 
+# Ensure this module is the single instance under both possible import paths
+try:
+    import sys as _sys
+    _aliases = [
+        "core.integrations.source_manager",
+        "drdroid_debug_toolkit.core.integrations.source_manager",
+    ]
+    for _alias in _aliases:
+        if _alias not in _sys.modules:
+            _sys.modules[_alias] = _sys.modules[__name__]
+except Exception:
+    pass
+
+
 # Dependency Injection registry for SourceManager base
 _active_source_manager_base_class = None
 
