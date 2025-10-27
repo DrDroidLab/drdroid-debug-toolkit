@@ -48,7 +48,11 @@ def get_source_manager_base_class():
     Returns the active base class for SourceManager. Falls back to the default
     implementation defined in this module when no override is provided.
     """
-    return _active_source_manager_base_class or _DefaultSourceManager
+    if _active_source_manager_base_class is None:
+        print("No active SourceManager base class found, returning default")
+        return _DefaultSourceManager
+    print(f"Returning active SourceManager base class: {_active_source_manager_base_class}")
+    return _active_source_manager_base_class
 
 
 class _DefaultSourceManager:
