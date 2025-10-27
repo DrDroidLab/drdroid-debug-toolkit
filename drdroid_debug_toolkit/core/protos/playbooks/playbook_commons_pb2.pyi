@@ -43,6 +43,21 @@ FINISHED: PlaybookExecutionStatusType.ValueType  # 3
 FAILED: PlaybookExecutionStatusType.ValueType  # 4
 global___PlaybookExecutionStatusType = PlaybookExecutionStatusType
 
+class _VariableType:
+    ValueType = typing.NewType("ValueType", builtins.int)
+    V: typing_extensions.TypeAlias = ValueType
+
+class _VariableTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_VariableType.ValueType], builtins.type):
+    DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+    UNKNOWN_TYPE: _VariableType.ValueType  # 0
+    DROPDOWN: _VariableType.ValueType  # 1
+
+class VariableType(_VariableType, metaclass=_VariableTypeEnumTypeWrapper): ...
+
+UNKNOWN_TYPE: VariableType.ValueType  # 0
+DROPDOWN: VariableType.ValueType  # 1
+global___VariableType = VariableType
+
 class _PlaybookTaskResultType:
     ValueType = typing.NewType("ValueType", builtins.int)
     V: typing_extensions.TypeAlias = ValueType
