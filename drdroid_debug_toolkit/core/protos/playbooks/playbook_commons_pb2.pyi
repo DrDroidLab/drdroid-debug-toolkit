@@ -448,19 +448,27 @@ class PlaybookSourceOptions(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
         CONNECTOR_ID_FIELD_NUMBER: builtins.int
+        CONNECTOR_NAME_FIELD_NUMBER: builtins.int
+        CONNECTOR_TYPE_FIELD_NUMBER: builtins.int
         DISPLAY_NAME_FIELD_NUMBER: builtins.int
         @property
         def connector_id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+        @property
+        def connector_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def connector_type(self) -> google.protobuf.wrappers_pb2.StringValue: ...
         @property
         def display_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
         def __init__(
             self,
             *,
             connector_id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+            connector_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            connector_type: google.protobuf.wrappers_pb2.StringValue | None = ...,
             display_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
         ) -> None: ...
-        def HasField(self, field_name: typing_extensions.Literal["connector_id", b"connector_id", "display_name", b"display_name"]) -> builtins.bool: ...
-        def ClearField(self, field_name: typing_extensions.Literal["connector_id", b"connector_id", "display_name", b"display_name"]) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["connector_id", b"connector_id", "connector_name", b"connector_name", "connector_type", b"connector_type", "display_name", b"display_name"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["connector_id", b"connector_id", "connector_name", b"connector_name", "connector_type", b"connector_type", "display_name", b"display_name"]) -> None: ...
 
     @typing_extensions.final
     class TaskTypeOption(google.protobuf.message.Message):
