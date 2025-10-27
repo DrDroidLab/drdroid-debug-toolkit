@@ -33,9 +33,12 @@ def set_source_manager_base_class(cls):
     _active_source_manager_base_class = cls
     # If the dynamic class is already defined, update its base class to the new one
     try:
-        if 'SourceManager' in globals() and isinstance(SourceManager, type):
+        print(f"Updating SourceManager base class to: {cls}")
+        if 'SourceManager' in globals():
+            print(f"Updating SourceManager base class to: {cls}")
             SourceManager.__bases__ = (cls,)
     except Exception:
+        print(f"Error updating SourceManager base class to: {cls}")
         # Best-effort: ignore if MRO update is not safe
         pass
 
