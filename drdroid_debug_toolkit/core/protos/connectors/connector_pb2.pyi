@@ -546,6 +546,33 @@ class PlaybookConnector(google.protobuf.message.Message):
 global___PlaybookConnector = PlaybookConnector
 
 @typing_extensions.final
+class PeriodicRunStatus(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    class _StatusType:
+        ValueType = typing.NewType("ValueType", builtins.int)
+        V: typing_extensions.TypeAlias = ValueType
+
+    class _StatusTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[PeriodicRunStatus._StatusType.ValueType], builtins.type):  # noqa: F821
+        DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+        UNKNOWN: PeriodicRunStatus._StatusType.ValueType  # 0
+        STARTED: PeriodicRunStatus._StatusType.ValueType  # 1
+        FINISHED: PeriodicRunStatus._StatusType.ValueType  # 2
+        ERROR: PeriodicRunStatus._StatusType.ValueType  # 3
+
+    class StatusType(_StatusType, metaclass=_StatusTypeEnumTypeWrapper): ...
+    UNKNOWN: PeriodicRunStatus.StatusType.ValueType  # 0
+    STARTED: PeriodicRunStatus.StatusType.ValueType  # 1
+    FINISHED: PeriodicRunStatus.StatusType.ValueType  # 2
+    ERROR: PeriodicRunStatus.StatusType.ValueType  # 3
+
+    def __init__(
+        self,
+    ) -> None: ...
+
+global___PeriodicRunStatus = PeriodicRunStatus
+
+@typing_extensions.final
 class ProxyAgentConnectorMetadata(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 

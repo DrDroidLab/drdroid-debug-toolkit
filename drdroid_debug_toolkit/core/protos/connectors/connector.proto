@@ -26,6 +26,15 @@ message PlaybookConnector {
   google.protobuf.StringValue playbook_name = 2;
 }
 
+message PeriodicRunStatus {
+  enum StatusType {
+    UNKNOWN = 0;
+    STARTED = 1;
+    FINISHED = 2;
+    ERROR = 3;
+  }
+}
+
 
 message ProxyAgentConnectorMetadata {
   google.protobuf.UInt64Value proxy_agent_connector_id = 1;
