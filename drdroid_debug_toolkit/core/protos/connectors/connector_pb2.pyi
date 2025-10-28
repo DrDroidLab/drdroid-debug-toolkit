@@ -990,22 +990,44 @@ global___UpdateConnectorOp = UpdateConnectorOp
 class ConnectorKey(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
+    ID_FIELD_NUMBER: builtins.int
     KEY_TYPE_FIELD_NUMBER: builtins.int
     KEY_FIELD_NUMBER: builtins.int
+    IS_ACTIVE_FIELD_NUMBER: builtins.int
+    CONNECTOR_ID_FIELD_NUMBER: builtins.int
+    CREATED_AT_FIELD_NUMBER: builtins.int
+    UPDATED_AT_FIELD_NUMBER: builtins.int
+    DISPLAY_NAME_FIELD_NUMBER: builtins.int
     CONNECTOR_NAME_FIELD_NUMBER: builtins.int
+    @property
+    def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     key_type: core.protos.base_pb2.SourceKeyType.ValueType
     @property
     def key(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    @property
+    def is_active(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def connector_id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+    created_at: builtins.int
+    updated_at: builtins.int
+    @property
+    def display_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
     def connector_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     def __init__(
         self,
         *,
+        id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
         key_type: core.protos.base_pb2.SourceKeyType.ValueType = ...,
         key: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        is_active: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        connector_id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+        created_at: builtins.int = ...,
+        updated_at: builtins.int = ...,
+        display_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
         connector_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["connector_name", b"connector_name", "key", b"key"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["connector_name", b"connector_name", "key", b"key", "key_type", b"key_type"]) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["connector_id", b"connector_id", "connector_name", b"connector_name", "display_name", b"display_name", "id", b"id", "is_active", b"is_active", "key", b"key"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["connector_id", b"connector_id", "connector_name", b"connector_name", "created_at", b"created_at", "display_name", b"display_name", "id", b"id", "is_active", b"is_active", "key", b"key", "key_type", b"key_type", "updated_at", b"updated_at"]) -> None: ...
 
 global___ConnectorKey = ConnectorKey

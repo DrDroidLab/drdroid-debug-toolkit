@@ -411,7 +411,13 @@ enum ReportType {
 
 
 message ConnectorKey {
-  SourceKeyType key_type = 1;
-  google.protobuf.StringValue key = 2;
-  google.protobuf.StringValue connector_name = 3;
+  google.protobuf.UInt64Value id = 1;
+  SourceKeyType key_type = 2;
+  google.protobuf.StringValue key = 3;
+  google.protobuf.BoolValue is_active = 4;
+  google.protobuf.UInt64Value connector_id = 5;
+  sfixed64 created_at = 6;
+  sfixed64 updated_at = 7;
+  google.protobuf.StringValue display_name = 8;
+  google.protobuf.StringValue connector_name = 9;
 }
