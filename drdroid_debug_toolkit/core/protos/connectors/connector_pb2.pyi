@@ -51,6 +51,7 @@ class _ConnectorMetadataModelTypeEnumTypeWrapper(google.protobuf.internal.enum_t
     DATADOG_METRIC: _ConnectorMetadataModelType.ValueType  # 111
     DATADOG_QUERY: _ConnectorMetadataModelType.ValueType  # 112
     DATADOG_APM: _ConnectorMetadataModelType.ValueType  # 113
+    DATADOG_FIELDS: _ConnectorMetadataModelType.ValueType  # 114
     CLOUDWATCH_METRIC: _ConnectorMetadataModelType.ValueType  # 201
     """Cloudwatch Models"""
     CLOUDWATCH_LOG_GROUP: _ConnectorMetadataModelType.ValueType  # 202
@@ -91,6 +92,14 @@ class _ConnectorMetadataModelTypeEnumTypeWrapper(google.protobuf.internal.enum_t
     """Mimir Server Models"""
     GKE_CLUSTER: _ConnectorMetadataModelType.ValueType  # 1301
     """GKE Models"""
+    GKE_NAMESPACE: _ConnectorMetadataModelType.ValueType  # 1302
+    GKE_SERVICE: _ConnectorMetadataModelType.ValueType  # 1303
+    GKE_DEPLOYMENT: _ConnectorMetadataModelType.ValueType  # 1304
+    GKE_INGRESS: _ConnectorMetadataModelType.ValueType  # 1305
+    GKE_NETWORK_POLICY: _ConnectorMetadataModelType.ValueType  # 1306
+    GKE_HPA: _ConnectorMetadataModelType.ValueType  # 1307
+    GKE_REPLICASET: _ConnectorMetadataModelType.ValueType  # 1308
+    GKE_STATEFULSET: _ConnectorMetadataModelType.ValueType  # 1309
     MS_TEAMS_CHANNEL: _ConnectorMetadataModelType.ValueType  # 1401
     """MS TEAMS Models"""
     PAGERDUTY_INCIDENT: _ConnectorMetadataModelType.ValueType  # 1501
@@ -99,6 +108,7 @@ class _ConnectorMetadataModelTypeEnumTypeWrapper(google.protobuf.internal.enum_t
     """Elastic Search Models"""
     ELASTIC_SEARCH_SERVICES: _ConnectorMetadataModelType.ValueType  # 1602
     ELASTIC_SEARCH_DASHBOARDS: _ConnectorMetadataModelType.ValueType  # 1603
+    ELASTIC_SEARCH_INDEX_PATTERNS: _ConnectorMetadataModelType.ValueType  # 1604
     GCM_METRIC: _ConnectorMetadataModelType.ValueType  # 1701
     """GCM Models"""
     GCM_DASHBOARD: _ConnectorMetadataModelType.ValueType  # 1702
@@ -144,6 +154,8 @@ class _ConnectorMetadataModelTypeEnumTypeWrapper(google.protobuf.internal.enum_t
     """SignOz Models"""
     SIGNOZ_ALERT: _ConnectorMetadataModelType.ValueType  # 5002
     SIGNOZ_METRIC: _ConnectorMetadataModelType.ValueType  # 5003
+    SIGNOZ_SERVICE: _ConnectorMetadataModelType.ValueType  # 5004
+    SIGNOZ_LOG_ATTRIBUTES: _ConnectorMetadataModelType.ValueType  # 5005
     KUBERNETES_NAMESPACE: _ConnectorMetadataModelType.ValueType  # 6001
     """Kubernetes Models"""
     KUBERNETES_SERVICE: _ConnectorMetadataModelType.ValueType  # 6002
@@ -153,7 +165,11 @@ class _ConnectorMetadataModelTypeEnumTypeWrapper(google.protobuf.internal.enum_t
     KUBERNETES_HPA: _ConnectorMetadataModelType.ValueType  # 6006
     KUBERNETES_REPLICASET: _ConnectorMetadataModelType.ValueType  # 6007
     KUBERNETES_STATEFULSET: _ConnectorMetadataModelType.ValueType  # 6008
+    KUBERNETES_NETWORK_MAP: _ConnectorMetadataModelType.ValueType  # 6009
     SENTRY_PROJECT: _ConnectorMetadataModelType.ValueType  # 7001
+    CORALOGIX_DASHBOARD: _ConnectorMetadataModelType.ValueType  # 8001
+    """Coralogix Models"""
+    CORALOGIX_INDEX_MAPPING: _ConnectorMetadataModelType.ValueType  # 8002
 
 class ConnectorMetadataModelType(_ConnectorMetadataModelType, metaclass=_ConnectorMetadataModelTypeEnumTypeWrapper): ...
 
@@ -180,6 +196,7 @@ DATADOG_SERVICE: ConnectorMetadataModelType.ValueType  # 110
 DATADOG_METRIC: ConnectorMetadataModelType.ValueType  # 111
 DATADOG_QUERY: ConnectorMetadataModelType.ValueType  # 112
 DATADOG_APM: ConnectorMetadataModelType.ValueType  # 113
+DATADOG_FIELDS: ConnectorMetadataModelType.ValueType  # 114
 CLOUDWATCH_METRIC: ConnectorMetadataModelType.ValueType  # 201
 """Cloudwatch Models"""
 CLOUDWATCH_LOG_GROUP: ConnectorMetadataModelType.ValueType  # 202
@@ -220,6 +237,14 @@ GRAFANA_MIMIR_PROMQL: ConnectorMetadataModelType.ValueType  # 1201
 """Mimir Server Models"""
 GKE_CLUSTER: ConnectorMetadataModelType.ValueType  # 1301
 """GKE Models"""
+GKE_NAMESPACE: ConnectorMetadataModelType.ValueType  # 1302
+GKE_SERVICE: ConnectorMetadataModelType.ValueType  # 1303
+GKE_DEPLOYMENT: ConnectorMetadataModelType.ValueType  # 1304
+GKE_INGRESS: ConnectorMetadataModelType.ValueType  # 1305
+GKE_NETWORK_POLICY: ConnectorMetadataModelType.ValueType  # 1306
+GKE_HPA: ConnectorMetadataModelType.ValueType  # 1307
+GKE_REPLICASET: ConnectorMetadataModelType.ValueType  # 1308
+GKE_STATEFULSET: ConnectorMetadataModelType.ValueType  # 1309
 MS_TEAMS_CHANNEL: ConnectorMetadataModelType.ValueType  # 1401
 """MS TEAMS Models"""
 PAGERDUTY_INCIDENT: ConnectorMetadataModelType.ValueType  # 1501
@@ -228,6 +253,7 @@ ELASTIC_SEARCH_INDEX: ConnectorMetadataModelType.ValueType  # 1601
 """Elastic Search Models"""
 ELASTIC_SEARCH_SERVICES: ConnectorMetadataModelType.ValueType  # 1602
 ELASTIC_SEARCH_DASHBOARDS: ConnectorMetadataModelType.ValueType  # 1603
+ELASTIC_SEARCH_INDEX_PATTERNS: ConnectorMetadataModelType.ValueType  # 1604
 GCM_METRIC: ConnectorMetadataModelType.ValueType  # 1701
 """GCM Models"""
 GCM_DASHBOARD: ConnectorMetadataModelType.ValueType  # 1702
@@ -273,6 +299,8 @@ SIGNOZ_DASHBOARD: ConnectorMetadataModelType.ValueType  # 5001
 """SignOz Models"""
 SIGNOZ_ALERT: ConnectorMetadataModelType.ValueType  # 5002
 SIGNOZ_METRIC: ConnectorMetadataModelType.ValueType  # 5003
+SIGNOZ_SERVICE: ConnectorMetadataModelType.ValueType  # 5004
+SIGNOZ_LOG_ATTRIBUTES: ConnectorMetadataModelType.ValueType  # 5005
 KUBERNETES_NAMESPACE: ConnectorMetadataModelType.ValueType  # 6001
 """Kubernetes Models"""
 KUBERNETES_SERVICE: ConnectorMetadataModelType.ValueType  # 6002
@@ -282,7 +310,11 @@ KUBERNETES_NETWORK_POLICY: ConnectorMetadataModelType.ValueType  # 6005
 KUBERNETES_HPA: ConnectorMetadataModelType.ValueType  # 6006
 KUBERNETES_REPLICASET: ConnectorMetadataModelType.ValueType  # 6007
 KUBERNETES_STATEFULSET: ConnectorMetadataModelType.ValueType  # 6008
+KUBERNETES_NETWORK_MAP: ConnectorMetadataModelType.ValueType  # 6009
 SENTRY_PROJECT: ConnectorMetadataModelType.ValueType  # 7001
+CORALOGIX_DASHBOARD: ConnectorMetadataModelType.ValueType  # 8001
+"""Coralogix Models"""
+CORALOGIX_INDEX_MAPPING: ConnectorMetadataModelType.ValueType  # 8002
 global___ConnectorMetadataModelType = ConnectorMetadataModelType
 
 class _ConnectorType:
