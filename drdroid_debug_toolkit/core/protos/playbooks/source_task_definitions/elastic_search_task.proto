@@ -57,6 +57,10 @@ message ElasticSearch {
     google.protobuf.StringValue dashboard_name = 1;
   }
 
+  message GetTransactionNamesByService {
+    google.protobuf.StringValue service_name = 1;
+  }
+
   TaskType type = 1;
   oneof task {
     QueryLogs query_logs = 2;
@@ -67,5 +71,6 @@ message ElasticSearch {
     MonitoringClusterStats monitoring_cluster_stats = 7;
     GetMetricForService get_metric_for_service = 8;
     GetDashboard get_dashboard = 9;
+    GetTransactionNamesByService get_transaction_names_by_service = 11;
   }
 }

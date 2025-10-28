@@ -138,6 +138,25 @@ class ElasticSearchSourceManager(SourceManager):
                               form_field_type=FormFieldType.TEXT_FT),
                 ]
             },
+            ElasticSearchProto.TaskType.GET_METRIC_FOR_APPLICATION_TRANSACTIONS: {
+                'executor': self.execute_get_metric_for_application_transactions,
+                'model_types': [SourceModelType.ELASTIC_SEARCH_SERVICES],
+                'result_type': PlaybookTaskResultType.TIMESERIES,
+                'display_name': 'Get Elasticsearch Metrics for Application Transactions',
+                'category': 'APM',
+                'form_fields': [
+                    FormField(key_name=StringValue(value="service_name"),
+                              display_name=StringValue(value="Service Name"),
+                              description=StringValue(value="Enter Service Name"),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT),
+                    FormField(key_name=StringValue(value="interval"),
+                              display_name=StringValue(value="Interval (Ex. 5m, 1h, 1d)"),
+                              description=StringValue(value="Enter Interval"),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT),
+                ]
+            },
         }
 
     def get_connector_processor(self, es_connector, **kwargs):
@@ -914,3 +933,218 @@ class ElasticSearchSourceManager(SourceManager):
         if y_operation == 'sum':
             return 'sum'
         return ''
+
+    def execute_get_metric_for_application_transactions(self, time_range: TimeRange, es_task: ElasticSearchProto,
+                                                        es_connector: ConnectorProto):
+        try:
+            if not es_connector:
+                raise Exception("Task execution Failed:: No ElasticSearch source found")
+
+            service_name = es_task.get_metric_for_application_transactions.service_name.value
+            interval = es_task.get_metric_for_application_transactions.interval.value
+
+            if not service_name:
+                raise Exception("Task execution Failed:: No service name provided")
+
+            es_client = self.get_connector_processor(es_connector)
+
+            # Convert time range to datetime objects
+            start_time = datetime.datetime.fromtimestamp(time_range.time_geq, tz=pytz.UTC)
+            end_time = datetime.datetime.fromtimestamp(time_range.time_lt, tz=pytz.UTC)
+
+            # Get transaction metrics from Elasticsearch
+            transaction_data = es_client.get_service_metrics_by_transaction(
+                service_name=service_name,
+                start_time=start_time,
+                end_time=end_time,
+                interval=interval,
+                index_pattern=self._get_account_index(es_connector.account_id.value)
+            )
+
+            if not transaction_data:
+                return [PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value=f"No transaction data found for service: {service_name}")),
+                    source=self.source)]
+
+            final_result = []
+
+            # Process each transaction type
+            for transaction_info in transaction_data:
+                transaction_name = transaction_info['transaction_name']
+                series = transaction_info['series']
+
+                # Process throughput metrics
+                throughput_datapoints = []
+                for data_point in series:
+                    timestamp = int(
+                        datetime.datetime.strptime(data_point['timestamp'], "%Y-%m-%dT%H:%M:%S.%fZ").timestamp()) * 1000
+                    throughput_datapoints.append(
+                        TimeseriesResult.LabeledMetricTimeseries.Datapoint(
+                            timestamp=timestamp,
+                            value=DoubleValue(value=data_point['throughput'])
+                        )
+                    )
+
+                if throughput_datapoints:
+                    throughput_timeseries = TimeseriesResult(
+                        metric_name=StringValue(value=f'Transaction Throughput - {transaction_name}'),
+                        metric_expression=StringValue(
+                            value=f'Throughput for transaction: {transaction_name} in service: {service_name}'),
+                        labeled_metric_timeseries=[
+                            TimeseriesResult.LabeledMetricTimeseries(
+                                metric_label_values=[
+                                    LabelValuePair(name=StringValue(value='transaction'),
+                                                   value=StringValue(value=transaction_name))
+                                ],
+                                unit=StringValue(value='tps'),
+                                datapoints=throughput_datapoints
+                            )
+                        ]
+                    )
+                    final_result.append(PlaybookTaskResult(
+                        type=PlaybookTaskResultType.TIMESERIES,
+                        source=self.source,
+                        timeseries=throughput_timeseries
+                    ))
+
+                # Process error rate metrics
+                error_rate_datapoints = []
+                for data_point in series:
+                    timestamp = int(
+                        datetime.datetime.strptime(data_point['timestamp'], "%Y-%m-%dT%H:%M:%S.%fZ").timestamp()) * 1000
+                    error_rate_datapoints.append(
+                        TimeseriesResult.LabeledMetricTimeseries.Datapoint(
+                            timestamp=timestamp,
+                            value=DoubleValue(value=data_point['error_rate'])
+                        )
+                    )
+
+                if error_rate_datapoints:
+                    error_rate_timeseries = TimeseriesResult(
+                        metric_name=StringValue(value=f'Transaction Error Rate - {transaction_name}'),
+                        metric_expression=StringValue(
+                            value=f'Error rate for transaction: {transaction_name} in service: {service_name}'),
+                        labeled_metric_timeseries=[
+                            TimeseriesResult.LabeledMetricTimeseries(
+                                metric_label_values=[
+                                    LabelValuePair(name=StringValue(value='transaction'),
+                                                   value=StringValue(value=transaction_name))
+                                ],
+                                unit=StringValue(value='%'),
+                                datapoints=error_rate_datapoints
+                            )
+                        ]
+                    )
+                    final_result.append(PlaybookTaskResult(
+                        type=PlaybookTaskResultType.TIMESERIES,
+                        source=self.source,
+                        timeseries=error_rate_timeseries
+                    ))
+
+                # Process latency P95 metrics
+                latency_p95_datapoints = []
+                for data_point in series:
+                    timestamp = int(
+                        datetime.datetime.strptime(data_point['timestamp'], "%Y-%m-%dT%H:%M:%S.%fZ").timestamp()) * 1000
+                    latency_p95_datapoints.append(
+                        TimeseriesResult.LabeledMetricTimeseries.Datapoint(
+                            timestamp=timestamp,
+                            value=DoubleValue(value=data_point['latency_p95'])
+                        )
+                    )
+
+                if latency_p95_datapoints:
+                    latency_p95_timeseries = TimeseriesResult(
+                        metric_name=StringValue(value=f'Transaction Latency P95 - {transaction_name}'),
+                        metric_expression=StringValue(
+                            value=f'Latency P95 for transaction: {transaction_name} in service: {service_name}'),
+                        labeled_metric_timeseries=[
+                            TimeseriesResult.LabeledMetricTimeseries(
+                                metric_label_values=[
+                                    LabelValuePair(name=StringValue(value='transaction'),
+                                                   value=StringValue(value=transaction_name))
+                                ],
+                                unit=StringValue(value='ms'),
+                                datapoints=latency_p95_datapoints
+                            )
+                        ]
+                    )
+                    final_result.append(PlaybookTaskResult(
+                        type=PlaybookTaskResultType.TIMESERIES,
+                        source=self.source,
+                        timeseries=latency_p95_timeseries
+                    ))
+
+                # Process latency P99 metrics
+                latency_p99_datapoints = []
+                for data_point in series:
+                    timestamp = int(
+                        datetime.datetime.strptime(data_point['timestamp'], "%Y-%m-%dT%H:%M:%S.%fZ").timestamp()) * 1000
+                    latency_p99_datapoints.append(
+                        TimeseriesResult.LabeledMetricTimeseries.Datapoint(
+                            timestamp=timestamp,
+                            value=DoubleValue(value=data_point['latency_p99'])
+                        )
+                    )
+
+                if latency_p99_datapoints:
+                    latency_p99_timeseries = TimeseriesResult(
+                        metric_name=StringValue(value=f'Transaction Latency P99 - {transaction_name}'),
+                        metric_expression=StringValue(
+                            value=f'Latency P99 for transaction: {transaction_name} in service: {service_name}'),
+                        labeled_metric_timeseries=[
+                            TimeseriesResult.LabeledMetricTimeseries(
+                                metric_label_values=[
+                                    LabelValuePair(name=StringValue(value='transaction'),
+                                                   value=StringValue(value=transaction_name))
+                                ],
+                                unit=StringValue(value='ms'),
+                                datapoints=latency_p99_datapoints
+                            )
+                        ]
+                    )
+                    final_result.append(PlaybookTaskResult(
+                        type=PlaybookTaskResultType.TIMESERIES,
+                        source=self.source,
+                        timeseries=latency_p99_timeseries
+                    ))
+
+                # Process total requests metrics
+                total_requests_datapoints = []
+                for data_point in series:
+                    timestamp = int(
+                        datetime.datetime.strptime(data_point['timestamp'], "%Y-%m-%dT%H:%M:%S.%fZ").timestamp()) * 1000
+                    total_requests_datapoints.append(
+                        TimeseriesResult.LabeledMetricTimeseries.Datapoint(
+                            timestamp=timestamp,
+                            value=DoubleValue(value=data_point['total_requests'])
+                        )
+                    )
+
+                if total_requests_datapoints:
+                    total_requests_timeseries = TimeseriesResult(
+                        metric_name=StringValue(value=f'Transaction Total Requests - {transaction_name}'),
+                        metric_expression=StringValue(
+                            value=f'Total requests for transaction: {transaction_name} in service: {service_name}'),
+                        labeled_metric_timeseries=[
+                            TimeseriesResult.LabeledMetricTimeseries(
+                                metric_label_values=[
+                                    LabelValuePair(name=StringValue(value='transaction'),
+                                                   value=StringValue(value=transaction_name))
+                                ],
+                                unit=StringValue(value='req'),
+                                datapoints=total_requests_datapoints
+                            )
+                        ]
+                    )
+                    final_result.append(PlaybookTaskResult(
+                        type=PlaybookTaskResultType.TIMESERIES,
+                        source=self.source,
+                    timeseries=total_requests_timeseries
+                    ))
+
+            return final_result
+
+        except Exception as e:
+            raise Exception(f"Error while fetching transaction metrics for service {service_name}: {e}")
