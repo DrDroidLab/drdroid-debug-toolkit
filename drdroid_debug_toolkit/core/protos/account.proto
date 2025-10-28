@@ -1,0 +1,66 @@
+syntax = "proto3";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/struct.proto";
+import "core/protos/account_catalogs.proto";
+package core.protos;
+
+message AccountApiToken {
+  string key = 1;
+  string created_by = 2;
+  google.protobuf.Timestamp created_at = 3;
+  uint64 account_id = 4;
+}
+
+message UserFlags {
+  google.protobuf.BoolValue is_email_verified = 1;
+  google.protobuf.BoolValue is_account_owner = 2;
+}
+
+message User {
+  uint64 id = 1;
+  string email = 2;
+  string first_name = 3;
+  string last_name = 4;
+  UserFlags user_flags = 5;
+}
+
+enum OptInType {
+  UNKNOWN_OPT_IN = 0;
+  AIOPS = 1;
+  PLAYBOOKS = 2;
+  DYNAMIC_ALERTING = 3;
+}
+
+enum AccountFeatureType {
+  UNKNOWN_FEATURE = 0;
+  ALERT_GROUPING_ENABLED = 1;
+}
+
+
+message OptInPreference {
+  OptInType type = 1;
+  google.protobuf.BoolValue is_opted_in = 2;
+}
+
+message OrgDetails {
+  enum Type {
+    UNKNOWN = 0;
+    DETAILS = 1;
+    ARCHITECTURE = 2;
+    CONNECTOR_CATALOG = 3;
+    SERVICE_CATALOG = 4;
+    INFRASTRUCTURE_CATALOG = 5;
+  }
+
+  message Details {
+    repeated string challenges = 1;
+    repeated string observability_tools = 2;
+  }
+
+  google.protobuf.StringValue name = 1;
+  Type type = 2;
+  oneof content {
+    Details details = 101;
+  }
+}
