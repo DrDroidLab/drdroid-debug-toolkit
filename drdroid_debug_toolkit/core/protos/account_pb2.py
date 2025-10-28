@@ -24,33 +24,31 @@ _sym_db = _symbol_database.Default()
 
 from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
 from google.protobuf import wrappers_pb2 as google_dot_protobuf_dot_wrappers__pb2
-from google.protobuf import struct_pb2 as google_dot_protobuf_dot_struct__pb2
-from core.protos import account_catalogs_pb2 as core_dot_protos_dot_account__catalogs__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x19\x63ore/protos/account.proto\x12\x0b\x63ore.protos\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\"core/protos/account_catalogs.proto\"v\n\x0f\x41\x63\x63ountApiToken\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x12\n\ncreated_by\x18\x02 \x01(\t\x12.\n\ncreated_at\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x12\n\naccount_id\x18\x04 \x01(\x04\"x\n\tUserFlags\x12\x35\n\x11is_email_verified\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.BoolValue\x12\x34\n\x10is_account_owner\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.BoolValue\"t\n\x04User\x12\n\n\x02id\x18\x01 \x01(\x04\x12\r\n\x05\x65mail\x18\x02 \x01(\t\x12\x12\n\nfirst_name\x18\x03 \x01(\t\x12\x11\n\tlast_name\x18\x04 \x01(\t\x12*\n\nuser_flags\x18\x05 \x01(\x0b\x32\x16.core.protos.UserFlags\"h\n\x0fOptInPreference\x12$\n\x04type\x18\x01 \x01(\x0e\x32\x16.core.protos.OptInType\x12/\n\x0bis_opted_in\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.BoolValue\"\xdb\x02\n\nOrgDetails\x12*\n\x04name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04type\x18\x02 \x01(\x0e\x32\x1c.core.protos.OrgDetails.Type\x12\x32\n\x07\x64\x65tails\x18\x65 \x01(\x0b\x32\x1f.core.protos.OrgDetails.DetailsH\x00\x1a:\n\x07\x44\x65tails\x12\x12\n\nchallenges\x18\x01 \x03(\t\x12\x1b\n\x13observability_tools\x18\x02 \x03(\t\"z\n\x04Type\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x0b\n\x07\x44\x45TAILS\x10\x01\x12\x10\n\x0c\x41RCHITECTURE\x10\x02\x12\x15\n\x11\x43ONNECTOR_CATALOG\x10\x03\x12\x13\n\x0fSERVICE_CATALOG\x10\x04\x12\x1a\n\x16INFRASTRUCTURE_CATALOG\x10\x05\x42\t\n\x07\x63ontent*O\n\tOptInType\x12\x12\n\x0eUNKNOWN_OPT_IN\x10\x00\x12\t\n\x05\x41IOPS\x10\x01\x12\r\n\tPLAYBOOKS\x10\x02\x12\x14\n\x10\x44YNAMIC_ALERTING\x10\x03*E\n\x12\x41\x63\x63ountFeatureType\x12\x13\n\x0fUNKNOWN_FEATURE\x10\x00\x12\x1a\n\x16\x41LERT_GROUPING_ENABLED\x10\x01\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x19\x63ore/protos/account.proto\x12\x0b\x63ore.protos\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\"v\n\x0f\x41\x63\x63ountApiToken\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x12\n\ncreated_by\x18\x02 \x01(\t\x12.\n\ncreated_at\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x12\n\naccount_id\x18\x04 \x01(\x04\"x\n\tUserFlags\x12\x35\n\x11is_email_verified\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.BoolValue\x12\x34\n\x10is_account_owner\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.BoolValue\"t\n\x04User\x12\n\n\x02id\x18\x01 \x01(\x04\x12\r\n\x05\x65mail\x18\x02 \x01(\t\x12\x12\n\nfirst_name\x18\x03 \x01(\t\x12\x11\n\tlast_name\x18\x04 \x01(\t\x12*\n\nuser_flags\x18\x05 \x01(\x0b\x32\x16.core.protos.UserFlags\"h\n\x0fOptInPreference\x12$\n\x04type\x18\x01 \x01(\x0e\x32\x16.core.protos.OptInType\x12/\n\x0bis_opted_in\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.BoolValue\"\xdb\x02\n\nOrgDetails\x12*\n\x04name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04type\x18\x02 \x01(\x0e\x32\x1c.core.protos.OrgDetails.Type\x12\x32\n\x07\x64\x65tails\x18\x65 \x01(\x0b\x32\x1f.core.protos.OrgDetails.DetailsH\x00\x1a:\n\x07\x44\x65tails\x12\x12\n\nchallenges\x18\x01 \x03(\t\x12\x1b\n\x13observability_tools\x18\x02 \x03(\t\"z\n\x04Type\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x0b\n\x07\x44\x45TAILS\x10\x01\x12\x10\n\x0c\x41RCHITECTURE\x10\x02\x12\x15\n\x11\x43ONNECTOR_CATALOG\x10\x03\x12\x13\n\x0fSERVICE_CATALOG\x10\x04\x12\x1a\n\x16INFRASTRUCTURE_CATALOG\x10\x05\x42\t\n\x07\x63ontent*O\n\tOptInType\x12\x12\n\x0eUNKNOWN_OPT_IN\x10\x00\x12\t\n\x05\x41IOPS\x10\x01\x12\r\n\tPLAYBOOKS\x10\x02\x12\x14\n\x10\x44YNAMIC_ALERTING\x10\x03*E\n\x12\x41\x63\x63ountFeatureType\x12\x13\n\x0fUNKNOWN_FEATURE\x10\x00\x12\x1a\n\x16\x41LERT_GROUPING_ENABLED\x10\x01\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'core.protos.account_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_OPTINTYPE']._serialized_start=989
-  _globals['_OPTINTYPE']._serialized_end=1068
-  _globals['_ACCOUNTFEATURETYPE']._serialized_start=1070
-  _globals['_ACCOUNTFEATURETYPE']._serialized_end=1139
-  _globals['_ACCOUNTAPITOKEN']._serialized_start=173
-  _globals['_ACCOUNTAPITOKEN']._serialized_end=291
-  _globals['_USERFLAGS']._serialized_start=293
-  _globals['_USERFLAGS']._serialized_end=413
-  _globals['_USER']._serialized_start=415
-  _globals['_USER']._serialized_end=531
-  _globals['_OPTINPREFERENCE']._serialized_start=533
-  _globals['_OPTINPREFERENCE']._serialized_end=637
-  _globals['_ORGDETAILS']._serialized_start=640
-  _globals['_ORGDETAILS']._serialized_end=987
-  _globals['_ORGDETAILS_DETAILS']._serialized_start=794
-  _globals['_ORGDETAILS_DETAILS']._serialized_end=852
-  _globals['_ORGDETAILS_TYPE']._serialized_start=854
-  _globals['_ORGDETAILS_TYPE']._serialized_end=976
+  _globals['_OPTINTYPE']._serialized_start=923
+  _globals['_OPTINTYPE']._serialized_end=1002
+  _globals['_ACCOUNTFEATURETYPE']._serialized_start=1004
+  _globals['_ACCOUNTFEATURETYPE']._serialized_end=1073
+  _globals['_ACCOUNTAPITOKEN']._serialized_start=107
+  _globals['_ACCOUNTAPITOKEN']._serialized_end=225
+  _globals['_USERFLAGS']._serialized_start=227
+  _globals['_USERFLAGS']._serialized_end=347
+  _globals['_USER']._serialized_start=349
+  _globals['_USER']._serialized_end=465
+  _globals['_OPTINPREFERENCE']._serialized_start=467
+  _globals['_OPTINPREFERENCE']._serialized_end=571
+  _globals['_ORGDETAILS']._serialized_start=574
+  _globals['_ORGDETAILS']._serialized_end=921
+  _globals['_ORGDETAILS_DETAILS']._serialized_start=728
+  _globals['_ORGDETAILS_DETAILS']._serialized_end=786
+  _globals['_ORGDETAILS_TYPE']._serialized_start=788
+  _globals['_ORGDETAILS_TYPE']._serialized_end=910
 # @@protoc_insertion_point(module_scope)

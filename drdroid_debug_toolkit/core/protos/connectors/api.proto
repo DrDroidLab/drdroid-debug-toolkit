@@ -2,15 +2,1259 @@ syntax = "proto3";
 import "google/protobuf/wrappers.proto";
 import "core/protos/connectors/connector.proto";
 import "core/protos/base.proto";
+import "core/protos/search.proto";
+import "core/protos/account.proto";
+import "core/protos/engine_options.proto";
+import "core/protos/alert_ops.proto";
+import "core/protos/google_chat_bot_handler.proto";
+import "core/protos/account_catalogs.proto";
+import "google/protobuf/struct.proto";
+import "core/protos/alert_metadata_details.proto";
+import "google/protobuf/timestamp.proto";
 
 package core.protos.connectors;
 
+message Meta {
+  TimeRange time_range = 1;
+  Page page = 2;
+  google.protobuf.UInt32Value total_count = 3;
+  google.protobuf.BoolValue show_inactive = 4;
+}
+
+message Message {
+  string title = 1;
+  string description = 2;
+  string traceback = 3;
+}
+
+message ErrorMessage {
+  google.protobuf.BoolValue error = 1;
+  Message message = 2;
+}
+
+///////////////////////////////////////////////// User Api Schema  ////////////////////////////////////////////////////
+message GetOptInPreferencesRequest {
+  OptInType type = 1;
+}
+
+message GetOptInPreferencesResponse {
+  repeated OptInPreference preferences = 1;
+}
+
+message SaveOptInPreferencesRequest {
+  OptInPreference preference = 1;
+}
+
+message SaveOptInPreferencesResponse {
+  google.protobuf.BoolValue success = 1;
+  Message message = 2;
+}
+
+///////////////////////////////////////  Alerts Ops Slack Alert Search api schema  ////////////////////////////////////
+message GetAlertOpsIssuesRequest {
+  Meta meta = 1;
+  google.protobuf.StringValue issue_channel_id = 2;
+  google.protobuf.StringValue issue_type = 3;
+  FuzzySearchRequest fuzzy_search_request = 4;
+}
+
+
+message GetAlertOpsIssuesResponse {
+  Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  Message message = 3;
+  repeated Issue issues = 4;
+}
+
+message GetAlertOpsAlertsSearchRequest {
+  Meta meta = 1;
+  ConnectorType alert_source = 2;
+  google.protobuf.StringValue alert_channel_uid = 3;
+  google.protobuf.StringValue alert_type = 4;
+  FuzzySearchRequest fuzzy_search_request = 5;
+  repeated string alert_ids = 6;
+  google.protobuf.StringValue alert_title = 7;
+}
+
+message GetAlertOpsSlackAlertsResponse {
+  Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  Message message = 3;
+  repeated SlackAlert slack_alerts = 4;
+}
+
+//////////////////////////////////////////  Alert Ops Investigation api schemas  //////////////////////////////////////
+message CreateInvestigationRequest {
+  repeated string alert_ids = 1;
+  string user_input_prompt = 2;
+  repeated string issue_ids = 3;
+}
+
+message CreateInvestigationResponse {
+  google.protobuf.BoolValue success = 1;
+  Message message = 2;
+  InvestigationSession session = 3;
+}
+
+message StartInvestigationRequest {
+  repeated string alert_ids = 1;
+  string user_input_prompt = 2;
+  string session_id = 3;
+  repeated string issue_ids = 4;
+}
+
+message StartInvestigationResponse {
+  google.protobuf.BoolValue success = 1;
+  Message message = 2;
+  InvestigationSession session = 3;
+}
+
+message ContinueInvestigationRequest {
+  string session_id = 1;
+  string user_input_prompt = 2;
+  google.protobuf.BoolValue is_resume_investigation = 3;
+}
+
+message ContinueInvestigationResponse {
+  google.protobuf.BoolValue success = 1;
+  Message message = 2;
+  InvestigationMessage new_message = 3;
+}
+
+message StopInvestigationRequest {
+  string session_id = 1;
+}
+
+message StopInvestigationResponse {
+  google.protobuf.BoolValue success = 1;
+  Message message = 2;
+  InvestigationSession session = 3;
+}
+
+message ApiContinueInvestigationRequest {
+  Meta meta = 1;
+  google.protobuf.StringValue investigation_session_id = 2;
+  google.protobuf.StringValue user_input = 3;
+}
+
+message ApiContinueInvestigationResponse {
+  Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  Message message = 3;
+  InvestigationMessage new_message = 4;
+}
+
+message ToggleMarkAsImportantRequest {
+  Meta meta = 1;
+  google.protobuf.StringValue investigation_session_id = 2;
+}
+
+message ToggleMarkAsImportantResponse {
+  Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  Message message = 3;
+}
+
+message GetAIOpsExperimentFlagsRequest {
+  Meta meta = 1;
+}
+
+message GetAIOpsExperimentFlagsResponse {
+  Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  Message message = 3;
+}
+
+message GetInvestigationRelatedAlertsRequest {
+  Meta meta = 1;
+  google.protobuf.StringValue session_id = 2;
+}
+
+message GetSessionsByAlertRequest {
+  Meta meta = 1;
+  repeated string alert_ids = 2;
+}
+
+message GetSessionsByAlertResponse {
+  Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  Message message = 3;
+  repeated InvestigationSession sessions = 4;
+}
+
+message GetTaskExecutionsBySessionIdRequest {
+  Meta meta = 1;
+  google.protobuf.StringValue session_id = 2;
+}
+
+message GetTaskExecutionsBySessionIdResponse {
+  Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  Message message = 3;
+  repeated int32 task_execution_ids = 4;
+}
+
+message GetInvestigationRelatedAlertsResponse {
+  Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  Message message = 3;
+  repeated SlackAlert related_alerts = 4;
+}
+
+message ListInvestigationsRequest {
+  Meta meta = 1;
+  string investigation_title = 2;
+}
+
+message RunInvestigationRequest {
+  Meta meta = 1;
+  string alert_context = 2;
+}
+
+message RunInvestigationResponse {
+  Meta meta = 1;
+  string response = 2;
+}
+
+message ApiGetAccountArchitectureRequest {
+  google.protobuf.Int64Value account_id = 1;
+}
+
+message ApiGetAccountArchitectureResponse {
+  google.protobuf.BoolValue success = 1;
+  Message message = 2;
+  google.protobuf.StringValue architecture_context = 3;
+}
+
+
+message GetAccountCatalogsRequest {
+  Meta meta = 1;
+  google.protobuf.StringValue catalog_type = 2;
+}
+
+message GetAccountCatalogsResponse {
+  Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  Message message = 3;
+  IntegrationCatalog connector_catalog = 4;
+  ServiceCatalog service_catalog = 5;
+  InfrastructureCatalog infrastructure_catalog = 6;
+}
+
+message CreateOrUpdateCatalogRequest {
+  google.protobuf.StringValue catalog_type = 1;
+  google.protobuf.Struct catalog_data = 2;
+}
+
+message CreateOrUpdateCatalogResponse {
+  bool success = 1;
+  Message message = 2;
+}
+
+
+message ListInvestigationsResponse {
+  Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  Message message = 3;
+  repeated InvestigationSession sessions = 4;
+}
+
+message InvestigationDetailsRequest {
+  string session_id = 1;
+}
+
+message InvestigationDetailsResponse {
+  google.protobuf.BoolValue success = 1;
+  Message message = 2;
+  InvestigationSession session = 3;
+}
+
+message InvestigationMessagesRequest {
+  string session_id = 1;
+  repeated string message_ids = 2;
+  InvestigationMessageType message_type = 3;
+  string alert_id = 4;
+  repeated google.protobuf.Struct metadata = 5;
+}
+
+message InvestigationMessagesResponse {
+  google.protobuf.BoolValue success = 1;
+  Message message = 2;
+  repeated InvestigationMessage messages = 3;
+  InvestigationSessionState state = 4;
+}
+
+message InvestigationMessageAddReactionRequest {
+  google.protobuf.StringValue session_id = 1;
+  google.protobuf.UInt64Value investigation_message_id = 2;
+  InvestigationMessageReactionType reaction = 3;
+}
+
+message InvestigationMessageAddReactionResponse {
+  google.protobuf.BoolValue success = 1;
+  Message message = 2;
+  InvestigationMessage investigation_message = 3;
+}
+
+message GetRelatedInvestigationsRequest {
+  Meta meta = 1;
+  string session_id = 2;
+}
+
+message GetRelatedInvestigationsResponse {
+  Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  Message message = 3;
+  repeated InvestigationSession related_sessions = 4;
+}
+
+message CreateContextUsingDocumentsRequest {
+    string s3_key = 1;
+}
+
+message CreateContextUsingDocumentsResponse {
+    bool success = 1;
+    string message = 2;
+}
+
+message FetchS3PresignedUrlRequest {
+  string file_name = 1;
+  string file_type = 2;
+  string file_category = 3;
+  google.protobuf.BoolValue is_sop = 4;
+}
+
+message FetchS3PresignedUrlResponse {
+
+  message S3PresignedUrlField {
+    string name = 1;
+    string value = 2;
+  }
+
+  string pre_signed_url = 1;
+  repeated S3PresignedUrlField fields = 2;
+}
+
+message FetchS3UploadedFilesRequest {
+  Meta meta = 1;
+}
+
+message FetchS3UploadedFilesResponse {
+
+  message S3UploadedFile {
+    string name = 1;
+    string type = 2;
+    string uploaded = 3;
+  }
+
+  Meta meta = 1;
+  repeated S3UploadedFile files = 2;
+}
+
+message GetS3DownloadLinkRequest {
+  Meta meta = 1;
+  google.protobuf.StringValue file_name = 2;
+}
+
+message GetS3DownloadLinkResponse {
+  Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  Message message = 3;
+  google.protobuf.StringValue pre_signed_url = 4;
+}
+
+message ApiInvestigationAddMessageRequest {
+  google.protobuf.StringValue session_id = 1;
+  InvestigationMessageType message_type = 2;
+  InvestigationMessageContent content = 3;
+  repeated uint64 task_execution_log_ids = 4;
+  google.protobuf.Struct metadata = 5;
+}
+
+message ApiInvestigationAddMessageResponse {
+  google.protobuf.BoolValue success = 1;
+  Message message = 2;
+}
+
+
+/////////////////////  Get Api Tokens  /////////////////////
+message GetAccountApiTokensRequest {
+  Meta meta = 1;
+}
+
+message GetAccountApiTokensResponse {
+  Meta meta = 1;
+  repeated AccountApiToken account_api_tokens = 2;
+}
+
+message InviteUsersRequest {
+  repeated string emails = 1;
+  string signup_domain = 2;
+}
+
+message InviteUsersResponse {
+  Message message = 1;
+}
+
+message GetAdminsListRequest {
+}
+
+message GetAdminsListResponse {
+  Message message = 1;
+  repeated User admins = 2;
+}
+
+message CheckIfAdminRequest {
+}
+
+message CheckIfAdminResponse {
+  Message message = 1;
+  google.protobuf.BoolValue is_admin = 2;
+}
+
+message GetCurrentAccountUsersResponse {
+  Meta meta = 1;
+  repeated User users = 2;
+}
+
+/////////////////////  Create Api Tokens  /////////////////////
+message CreateAccountApiTokenRequest {
+}
+
+message CreateAccountApiTokenResponse {
+  google.protobuf.BoolValue success = 1;
+  AccountApiToken account_api_token = 2;
+}
+
+/////////////////////  Delete Api Tokens  /////////////////////
+message DeleteAccountApiTokenRequest {
+  string account_api_token_key = 1;
+}
+
+message DeleteAccountApiTokenResponse {
+  google.protobuf.BoolValue success = 1;
+}
+
+
+//////////////////////  Organization Details  /////////////////////
+message CreateOrgDetailsRequest {
+  Meta meta = 1;
+  OrgDetails org_details = 2;
+}
+
+message CreateOrgDetailsResponse {
+  Meta meta = 1;
+  Message message = 2;
+  google.protobuf.BoolValue success = 3;
+}
+
+message GetOrgDetailsRequest {
+  Meta meta = 1;
+}
+
+message GetOrgDetailsResponse {
+  Meta meta = 1;
+  Message message = 2;
+  google.protobuf.BoolValue success = 3;
+  OrgDetails org_details = 4;
+}
+
+/////////////////////  Get User  /////////////////////
+message GetUserRequest {
+}
+
+message GetUserResponse {
+  User user = 1;
+}
+
+
+/////////////////////  Global Search Options api schema  /////////////////////
+message GetGlobalSearchOptionsRequest {
+  Meta meta = 1;
+}
+
+message GetGlobalSearchOptionsResponse {
+  Meta meta = 1;
+  GlobalQueryOptions global_query_options = 2;
+}
+
+
 /////////////////////  Connectors API schema  /////////////////////
+message CreateConnectorRequest {
+  Connector connector = 1;
+  repeated ConnectorKey connector_keys = 2;
+  google.protobuf.BoolValue is_active = 3;
+}
+
+message CreateConnectorResponse {
+  google.protobuf.BoolValue success = 1;
+  Message message = 2;
+  google.protobuf.StringValue request_id = 3;
+  google.protobuf.UInt64Value connector_id = 4;
+}
+
 message TestConnectorRequest {
   Connector connector = 1;
+  repeated ConnectorKey connector_keys = 2;
+  google.protobuf.StringValue request_id = 3;
 }
 
 message TestConnectorResponse {
   google.protobuf.BoolValue success = 1;
   Message message = 2;
+}
+
+message RequestConnectorAPIRequest {
+  ConnectorType connector_type = 1;
+}
+
+message RequestConnectorAPIResponse {
+  google.protobuf.BoolValue success = 1;
+  Message message = 2;
+}
+
+message GetVersionInfoRequest {
+}
+
+message GetVersionInfoResponse {
+  string latest_version = 1;
+  uint64 latest_version_timestamp = 2;
+}
+
+/////////////////////  Reset Password APIs  /////////////////////
+message ResetPasswordRequest {
+  string email = 1;
+}
+
+message ResetPasswordResponse {
+  bool success = 1;
+  Message message = 2;
+}
+
+message ResetPasswordConfirmRequest {
+  string token = 1;
+  string email = 2;
+  string new_password = 3;
+}
+
+message ResetPasswordConfirmResponse {
+  bool success = 1;
+  Message message = 2;
+}
+
+/////// Google Auth APIs //////
+message GoogleAuthRequest {
+  string access_token = 1;
+  string aud = 2;
+  google.protobuf.Struct state = 3;
+}
+
+message GoogleAuthData {
+  string email = 1;
+  string first_name = 2;
+  string last_name = 3;
+}
+
+message GoogleAuthResponse {
+  Message message = 1;
+  google.protobuf.BoolValue success = 2;
+  string key = 3;
+  string refresh_key = 4;
+  GoogleAuthData user_data = 5;
+  google.protobuf.BoolValue is_new_user = 6;
+}
+
+///////////////////// Connector APIs /////////////////////
+message GetConnectorKeysOptionsRequest {
+  ConnectorType connector_type = 1;
+}
+
+message GetConnectorKeysOptionsResponse {
+  google.protobuf.BoolValue success = 1;
+  Message message = 2;
+  Connector connector = 3;
+  repeated ConnectorKey connector_key_options = 4;
+}
+
+message GetConnectorKeysRequest {
+  google.protobuf.UInt64Value connector_id = 1;
+  ConnectorType connector_type = 2;
+}
+
+message GetConnectorKeysResponse {
+  google.protobuf.BoolValue success = 1;
+  Message message = 2;
+  Connector connector = 3;
+  repeated ConnectorKey connector_keys = 4;
+}
+
+
+message SaveConnectorKeysRequest {
+  ConnectorType connector_type = 1;
+  repeated ConnectorKey connector_keys = 2;
+}
+
+message SaveConnectorKeysResponse {
+  string message = 1;
+}
+
+/////////////////////  Get Active Connector List /////////////////////
+message ApiGetConnectorsRequest {
+  repeated google.protobuf.UInt64Value connector_ids = 1;
+}
+
+message ApiGetConnectorsResponse {
+  google.protobuf.BoolValue success = 1;
+  Message message = 2;
+  repeated Connector connectors = 3;
+}
+
+message GetConnectorsListRequest {
+  ConnectorType connector_type = 1;
+}
+
+message GetConnectorsListResponse {
+  google.protobuf.BoolValue success = 1;
+  Message message = 2;
+  repeated Connector request_connectors = 3;
+  repeated Connector available_connectors = 4;
+  repeated Connector connectors = 5;
+}
+
+message UpdateConnectorRequest {
+  google.protobuf.UInt64Value connector_id = 1;
+  repeated UpdateConnectorOp update_connector_ops = 2;
+}
+
+message UpdateConnectorResponse {
+  google.protobuf.BoolValue success = 1;
+  Message message = 2;
+}
+
+message GetConnectorDefaultDestinationRequest {
+  google.protobuf.UInt64Value connector_id = 1;
+}
+
+message GetConnectorDefaultDestinationResponse {
+  google.protobuf.BoolValue success = 1;
+  Message message = 2;
+  google.protobuf.StringValue default_destination = 3;
+}
+
+
+message BasicAlertSummaryReportRequest {
+  string channel_id = 1;
+}
+
+
+message BasicAlertSummaryReportResponse {
+
+  message AlertTypeCountTimeSeries {
+    string alert_type = 1;
+    repeated double y_series = 2;
+  }
+
+  message AlertSummaryReport {
+    string title = 1;
+    CommChannel comm_channel = 2;
+    repeated string x_series = 3;
+    repeated AlertTypeCountTimeSeries alert_type_count_time_series = 4;
+  }
+
+  repeated AlertSummaryReport reports = 1;
+}
+
+
+message AlertOpsReportsRequest {
+}
+
+
+message ReportIntimationRequest {
+  uint64 account_id = 1;
+  ReportType report_type = 2;
+}
+
+
+message AlertOpsReportsResponse {
+  google.protobuf.BoolValue success = 1;
+  Message message = 2;
+  string url = 3;
+  ReportType type = 4;
+}
+
+///////////////////// AlertOps APIs /////////////////////
+message GetAlertOpsGroupedAlertsListRequest {
+  Meta meta = 1;
+  ConnectorType alert_source = 2;
+  repeated string alert_types = 3;
+  string alert_title = 4;
+  repeated string alert_channels = 5;
+  repeated string alert_severity = 6;
+  repeated string alert_status = 7;
+  google.protobuf.BoolValue show_hidden_alerts = 8;
+}
+
+message GetAlertOpsGroupedAlertsListResponse {
+  Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  Message message = 3;
+  repeated SlackAlert alerts = 4;
+}
+
+message SaveMetadataDetailsRequest {
+  Meta meta = 1;
+  google.protobuf.UInt64Value alert_id = 2;
+  AlertMetadataDetails alert_metadata_details = 3;
+}
+
+message SaveMetadataDetailsResponse {
+  Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  Message message = 3;
+  AlertMetadataDetails alert_metadata_details = 4;
+}
+
+message HideAlertStatusRequest {
+  Meta meta = 1;
+  google.protobuf.UInt64Value alert_id = 2;
+  google.protobuf.BoolValue is_hidden = 3;
+}
+
+message HideAlertStatusResponse {
+  Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  Message message = 3;
+  AlertMetadataDetails alert_metadata_details = 4;
+}
+
+message GetAlertOpsGroupedAlertsListResponseV2 {
+  Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  Message message = 3;
+  repeated LiveSlackAlertRow alert_rows = 4;
+}
+
+message GetAlertGroupsListRequest {
+  Meta meta = 1;
+}
+
+message GetAlertGroupsListResponse {
+  Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  Message message = 3;
+  repeated google.protobuf.Struct alert_groups = 4;
+}
+
+message GetAlertGroupingPreferenceRequest {
+  Meta meta = 1;
+}
+
+message GetAlertGroupingPreferenceResponse {
+  google.protobuf.BoolValue success = 1;
+  Message message = 2;
+  google.protobuf.BoolValue alert_grouping_preference = 3;
+}
+
+message BlackListAlertTitlePrefRequest {
+  Meta meta = 1;
+  string alert_title = 2;
+  google.protobuf.BoolValue is_active = 3;
+}
+
+message BlackListAlertTitlePrefResponse {
+  google.protobuf.BoolValue success = 1;
+  Message message = 2;
+}
+
+message GetAlertOpsGroupedIssuesListRequest {
+  Meta meta = 1;
+}
+
+message GetAlertOpsGroupedIssuesListResponse {
+  Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  Message message = 3;
+  repeated Issue issues = 4;
+}
+
+
+//////////////////////////////////////// Alert Insights Page APIs ////////////////////////////////////////
+enum AlertInclusionPrefType {
+  UNKNOWN_PREF = 0;
+  SHOW_ALL = 1;
+  SHOW_HIDDEN_ONLY = 2;
+  HIDE_HIDDEN = 3;
+}
+
+message GetAlertOpsSourceOptionsRequest {
+  Meta meta = 1;
+  google.protobuf.BoolValue mode_playground = 2;
+}
+
+message GetAlertOpsSourceOptionsResponse {
+  Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  Message message = 3;
+  repeated ConnectorType active_alert_sources = 4;
+  repeated ConnectorType available_alert_sources = 5;
+}
+
+message GetAlertOpsOptionsRequest {
+  Meta meta = 1;
+  google.protobuf.BoolValue mode_playground = 2;
+  ConnectorType alert_source = 3;
+  repeated ConnectorType connector_type = 4;
+  repeated string filter_channels = 5;
+  repeated string filter_alert_types = 6;
+  repeated string filter_alert_tags = 7;
+}
+
+message GetAlertOpsOptionsRequestV2 {
+  message ConnectorTypeRequest {
+    ConnectorType alert_source = 1;
+    ConnectorType connector_type = 2;
+    repeated string filter_channels = 3;
+    repeated string filter_alert_types = 4;
+    repeated string filter_alert_tags = 5;
+  }
+  Meta meta = 1;
+  google.protobuf.BoolValue mode_playground = 2;
+  repeated ConnectorTypeRequest connector_type_requests = 3;
+}
+
+message GetAlertOpsOptionsResponse {
+  Meta meta = 1;
+  AlertOpsOptions alert_ops_options = 2;
+}
+
+message AlertOpsUserPreferencesRequest {
+  Meta meta = 1;
+  UserAlertOpsPreferences preferences = 4;
+}
+
+message AlertOpsUserPreferencesResponse {
+  Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  Message message = 3;
+  UserAlertOpsPreferences preferences = 4;
+}
+
+message GetAlertOpsSlackAlertMetricRequest {
+  Meta meta = 1;
+  google.protobuf.BoolValue mode_playground = 2;
+  ConnectorType alert_source = 3;
+  google.protobuf.StringValue metric_name = 4;
+  google.protobuf.StringValue metric_title = 5;
+  repeated string filter_channels = 6;
+  repeated string filter_alert_types = 7;
+  repeated string filter_alert_tags = 8;
+  AlertInclusionPrefType alert_titles_inclusion_pref = 9;
+
+}
+
+message GetAlertOpsSlackAlertMetricResponse {
+  Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  map<string, AlertOpsMetricsResponses> metric_map = 3;
+}
+
+message GetAlertOpsTopAlertingEntitiesByToolRequest {
+  Meta meta = 1;
+  google.protobuf.BoolValue mode_playground = 2;
+  ConnectorType alert_source = 3;
+  google.protobuf.UInt64Value threshold = 4;
+  repeated string filter_channels = 5;
+  repeated string filter_alert_types = 6;
+}
+
+
+message GetAlertOpsTopAlertingEntitiesByToolResponse {
+  message ToolAlertingEntity {
+    message MetadataKeyValue {
+      google.protobuf.StringValue key = 1;
+      google.protobuf.StringValue value = 2;
+    }
+
+    google.protobuf.StringValue channel_name = 1;
+    google.protobuf.StringValue alert_type = 2;
+    google.protobuf.UInt64Value frequency = 3;
+    google.protobuf.StringValue title = 4;
+    repeated MetadataKeyValue alert_entity_resource_metadata = 5;
+  }
+
+  Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  Message message = 3;
+  repeated ToolAlertingEntity tool_alerting_entities = 4;
+}
+
+message AlertOpsSlackAlertsGenerateAQSRequest {
+  Meta meta = 1;
+  google.protobuf.BoolValue mode_playground = 2;
+  ConnectorType alert_source = 3;
+  repeated string filter_channels = 4;
+}
+
+message AlertOpsSlackAlertsGenerateAQSResponse {
+  message ChannelAQSSData {
+    google.protobuf.StringValue channel_name = 1;
+    repeated AQSScoreModel aqs_score_models = 2;
+  }
+  Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  Message message = 3;
+  repeated AQSScoreModel aqs_score_models = 4;
+  repeated ChannelAQSSData channel_aqs_data = 5;
+}
+
+///////////////////// AlertOps Agent Task APIs /////////////////////
+message AlertOpsGetAgentTaskConfigOptionsRequest {
+  Meta meta = 1;
+}
+
+message AlertOpsGetAgentTaskConfigOptionsResponse {
+  Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  Message message = 3;
+  repeated AgentTaskConfig agent_task_configs = 4;
+}
+
+message AlertOpsCreateAgentTaskConfigRequest {
+  Meta meta = 1;
+  repeated AgentTaskConfig agent_task_config = 2;
+}
+
+message AlertOpsCreateAgentTaskConfigResponse {
+  Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  Message message = 3;
+  repeated AgentTaskConfig agent_task_config = 4;
+}
+
+message SearchInvestigationRelatedAlertsRequest {
+  Meta meta = 1;
+  google.protobuf.StringValue session_id = 2;
+  oneof search_criteria {
+    google.protobuf.UInt64Value range_in_seconds = 101;
+  }
+}
+
+message SearchInvestigationRelatedAlertsResponse {
+  Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  Message message = 3;
+  repeated SlackAlert related_alerts = 4;
+}
+
+///////////////////// AlertOps Slack Specific Graph APIs /////////////////////
+message AlertOpsSlackConnectRequest {
+  Meta meta = 1;
+}
+
+message AlertOpsSlackConnectResponse {
+  Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+}
+
+message AlertOpsSlackAlertsAutoRCAUpdateStateRequest {
+  Meta meta = 1;
+  google.protobuf.UInt64Value slack_channel_connector_key_id = 2;
+  google.protobuf.BoolValue is_auto_rca_enabled = 3;
+}
+
+message AlertOpsSlackAlertsAutoRCAUpdateStateResponse {
+  Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  Message message = 3;
+}
+
+message AlertOpsUpdateConnectorConfigurationRequest {
+  ConnectorType connector_type = 1;
+  google.protobuf.UInt64Value connector_id = 2;
+  google.protobuf.UInt64Value model_id = 3;
+  oneof connector_configuration {
+    SlackAlertOpsConfiguration slack_alert_ops_configuration = 101;
+    AsanaAlertOpsConfiguration asana_alert_ops_configuration = 102;
+  }
+}
+
+message AlertOpsUpdateConnectorConfigurationResponse {
+  Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  Message message = 3;
+}
+
+message AlertOpsSlackAlertsPublishWeeklyReportRequest {
+  Meta meta = 1;
+  google.protobuf.UInt64Value account_id = 2;
+  google.protobuf.UInt64Value slack_channel_connector_key_id = 3;
+  google.protobuf.StringValue slack_channel_id = 4;
+  google.protobuf.StringValue slack_channel_name = 5;
+}
+
+message AlertOpsSlackAlertsPublishWeeklyReportResponse {
+  Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  Message message = 3;
+}
+
+///////////////////// AlertOps Slack APIs /////////////////////
+message GetSlackAppManifestRequest {
+  google.protobuf.StringValue host_name = 1;
+}
+
+message GetSlackAppManifestResponse {
+  google.protobuf.BoolValue success = 1;
+  Message message = 2;
+  google.protobuf.StringValue app_manifest = 3;
+}
+
+///////////////////// AlertOps Datadog R2D2 APIs /////////////////////
+message GetAlertOpsDatadogR2D2RedirectUriRequest {
+  Meta meta = 1;
+  google.protobuf.StringValue site = 2;
+  google.protobuf.StringValue domain = 3;
+}
+
+message GetAlertOpsDatadogR2D2RedirectUriResponse {
+  Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  google.protobuf.BoolValue message = 3;
+  google.protobuf.StringValue redirect_uri = 4;
+}
+
+
+///////////////////// AlertOps G-Chat Bot Handler APIs /////////////////////
+message GetAlertOpsGChatBotHandlerSpacesRequest {
+  Meta meta = 1;
+}
+
+message GetAlertOpsGChatBotHandlerSpacesResponse {
+  Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  Message message = 3;
+  repeated GoogleChatSpace spaces = 4;
+  repeated GoogleChatSpace registered_spaces = 5;
+}
+
+
+message RegisterAlertOpsGChatBotHandlerSpacesRequest {
+  Meta meta = 1;
+  repeated GoogleChatSpace spaces = 2;
+}
+
+message RegisterAlertOpsGChatBotHandlerSpacesResponse {
+  Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  Message message = 3;
+}
+
+
+message AlertOpsGChatBotHandlerSpacesStartDataFetchRequest {
+  Meta meta = 1;
+  GoogleChatSpace space = 2;
+}
+
+message AlertOpsGChatBotHandlerSpacesStartDataFetchResponse {
+  Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  Message message = 3;
+}
+
+
+/////////////////////  Kenobi Recovery Events Clickhouse BackFill   /////////////////////
+message RecoveryRunClickhouseBackFillRequest {
+  Meta meta = 1;
+}
+
+message RecoveryRunClickhouseBackFillResponse {
+  Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  Message message = 3;
+}
+
+
+/////////////////////  Proxy Connector APIs schema  /////////////////////
+message ProxyAgentTokenGetRequest {
+  Meta meta = 1;
+}
+
+message ProxyAgentTokenGetResponse {
+  Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  Message message = 3;
+  repeated ProxyAgentApiToken proxy_agent_tokens = 4;
+}
+
+message ProxyAgentTokenCreateRequest {
+  Meta meta = 1;
+  google.protobuf.BoolValue is_backup = 2;
+  google.protobuf.UInt64Value primary_agent_connector_id = 3;
+}
+
+message ProxyAgentTokenCreateResponse {
+  Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  Message message = 3;
+  ProxyAgentApiToken proxy_agent_token = 4;
+}
+
+message ProxyAgentTokenDeleteRequest {
+  Meta meta = 1;
+  google.protobuf.StringValue token = 2;
+}
+
+message ProxyAgentTokenDeleteResponse {
+  Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  Message message = 3;
+}
+
+message ProxyConnectorConnectionTestsRequest {}
+
+message ProxyConnectorConnectionTestsResponse {
+  message TestConnectionRequest {
+    google.protobuf.StringValue request_id = 1;
+    google.protobuf.StringValue connector_name = 2;
+  }
+  google.protobuf.BoolValue success = 1;
+  Message message = 2;
+  repeated TestConnectionRequest requests = 3;
+}
+
+message ProxyConnectorConnectionResultsRequest {
+  message TestConnectionResults {
+    google.protobuf.StringValue request_id = 1;
+    google.protobuf.BoolValue is_connection_state_successful = 2;
+    google.protobuf.StringValue error = 3;
+  }
+  Meta meta = 1;
+  repeated TestConnectionResults results = 3;
+}
+
+message ProxyConnectorConnectionResultsResponse {
+  Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  Message message = 3;
+}
+
+message ProxyConnectorRegisterConnectorRequest {
+  repeated Connector connectors = 1;
+}
+
+message ProxyConnectorRegisterConnectorResponse {
+  google.protobuf.BoolValue success = 1;
+  Message message = 2;
+}
+
+message GetConnectedPlaybooksRequest {
+  Meta meta = 1;
+  google.protobuf.UInt64Value connector_id = 2;
+}
+
+message GetConnectedPlaybooksResponse {
+  message Playbook {
+    google.protobuf.UInt64Value playbook_id = 1;
+    google.protobuf.StringValue playbook_name = 2;
+  }
+  Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  Message message = 3;
+  repeated Playbook connected_playbooks = 4;
+}
+
+message IsIntegrationConnectedRequest {
+  Meta meta = 1;
+  ConnectorType connector_type = 2;
+}
+
+message IsIntegrationConnectedResponse {
+  Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  Message message = 3;
+}
+
+
+/////////////////////  AlertOps Slack Alert APIs schema  /////////////////////
+message ConnectorCommentsAddRequest {
+  google.protobuf.UInt64Value connector_id = 1;
+  repeated google.protobuf.StringValue comments = 2;
+}
+
+message ConnectorCommentsAddResponse {
+  google.protobuf.BoolValue success = 1;
+  Message message = 2;
+  repeated ConnectorContextMemory comments = 3;
+}
+
+message ConnectorCommentsGetRequest {
+  google.protobuf.UInt64Value connector_id = 1;
+  repeated google.protobuf.StringValue comments = 2;
+}
+
+message ConnectorCommentsGetResponse {
+  google.protobuf.BoolValue success = 1;
+  Message message = 2;
+  repeated ConnectorContextMemory comments = 3;
+}
+
+message ConnectorCommentsUpdateRequest {
+  google.protobuf.UInt64Value connector_id = 1;
+  google.protobuf.UInt64Value comment_id = 2;
+  google.protobuf.StringValue comment = 3;
+  google.protobuf.BoolValue is_active = 4;
+}
+
+message ConnectorCommentsUpdateResponse {
+  google.protobuf.BoolValue success = 1;
+  Message message = 2;
+  ConnectorContextMemory comment = 3;
+}
+
+/////////////????////////////////////////////////// Admin Apis ////////////////////////////////////////////////////////
+message AdminCreateInvestigationsRequest {
+  message TriggerInvestigationPayload{
+    google.protobuf.UInt64Value account_id = 1;
+    repeated string alert_ids = 2;
+    google.protobuf.StringValue user_input_prompt = 3;
+  }
+  repeated TriggerInvestigationPayload trigger_investigation_payloads = 1;
+}
+
+message AdminCreateInvestigationsResponse {
+  google.protobuf.BoolValue success = 1;
+  Message message = 2;
+  repeated string investigation_session_ids = 3;
+}
+
+message AdminGetInvestigationDetailsRequest {
+  repeated string investigation_session_ids = 1;
+}
+
+message AdminGetInvestigationDetailsResponse {
+  google.protobuf.BoolValue success = 1;
+  Message message = 2;
+  repeated InvestigationSession investigation_sessions = 3;
+}
+
+message SlackAlertOpsConfiguration {
+  google.protobuf.BoolValue is_enabled = 1;
+  google.protobuf.BoolValue is_notification_enabled = 2;
+  google.protobuf.BoolValue is_dm = 3;
+}
+
+message AsanaAlertOpsConfiguration {
+  google.protobuf.BoolValue is_enabled = 1;
+}
+
+message ProxyAgentApiToken {
+  string key = 1;
+  string created_by = 2;
+  google.protobuf.Timestamp created_at = 3;
+  google.protobuf.BoolValue is_active = 4;
+  Connector connector = 5;
+  google.protobuf.BoolValue is_backup = 6;
+  Connector primary_agent_connector = 7;
+  google.protobuf.BoolValue is_latest_version = 8;
+  google.protobuf.BoolValue is_kubernetes = 9;
 }

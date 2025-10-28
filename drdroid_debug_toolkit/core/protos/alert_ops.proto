@@ -1,0 +1,311 @@
+syntax = "proto3";
+package core.protos;
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/struct.proto";
+import "core/protos/connectors/connector.proto";
+
+import "core/protos/alert_metadata_details.proto";
+
+////////////// AlertOps Comm Workspace Protos (Deprecated) //////////////
+message CommWorkspace {
+  google.protobuf.UInt64Value id = 1;
+  google.protobuf.StringValue name = 2;
+  repeated CommChannel active_channels = 3;
+  repeated CommAlertType alert_types = 4;
+  repeated CommAlertTag alert_tags = 5;
+}
+
+message CommChannel {
+  google.protobuf.UInt64Value id = 1;
+  google.protobuf.StringValue channel_id = 2;
+  google.protobuf.StringValue channel_name = 3;
+}
+
+message CommAlertType {
+  google.protobuf.UInt64Value id = 1;
+  google.protobuf.UInt64Value channel_connector_key_id = 2;
+  google.protobuf.StringValue alert_type = 3;
+}
+
+message CommAlertTag {
+  google.protobuf.UInt64Value id = 1;
+  google.protobuf.UInt64Value active_channel_id = 2;
+  google.protobuf.UInt64Value alert_type_id = 3;
+  google.protobuf.StringValue alert_tag = 4;
+}
+
+message CommAlertOpsOptions {
+  repeated CommWorkspace workspaces = 1;
+}
+
+message AlertOpsOptions {
+  CommAlertOpsOptions comm_options = 1;
+}
+
+message SlackAlert {
+  message AlertTag {
+    google.protobuf.StringValue key = 1;
+    google.protobuf.StringValue value = 2;
+  }
+  google.protobuf.UInt64Value id = 1;
+  google.protobuf.StringValue alert_type = 2;
+  google.protobuf.StringValue alert_title = 3;
+  CommChannel slack_channel = 4;
+  sfixed64 alert_timestamp = 5;
+  repeated AlertTag alert_tags = 6;
+
+  // Grouping Metadata
+  google.protobuf.UInt64Value count = 7;
+  google.protobuf.StringValue alert_text = 8;
+  google.protobuf.Struct alert_json = 9;
+
+  google.protobuf.BoolValue is_debugged = 10;
+  google.protobuf.StringValue investigation_session_id = 11;
+
+  AlertMetadataDetails alert_details = 12;
+  google.protobuf.BoolValue is_hidden = 13;
+}
+
+message GroupedSlackAlert {
+  google.protobuf.UInt64Value id = 1;
+  google.protobuf.StringValue alert_type = 2;
+  google.protobuf.StringValue group_title = 3;
+  CommChannel slack_channel = 4;
+  sfixed64 last_alert_timestamp = 5;
+  google.protobuf.UInt64Value total_count = 6;
+  google.protobuf.StringValue custom_message = 7;
+  repeated SlackAlert alerts = 8;
+}
+
+message LiveSlackAlertRow {
+  google.protobuf.BoolValue is_grouped = 1;
+  SlackAlert slack_alert = 2;
+  GroupedSlackAlert grouped_slack_alert = 3;
+  repeated string labels = 4;
+}
+
+message Issue {
+  message IssueTag {
+    google.protobuf.StringValue key = 1;
+    google.protobuf.StringValue value = 2;
+  }
+  google.protobuf.UInt64Value id = 1;
+  google.protobuf.StringValue issue_type = 2;
+  google.protobuf.StringValue issue_title = 3;
+  CommChannel issue_channel = 4;
+  sfixed64 issue_timestamp = 5;
+  repeated IssueTag issue_tags = 6;
+
+  // Grouping Metadata
+  google.protobuf.UInt64Value count = 7;
+}
+
+
+////////////// AlertOps Engine Metric Protos //////////////
+message AlertOpsMetricLabel {
+  google.protobuf.StringValue key = 1;
+  google.protobuf.StringValue value = 2;
+}
+
+message AlertOpsMetricData {
+  repeated AlertOpsMetricLabel label_group = 1;
+  repeated double y_series = 2;
+}
+
+message AlertOpsMetric {
+  google.protobuf.BoolValue is_timeseries = 1;
+  repeated int64 x_series = 2;
+  repeated AlertOpsMetricData data = 3;
+}
+
+message AlertOpsMetricsResponses {
+  repeated AlertOpsMetric metric_responses = 3;
+}
+
+message AQSScoreModel {
+  sfixed64 timestamp = 1;
+  google.protobuf.DoubleValue total_alerts = 2;
+  google.protobuf.DoubleValue noisy_alerts = 3;
+  google.protobuf.DoubleValue apd = 4;
+  google.protobuf.DoubleValue score_a = 5;
+  google.protobuf.DoubleValue score_f = 6;
+  google.protobuf.DoubleValue aqs = 7;
+}
+
+////////////// AlertOps Engine Protos //////////////
+message AlertSource {
+  google.protobuf.UInt64Value id = 1;
+  google.protobuf.StringValue name = 2;
+  core.protos.connectors.ConnectorType source_type = 3;
+}
+
+message AlertChannel {
+  google.protobuf.UInt64Value id = 1;
+  google.protobuf.StringValue uid = 2;
+  google.protobuf.StringValue name = 3;
+
+  AlertSource alert_source = 101;
+}
+
+message AlertType {
+  google.protobuf.UInt64Value id = 1;
+  google.protobuf.StringValue alert_type = 2;
+
+  AlertSource alert_source = 101;
+  AlertChannel alert_channel = 102;
+}
+
+message AlertTag {
+  google.protobuf.UInt64Value id = 1;
+  google.protobuf.StringValue key = 2;
+  google.protobuf.StringValue value = 3;
+
+  AlertSource alert_source = 101;
+  AlertChannel alert_channel = 102;
+  AlertType alert_type = 103;
+}
+
+message Alert {
+  google.protobuf.UInt64Value id = 1;
+  google.protobuf.StringValue alert_title = 2;
+  sfixed64 alert_timestamp = 3;
+  google.protobuf.UInt64Value total_count = 4;
+
+  AlertSource alert_source = 101;
+  AlertChannel alert_channel = 102;
+  AlertType alert_type = 103;
+  repeated AlertTag alert_tags = 104;
+}
+
+
+////////////// Investigation Engine Protos //////////////
+enum InvestigationSessionState {
+  UNKNOWN_STATE = 0;
+  STATE_RUNNING = 1;
+  STATE_DONE = 2;
+  STATE_HALTED = 3;
+}
+
+
+enum InvestigationMessageType {
+  UNKNOWN_INVESTIGATION_MESSAGE_TYPE = 0;
+  HIGH_PLAN = 1;
+  CONVERSATION = 2;
+  REMEDIATION_PLAN = 3;
+  COMPLETE_SESSION = 4;
+  HALT_SESSION = 5;
+  INVESTIGATION_TIMELINE = 6;
+}
+
+message InvestigationConversation {
+  google.protobuf.UInt64Value id = 1;
+  string message = 2;
+  sfixed64 timestamp = 3;
+}
+
+message InvestigationMessageContent {
+  enum Type {
+    UNKNOWN = 0;
+    TEXT = 1;
+    JSON = 2;
+  }
+  Type type = 1;
+  oneof content {
+    google.protobuf.StringValue text = 2;
+    google.protobuf.Struct json = 3;
+  }
+}
+
+message InvestigationMessage {
+  message UserReactionState {
+    InvestigationMessageReactionType current_state = 1;
+    google.protobuf.UInt64Value total_likes = 2;
+    google.protobuf.UInt64Value total_dislikes = 3;
+  }
+
+  message InvestigationMessageMetadata {
+    google.protobuf.StringValue slack_message_ts = 1;
+    google.protobuf.StringValue slack_channel = 2;
+  }
+
+  google.protobuf.UInt64Value message_id = 1;
+  google.protobuf.StringValue session_id = 2;
+  google.protobuf.UInt64Value session_sequence = 3;
+  google.protobuf.StringValue author = 4;
+  InvestigationMessageMetadata metadata = 5;
+  InvestigationMessageType message_type = 6;
+  InvestigationMessageContent content = 7;
+  sfixed64 timestamp = 8;
+  repeated uint64 task_execution_ids = 9;
+  UserReactionState user_reaction_state = 10;
+  InvestigationConversation conversation = 100;
+}
+
+message InvestigationSession {
+  string session_id = 1;
+  google.protobuf.UInt64Value created_at = 2;
+  repeated string tags = 3;
+  repeated InvestigationMessage messages = 4;
+  string description = 5;
+  string user_input_prompt = 6;
+  repeated SlackAlert included_alerts = 7;
+  string title = 8;
+  repeated Issue included_issues = 9;
+  google.protobuf.StringValue created_by = 10;
+  InvestigationSessionState state = 11;
+  google.protobuf.UInt64Value current_session_sequence = 12;
+  google.protobuf.BoolValue is_important = 13;
+}
+
+
+enum InvestigationMessageReactionType {
+  UNKNOWN_IMRT = 0;
+  LIKE = 1;
+  DISLIKE = 2;
+}
+
+message UserAlertOpsPreferences {
+  google.protobuf.BoolValue use_alert_group_titles = 1;
+}
+
+message AgentTaskConfig {
+  message AgentTaskConfigMetadata {
+    repeated string tags = 1;
+  }
+
+  core.protos.connectors.ConnectorType source = 1;
+  google.protobuf.StringValue source_description = 2;
+  google.protobuf.StringValue task_type = 3;
+  google.protobuf.StringValue display_name = 4;
+  google.protobuf.StringValue category = 5;
+  repeated core.protos.connectors.Connector available_connectors = 6;
+  repeated string asset_types = 7;
+  google.protobuf.BoolValue is_active = 8;
+  AgentTaskConfigMetadata metadata = 9;
+}
+
+message PlaybookComment {
+  google.protobuf.StringValue investigation_session_id = 1;
+  google.protobuf.StringValue investigation_session_title = 2;
+  google.protobuf.StringValue conversation_author = 3;
+  InvestigationConversation conversation_message = 4;
+}
+
+////////////// Schedule Metadata Protos //////////////
+message ScheduleNotificationMetadata {
+  google.protobuf.BoolValue notify_on_every_run = 1;
+  google.protobuf.StringValue notify_channel_id = 2;
+  google.protobuf.StringValue notify_criteria = 3;
+}
+
+message ScheduleSummaryMetadata {
+  google.protobuf.BoolValue send_aggregated_summary = 1;
+  google.protobuf.StringValue summary_cron_schedule = 2;
+  google.protobuf.UInt64Value last_summary_sent_at = 3;
+}
+
+message ScheduleCronMetadata {
+  google.protobuf.StringValue cron_schedule = 1;
+  google.protobuf.UInt64Value last_scheduled_at = 2;
+}

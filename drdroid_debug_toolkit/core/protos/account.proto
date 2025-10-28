@@ -1,8 +1,6 @@
 syntax = "proto3";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
-import "google/protobuf/struct.proto";
-import "core/protos/account_catalogs.proto";
 package core.protos;
 
 message AccountApiToken {

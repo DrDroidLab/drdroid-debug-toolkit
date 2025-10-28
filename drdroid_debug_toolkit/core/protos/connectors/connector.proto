@@ -1,16 +1,136 @@
 syntax = "proto3";
 import "google/protobuf/wrappers.proto";
 import "core/protos/base.proto";
+import "core/protos/ui_definition.proto";
+import "google/protobuf/struct.proto";
+import "core/protos/alert_metadata_details.proto";
 
 package core.protos.connectors;
 
-message Connector {
-  google.protobuf.UInt64Value account_id = 1;
-  Source type = 2;
-  google.protobuf.StringValue name = 3;
-  repeated ConnectorKey keys = 4;
-  google.protobuf.UInt64Value id = 5;
+message ConnectorContextMemory {
+  google.protobuf.UInt64Value id = 1;
+  google.protobuf.StringValue comment = 2;
+  google.protobuf.StringValue created_by = 3;
+  sfixed64 created_at = 4;
+}
 
+message ConnectorFormConfig {
+  google.protobuf.StringValue description = 1;
+  repeated FormField form_fields = 2;
+  google.protobuf.StringValue name = 3;
+  google.protobuf.StringValue prerequisites = 4;
+}
+
+message PlaybookConnector {
+  google.protobuf.UInt64Value playbook_id = 1;
+  google.protobuf.StringValue playbook_name = 2;
+}
+
+
+message ProxyAgentConnectorMetadata {
+  google.protobuf.UInt64Value proxy_agent_connector_id = 1;
+  google.protobuf.BoolValue is_alive = 2;
+  google.protobuf.BoolValue is_backup = 3;
+  google.protobuf.UInt64Value primary_proxy_agent_connector_id = 4;
+}
+
+message SlackConnectorMetadata {
+  google.protobuf.StringValue workspace_id = 1;
+  google.protobuf.StringValue workspace_name = 2;
+  google.protobuf.StringValue authed_user_id = 3;
+  google.protobuf.StringValue bot_auth_token = 4;
+  google.protobuf.StringValue bot_user_id = 5;
+  google.protobuf.BoolValue is_debugger_mode_only = 6;
+}
+
+message AsanaConnectorMetadata {
+  google.protobuf.StringValue access_token = 1;
+}
+
+message ProxyAgentMetadata {
+  google.protobuf.BoolValue is_alive = 1;
+  sfixed64 last_ping_at = 2;
+  google.protobuf.BoolValue is_backup = 3;
+  google.protobuf.UInt64Value primary_proxy_agent_id = 4;
+}
+
+message Connector {
+  google.protobuf.UInt64Value id = 1;
+  google.protobuf.UInt64Value account_id = 2;
+  ConnectorType type = 3;
+  google.protobuf.BoolValue is_active = 4;
+  google.protobuf.StringValue name = 5;
+  google.protobuf.StringValue created_by = 6;
+  sfixed64 created_at = 7;
+  sfixed64 updated_at = 8;
+  google.protobuf.StringValue display_name = 9;
+  google.protobuf.StringValue category = 10;
+  repeated ConnectorKey keys = 11;
+  google.protobuf.BoolValue is_proxy_enabled = 12;
+  repeated ConnectorContextMemory context_memory = 13;
+  google.protobuf.BoolValue is_agent_task_enabled = 14;
+  repeated string tags = 15;
+  google.protobuf.BoolValue user_enabled = 16;
+  repeated ConnectorFormConfig form_configs = 17;
+  repeated PlaybookConnector connected_playbooks = 18;
+  google.protobuf.StringValue notes = 19;
+  google.protobuf.Struct additional_state = 20;
+
+  oneof metadata {
+    ProxyAgentConnectorMetadata proxy_agent_connector_metadata = 101;
+    SlackConnectorMetadata slack_connector_metadata = 102;
+    AsanaConnectorMetadata asana_connector_metadata = 103;
+    ProxyAgentMetadata proxy_agent_metadata = 104;
+  }
+}
+
+message UpdateConnectorOp {
+  enum Op {
+    UNKNOWN = 0;
+    UPDATE_CONNECTOR_NAME = 1;
+    UPDATE_CONNECTOR_STATUS = 2;
+    UPDATE_CONNECTOR_KEYS = 3;
+    UPDATE_CONNECTOR_TAGS = 4;
+    UPDATE_BASIC_DETAILS = 5;
+    UPDATE_DEFAULT_DESTINATION = 6;
+  }
+
+  message UpdateConnectorName {
+    google.protobuf.StringValue name = 1;
+  }
+
+  message UpdateConnectorStatus {
+    google.protobuf.BoolValue is_active = 1;
+  }
+
+  message UpdateConnectorKeys {
+    repeated ConnectorKey connector_keys = 1;
+  }
+
+  message UpdateConnectorTags {
+    repeated string tags = 1;
+  }
+
+  message UpdateBasicDetails {
+    google.protobuf.StringValue display_name = 1;
+    repeated string tags = 2;
+    google.protobuf.StringValue notes = 3;
+    google.protobuf.Struct additional_state = 4;
+  }
+
+  message UpdateDefaultDestination {
+    google.protobuf.StringValue default_destination = 1;
+  }
+
+  Op op = 1;
+  oneof update {
+    UpdateConnectorName update_connector_name = 2;
+    UpdateConnectorStatus update_connector_status = 3;
+    UpdateConnectorKeys update_connector_keys = 4;
+    UpdateConnectorTags update_connector_tags = 5;
+    UpdateBasicDetails update_basic_details = 6;
+    UpdateDefaultDestination update_default_destination = 7;
+  }
 }
 
 enum ConnectorMetadataModelType {
@@ -176,6 +296,93 @@ enum ConnectorMetadataModelType {
   SENTRY_PROJECT = 7001;
 
 }
+
+enum ConnectorType {
+  UNKNOWN = 0;
+  SENTRY = 1;
+  SEGMENT = 2;
+  ELASTIC_SEARCH = 3;
+  AMPLITUDE = 4;
+  AWS_KINESIS = 5;
+  CLOUDWATCH = 6;
+  CLEVERTAP = 7;
+  RUDDERSTACK = 8;
+  MOENGAGE = 9;
+  CRIBL = 10;
+  KAFKA = 11;
+  DATADOG = 12;
+  FILEBEAT = 13;
+  LOGSTASH = 14;
+  FLUENTD = 15;
+  FLUENTBIT = 16;
+  PAGER_DUTY = 17;
+  NEW_RELIC = 18;
+  SLACK = 19;
+  HONEYBADGER = 20;
+  GOOGLE_CHAT = 21;
+  DATADOG_OAUTH = 22;
+  GCM = 23;
+  PROMETHEUS = 24;
+  ELASTIC_APM = 25;
+  VICTORIA_METRICS = 26;
+  SLACK_CONNECT = 27;
+  GRAFANA = 28;
+  CLICKHOUSE = 29;
+  DOCUMENTATION = 30;
+  POSTGRES = 31;
+  OPS_GENIE = 32;
+  EKS = 33;
+  AGENT_PROXY = 34;
+  GRAFANA_VPC = 35;
+  GITHUB = 36;
+  SQL_DATABASE_CONNECTION = 37;
+  OPEN_AI = 38;
+  REMOTE_SERVER = 39;
+  API = 40;
+  BASH = 41;
+  AZURE = 42;
+  GRAFANA_MIMIR = 43;
+  GKE = 44;
+  MS_TEAMS = 45;
+  GRAFANA_LOKI = 46;
+  KUBERNETES = 47;
+  SMTP = 48;
+  BIG_QUERY = 49;
+  ZENDUTY = 50;
+  ROOTLY = 51;
+  JIRA_CLOUD = 52;
+  ASANA = 53;
+  CONFLUENCE_CLOUD = 54;
+  CONFLUENCE_SELF_HOSTED = 55;
+  GOOGLE_DRIVE = 56;
+  NOTION = 57;
+  DRD_PROXY_AGENT = 58;
+  MONGODB = 59;
+  OPEN_SEARCH = 60;
+  LINEAR = 61;
+  JENKINS = 62;
+  GITHUB_ACTIONS = 63;
+  CUSTOM_STRATEGIES = 64;
+  ARGOCD = 65;
+  DRD_ALERT_WEBHOOK = 66;
+  ROLLBAR = 67;
+  LAMBDA = 68;
+  BROWSER = 69;
+  POSTHOG = 70;
+  MIXPANEL = 71;
+  SIGNOZ = 72;
+  BITBUCKET = 73;
+  CORALOGIX = 74;
+  RENDER = 75;
+  MCP_SERVER = 76;
+}
+
+enum ReportType {
+  UNKNOWN_RT = 0;
+  INITIAL = 1;
+  FINAL = 2;
+}
+
 
 message ConnectorKey {
   SourceKeyType key_type = 1;
