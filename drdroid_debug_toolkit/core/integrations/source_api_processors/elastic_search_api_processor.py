@@ -1300,3 +1300,138 @@ class ElasticSearchApiProcessor(Processor):
         except Exception as e:
             logger.error(f"Exception occurred while fetching transaction names with error: {e}")
             raise e
+
+    def get_service_metrics_by_transaction(self, service_name: str, start_time: datetime, end_time: datetime,
+                                           interval: str = "5m", index_pattern: str = "traces-apm-*") -> List[Dict]:
+        """
+        Fetch throughput, error rate, and latency grouped by transaction name for a given service.
+
+        Args:
+            service_name (str): Name of the service (application)
+            start_time (datetime): Start time for the query
+            end_time (datetime): End time for the query
+            interval (str): Interval for the time series (e.g., "5m", "1h")
+
+        Returns:
+            List[Dict]: List of dictionaries with transaction name and metrics time series
+        """
+        start_time_str = start_time.strftime("%Y-%m-%dT%H:%M:%S.000Z")
+        end_time_str = end_time.strftime("%Y-%m-%dT%H:%M:%S.000Z")
+
+        query = {
+            "size": 0,
+            "query": {
+                "bool": {
+                    "must": [
+                        {"term": {"service.name": service_name}},
+                        {"range": {
+                            "@timestamp": {
+                                "gte": start_time_str,
+                                "lte": end_time_str
+                            }
+                        }}
+                    ]
+                }
+            },
+            "aggs": {
+                "time_series": {
+                    "date_histogram": {
+                        "field": "@timestamp",
+                        "fixed_interval": interval,
+                        "min_doc_count": 0
+                    },
+                    "aggs": {
+                        "transactions_by_name": {
+                            "terms": {
+                                "field": "transaction.name",
+                                "size": 50
+                            },
+                            "aggs": {
+                                "throughput": {
+                                    "value_count": {
+                                        "field": "transaction.id"
+                                    }
+                                },
+                                "error_count": {
+                                    "terms": {
+                                        "field": "transaction.result",
+                                        "size": 10
+                                    }
+                                },
+                                "latency_p95": {
+                                    "percentiles": {
+                                        "field": "transaction.duration.us",
+                                        "percents": [95],
+                                        "missing": 0
+                                    }
+                                },
+                                "latency_p99": {
+                                    "percentiles": {
+                                        "field": "transaction.duration.us",
+                                        "percents": [99],
+                                        "missing": 0
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        client = self.get_connection()
+        try:
+            result = client.search(index=index_pattern, body=query)
+            # Convert response to dict
+            if hasattr(result, 'body'):
+                result = result.body
+            elif hasattr(result, 'meta'):
+                result = dict(result)
+
+            buckets = result.get('aggregations', {}).get('time_series', {}).get('buckets', [])
+            # Structure: {transaction_name: [{timestamp, throughput, error_rate, latency_p95, latency_p99}, ...]}
+            transaction_series = {}
+
+            for bucket in buckets:
+                timestamp = bucket['key_as_string']
+                for txn_bucket in bucket['transactions_by_name']['buckets']:
+                    txn_name = txn_bucket['key']
+                    total_requests = txn_bucket['throughput']['value']
+
+                    # Calculate error count
+                    error_count = 0
+                    for error_bucket in txn_bucket['error_count']['buckets']:
+                        if error_bucket['key'] == 'error':
+                            error_count = error_bucket['doc_count']
+                            break
+
+                    # Get latency values
+                    latency_p95 = txn_bucket['latency_p95']['values']['95.0']
+                    latency_p99 = txn_bucket['latency_p99']['values']['99.0']
+
+                    # Calculate metrics for this interval
+                    interval_seconds = pd.Timedelta(interval).total_seconds()
+                    metrics = {
+                        "timestamp": timestamp,
+                        "throughput": round(total_requests / interval_seconds, 2),  # requests per second
+                        "error_rate": round((error_count / total_requests * 100) if total_requests > 0 else 0, 2),
+                        # percentage
+                        "latency_p95": round(latency_p95 / 1000, 2),  # convert to milliseconds
+                        "latency_p99": round(latency_p99 / 1000, 2),  # convert to milliseconds
+                        "total_requests": total_requests
+                    }
+
+                    if txn_name not in transaction_series:
+                        transaction_series[txn_name] = []
+                    transaction_series[txn_name].append(metrics)
+
+            # Convert to list of dicts for easier consumption
+            return [
+                {"transaction_name": txn, "series": series}
+                for txn, series in transaction_series.items()
+            ]
+        except Exception as e:
+            logger.error(f"Error fetching throughput by transaction: {e}")
+            raise e
+        finally:
+            client.close()

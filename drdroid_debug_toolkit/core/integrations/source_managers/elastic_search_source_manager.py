@@ -157,6 +157,26 @@ class ElasticSearchSourceManager(SourceManager):
                               form_field_type=FormFieldType.TEXT_FT),
                 ]
             },
+            ElasticSearchProto.TaskType.GET_METRIC_FOR_APPLICATION_TRANSACTIONS: {
+                'executor': self.execute_get_metric_for_application_transactions,
+                'asset_descriptor': self.get_service_asset_descriptor,
+                'model_types': [SourceModelType.ELASTIC_SEARCH_SERVICES],
+                'result_type': PlaybookTaskResultType.TIMESERIES,
+                'display_name': 'Get Elasticsearch Metrics for Application Transactions',
+                'category': 'APM',
+                'form_fields': [
+                    FormField(key_name=StringValue(value="service_name"),
+                              display_name=StringValue(value="Service Name"),
+                              description=StringValue(value="Enter Service Name"),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT),
+                    FormField(key_name=StringValue(value="interval"),
+                              display_name=StringValue(value="Interval (Ex. 5m, 1h, 1d)"),
+                              description=StringValue(value="Enter Interval"),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT),
+                ]
+            }
         }
 
     def get_connector_processor(self, es_connector, **kwargs):
