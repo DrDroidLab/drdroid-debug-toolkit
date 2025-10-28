@@ -25,7 +25,7 @@ _sym_db = _symbol_database.Default()
 from google.protobuf import wrappers_pb2 as google_dot_protobuf_dot_wrappers__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\nGcore/protos/playbooks/source_task_definitions/elastic_search_task.proto\x12\x15\x63ore.protos.playbooks\x1a\x1egoogle/protobuf/wrappers.proto\"\xe2\x0c\n\rElasticSearch\x12;\n\x04type\x18\x01 \x01(\x0e\x32-.core.protos.playbooks.ElasticSearch.TaskType\x12\x44\n\nquery_logs\x18\x02 \x01(\x0b\x32..core.protos.playbooks.ElasticSearch.QueryLogsH\x00\x12R\n\x14\x63heck_cluster_health\x18\x03 \x01(\x0b\x32\x32.core.protos.playbooks.ElasticSearch.ClusterHealthH\x00\x12\x44\n\nnode_stats\x18\x04 \x01(\x0b\x32..core.protos.playbooks.ElasticSearch.NodeStatsH\x00\x12\x46\n\x0b\x63\x61t_indices\x18\x05 \x01(\x0b\x32/.core.protos.playbooks.ElasticSearch.CatIndicesH\x00\x12Z\n\x16\x63\x61t_thread_pool_search\x18\x06 \x01(\x0b\x32\x38.core.protos.playbooks.ElasticSearch.CatThreadPoolSearchH\x00\x12_\n\x18monitoring_cluster_stats\x18\x07 \x01(\x0b\x32;.core.protos.playbooks.ElasticSearch.MonitoringClusterStatsH\x00\x12Z\n\x16get_metric_for_service\x18\x08 \x01(\x0b\x32\x38.core.protos.playbooks.ElasticSearch.GetMetricForServiceH\x00\x12J\n\rget_dashboard\x18\t \x01(\x0b\x32\x31.core.protos.playbooks.ElasticSearch.GetDashboardH\x00\x1a\xaf\x02\n\tQueryLogs\x12+\n\x05index\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x32\n\x0clucene_query\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12+\n\x05limit\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.UInt64Value\x12,\n\x06offset\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.UInt64Value\x12/\n\tsort_desc\x18\x05 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x35\n\x0ftimestamp_field\x18\x06 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1a\x0f\n\rClusterHealth\x1a\x0b\n\tNodeStats\x1a\x0c\n\nCatIndices\x1a\x15\n\x13\x43\x61tThreadPoolSearch\x1a{\n\x16MonitoringClusterStats\x12\x31\n\x0bwidget_name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12.\n\x08interval\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1ay\n\x13GetMetricForService\x12\x32\n\x0cservice_name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12.\n\x08interval\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1a\x44\n\x0cGetDashboard\x12\x34\n\x0e\x64\x61shboard_name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"\xcb\x01\n\x08TaskType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x0e\n\nQUERY_LOGS\x10\x01\x12\x18\n\x14\x43HECK_CLUSTER_HEALTH\x10\x02\x12\x0e\n\nNODE_STATS\x10\x03\x12\x0f\n\x0b\x43\x41T_INDICES\x10\x04\x12\x1a\n\x16\x43\x41T_THREAD_POOL_SEARCH\x10\x05\x12\x1c\n\x18MONITORING_CLUSTER_STATS\x10\x06\x12\x1a\n\x16GET_METRIC_FOR_SERVICE\x10\x07\x12\x11\n\rGET_DASHBOARD\x10\x08\x42\x06\n\x04taskb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\nGcore/protos/playbooks/source_task_definitions/elastic_search_task.proto\x12\x15\x63ore.protos.playbooks\x1a\x1egoogle/protobuf/wrappers.proto\"\x81\x11\n\rElasticSearch\x12;\n\x04type\x18\x01 \x01(\x0e\x32-.core.protos.playbooks.ElasticSearch.TaskType\x12\x44\n\nquery_logs\x18\x02 \x01(\x0b\x32..core.protos.playbooks.ElasticSearch.QueryLogsH\x00\x12R\n\x14\x63heck_cluster_health\x18\x03 \x01(\x0b\x32\x32.core.protos.playbooks.ElasticSearch.ClusterHealthH\x00\x12\x44\n\nnode_stats\x18\x04 \x01(\x0b\x32..core.protos.playbooks.ElasticSearch.NodeStatsH\x00\x12\x46\n\x0b\x63\x61t_indices\x18\x05 \x01(\x0b\x32/.core.protos.playbooks.ElasticSearch.CatIndicesH\x00\x12Z\n\x16\x63\x61t_thread_pool_search\x18\x06 \x01(\x0b\x32\x38.core.protos.playbooks.ElasticSearch.CatThreadPoolSearchH\x00\x12_\n\x18monitoring_cluster_stats\x18\x07 \x01(\x0b\x32;.core.protos.playbooks.ElasticSearch.MonitoringClusterStatsH\x00\x12Z\n\x16get_metric_for_service\x18\x08 \x01(\x0b\x32\x38.core.protos.playbooks.ElasticSearch.GetMetricForServiceH\x00\x12J\n\rget_dashboard\x18\t \x01(\x0b\x32\x31.core.protos.playbooks.ElasticSearch.GetDashboardH\x00\x12{\n\'get_metric_for_application_transactions\x18\n \x01(\x0b\x32H.core.protos.playbooks.ElasticSearch.GetMetricForApplicationTransactionsH\x00\x12m\n get_transaction_names_by_service\x18\x0b \x01(\x0b\x32\x41.core.protos.playbooks.ElasticSearch.GetTransactionNamesByServiceH\x00\x1a\xaf\x02\n\tQueryLogs\x12+\n\x05index\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x32\n\x0clucene_query\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12+\n\x05limit\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.UInt64Value\x12,\n\x06offset\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.UInt64Value\x12/\n\tsort_desc\x18\x05 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x35\n\x0ftimestamp_field\x18\x06 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1a\x0f\n\rClusterHealth\x1a\x89\x01\n#GetMetricForApplicationTransactions\x12\x32\n\x0cservice_name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12.\n\x08interval\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1a\x0b\n\tNodeStats\x1a\x0c\n\nCatIndices\x1a\x15\n\x13\x43\x61tThreadPoolSearch\x1a{\n\x16MonitoringClusterStats\x12\x31\n\x0bwidget_name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12.\n\x08interval\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1ay\n\x13GetMetricForService\x12\x32\n\x0cservice_name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12.\n\x08interval\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1a\x44\n\x0cGetDashboard\x12\x34\n\x0e\x64\x61shboard_name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1aR\n\x1cGetTransactionNamesByService\x12\x32\n\x0cservice_name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"\x9e\x02\n\x08TaskType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x0e\n\nQUERY_LOGS\x10\x01\x12\x18\n\x14\x43HECK_CLUSTER_HEALTH\x10\x02\x12\x0e\n\nNODE_STATS\x10\x03\x12\x0f\n\x0b\x43\x41T_INDICES\x10\x04\x12\x1a\n\x16\x43\x41T_THREAD_POOL_SEARCH\x10\x05\x12\x1c\n\x18MONITORING_CLUSTER_STATS\x10\x06\x12\x1a\n\x16GET_METRIC_FOR_SERVICE\x10\x07\x12\x11\n\rGET_DASHBOARD\x10\x08\x12+\n\'GET_METRIC_FOR_APPLICATION_TRANSACTIONS\x10\t\x12$\n GET_TRANSACTION_NAMES_BY_SERVICE\x10\nB\x06\n\x04taskb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -33,23 +33,27 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'core.protos.playbooks.sourc
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
   _globals['_ELASTICSEARCH']._serialized_start=131
-  _globals['_ELASTICSEARCH']._serialized_end=1765
-  _globals['_ELASTICSEARCH_QUERYLOGS']._serialized_start=863
-  _globals['_ELASTICSEARCH_QUERYLOGS']._serialized_end=1166
-  _globals['_ELASTICSEARCH_CLUSTERHEALTH']._serialized_start=1168
-  _globals['_ELASTICSEARCH_CLUSTERHEALTH']._serialized_end=1183
-  _globals['_ELASTICSEARCH_NODESTATS']._serialized_start=1185
-  _globals['_ELASTICSEARCH_NODESTATS']._serialized_end=1196
-  _globals['_ELASTICSEARCH_CATINDICES']._serialized_start=1198
-  _globals['_ELASTICSEARCH_CATINDICES']._serialized_end=1210
-  _globals['_ELASTICSEARCH_CATTHREADPOOLSEARCH']._serialized_start=1212
-  _globals['_ELASTICSEARCH_CATTHREADPOOLSEARCH']._serialized_end=1233
-  _globals['_ELASTICSEARCH_MONITORINGCLUSTERSTATS']._serialized_start=1235
-  _globals['_ELASTICSEARCH_MONITORINGCLUSTERSTATS']._serialized_end=1358
-  _globals['_ELASTICSEARCH_GETMETRICFORSERVICE']._serialized_start=1360
-  _globals['_ELASTICSEARCH_GETMETRICFORSERVICE']._serialized_end=1481
-  _globals['_ELASTICSEARCH_GETDASHBOARD']._serialized_start=1483
-  _globals['_ELASTICSEARCH_GETDASHBOARD']._serialized_end=1551
-  _globals['_ELASTICSEARCH_TASKTYPE']._serialized_start=1554
-  _globals['_ELASTICSEARCH_TASKTYPE']._serialized_end=1757
+  _globals['_ELASTICSEARCH']._serialized_end=2308
+  _globals['_ELASTICSEARCH_QUERYLOGS']._serialized_start=1099
+  _globals['_ELASTICSEARCH_QUERYLOGS']._serialized_end=1402
+  _globals['_ELASTICSEARCH_CLUSTERHEALTH']._serialized_start=1404
+  _globals['_ELASTICSEARCH_CLUSTERHEALTH']._serialized_end=1419
+  _globals['_ELASTICSEARCH_GETMETRICFORAPPLICATIONTRANSACTIONS']._serialized_start=1422
+  _globals['_ELASTICSEARCH_GETMETRICFORAPPLICATIONTRANSACTIONS']._serialized_end=1559
+  _globals['_ELASTICSEARCH_NODESTATS']._serialized_start=1561
+  _globals['_ELASTICSEARCH_NODESTATS']._serialized_end=1572
+  _globals['_ELASTICSEARCH_CATINDICES']._serialized_start=1574
+  _globals['_ELASTICSEARCH_CATINDICES']._serialized_end=1586
+  _globals['_ELASTICSEARCH_CATTHREADPOOLSEARCH']._serialized_start=1588
+  _globals['_ELASTICSEARCH_CATTHREADPOOLSEARCH']._serialized_end=1609
+  _globals['_ELASTICSEARCH_MONITORINGCLUSTERSTATS']._serialized_start=1611
+  _globals['_ELASTICSEARCH_MONITORINGCLUSTERSTATS']._serialized_end=1734
+  _globals['_ELASTICSEARCH_GETMETRICFORSERVICE']._serialized_start=1736
+  _globals['_ELASTICSEARCH_GETMETRICFORSERVICE']._serialized_end=1857
+  _globals['_ELASTICSEARCH_GETDASHBOARD']._serialized_start=1859
+  _globals['_ELASTICSEARCH_GETDASHBOARD']._serialized_end=1927
+  _globals['_ELASTICSEARCH_GETTRANSACTIONNAMESBYSERVICE']._serialized_start=1929
+  _globals['_ELASTICSEARCH_GETTRANSACTIONNAMESBYSERVICE']._serialized_end=2011
+  _globals['_ELASTICSEARCH_TASKTYPE']._serialized_start=2014
+  _globals['_ELASTICSEARCH_TASKTYPE']._serialized_end=2300
 # @@protoc_insertion_point(module_scope)
