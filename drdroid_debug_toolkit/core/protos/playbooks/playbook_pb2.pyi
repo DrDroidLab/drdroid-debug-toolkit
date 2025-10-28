@@ -57,6 +57,119 @@ else:
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
 @typing_extensions.final
+class Variable(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    NAME_FIELD_NUMBER: builtins.int
+    DESCRIPTION_FIELD_NUMBER: builtins.int
+    TYPE_FIELD_NUMBER: builtins.int
+    OPTIONS_FIELD_NUMBER: builtins.int
+    IS_ACTIVE_FIELD_NUMBER: builtins.int
+    CREATED_BY_FIELD_NUMBER: builtins.int
+    CREATED_AT_FIELD_NUMBER: builtins.int
+    ID_FIELD_NUMBER: builtins.int
+    @property
+    def name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    @property
+    def description(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    type: core.protos.playbooks.playbook_commons_pb2.VariableType.ValueType
+    @property
+    def options(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+    @property
+    def is_active(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def created_by(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    created_at: builtins.int
+    @property
+    def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+    def __init__(
+        self,
+        *,
+        name: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        description: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        type: core.protos.playbooks.playbook_commons_pb2.VariableType.ValueType = ...,
+        options: collections.abc.Iterable[builtins.str] | None = ...,
+        is_active: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        created_by: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        created_at: builtins.int = ...,
+        id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["created_by", b"created_by", "description", b"description", "id", b"id", "is_active", b"is_active", "name", b"name"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["created_at", b"created_at", "created_by", b"created_by", "description", b"description", "id", b"id", "is_active", b"is_active", "name", b"name", "options", b"options", "type", b"type"]) -> None: ...
+
+global___Variable = Variable
+
+@typing_extensions.final
+class UpdateVariableOp(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    class _Op:
+        ValueType = typing.NewType("ValueType", builtins.int)
+        V: typing_extensions.TypeAlias = ValueType
+
+    class _OpEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[UpdateVariableOp._Op.ValueType], builtins.type):  # noqa: F821
+        DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+        UNKNOWN: UpdateVariableOp._Op.ValueType  # 0
+        UPDATE_STATUS: UpdateVariableOp._Op.ValueType  # 2
+        UPDATE_VARIABLE: UpdateVariableOp._Op.ValueType  # 3
+
+    class Op(_Op, metaclass=_OpEnumTypeWrapper): ...
+    UNKNOWN: UpdateVariableOp.Op.ValueType  # 0
+    UPDATE_STATUS: UpdateVariableOp.Op.ValueType  # 2
+    UPDATE_VARIABLE: UpdateVariableOp.Op.ValueType  # 3
+
+    @typing_extensions.final
+    class UpdateVariable(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        VARIABLE_FIELD_NUMBER: builtins.int
+        @property
+        def variable(self) -> global___Variable: ...
+        def __init__(
+            self,
+            *,
+            variable: global___Variable | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["variable", b"variable"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["variable", b"variable"]) -> None: ...
+
+    @typing_extensions.final
+    class UpdateStatus(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        IS_ACTIVE_FIELD_NUMBER: builtins.int
+        @property
+        def is_active(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+        def __init__(
+            self,
+            *,
+            is_active: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["is_active", b"is_active"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["is_active", b"is_active"]) -> None: ...
+
+    OP_FIELD_NUMBER: builtins.int
+    UPDATE_VARIABLE_FIELD_NUMBER: builtins.int
+    UPDATE_STATUS_FIELD_NUMBER: builtins.int
+    op: global___UpdateVariableOp.Op.ValueType
+    @property
+    def update_variable(self) -> global___UpdateVariableOp.UpdateVariable: ...
+    @property
+    def update_status(self) -> global___UpdateVariableOp.UpdateStatus: ...
+    def __init__(
+        self,
+        *,
+        op: global___UpdateVariableOp.Op.ValueType = ...,
+        update_variable: global___UpdateVariableOp.UpdateVariable | None = ...,
+        update_status: global___UpdateVariableOp.UpdateStatus | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["update", b"update", "update_status", b"update_status", "update_variable", b"update_variable"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["op", b"op", "update", b"update", "update_status", b"update_status", "update_variable", b"update_variable"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing_extensions.Literal["update", b"update"]) -> typing_extensions.Literal["update_variable", "update_status"] | None: ...
+
+global___UpdateVariableOp = UpdateVariableOp
+
+@typing_extensions.final
 class PlaybookTask(google.protobuf.message.Message):
     """Playbook Task Protos"""
 

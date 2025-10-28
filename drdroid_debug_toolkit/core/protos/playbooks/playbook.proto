@@ -43,6 +43,39 @@ import "core/protos/playbooks/source_task_definitions/signoz_task.proto";
 import "core/protos/playbooks/source_task_definitions/posthog_task.proto";
 
 
+message Variable {
+  google.protobuf.StringValue name = 1;
+  google.protobuf.StringValue description = 2;
+  VariableType type = 3;
+  repeated string options = 4;
+  google.protobuf.BoolValue is_active = 5;
+  google.protobuf.StringValue created_by = 6;
+  sfixed64 created_at = 7;
+  google.protobuf.UInt64Value id = 8;
+}
+
+message UpdateVariableOp {
+  enum Op {
+    UNKNOWN = 0;
+    UPDATE_STATUS = 2;
+    UPDATE_VARIABLE = 3;
+  }
+
+  message UpdateVariable {
+    Variable variable = 1;
+  }
+
+  message UpdateStatus {
+    google.protobuf.BoolValue is_active = 1;
+  }
+
+  Op op = 1;
+  oneof update {
+    UpdateVariable update_variable = 101;
+    UpdateStatus update_status = 102;
+  }
+}
+
 // Playbook Task Protos
 message PlaybookTask {
   message PlaybookTaskConnectorSource {
