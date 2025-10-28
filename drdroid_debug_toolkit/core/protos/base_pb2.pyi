@@ -319,8 +319,11 @@ class _SourceKeyTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     NEWRELIC_QUERY_KEY: _SourceKeyType.ValueType  # 7
     NEWRELIC_API_DOMAIN: _SourceKeyType.ValueType  # 19
     SLACK_BOT_AUTH_TOKEN: _SourceKeyType.ValueType  # 8
-    SLACK_CHANNEL_ID: _SourceKeyType.ValueType  # 9
+    SLACK_CHANNEL_SKT: _SourceKeyType.ValueType  # 9
     SLACK_APP_ID: _SourceKeyType.ValueType  # 46
+    SLACK_APP_CLIENT_ID: _SourceKeyType.ValueType  # 141
+    SLACK_APP_CLIENT_SECRET: _SourceKeyType.ValueType  # 142
+    SLACK_APP_SIGNING_SECRET: _SourceKeyType.ValueType  # 143
     HONEYBADGER_USERNAME: _SourceKeyType.ValueType  # 10
     HONEYBADGER_PASSWORD: _SourceKeyType.ValueType  # 11
     HONEYBADGER_PROJECT_ID: _SourceKeyType.ValueType  # 12
@@ -380,7 +383,6 @@ class _SourceKeyTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     ELASTIC_SEARCH_PORT: _SourceKeyType.ValueType  # 66
     ELASTIC_SEARCH_API_KEY_ID: _SourceKeyType.ValueType  # 67
     ELASTIC_SEARCH_API_KEY: _SourceKeyType.ValueType  # 68
-    KIBANA_HOST: _SourceKeyType.ValueType  # 114
     GRAFANA_LOKI_PROTOCOL: _SourceKeyType.ValueType  # 69
     GRAFANA_LOKI_HOST: _SourceKeyType.ValueType  # 70
     GRAFANA_LOKI_PORT: _SourceKeyType.ValueType  # 71
@@ -402,7 +404,12 @@ class _SourceKeyTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     JIRA_EMAIL: _SourceKeyType.ValueType  # 110
     ASANA_ACCESS_TOKEN: _SourceKeyType.ValueType  # 86
     CONFLUENCE_CLOUD_API_KEY: _SourceKeyType.ValueType  # 87
+    CONFLUENCE_CLOUD_SITE_URL: _SourceKeyType.ValueType  # 139
+    CONFLUENCE_CLOUD_ATLASSIAN_ACCOUNT_EMAIL: _SourceKeyType.ValueType  # 140
     NOTION_API_KEY: _SourceKeyType.ValueType  # 88
+    DRD_PROXY_AGENT_HOST: _SourceKeyType.ValueType  # 89
+    DRD_PROXY_AGENT_API_TOKEN: _SourceKeyType.ValueType  # 90
+    DRD_PROXY_AGENT_API_KEY: _SourceKeyType.ValueType  # 91
     MONGODB_CONNECTION_STRING: _SourceKeyType.ValueType  # 92
     OPEN_SEARCH_PROTOCOL: _SourceKeyType.ValueType  # 94
     OPEN_SEARCH_HOST: _SourceKeyType.ValueType  # 95
@@ -422,8 +429,24 @@ class _SourceKeyTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     POSTHOG_API_KEY: _SourceKeyType.ValueType  # 121
     POSTHOG_APP_HOST: _SourceKeyType.ValueType  # 122
     POSTHOG_PROJECT_ID: _SourceKeyType.ValueType  # 123
+    MIXPANEL_SERVICE_ACCOUNT_USERNAME: _SourceKeyType.ValueType  # 131
+    MIXPANEL_SERVICE_ACCOUNT_SECRET: _SourceKeyType.ValueType  # 132
+    MIXPANEL_DOMAIN: _SourceKeyType.ValueType  # 133
+    MIXPANEL_PROJECT_ID: _SourceKeyType.ValueType  # 134
+    MIXPANEL_WORKSPACE_ID: _SourceKeyType.ValueType  # 135
     SIGNOZ_API_URL: _SourceKeyType.ValueType  # 136
     SIGNOZ_API_TOKEN: _SourceKeyType.ValueType  # 137
+    KIBANA_HOST: _SourceKeyType.ValueType  # 138
+    BITBUCKET_WORKSPACE: _SourceKeyType.ValueType  # 144
+    """139, 140 is used"""
+    BITBUCKET_API_KEY: _SourceKeyType.ValueType  # 145
+    BITBUCKET_REPO: _SourceKeyType.ValueType  # 146
+    RENDER_API_KEY: _SourceKeyType.ValueType  # 147
+    CORALOGIX_API_KEY: _SourceKeyType.ValueType  # 148
+    CORALOGIX_ENDPOINT: _SourceKeyType.ValueType  # 149
+    CORALOGIX_DOMAIN: _SourceKeyType.ValueType  # 152
+    MCP_SERVER_BASE_URL: _SourceKeyType.ValueType  # 150
+    MCP_SERVER_AUTH_HEADERS: _SourceKeyType.ValueType  # 151
 
 class SourceKeyType(_SourceKeyType, metaclass=_SourceKeyTypeEnumTypeWrapper): ...
 
@@ -439,8 +462,11 @@ NEWRELIC_APP_ID: SourceKeyType.ValueType  # 5
 NEWRELIC_QUERY_KEY: SourceKeyType.ValueType  # 7
 NEWRELIC_API_DOMAIN: SourceKeyType.ValueType  # 19
 SLACK_BOT_AUTH_TOKEN: SourceKeyType.ValueType  # 8
-SLACK_CHANNEL_ID: SourceKeyType.ValueType  # 9
+SLACK_CHANNEL_SKT: SourceKeyType.ValueType  # 9
 SLACK_APP_ID: SourceKeyType.ValueType  # 46
+SLACK_APP_CLIENT_ID: SourceKeyType.ValueType  # 141
+SLACK_APP_CLIENT_SECRET: SourceKeyType.ValueType  # 142
+SLACK_APP_SIGNING_SECRET: SourceKeyType.ValueType  # 143
 HONEYBADGER_USERNAME: SourceKeyType.ValueType  # 10
 HONEYBADGER_PASSWORD: SourceKeyType.ValueType  # 11
 HONEYBADGER_PROJECT_ID: SourceKeyType.ValueType  # 12
@@ -500,7 +526,6 @@ ELASTIC_SEARCH_HOST: SourceKeyType.ValueType  # 65
 ELASTIC_SEARCH_PORT: SourceKeyType.ValueType  # 66
 ELASTIC_SEARCH_API_KEY_ID: SourceKeyType.ValueType  # 67
 ELASTIC_SEARCH_API_KEY: SourceKeyType.ValueType  # 68
-KIBANA_HOST: SourceKeyType.ValueType  # 114
 GRAFANA_LOKI_PROTOCOL: SourceKeyType.ValueType  # 69
 GRAFANA_LOKI_HOST: SourceKeyType.ValueType  # 70
 GRAFANA_LOKI_PORT: SourceKeyType.ValueType  # 71
@@ -522,7 +547,12 @@ JIRA_DOMAIN: SourceKeyType.ValueType  # 109
 JIRA_EMAIL: SourceKeyType.ValueType  # 110
 ASANA_ACCESS_TOKEN: SourceKeyType.ValueType  # 86
 CONFLUENCE_CLOUD_API_KEY: SourceKeyType.ValueType  # 87
+CONFLUENCE_CLOUD_SITE_URL: SourceKeyType.ValueType  # 139
+CONFLUENCE_CLOUD_ATLASSIAN_ACCOUNT_EMAIL: SourceKeyType.ValueType  # 140
 NOTION_API_KEY: SourceKeyType.ValueType  # 88
+DRD_PROXY_AGENT_HOST: SourceKeyType.ValueType  # 89
+DRD_PROXY_AGENT_API_TOKEN: SourceKeyType.ValueType  # 90
+DRD_PROXY_AGENT_API_KEY: SourceKeyType.ValueType  # 91
 MONGODB_CONNECTION_STRING: SourceKeyType.ValueType  # 92
 OPEN_SEARCH_PROTOCOL: SourceKeyType.ValueType  # 94
 OPEN_SEARCH_HOST: SourceKeyType.ValueType  # 95
@@ -542,8 +572,24 @@ ROLLBAR_ACCESS_TOKEN: SourceKeyType.ValueType  # 108
 POSTHOG_API_KEY: SourceKeyType.ValueType  # 121
 POSTHOG_APP_HOST: SourceKeyType.ValueType  # 122
 POSTHOG_PROJECT_ID: SourceKeyType.ValueType  # 123
+MIXPANEL_SERVICE_ACCOUNT_USERNAME: SourceKeyType.ValueType  # 131
+MIXPANEL_SERVICE_ACCOUNT_SECRET: SourceKeyType.ValueType  # 132
+MIXPANEL_DOMAIN: SourceKeyType.ValueType  # 133
+MIXPANEL_PROJECT_ID: SourceKeyType.ValueType  # 134
+MIXPANEL_WORKSPACE_ID: SourceKeyType.ValueType  # 135
 SIGNOZ_API_URL: SourceKeyType.ValueType  # 136
 SIGNOZ_API_TOKEN: SourceKeyType.ValueType  # 137
+KIBANA_HOST: SourceKeyType.ValueType  # 138
+BITBUCKET_WORKSPACE: SourceKeyType.ValueType  # 144
+"""139, 140 is used"""
+BITBUCKET_API_KEY: SourceKeyType.ValueType  # 145
+BITBUCKET_REPO: SourceKeyType.ValueType  # 146
+RENDER_API_KEY: SourceKeyType.ValueType  # 147
+CORALOGIX_API_KEY: SourceKeyType.ValueType  # 148
+CORALOGIX_ENDPOINT: SourceKeyType.ValueType  # 149
+CORALOGIX_DOMAIN: SourceKeyType.ValueType  # 152
+MCP_SERVER_BASE_URL: SourceKeyType.ValueType  # 150
+MCP_SERVER_AUTH_HEADERS: SourceKeyType.ValueType  # 151
 global___SourceKeyType = SourceKeyType
 
 class _SourceModelType:
