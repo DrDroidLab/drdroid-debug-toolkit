@@ -159,7 +159,6 @@ class ElasticSearchSourceManager(SourceManager):
             },
             ElasticSearchProto.TaskType.GET_METRIC_FOR_APPLICATION_TRANSACTIONS: {
                 'executor': self.execute_get_metric_for_application_transactions,
-                'asset_descriptor': self.get_service_asset_descriptor,
                 'model_types': [SourceModelType.ELASTIC_SEARCH_SERVICES],
                 'result_type': PlaybookTaskResultType.TIMESERIES,
                 'display_name': 'Get Elasticsearch Metrics for Application Transactions',
