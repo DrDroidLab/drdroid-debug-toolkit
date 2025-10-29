@@ -182,20 +182,28 @@ class PlaybookTask(google.protobuf.message.Message):
         ID_FIELD_NUMBER: builtins.int
         SOURCE_FIELD_NUMBER: builtins.int
         NAME_FIELD_NUMBER: builtins.int
+        IS_PROXY_ENABLED_FIELD_NUMBER: builtins.int
+        PROXY_AGENT_ID_FIELD_NUMBER: builtins.int
         @property
         def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
         source: core.protos.base_pb2.Source.ValueType
         @property
         def name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def is_proxy_enabled(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+        @property
+        def proxy_agent_id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
         def __init__(
             self,
             *,
             id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
             source: core.protos.base_pb2.Source.ValueType = ...,
             name: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            is_proxy_enabled: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+            proxy_agent_id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
         ) -> None: ...
-        def HasField(self, field_name: typing_extensions.Literal["id", b"id", "name", b"name"]) -> builtins.bool: ...
-        def ClearField(self, field_name: typing_extensions.Literal["id", b"id", "name", b"name", "source", b"source"]) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["id", b"id", "is_proxy_enabled", b"is_proxy_enabled", "name", b"name", "proxy_agent_id", b"proxy_agent_id"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["id", b"id", "is_proxy_enabled", b"is_proxy_enabled", "name", b"name", "proxy_agent_id", b"proxy_agent_id", "source", b"source"]) -> None: ...
 
     @typing_extensions.final
     class ExecutionConfiguration(google.protobuf.message.Message):
@@ -462,6 +470,32 @@ global___PlaybookTaskResultRule = PlaybookTaskResultRule
 class PlaybookTaskExecutionLog(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
+    @typing_extensions.final
+    class ApprovalContext(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        IS_APPROVED_FIELD_NUMBER: builtins.int
+        APPROVED_AT_FIELD_NUMBER: builtins.int
+        APPROVED_BY_FIELD_NUMBER: builtins.int
+        APPROVAL_REQUEST_ID_FIELD_NUMBER: builtins.int
+        @property
+        def is_approved(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+        approved_at: builtins.int
+        @property
+        def approved_by(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def approval_request_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        def __init__(
+            self,
+            *,
+            is_approved: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+            approved_at: builtins.int = ...,
+            approved_by: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            approval_request_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["approval_request_id", b"approval_request_id", "approved_by", b"approved_by", "is_approved", b"is_approved"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["approval_request_id", b"approval_request_id", "approved_at", b"approved_at", "approved_by", b"approved_by", "is_approved", b"is_approved"]) -> None: ...
+
     ID_FIELD_NUMBER: builtins.int
     TIMESTAMP_FIELD_NUMBER: builtins.int
     TASK_FIELD_NUMBER: builtins.int
@@ -472,6 +506,7 @@ class PlaybookTaskExecutionLog(google.protobuf.message.Message):
     EXECUTION_GLOBAL_VARIABLE_SET_FIELD_NUMBER: builtins.int
     PROXY_EXECUTION_REQUEST_ID_FIELD_NUMBER: builtins.int
     STATUS_FIELD_NUMBER: builtins.int
+    APPROVAL_CONTEXT_FIELD_NUMBER: builtins.int
     @property
     def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     timestamp: builtins.int
@@ -490,6 +525,8 @@ class PlaybookTaskExecutionLog(google.protobuf.message.Message):
     @property
     def proxy_execution_request_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     status: core.protos.playbooks.playbook_commons_pb2.PlaybookExecutionStatusType.ValueType
+    @property
+    def approval_context(self) -> global___PlaybookTaskExecutionLog.ApprovalContext: ...
     def __init__(
         self,
         *,
@@ -503,9 +540,10 @@ class PlaybookTaskExecutionLog(google.protobuf.message.Message):
         execution_global_variable_set: google.protobuf.struct_pb2.Struct | None = ...,
         proxy_execution_request_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
         status: core.protos.playbooks.playbook_commons_pb2.PlaybookExecutionStatusType.ValueType = ...,
+        approval_context: global___PlaybookTaskExecutionLog.ApprovalContext | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["created_by", b"created_by", "execution_global_variable_set", b"execution_global_variable_set", "id", b"id", "interpretation", b"interpretation", "proxy_execution_request_id", b"proxy_execution_request_id", "result", b"result", "task", b"task", "time_range", b"time_range"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["created_by", b"created_by", "execution_global_variable_set", b"execution_global_variable_set", "id", b"id", "interpretation", b"interpretation", "proxy_execution_request_id", b"proxy_execution_request_id", "result", b"result", "status", b"status", "task", b"task", "time_range", b"time_range", "timestamp", b"timestamp"]) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["approval_context", b"approval_context", "created_by", b"created_by", "execution_global_variable_set", b"execution_global_variable_set", "id", b"id", "interpretation", b"interpretation", "proxy_execution_request_id", b"proxy_execution_request_id", "result", b"result", "task", b"task", "time_range", b"time_range"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["approval_context", b"approval_context", "created_by", b"created_by", "execution_global_variable_set", b"execution_global_variable_set", "id", b"id", "interpretation", b"interpretation", "proxy_execution_request_id", b"proxy_execution_request_id", "result", b"result", "status", b"status", "task", b"task", "time_range", b"time_range", "timestamp", b"timestamp"]) -> None: ...
 
 global___PlaybookTaskExecutionLog = PlaybookTaskExecutionLog
 

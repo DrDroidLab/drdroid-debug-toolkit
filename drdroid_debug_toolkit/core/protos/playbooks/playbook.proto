@@ -82,6 +82,8 @@ message PlaybookTask {
     google.protobuf.UInt64Value id = 1;
     Source source = 2;
     google.protobuf.StringValue name = 3;
+    google.protobuf.BoolValue is_proxy_enabled = 4;
+    google.protobuf.UInt64Value proxy_agent_id = 5;
   }
 
   message ExecutionConfiguration {
@@ -157,6 +159,13 @@ message PlaybookTaskResultRule {
 }
 
 message PlaybookTaskExecutionLog {
+  message ApprovalContext {
+    google.protobuf.BoolValue is_approved = 1;
+    sfixed64 approved_at = 2;
+    google.protobuf.StringValue approved_by = 3;
+    google.protobuf.StringValue approval_request_id = 4;
+  }
+
   google.protobuf.UInt64Value id = 1;
   sfixed64 timestamp = 2;
   PlaybookTask task = 3;
@@ -167,6 +176,7 @@ message PlaybookTaskExecutionLog {
   google.protobuf.Struct execution_global_variable_set = 8;
   google.protobuf.StringValue proxy_execution_request_id = 9;
   PlaybookExecutionStatusType status = 10;
+  ApprovalContext approval_context = 11;
 }
 
 // Playbook Step Protos
