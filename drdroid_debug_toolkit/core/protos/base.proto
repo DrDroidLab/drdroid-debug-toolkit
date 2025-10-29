@@ -14,13 +14,6 @@ message Page {
 }
 
 
-message Meta {
-  TimeRange time_range = 1;
-  Page page = 2;
-  google.protobuf.UInt32Value total_count = 3;
-  google.protobuf.BoolValue show_inactive = 4;
-}
-
 message Message {
   string title = 1;
   string description = 2;
