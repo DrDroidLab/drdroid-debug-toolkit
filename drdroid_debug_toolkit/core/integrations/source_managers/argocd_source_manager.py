@@ -279,11 +279,6 @@ class ArgoCDSourceManager(SourceManager):
             
             argocd_app_path = None
             
-            if app_name and app_name.value:
-                argocd_app_model = self.get_connector_metadata_model_store(argocd_connector, app_name.value)
-                if argocd_app_model:
-                    argocd_app_path = argocd_app_model.metadata.get('path')
-            
             # Use time_range parameter for start and end times directly
             start_time = time_range.time_geq
             end_time = time_range.time_lt
