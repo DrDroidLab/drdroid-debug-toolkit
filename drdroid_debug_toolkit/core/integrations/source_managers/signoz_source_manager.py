@@ -23,7 +23,7 @@ from core.protos.assets.asset_pb2 import (
 from core.protos.assets.signoz_asset_pb2 import (
     SignozDashboardModel,
 )
-from core.protos.base_pb2 import Source, SourceModelType, TimeRange
+from core.protos.base_pb2 import Source, SourceModelType, TimeRange, SourceKeyType
 from core.protos.connectors.connector_pb2 import (
     Connector as ConnectorProto,
 )
@@ -39,7 +39,7 @@ from core.protos.playbooks.playbook_commons_pb2 import (
 )
 from core.protos.playbooks.source_task_definitions.signoz_task_pb2 import Signoz
 from core.protos.ui_definition_pb2 import FormField, FormFieldType
-from core.utils.credentilal_utils import generate_credentials_dict
+from core.utils.credentilal_utils import generate_credentials_dict, get_connector_key_type_string, DISPLAY_NAME, CATEGORY, APPLICATION_MONITORING
 from core.utils.proto_utils import dict_to_proto, proto_to_dict
 from core.utils.time_utils import calculate_timeseries_bucket_size
 
@@ -80,7 +80,7 @@ def buildSignozUrl(api_url: str, task_type: str, params: dict = None) -> str:
     
     Args:
         api_url: Base SignOz API URL from connector
-        task_type: Type of task ("dashboards", "services", "metrics", "traces", "logs")
+        task_type: Type of task ("dashboards", "services", "metrics", "traces", "logs", "trace_analysis")
         params: Dictionary containing task-specific parameters
     
     Returns:
@@ -541,6 +541,34 @@ def buildSignozUrl(api_url: str, task_type: str, params: dict = None) -> str:
         query_string = "&".join(url_params)
         return f"{frontend_url}/logs/logs-explorer?{query_string}"
     
+    elif task_type == "trace_analysis":
+        # For trace analysis, navigate to the trace explorer with the specific trace ID
+        if 'trace_id' in params and params['trace_id']:
+            # Build URL to view the specific trace
+            trace_id = params['trace_id']
+            
+            # Add time range parameters if provided
+            url_params = []
+            if 'start_time' in params and params['start_time']:
+                start_time_ms = _convert_to_milliseconds(params['start_time'])
+                if start_time_ms:
+                    url_params.append(f"startTime={start_time_ms}")
+            if 'end_time' in params and params['end_time']:
+                end_time_ms = _convert_to_milliseconds(params['end_time'])
+                if end_time_ms:
+                    url_params.append(f"endTime={end_time_ms}")
+            if 'duration' in params and params['duration']:
+                url_params.append(f"relativeTime={params['duration']}")
+            
+            # Add trace ID parameter
+            url_params.append(f"traceId={trace_id}")
+            
+            query_string = "&".join(url_params)
+            return f"{frontend_url}/traces/trace/{trace_id}?{query_string}" if query_string else f"{frontend_url}/traces/trace/{trace_id}"
+        else:
+            # If no trace ID, go to general traces explorer
+            return f"{frontend_url}/traces"
+    
     else:
         logger.warning(f"Unsupported SignOz task type: {task_type}")
         return frontend_url
@@ -764,8 +792,8 @@ class SignozSourceManager(SourceManager):
             },
             Signoz.TaskType.DASHBOARD_DATA: {
                 "executor": self.execute_dashboard_data,
-                "model_types": [SourceModelType.SIGNOZ_DASHBOARD],
-                "result_type": PlaybookTaskResultType.TIMESERIES,
+                "model_types": [],
+                "result_type": PlaybookTaskResultType.TIMESERIES,  # Primary result type - can also return TABLE based on panel type
                 "display_name": "Get Dashboard Data",
                 "category": "Dashboard",
                 "form_fields": [
@@ -923,29 +951,20 @@ class SignozSourceManager(SourceManager):
                     ),
                 ],
             },
-            Signoz.TaskType.FETCH_TRACES_OR_LOGS: {
-                "executor": self.execute_fetch_traces_or_logs,
+            Signoz.TaskType.FETCH_LOGS: {
+                "executor": self.execute_fetch_logs,
                 "model_types": [],
                 "result_type": PlaybookTaskResultType.API_RESPONSE,
-                "display_name": "Fetch Traces or Logs",
+                "display_name": "Fetch Logs",
                 "category": "Observability",
                 "form_fields": [
                     FormField(
-                        key_name=StringValue(value="data_type"),
-                        display_name=StringValue(value="Data Type"),
-                        description=StringValue(value="Type of data to fetch: 'traces' or 'logs'"),
+                        key_name=StringValue(value="filter_expression"),
+                        display_name=StringValue(value="Filter Expression"),
+                        description=StringValue(value="Filter expression for logs (e.g., \"service.name = 'my-service'\" or \"severity_text = 'ERROR'\")"),
                         data_type=LiteralType.STRING,
-                        form_field_type=FormFieldType.DROPDOWN_FT,
-                        valid_values=[
-                            Literal(
-                                type=LiteralType.STRING,
-                                string=StringValue(value="traces"),
-                            ),
-                            Literal(
-                                type=LiteralType.STRING,
-                                string=StringValue(value="logs"),
-                            ),
-                        ],
+                        is_optional=True,
+                        form_field_type=FormFieldType.TEXT_FT,
                     ),
                     FormField(
                         key_name=StringValue(value="start_time"),
@@ -972,14 +991,6 @@ class SignozSourceManager(SourceManager):
                         form_field_type=FormFieldType.TEXT_FT,
                     ),
                     FormField(
-                        key_name=StringValue(value="service_name"),
-                        display_name=StringValue(value="Service Name"),
-                        description=StringValue(value="Optional service name to filter by"),
-                        data_type=LiteralType.STRING,
-                        is_optional=True,
-                        form_field_type=FormFieldType.TEXT_FT,
-                    ),
-                    FormField(
                         key_name=StringValue(value="limit"),
                         display_name=StringValue(value="Limit"),
                         description=StringValue(value="Maximum number of records to return"),
@@ -993,7 +1004,160 @@ class SignozSourceManager(SourceManager):
                     ),
                 ],
             },
+            Signoz.TaskType.FETCH_LOGS_FOR_TRACE: {
+                "executor": self.execute_fetch_logs_for_trace,
+                "model_types": [],
+                "result_type": PlaybookTaskResultType.API_RESPONSE,
+                "display_name": "Fetch Logs for Trace",
+                "category": "Observability",
+                "form_fields": [
+                    FormField(
+                        key_name=StringValue(value="trace_id"),
+                        display_name=StringValue(value="Trace ID"),
+                        description=StringValue(value="The specific trace ID to fetch logs for"),
+                        data_type=LiteralType.STRING,
+                        is_optional=False,
+                        form_field_type=FormFieldType.TEXT_FT,
+                    ),
+                    FormField(
+                        key_name=StringValue(value="limit"),
+                        display_name=StringValue(value="Limit"),
+                        description=StringValue(value="Maximum number of logs to return"),
+                        data_type=LiteralType.LONG,
+                        is_optional=True,
+                        default_value=Literal(
+                            type=LiteralType.LONG,
+                            long=Int64Value(value=10),
+                        ),
+                        form_field_type=FormFieldType.TEXT_FT,
+                    ),
+                ],
+            },
+            Signoz.TaskType.FETCH_TRACES: {
+                "executor": self.execute_fetch_traces,
+                "model_types": [],
+                "result_type": PlaybookTaskResultType.API_RESPONSE,
+                "display_name": "Fetch Traces",
+                "category": "Observability",
+                "form_fields": [
+                    FormField(
+                        key_name=StringValue(value="filter_expression"),
+                        display_name=StringValue(value="Filter Expression"),
+                        description=StringValue(value="Filter expression for traces (e.g., \"name = 'GET /api/users'\" or \"status_code = '200'\")"),
+                        data_type=LiteralType.STRING,
+                        is_optional=True,
+                        form_field_type=FormFieldType.TEXT_FT,
+                    ),
+                    FormField(
+                        key_name=StringValue(value="start_time"),
+                        display_name=StringValue(value="Start Time"),
+                        description=StringValue(value="Start time (RFC3339 or relative like 'now-2h')"),
+                        data_type=LiteralType.STRING,
+                        is_optional=True,
+                        form_field_type=FormFieldType.TEXT_FT,
+                    ),
+                    FormField(
+                        key_name=StringValue(value="end_time"),
+                        display_name=StringValue(value="End Time"),
+                        description=StringValue(value="End time (RFC3339 or relative like 'now-30m')"),
+                        data_type=LiteralType.STRING,
+                        is_optional=True,
+                        form_field_type=FormFieldType.TEXT_FT,
+                    ),
+                    FormField(
+                        key_name=StringValue(value="duration"),
+                        display_name=StringValue(value="Duration"),
+                        description=StringValue(value="Duration string (e.g., '2h', '90m')"),
+                        data_type=LiteralType.STRING,
+                        is_optional=True,
+                        form_field_type=FormFieldType.TEXT_FT,
+                    ),
+                    FormField(
+                        key_name=StringValue(value="limit"),
+                        display_name=StringValue(value="Limit"),
+                        description=StringValue(value="Maximum number of traces to return"),
+                        data_type=LiteralType.LONG,
+                        is_optional=True,
+                        default_value=Literal(
+                            type=LiteralType.LONG,
+                            long=Int64Value(value=100),
+                        ),
+                        form_field_type=FormFieldType.TEXT_FT,
+                    ),
+                ],
+            },
         }
+        self.connector_form_configs = [
+            {
+                "name": StringValue(value="Signoz Connection"),
+                "description": StringValue(value="Connect to Signoz using the API URL and an optional API Token."),
+                "form_fields": {
+                    SourceKeyType.SIGNOZ_API_URL: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.SIGNOZ_API_URL)),
+                        display_name=StringValue(value="API URL"),
+                        helper_text=StringValue(value="Enter the Signoz API URL"),
+                        description=StringValue(value='e.g. "http://localhost:8888" or "https://query.signoz.io"'),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False
+                    ),
+                    SourceKeyType.SIGNOZ_API_TOKEN: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.SIGNOZ_API_TOKEN)),
+                        display_name=StringValue(value="API Token"),
+                        helper_text=StringValue(value="(Optional) Enter your Signoz API Token for authentication."),
+                        description=StringValue(value='e.g. "1234567890abcdefghijklmnopqrstuvwxyz"'),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=True, # API token might be optional depending on Signoz setup
+                        is_sensitive=True
+                    )
+                }
+            }
+        ]
+        self.connector_type_details = {
+            DISPLAY_NAME: "SIGNOZ",
+            CATEGORY: APPLICATION_MONITORING,
+        }
+
+    def _map_panel_type(self, panel_type):
+        """
+        Maps panel types from dashboard configuration to valid SigNoz API panel types.
+        SigNoz API only supports: 'table', 'graph', 'value'
+        """
+        if not panel_type:
+            return "graph"
+        
+        panel_type = panel_type.lower()
+        
+        # Mapping from various panel types to supported API types
+        panel_type_mapping = {
+            # Chart types that should be treated as graphs
+            'bar': 'graph',
+            'line': 'graph', 
+            'area': 'graph',
+            'histogram': 'graph',
+            'pie': 'graph',
+            'scatter': 'graph',
+            'timeseries': 'graph',
+            'graph': 'graph',
+            
+            # Table types
+            'table': 'table',
+            'list': 'table',
+            
+            # Value types (single number displays)
+            'value': 'value',
+            'stat': 'value',
+            'singlestat': 'value',
+            'gauge': 'value',
+        }
+        
+        mapped_type = panel_type_mapping.get(panel_type, 'graph')
+        
+        if mapped_type != panel_type:
+            logger.debug(f"Mapped panel type '{panel_type}' to '{mapped_type}' for SigNoz API compatibility")
+        
+        return mapped_type
 
     def get_connector_processor(self, signoz_connector, **kwargs):
         generated_credentials = generate_credentials_dict(signoz_connector.type, signoz_connector.keys)
@@ -1005,7 +1169,7 @@ class SignozSourceManager(SourceManager):
             return ""
         
         for key in signoz_connector.keys:
-            if key.key_type == 136 and key.key.value:
+            if key.key_type == SourceKeyType.SIGNOZ_API_URL and key.key.value:
                 return key.key.value
         
         return ""
@@ -1014,7 +1178,7 @@ class SignozSourceManager(SourceManager):
         """Create metadata struct with SignOz URL."""
         signoz_url = buildSignozUrl(api_url, task_type, params)
         metadata_dict = {
-            "link": signoz_url
+            "signoz_url": signoz_url
         }
         return dict_to_proto(metadata_dict, Struct)
 
@@ -1314,7 +1478,6 @@ class SignozSourceManager(SourceManager):
 
             task = signoz_task.clickhouse_query
             query = task.query.value
-            logger.info(f"Executing Clickhouse query: {query}")
 
             step = self._get_step_interval(time_range, task)
             fill_gaps = task.fill_gaps.value if task.HasField("fill_gaps") else False
@@ -1348,11 +1511,8 @@ class SignozSourceManager(SourceManager):
                 },
             }
 
-            logger.info(f"Clickhouse query payload: {json.dumps(payload, indent=2)}")
-
             # Execute the query
             result = signoz_api_processor.execute_signoz_query(payload)
-            logger.info(f"Clickhouse query result: {json.dumps(result, indent=2) if result else 'None'}")
 
             # Extract API URL and create metadata with SignOz URL
             api_url = self._extract_api_url_from_connector(signoz_connector)
@@ -1381,8 +1541,7 @@ class SignozSourceManager(SourceManager):
             task = signoz_task.builder_query
             # Clean and parse the builder queries
             builder_queries = json.loads(task.builder_queries.value)
-            logger.info(f"Executing Builder query with queries: {json.dumps(builder_queries, indent=2)}")
-            
+            logger.debug(f"builder_queries: {builder_queries}")
             # Clean and format the queries
             cleaned_queries = format_builder_queries(builder_queries)
 
@@ -1410,12 +1569,10 @@ class SignozSourceManager(SourceManager):
 
             # Format the entire payload to ensure double quotes
             payload = format_builder_queries(payload)
-            logger.info(f"Builder query payload: {json.dumps(payload, indent=2)}")
 
             # Execute the query
             result = signoz_api_processor.execute_signoz_query(payload)
-            logger.info(f"Builder query result: {json.dumps(result, indent=2) if result else 'None'}")
-            
+            logger.debug(f"result: {result}")
             query_name = "Builder Query"
             if cleaned_queries and isinstance(cleaned_queries, dict):
                 first_key = next(iter(cleaned_queries), None)
@@ -1561,7 +1718,6 @@ class SignozSourceManager(SourceManager):
         time_range: TimeRange,
         signoz_api_processor: SignozApiProcessor,
         query_builder: SignozDashboardQueryBuilder,  # Pass builder instance
-        metadata: Struct = None,
     ) -> typing.Optional[PlaybookTaskResult]:
         """Executes queries for a single panel and aggregates results."""
         try:
@@ -1589,9 +1745,9 @@ class SignozSourceManager(SourceManager):
                 logger.info(f"Received {len(api_query_results)} results from composite query for panel '{panel_title}'.")
 
                 if panel_type == "graph":
-                    return self._aggregate_panel_graph_results(api_query_results, panel_title, panel_queries, metadata)
+                    return self._aggregate_panel_graph_results(api_query_results, panel_title, panel_queries)
                 elif panel_type == "table":
-                    return self._aggregate_panel_table_results(api_query_results, panel_title, metadata)
+                    return self._aggregate_panel_table_results(api_query_results, panel_title)
                 else:  # Default to API Response for 'value' or other types, returning the full composite result
                     try:
                         response_struct = dict_to_proto(result, Struct)
@@ -1600,7 +1756,6 @@ class SignozSourceManager(SourceManager):
                             type=PlaybookTaskResultType.API_RESPONSE,
                             api_response=ApiResponseResult(response_body=response_struct, metadata=metadata_struct),
                             source=self.source,
-                            metadata=metadata,
                         )
                     except Exception as e:
                         logger.error(f"Failed to convert raw result to API response for panel '{panel_title}': {e}", exc_info=True)
@@ -1612,6 +1767,49 @@ class SignozSourceManager(SourceManager):
         except Exception as e:
             logger.error(f"Error executing queries for panel '{panel_info.get('panel_title', 'UNKNOWN')}': {e}", exc_info=True)
             return None  # Indicate error for this panel
+
+    def _find_dashboard_asset(self, signoz_connector: ConnectorProto, dashboard_name: str) -> typing.Optional["SignozDashboardModel"]:
+        """Finds a specific dashboard asset by name."""
+        try:
+            # get_asset_model_values returns tuple: [assets], model_type_counts, current_page, total_pages
+            assets_list, _, _, _ = asset_manager_facade.get_asset_model_values(
+                signoz_connector,
+                SourceModelType.SIGNOZ_DASHBOARD,
+                AccountConnectorAssetsModelFilters(),  # Pass filters if possible later
+            )
+            
+            # Extract the AccountConnectorAssets from the list
+            if not assets_list or len(assets_list) == 0:
+                logger.warning(f"No assets list returned for connector {signoz_connector.id.value}")
+                return None
+                
+            account_connector_assets = assets_list[0]  # First (and typically only) element
+            
+            # Check if signoz assets exist
+            if not hasattr(account_connector_assets, 'signoz') or not account_connector_assets.signoz:
+                logger.warning(f"No Signoz section in assets for connector {signoz_connector.id.value}")
+                return None
+                
+            if not hasattr(account_connector_assets.signoz, 'assets') or not account_connector_assets.signoz.assets:
+                logger.warning(f"No Signoz dashboard assets found for connector {signoz_connector.id.value}")
+                return None
+
+            # Search through the assets for matching dashboard name
+            for asset in account_connector_assets.signoz.assets:
+                if (
+                    asset.type == SourceModelType.SIGNOZ_DASHBOARD
+                    and asset.HasField("signoz_dashboard")
+                    and asset.signoz_dashboard.title.value == dashboard_name
+                ):
+                    logger.info(f"Found matching dashboard: {dashboard_name} for connector {signoz_connector.id.value}")
+                    return asset.signoz_dashboard
+                    
+            logger.warning(f"Dashboard '{dashboard_name}' not found among {len(account_connector_assets.signoz.assets)} assets for connector {signoz_connector.id.value}")
+            return None
+            
+        except Exception as e:
+            logger.error(f"Error fetching dashboard assets for connector {signoz_connector.id.value}: {e}", exc_info=True)
+            return None  # Indicate error during fetch
 
     def _parse_dashboard_variables(self, task: Signoz.DashboardDataTask) -> tuple[dict, typing.Optional[PlaybookTaskResult]]:
         """Parses variables JSON from task input, returning dict and error result if any."""
@@ -1626,7 +1824,7 @@ class SignozSourceManager(SourceManager):
         except json.JSONDecodeError as e:
             logger.error(f"Failed to parse variables JSON: '{variables_json}'. Error: {e}", exc_info=True)
             error_result = PlaybookTaskResult(
-                type=PlaybookTaskResultType.ERROR,
+                type=PlaybookTaskResultType.TEXT,
                 text=TextResult(output=StringValue(value=f"Invalid Variables JSON provided: {e}")),
                 source=self.source,
             )
@@ -1637,7 +1835,8 @@ class SignozSourceManager(SourceManager):
         panel_queries_map = {}
         for panel in dashboard.panels:
             if panel.query and panel.query.builder and panel.query.builder.query_data:
-                panel_type = panel.panel_type.value if panel.panel_type.value else "graph"  # Default type
+                raw_panel_type = panel.panel_type.value if panel.panel_type.value else "graph"  # Default type
+                panel_type = self._map_panel_type(raw_panel_type)
                 panel_title = panel.title.value if panel.title.value else f"Panel_{panel.id.value}"
                 panel_id = panel.id.value
 
@@ -1659,31 +1858,97 @@ class SignozSourceManager(SourceManager):
                     }
         return panel_queries_map
 
+    def _convert_panel_data_to_result(
+        self, api_query_results: list, panel_title: str, dashboard_name: str, panel_type: str, metadata: Struct = None
+    ) -> typing.Optional[PlaybookTaskResult]:
+        """Converts panel data from API response to appropriate result format using existing aggregation logic."""
+        try:
+            # Create a mock panel_queries dict for the existing method - it only needs query letters and legends
+            panel_queries = {}
+            for query_result_item in api_query_results:
+                query_letter = query_result_item.get("queryName", "")
+                if query_letter:
+                    panel_queries[query_letter] = {
+                        "legend": query_result_item.get("legend", query_letter)
+                    }
+            
+            # Use the appropriate aggregation method based on panel type
+            if panel_type == "graph":
+                task_result = self._aggregate_panel_graph_results(api_query_results, panel_title, panel_queries, metadata)
+            elif panel_type == "table":
+                task_result = self._aggregate_panel_table_results(api_query_results, panel_title, metadata)
+            else:
+                # Default to graph for unknown panel types
+                logger.warning(f"Unknown panel type '{panel_type}' for panel '{panel_title}', defaulting to graph")
+                task_result = self._aggregate_panel_graph_results(api_query_results, panel_title, panel_queries, metadata)
+            
+            if task_result:
+                # Add dashboard context to the result
+                if task_result.type == PlaybookTaskResultType.TIMESERIES:
+                    # Add dashboard_name label to all metric timeseries
+                    for labeled_metric in task_result.timeseries.labeled_metric_timeseries:
+                        labeled_metric.metric_label_values.append(
+                            LabelValuePair(
+                                name=StringValue(value="dashboard_name"),
+                                value=StringValue(value=dashboard_name)
+                            )
+                        )
+                    # Update the metric expression to include dashboard context
+                    task_result.timeseries.metric_expression.value = f"Dashboard: {dashboard_name}, Panel: {panel_title}"
+                
+                elif task_result.type == PlaybookTaskResultType.TABLE:
+                    # Update the raw query to include dashboard context
+                    task_result.table.raw_query.value = f"Dashboard: {dashboard_name}, Panel: {panel_title}"
+                
+                return task_result
+            else:
+                logger.warning(f"Failed to aggregate panel data for '{panel_title}' (type: {panel_type})")
+                return None
+                
+        except Exception as e:
+            logger.error(f"Error converting panel data for '{panel_title}' (type: {panel_type}): {e}", exc_info=True)
+            return None
+
     def execute_dashboard_data(
         self,
         time_range: TimeRange,
         signoz_task: Signoz,
         signoz_connector: ConnectorProto,
     ) -> list[PlaybookTaskResult]:
-        """Executes queries for all panels in a specified Signoz dashboard using the processor's fetch_dashboard_data method."""
+        """Executes queries for all panels in a specified Signoz dashboard and returns timeseries or table data based on panel type."""
         try:
             if not signoz_connector:
+                # Extract API URL and create metadata with SignOz URL
+                api_url = self._extract_api_url_from_connector(signoz_connector)
+                metadata = self._create_metadata_with_signoz_url(api_url, "dashboards", {
+                    "dashboard_id": dashboard_name,
+                    "start_time": start_time,
+                    "end_time": end_time
+                })
                 return [
                     PlaybookTaskResult(
-                        type=PlaybookTaskResultType.API_RESPONSE,
+                        type=PlaybookTaskResultType.TEXT,
                         text=TextResult(output=StringValue(value="Signoz connector not found.")),
                         source=self.source,
+                        metadata=metadata,
                     )
                 ]
 
             task = signoz_task.dashboard_data
             dashboard_name = task.dashboard_name.value
             if not dashboard_name:
+                # Extract API URL and create metadata with SignOz URL
+                api_url = self._extract_api_url_from_connector(signoz_connector)
+                metadata = self._create_metadata_with_signoz_url(api_url, "dashboards", {
+                    "start_time": start_time,
+                    "end_time": end_time
+                })
                 return [
                     PlaybookTaskResult(
-                        type=PlaybookTaskResultType.API_RESPONSE,
+                        type=PlaybookTaskResultType.TEXT,
                         text=TextResult(output=StringValue(value="Dashboard name must be provided.")),
                         source=self.source,
+                        metadata=metadata,
                     )
                 ]
 
@@ -1709,16 +1974,51 @@ class SignozSourceManager(SourceManager):
                     "end_time": end_time
                 })
                 
-                # Convert the result to a structured response
-                response_struct = dict_to_proto(result, Struct)
-                return [
-                    PlaybookTaskResult(
-                        type=PlaybookTaskResultType.API_RESPONSE,
-                        api_response=ApiResponseResult(response_body=response_struct),
-                        source=self.source,
-                        metadata=metadata,
-                    )
-                ]
+                task_results = []
+                dashboard_results = result.get("results", {})
+                
+                for panel_title, panel_data in dashboard_results.items():
+                    if panel_data.get("status") == "success" and "data" in panel_data:
+                        # Convert panel data to appropriate result type
+                        panel_result_data = panel_data["data"]
+                        if "data" in panel_result_data and "result" in panel_result_data["data"]:
+                            api_query_results = panel_result_data["data"]["result"]
+                            
+                            if api_query_results:
+                                # Get panel type from the API response, default to "graph"
+                                panel_type = panel_data.get("panel_type", "graph")
+                                
+                                # Convert panel data using existing aggregation methods
+                                panel_result = self._convert_panel_data_to_result(
+                                    api_query_results, panel_title, dashboard_name, panel_type, metadata
+                                )
+                                
+                                if panel_result:
+                                    task_results.append(panel_result)
+                                else:
+                                    logger.warning(f"Failed to convert panel '{panel_title}' data (type: {panel_type})")
+                    else:
+                        logger.warning(f"Panel '{panel_title}' returned status: {panel_data.get('status', 'unknown')}")
+
+                if task_results:
+                    return task_results
+                else:
+                    # Extract API URL and create metadata with SignOz URL
+                    api_url = self._extract_api_url_from_connector(signoz_connector)
+                    metadata = self._create_metadata_with_signoz_url(api_url, "dashboards", {
+                        "dashboard_id": dashboard_name,
+                        "start_time": start_time,
+                        "end_time": end_time
+                    })
+                    
+                    return [
+                        PlaybookTaskResult(
+                            type=PlaybookTaskResultType.TEXT,
+                            text=TextResult(output=StringValue(value=f"No timeseries data could be extracted from dashboard: {dashboard_name}")),
+                            source=self.source,
+                            metadata=metadata,
+                        )
+                    ]
             else:
                 # Extract API URL and create metadata with SignOz URL
                 api_url = self._extract_api_url_from_connector(signoz_connector)
@@ -1731,7 +2031,7 @@ class SignozSourceManager(SourceManager):
                 error_msg = result.get("message", "Failed to fetch dashboard data") if result else "Failed to fetch dashboard data"
                 return [
                     PlaybookTaskResult(
-                        type=PlaybookTaskResultType.API_RESPONSE,
+                        type=PlaybookTaskResultType.TEXT,
                         text=TextResult(output=StringValue(value=error_msg)),
                         source=self.source,
                         metadata=metadata,
@@ -1740,11 +2040,20 @@ class SignozSourceManager(SourceManager):
 
         except Exception as e:
             logger.error(f"Error while executing Signoz dashboard data task: {e}", exc_info=True)
+            # Extract API URL and create metadata with SignOz URL
+            api_url = self._extract_api_url_from_connector(signoz_connector)
+            metadata = self._create_metadata_with_signoz_url(api_url, "dashboards", {
+                "dashboard_id": dashboard_name,
+                "start_time": start_time,
+                "end_time": end_time
+            })
+            
             return [
                 PlaybookTaskResult(
-                    type=PlaybookTaskResultType.API_RESPONSE,
+                    type=PlaybookTaskResultType.TEXT,
                     text=TextResult(output=StringValue(value=f"Unexpected error executing dashboard task: {e}")),
                     source=self.source,
+                    metadata=metadata,
                 )
             ]
 
@@ -1763,10 +2072,6 @@ class SignozSourceManager(SourceManager):
             result = signoz_api_processor.fetch_dashboards()
 
             if result:
-                # Extract API URL and create metadata with SignOz URL
-                api_url = self._extract_api_url_from_connector(signoz_connector)
-                metadata = self._create_metadata_with_signoz_url(api_url, "dashboards")
-                
                 # Handle different response formats from fetch_dashboards
                 if isinstance(result, list):
                     # If result is a list of dashboards, wrap it in a dictionary
@@ -1779,6 +2084,11 @@ class SignozSourceManager(SourceManager):
                     response_data = {"data": result}
                 
                 response_struct = dict_to_proto(response_data, Struct)
+                
+                # Extract API URL and create metadata with SignOz URL
+                api_url = self._extract_api_url_from_connector(signoz_connector)
+                metadata = self._create_metadata_with_signoz_url(api_url, "dashboards")
+                
                 return PlaybookTaskResult(
                     type=PlaybookTaskResultType.API_RESPONSE,
                     api_response=ApiResponseResult(response_body=response_struct),
@@ -1789,7 +2099,6 @@ class SignozSourceManager(SourceManager):
                 # Extract API URL and create metadata with SignOz URL
                 api_url = self._extract_api_url_from_connector(signoz_connector)
                 metadata = self._create_metadata_with_signoz_url(api_url, "dashboards")
-                
                 return PlaybookTaskResult(
                     type=PlaybookTaskResultType.API_RESPONSE,
                     text=TextResult(output=StringValue(value="Failed to fetch dashboards")),
@@ -1798,7 +2107,15 @@ class SignozSourceManager(SourceManager):
                 )
         except Exception as e:
             logger.error(f"Error while executing Signoz fetch dashboards task: {e}")
-            raise Exception(f"Error while executing Signoz fetch dashboards task: {e}") from e
+            # Extract API URL and create metadata with SignOz URL for error case
+            api_url = self._extract_api_url_from_connector(signoz_connector)
+            metadata = self._create_metadata_with_signoz_url(api_url, "dashboards")
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                text=TextResult(output=StringValue(value=f"Error executing fetch dashboards task: {e}")),
+                source=self.source,
+                metadata=metadata,
+            )
 
     def execute_fetch_dashboard_details(
         self,
@@ -1814,22 +2131,38 @@ class SignozSourceManager(SourceManager):
             task = signoz_task.fetch_dashboard_details
             dashboard_id = task.dashboard_id.value
             if not dashboard_id:
+                # Extract time parameters from time_range
+                start_time = time_range.time_geq * 1000 if time_range.time_geq else None
+                end_time = time_range.time_lt * 1000 if time_range.time_lt else None
+                
+                # Extract API URL and create metadata with SignOz URL
+                api_url = self._extract_api_url_from_connector(signoz_connector)
+                metadata = self._create_metadata_with_signoz_url(api_url, "dashboards", {
+                    "start_time": start_time,
+                    "end_time": end_time
+                })
                 return PlaybookTaskResult(
                     type=PlaybookTaskResultType.API_RESPONSE,
                     text=TextResult(output=StringValue(value="Dashboard ID must be provided.")),
                     source=self.source,
+                    metadata=metadata,
                 )
 
             signoz_api_processor = self.get_connector_processor(signoz_connector)
             result = signoz_api_processor.fetch_dashboard_details(dashboard_id)
 
+            # Extract variables from dashboard metadata and attach as 'variables_extracted'
+            try:
+                variables_extracted = signoz_api_processor.extract_dashboard_variables_from_details(result, resolve_queries=True)
+                if isinstance(result, dict):
+                    # Attach into the response_data structure under a known key
+                    result_with_vars = dict(result)
+                    result_with_vars["variables_extracted"] = variables_extracted
+                    result = result_with_vars
+            except Exception as _var_err:
+                logger.warning(f"Failed to extract Signoz dashboard variables for {dashboard_id}: {_var_err}")
+
             if result:
-                # Extract API URL and create metadata with SignOz URL
-                api_url = self._extract_api_url_from_connector(signoz_connector)
-                metadata = self._create_metadata_with_signoz_url(api_url, "dashboards", {
-                    "dashboard_id": dashboard_id
-                })
-                
                 # Handle different response formats from fetch_dashboard_details
                 if isinstance(result, dict):
                     # If result is already a dictionary, use it as is
@@ -1839,6 +2172,19 @@ class SignozSourceManager(SourceManager):
                     response_data = {"data": result}
                 
                 response_struct = dict_to_proto(response_data, Struct)
+                
+                # Extract time parameters from time_range
+                start_time = time_range.time_geq * 1000 if time_range.time_geq else None
+                end_time = time_range.time_lt * 1000 if time_range.time_lt else None
+                
+                # Extract API URL and create metadata with SignOz URL
+                api_url = self._extract_api_url_from_connector(signoz_connector)
+                metadata = self._create_metadata_with_signoz_url(api_url, "dashboards", {
+                    "dashboard_id": dashboard_id,
+                    "start_time": start_time,
+                    "end_time": end_time
+                })
+                
                 return PlaybookTaskResult(
                     type=PlaybookTaskResultType.API_RESPONSE,
                     api_response=ApiResponseResult(response_body=response_struct),
@@ -1846,10 +2192,16 @@ class SignozSourceManager(SourceManager):
                     metadata=metadata,
                 )
             else:
+                # Extract time parameters from time_range
+                start_time = time_range.time_geq * 1000 if time_range.time_geq else None
+                end_time = time_range.time_lt * 1000 if time_range.time_lt else None
+                
                 # Extract API URL and create metadata with SignOz URL
                 api_url = self._extract_api_url_from_connector(signoz_connector)
                 metadata = self._create_metadata_with_signoz_url(api_url, "dashboards", {
-                    "dashboard_id": dashboard_id
+                    "dashboard_id": dashboard_id,
+                    "start_time": start_time,
+                    "end_time": end_time
                 })
                 
                 return PlaybookTaskResult(
@@ -1860,7 +2212,24 @@ class SignozSourceManager(SourceManager):
                 )
         except Exception as e:
             logger.error(f"Error while executing Signoz fetch dashboard details task: {e}")
-            raise Exception(f"Error while executing Signoz fetch dashboard details task: {e}") from e
+            # Extract time parameters from time_range for error case
+            start_time = time_range.time_geq * 1000 if time_range.time_geq else None
+            end_time = time_range.time_lt * 1000 if time_range.time_lt else None
+            
+            # Extract API URL and create metadata with SignOz URL
+            api_url = self._extract_api_url_from_connector(signoz_connector)
+            metadata = self._create_metadata_with_signoz_url(api_url, "dashboards", {
+                "dashboard_id": dashboard_id,
+                "start_time": start_time,
+                "end_time": end_time
+            })
+            
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                text=TextResult(output=StringValue(value=f"Error executing dashboard details task: {e}")),
+                source=self.source,
+                metadata=metadata,
+            )
 
     def execute_fetch_services(
         self,
@@ -1882,14 +2251,6 @@ class SignozSourceManager(SourceManager):
             result = signoz_api_processor.fetch_services(start_time, end_time, duration)
 
             if result:
-                # Extract API URL and create metadata with SignOz URL
-                api_url = self._extract_api_url_from_connector(signoz_connector)
-                metadata = self._create_metadata_with_signoz_url(api_url, "services", {
-                    "start_time": start_time,
-                    "end_time": end_time,
-                    "duration": duration
-                })
-                
                 # Handle different response formats from fetch_services
                 if isinstance(result, list):
                     # If result is a list of services, wrap it in a dictionary
@@ -1902,6 +2263,15 @@ class SignozSourceManager(SourceManager):
                     response_data = {"data": result}
                 
                 response_struct = dict_to_proto(response_data, Struct)
+                
+                # Extract API URL and create metadata with SignOz URL
+                api_url = self._extract_api_url_from_connector(signoz_connector)
+                metadata = self._create_metadata_with_signoz_url(api_url, "services", {
+                    "start_time": start_time,
+                    "end_time": end_time,
+                    "duration": duration
+                })
+                
                 return PlaybookTaskResult(
                     type=PlaybookTaskResultType.API_RESPONSE,
                     api_response=ApiResponseResult(response_body=response_struct),
@@ -1916,7 +2286,6 @@ class SignozSourceManager(SourceManager):
                     "end_time": end_time,
                     "duration": duration
                 })
-                
                 return PlaybookTaskResult(
                     type=PlaybookTaskResultType.API_RESPONSE,
                     text=TextResult(output=StringValue(value="Failed to fetch services")),
@@ -1925,7 +2294,19 @@ class SignozSourceManager(SourceManager):
                 )
         except Exception as e:
             logger.error(f"Error while executing Signoz fetch services task: {e}")
-            raise Exception(f"Error while executing Signoz fetch services task: {e}") from e
+            # Extract API URL and create metadata with SignOz URL for error case
+            api_url = self._extract_api_url_from_connector(signoz_connector)
+            metadata = self._create_metadata_with_signoz_url(api_url, "services", {
+                "start_time": start_time,
+                "end_time": end_time,
+                "duration": duration
+            })
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                text=TextResult(output=StringValue(value=f"Error executing services task: {e}")),
+                source=self.source,
+                metadata=metadata,
+            )
 
     def execute_fetch_apm_metrics(
         self,
@@ -1940,19 +2321,28 @@ class SignozSourceManager(SourceManager):
 
             task = signoz_task.fetch_apm_metrics
             service_name = task.service_name.value
-            if not service_name:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.API_RESPONSE,
-                    text=TextResult(output=StringValue(value="Service name must be provided.")),
-                    source=self.source,
-                )
-
             start_time = task.start_time.value if task.HasField("start_time") else None
             end_time = task.end_time.value if task.HasField("end_time") else None
             window = task.window.value if task.HasField("window") else "1m"
             operation_names = task.operation_names.value if task.HasField("operation_names") else None
             metrics = task.metrics.value if task.HasField("metrics") else None
             duration = task.duration.value if task.HasField("duration") else None
+            
+            if not service_name:
+                # Extract API URL and create metadata with SignOz URL
+                api_url = self._extract_api_url_from_connector(signoz_connector)
+                metadata = self._create_metadata_with_signoz_url(api_url, "metrics", {
+                    "start_time": start_time,
+                    "end_time": end_time,
+                    "window": window,
+                    "duration": duration
+                })
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.API_RESPONSE,
+                    text=TextResult(output=StringValue(value="Service name must be provided.")),
+                    source=self.source,
+                    metadata=metadata,
+                )
 
             # Parse JSON arrays if provided
             if operation_names:
@@ -1978,34 +2368,51 @@ class SignozSourceManager(SourceManager):
                 # Extract API URL and create metadata with SignOz URL
                 api_url = self._extract_api_url_from_connector(signoz_connector)
                 metadata = self._create_metadata_with_signoz_url(api_url, "metrics", {
-                    "service_name": service_name,
                     "start_time": start_time,
                     "end_time": end_time,
                     "window": window,
                     "duration": duration
                 })
                 
-                # Convert to timeseries result
-                timeseries_result = self._convert_apm_metrics_to_timeseries(result, service_name)
-                if timeseries_result:
-                    return PlaybookTaskResult(
-                        type=PlaybookTaskResultType.TIMESERIES,
-                        timeseries=timeseries_result,
-                        source=self.source,
-                        metadata=metadata,
-                    )
+                # Convert to multiple timeseries results (one per metric)
+                task_results = []
+                
+                if isinstance(result, dict) and "data" not in result:
+                    # New format: dictionary of metric results
+                    for metric_name, metric_result in result.items():
+                        if isinstance(metric_result, dict) and "data" in metric_result:
+                            timeseries_result = self._convert_single_metric_to_timeseries(metric_result, service_name, metric_name)
+                            if timeseries_result:
+                                task_results.append(PlaybookTaskResult(
+                                    type=PlaybookTaskResultType.TIMESERIES,
+                                    timeseries=timeseries_result,
+                                    source=self.source,
+                                    metadata=metadata,
+                                ))
                 else:
-                    return PlaybookTaskResult(
+                    # Old format: single result
+                    timeseries_result = self._convert_apm_metrics_to_timeseries(result, service_name)
+                    if timeseries_result:
+                        task_results.append(PlaybookTaskResult(
+                            type=PlaybookTaskResultType.TIMESERIES,
+                            timeseries=timeseries_result,
+                            source=self.source,
+                            metadata=metadata,
+                        ))
+                
+                if task_results:
+                    return task_results
+                else:
+                    return [PlaybookTaskResult(
                         type=PlaybookTaskResultType.API_RESPONSE,
                         text=TextResult(output=StringValue(value="Failed to convert APM metrics to timeseries format")),
                         source=self.source,
                         metadata=metadata,
-                    )
+                    )]
             else:
                 # Extract API URL and create metadata with SignOz URL
                 api_url = self._extract_api_url_from_connector(signoz_connector)
                 metadata = self._create_metadata_with_signoz_url(api_url, "metrics", {
-                    "service_name": service_name,
                     "start_time": start_time,
                     "end_time": end_time,
                     "window": window,
@@ -2013,53 +2420,55 @@ class SignozSourceManager(SourceManager):
                 })
                 
                 error_msg = result.get("error", "Failed to fetch APM metrics") if result else "Failed to fetch APM metrics"
-                return PlaybookTaskResult(
+                return [PlaybookTaskResult(
                     type=PlaybookTaskResultType.API_RESPONSE,
                     text=TextResult(output=StringValue(value=error_msg)),
                     source=self.source,
                     metadata=metadata,
-                )
+                )]
         except Exception as e:
             logger.error(f"Error while executing Signoz fetch APM metrics task: {e}")
-            raise Exception(f"Error while executing Signoz fetch APM metrics task: {e}") from e
+            # Extract API URL and create metadata with SignOz URL for error case
+            api_url = self._extract_api_url_from_connector(signoz_connector)
+            metadata = self._create_metadata_with_signoz_url(api_url, "metrics", {
+                "service_name": service_name,
+                "start_time": start_time,
+                "end_time": end_time,
+                "window": window,
+                "duration": duration
+            })
+            return [PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                text=TextResult(output=StringValue(value=f"Error executing APM metrics task: {e}")),
+                source=self.source,
+                metadata=metadata,
+            )]
 
-    def execute_fetch_traces_or_logs(
+    def execute_fetch_logs(
         self,
         time_range: TimeRange,
         signoz_task: Signoz,
         signoz_connector: ConnectorProto,
     ) -> PlaybookTaskResult:
-        """Executes fetch traces or logs task."""
+        """Executes fetch logs task with filter expression."""
         try:
             if not signoz_connector:
                 raise Exception("Task execution Failed:: No Signoz source found")
 
-            task = signoz_task.fetch_traces_or_logs
-            data_type = task.data_type.value if task.HasField("data_type") else "traces"
+            task = signoz_task.fetch_logs
+            filter_expression = task.filter_expression.value if task.HasField("filter_expression") else None
             start_time = task.start_time.value if task.HasField("start_time") else None
             end_time = task.end_time.value if task.HasField("end_time") else None
             duration = task.duration.value if task.HasField("duration") else None
-            service_name = task.service_name.value if task.HasField("service_name") else None
             limit = task.limit.value if task.HasField("limit") else 100
 
             signoz_api_processor = self.get_connector_processor(signoz_connector)
-            result = signoz_api_processor.fetch_traces_or_logs(
-                data_type, start_time, end_time, duration, service_name, limit
+            result = signoz_api_processor.fetch_logs_with_filter(
+                filter_expression, start_time, end_time, duration, limit
             )
 
             if result:
-                # Extract API URL and create metadata with SignOz URL
-                api_url = self._extract_api_url_from_connector(signoz_connector)
-                task_type = "traces" if data_type == "traces" else "logs"
-                metadata = self._create_metadata_with_signoz_url(api_url, task_type, {
-                    "service_name": service_name,
-                    "start_time": start_time,
-                    "end_time": end_time,
-                    "duration": duration,
-                    "limit": limit
-                })
-                
-                # Handle different response formats from fetch_traces_or_logs
+                # Handle different response formats from fetch_logs_with_filter
                 if isinstance(result, dict):
                     # If result is already a dictionary, use it as is
                     response_data = result
@@ -2068,6 +2477,17 @@ class SignozSourceManager(SourceManager):
                     response_data = {"data": result}
                 
                 response_struct = dict_to_proto(response_data, Struct)
+                
+                # Extract API URL and create metadata with SignOz URL
+                api_url = self._extract_api_url_from_connector(signoz_connector)
+                metadata = self._create_metadata_with_signoz_url(api_url, "fetch_logs", {
+                    "filter_expression": filter_expression,
+                    "start_time": start_time,
+                    "end_time": end_time,
+                    "duration": duration,
+                    "limit": limit
+                })
+                
                 return PlaybookTaskResult(
                     type=PlaybookTaskResultType.API_RESPONSE,
                     api_response=ApiResponseResult(response_body=response_struct),
@@ -2077,9 +2497,8 @@ class SignozSourceManager(SourceManager):
             else:
                 # Extract API URL and create metadata with SignOz URL
                 api_url = self._extract_api_url_from_connector(signoz_connector)
-                task_type = "traces" if data_type == "traces" else "logs"
-                metadata = self._create_metadata_with_signoz_url(api_url, task_type, {
-                    "service_name": service_name,
+                metadata = self._create_metadata_with_signoz_url(api_url, "fetch_logs", {
+                    "filter_expression": filter_expression,
                     "start_time": start_time,
                     "end_time": end_time,
                     "duration": duration,
@@ -2088,18 +2507,32 @@ class SignozSourceManager(SourceManager):
                 
                 return PlaybookTaskResult(
                     type=PlaybookTaskResultType.API_RESPONSE,
-                    text=TextResult(output=StringValue(value="Failed to fetch traces or logs")),
+                    text=TextResult(output=StringValue(value="Failed to fetch logs")),
                     source=self.source,
                     metadata=metadata,
                 )
         except Exception as e:
-            logger.error(f"Error while executing Signoz fetch traces or logs task: {e}")
-            raise Exception(f"Error while executing Signoz fetch traces or logs task: {e}") from e
+            logger.error(f"Error while executing Signoz fetch logs task: {e}")
+            # Extract API URL and create metadata with SignOz URL for error case
+            api_url = self._extract_api_url_from_connector(signoz_connector)
+            metadata = self._create_metadata_with_signoz_url(api_url, "fetch_logs", {
+                "filter_expression": filter_expression,
+                "start_time": start_time,
+                "end_time": end_time,
+                "duration": duration,
+                "limit": limit
+            })
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                text=TextResult(output=StringValue(value=f"Error executing fetch logs task: {e}")),
+                source=self.source,
+                metadata=metadata,
+            )
 
     def _convert_apm_metrics_to_timeseries(self, apm_metrics_result: dict, service_name: str) -> typing.Optional[TimeseriesResult]:
         """Converts APM metrics result to TimeseriesResult format."""
         try:
-            if not apm_metrics_result or "data" not in apm_metrics_result:
+            if not apm_metrics_result:
                 return None
 
             timeseries_result = TimeseriesResult(
@@ -2107,7 +2540,158 @@ class SignozSourceManager(SourceManager):
                 metric_expression=StringValue(value=f"APM metrics for service: {service_name}"),
             )
 
-            data = apm_metrics_result["data"]
+            # Handle new dictionary format with separate metrics
+            if isinstance(apm_metrics_result, dict) and "data" not in apm_metrics_result:
+                # New format: dictionary of metric results
+                for metric_name, metric_result in apm_metrics_result.items():
+                    if not isinstance(metric_result, dict) or "data" not in metric_result:
+                        continue
+                    
+                    data = metric_result["data"]
+                    if "result" in data and isinstance(data["result"], list):
+                        for query_result in data["result"]:
+                            if "series" in query_result:
+                                for series in query_result["series"]:
+                                    datapoints = []
+                                    if "values" in series:
+                                        for value in series["values"]:
+                                            if "timestamp" in value and "value" in value:
+                                                try:
+                                                    timestamp_ms = int(value["timestamp"])
+                                                    value_float = float(value["value"])
+                                                    datapoints.append(
+                                                        TimeseriesResult.LabeledMetricTimeseries.Datapoint(
+                                                            timestamp=timestamp_ms,
+                                                            value=DoubleValue(value=value_float),
+                                                        )
+                                                    )
+                                                except (ValueError, TypeError):
+                                                    continue
+
+                                    if datapoints:
+                                        metric_label_values = []
+                                        if "labels" in series:
+                                            for label_key, label_value in series["labels"].items():
+                                                metric_label_values.append(
+                                                    LabelValuePair(
+                                                        name=StringValue(value=label_key),
+                                                        value=StringValue(value=str(label_value)),
+                                                    )
+                                                )
+
+                                        # Add service name, metric name, and query info as labels
+                                        metric_label_values.append(
+                                            LabelValuePair(
+                                                name=StringValue(value="service_name"),
+                                                value=StringValue(value=service_name),
+                                            )
+                                        )
+                                        metric_label_values.append(
+                                            LabelValuePair(
+                                                name=StringValue(value="metric_name"),
+                                                value=StringValue(value=metric_name),
+                                            )
+                                        )
+                                        metric_label_values.append(
+                                            LabelValuePair(
+                                                name=StringValue(value="query_name"),
+                                                value=StringValue(value=query_result.get("queryName", "unknown")),
+                                            )
+                                        )
+
+                                        timeseries_result.labeled_metric_timeseries.append(
+                                            TimeseriesResult.LabeledMetricTimeseries(
+                                                metric_label_values=metric_label_values,
+                                                unit=StringValue(value=""),
+                                                datapoints=datapoints,
+                                            )
+                                        )
+            else:
+                # Old format: single result with data
+                if "data" not in apm_metrics_result:
+                    return None
+
+                data = apm_metrics_result["data"]
+                if "result" in data and isinstance(data["result"], list):
+                    for query_result in data["result"]:
+                        if "series" in query_result:
+                            for series in query_result["series"]:
+                                datapoints = []
+                                if "values" in series:
+                                    for value in series["values"]:
+                                        if "timestamp" in value and "value" in value:
+                                            try:
+                                                timestamp_ms = int(value["timestamp"])
+                                                value_float = float(value["value"])
+                                                datapoints.append(
+                                                    TimeseriesResult.LabeledMetricTimeseries.Datapoint(
+                                                        timestamp=timestamp_ms,
+                                                        value=DoubleValue(value=value_float),
+                                                    )
+                                                )
+                                            except (ValueError, TypeError):
+                                                continue
+
+                                if datapoints:
+                                    metric_label_values = []
+                                    if "labels" in series:
+                                        for label_key, label_value in series["labels"].items():
+                                            metric_label_values.append(
+                                                LabelValuePair(
+                                                    name=StringValue(value=label_key),
+                                                    value=StringValue(value=str(label_value)),
+                                                )
+                                            )
+
+                                    # Add service name and query info as labels
+                                    metric_label_values.append(
+                                        LabelValuePair(
+                                            name=StringValue(value="service_name"),
+                                            value=StringValue(value=service_name),
+                                        )
+                                    )
+                                    metric_label_values.append(
+                                        LabelValuePair(
+                                            name=StringValue(value="query_name"),
+                                            value=StringValue(value=query_result.get("queryName", "unknown")),
+                                        )
+                                    )
+
+                                    timeseries_result.labeled_metric_timeseries.append(
+                                        TimeseriesResult.LabeledMetricTimeseries(
+                                            metric_label_values=metric_label_values,
+                                            unit=StringValue(value=""),
+                                            datapoints=datapoints,
+                                        )
+                                    )
+
+            return timeseries_result if timeseries_result.labeled_metric_timeseries else None
+        except Exception as e:
+            logger.error(f"Error converting APM metrics to timeseries: {e}", exc_info=True)
+            return None
+
+    def _convert_single_metric_to_timeseries(self, metric_result: dict, service_name: str, metric_name: str) -> typing.Optional[TimeseriesResult]:
+        """Converts a single metric result to TimeseriesResult format."""
+        try:
+            if not metric_result or "data" not in metric_result:
+                return None
+
+            # Create proper metric display names
+            metric_display_names = {
+                "request_rate": "Request Rate (ops/s)",
+                "error_rate": "Error Rate (%)",
+                "apdex": "Apdex Score",
+                "latency": "Latency (ms)"
+            }
+            
+            display_name = metric_display_names.get(metric_name, metric_name.replace('_', ' ').title())
+            
+            timeseries_result = TimeseriesResult(
+                metric_name=StringValue(value=f"{display_name} - {service_name}"),
+                metric_expression=StringValue(value=f"{display_name} for service: {service_name}"),
+            )
+
+            data = metric_result["data"]
             if "result" in data and isinstance(data["result"], list):
                 for query_result in data["result"]:
                     if "series" in query_result:
@@ -2139,17 +2723,34 @@ class SignozSourceManager(SourceManager):
                                             )
                                         )
 
-                                # Add service name and query info as labels
+                                # Add service name and meaningful metric info as labels
                                 metric_label_values.append(
                                     LabelValuePair(
                                         name=StringValue(value="service_name"),
                                         value=StringValue(value=service_name),
                                     )
                                 )
+                                
+                                # Create meaningful series labels
+                                query_name = query_result.get("queryName", "unknown")
+                                if metric_name == "latency":
+                                    # Map query names to percentile names
+                                    percentile_names = {"A": "P50", "B": "P90", "C": "P99"}
+                                    series_label = percentile_names.get(query_name, query_name)
+                                elif metric_name == "error_rate" and query_name == "F1":
+                                    # For error_rate F1 expression, use the expression legend
+                                    series_label = "Error Percentage"
+                                elif metric_name == "apdex" and query_name == "F1":
+                                    # For apdex F1 expression, use the expression legend
+                                    series_label = "Apdex"
+                                else:
+                                    # For other metrics, use the metric name
+                                    series_label = display_name
+                                
                                 metric_label_values.append(
                                     LabelValuePair(
-                                        name=StringValue(value="query_name"),
-                                        value=StringValue(value=query_result.get("queryName", "unknown")),
+                                        name=StringValue(value="metric_type"),
+                                        value=StringValue(value=series_label),
                                     )
                                 )
 
@@ -2163,5 +2764,265 @@ class SignozSourceManager(SourceManager):
 
             return timeseries_result if timeseries_result.labeled_metric_timeseries else None
         except Exception as e:
-            logger.error(f"Error converting APM metrics to timeseries: {e}", exc_info=True)
+            logger.error(f"Error converting single metric to timeseries: {e}", exc_info=True)
             return None
+
+    def execute_fetch_logs_for_trace(
+        self,
+        time_range: TimeRange,
+        signoz_task: Signoz,
+        signoz_connector: ConnectorProto,
+    ) -> PlaybookTaskResult:
+        """Executes fetch logs for trace task."""
+        try:
+            if not signoz_connector:
+                raise Exception("Task execution Failed:: No Signoz source found")
+
+            task = signoz_task.fetch_logs_for_trace
+            trace_id = task.trace_id.value if task.HasField("trace_id") else None
+            limit = task.limit.value if task.HasField("limit") else 10
+
+            if not trace_id:
+                raise Exception("Trace ID is required for fetch logs for trace task")
+
+            signoz_api_processor = self.get_connector_processor(signoz_connector)
+            result = signoz_api_processor.fetch_logs_for_trace_id(trace_id, limit)
+
+            if result:
+                # Handle different response formats from fetch_logs_for_trace_id
+                if isinstance(result, dict):
+                    # If result is already a dictionary, use it as is
+                    response_data = result
+                else:
+                    # Fallback: wrap in a generic structure
+                    response_data = {"data": result}
+                
+                response_struct = dict_to_proto(response_data, Struct)
+                
+                # Extract API URL and create metadata with SignOz URL
+                api_url = self._extract_api_url_from_connector(signoz_connector)
+                metadata = self._create_metadata_with_signoz_url(api_url, "fetch_logs_for_trace", {
+                    "trace_id": trace_id,
+                    "limit": limit
+                })
+                
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.API_RESPONSE,
+                    api_response=ApiResponseResult(response_body=response_struct),
+                    source=self.source,
+                    metadata=metadata,
+                )
+            else:
+                # Extract API URL and create metadata with SignOz URL
+                api_url = self._extract_api_url_from_connector(signoz_connector)
+                metadata = self._create_metadata_with_signoz_url(api_url, "fetch_logs_for_trace", {
+                    "trace_id": trace_id,
+                    "limit": limit
+                })
+                
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.API_RESPONSE,
+                    text=TextResult(output=StringValue(value="Failed to fetch logs for trace")),
+                    source=self.source,
+                    metadata=metadata,
+                )
+        except Exception as e:
+            logger.error(f"Error while executing Signoz fetch logs for trace task: {e}")
+            # Extract API URL and create metadata with SignOz URL for error case
+            api_url = self._extract_api_url_from_connector(signoz_connector)
+            metadata = self._create_metadata_with_signoz_url(api_url, "fetch_logs_for_trace", {
+                "trace_id": trace_id,
+                "limit": limit
+            })
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                text=TextResult(output=StringValue(value=f"Error executing fetch logs for trace task: {e}")),
+                source=self.source,
+                metadata=metadata,
+            )
+
+    def execute_fetch_traces(
+        self,
+        time_range: TimeRange,
+        signoz_task: Signoz,
+        signoz_connector: ConnectorProto,
+    ) -> PlaybookTaskResult:
+        """Executes fetch traces task with multiple filters."""
+        try:
+            if not signoz_connector:
+                raise Exception("Task execution Failed:: No Signoz source found")
+
+            task = signoz_task.fetch_traces
+            filter_expression = task.filter_expression.value if task.HasField("filter_expression") else None
+            start_time = task.start_time.value if task.HasField("start_time") else None
+            end_time = task.end_time.value if task.HasField("end_time") else None
+            duration = task.duration.value if task.HasField("duration") else None
+            limit = task.limit.value if task.HasField("limit") else 100
+
+            signoz_api_processor = self.get_connector_processor(signoz_connector)
+            result = signoz_api_processor.fetch_traces_with_filters(
+                filter_expression, start_time, end_time, duration, limit
+            )
+
+            if result:
+                # Handle different response formats from fetch_traces_with_filters
+                if isinstance(result, dict):
+                    # If result is already a dictionary, use it as is
+                    response_data = result
+                else:
+                    # Fallback: wrap in a generic structure
+                    response_data = {"data": result}
+                
+                response_struct = dict_to_proto(response_data, Struct)
+                
+                # Extract API URL and create metadata with SignOz URL
+                api_url = self._extract_api_url_from_connector(signoz_connector)
+                metadata = self._create_metadata_with_signoz_url(api_url, "fetch_traces", {
+                    "start_time": start_time,
+                    "end_time": end_time,
+                    "duration": duration,
+                    "filter_expression": filter_expression,
+                    "limit": limit
+                })
+                
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.API_RESPONSE,
+                    api_response=ApiResponseResult(response_body=response_struct),
+                    source=self.source,
+                    metadata=metadata,
+                )
+            else:
+                # Extract API URL and create metadata with SignOz URL
+                api_url = self._extract_api_url_from_connector(signoz_connector)
+                metadata = self._create_metadata_with_signoz_url(api_url, "fetch_traces", {
+                    "start_time": start_time,
+                    "end_time": end_time,
+                    "duration": duration,
+                    "filter_expression": filter_expression,
+                    "limit": limit
+                })
+                
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.API_RESPONSE,
+                    text=TextResult(output=StringValue(value="Failed to fetch traces")),
+                    source=self.source,
+                    metadata=metadata,
+                )
+        except Exception as e:
+            logger.error(f"Error while executing Signoz fetch traces task: {e}")
+            # Extract API URL and create metadata with SignOz URL for error case
+            api_url = self._extract_api_url_from_connector(signoz_connector)
+            metadata = self._create_metadata_with_signoz_url(api_url, "fetch_traces", {
+                "filter_expression": filter_expression,
+                "start_time": start_time,
+                "end_time": end_time,
+                "duration": duration,
+                "limit": limit
+            })
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                text=TextResult(output=StringValue(value=f"Error executing fetch traces task: {e}")),
+                source=self.source,
+                metadata=metadata,
+            )
+
+    def analyze_trace_correlation(self, trace_data, spans_data, logs_data):
+        """
+        Analyze correlation between traces, spans, and logs
+        
+        Args:
+            trace_data: Trace information
+            spans_data: Spans data for the trace
+            logs_data: Logs data for the trace
+            
+        Returns:
+            Analysis insights and correlations
+        """
+        try:
+            analysis = {
+                "trace_summary": {
+                    "trace_id": trace_data.get("trace_id"),
+                    "total_spans": len(spans_data),
+                    "total_logs": len(logs_data),
+                    "duration_ms": 0,
+                    "error_count": 0,
+                    "service_count": 0
+                },
+                "span_analysis": {},
+                "log_analysis": {},
+                "correlations": []
+            }
+
+            # Analyze spans
+            services = set()
+            total_duration = 0
+            error_spans = 0
+            
+            for span in spans_data:
+                service_name = span.get("service_name")
+                if service_name:
+                    services.add(service_name)
+                
+                duration = span.get("duration_ns", 0)
+                if duration:
+                    total_duration = max(total_duration, duration)
+                
+                if span.get("has_error", False):
+                    error_spans += 1
+                
+                # Analyze span logs
+                span_logs = span.get("logs", [])
+                if span_logs:
+                    error_logs = [log for log in span_logs if log.get("level", "").upper() in ["ERROR", "FATAL"]]
+                    analysis["span_analysis"][span.get("span_id")] = {
+                        "log_count": len(span_logs),
+                        "error_log_count": len(error_logs),
+                        "has_errors": len(error_logs) > 0
+                    }
+
+            analysis["trace_summary"]["duration_ms"] = total_duration / 1_000_000  # Convert to milliseconds
+            analysis["trace_summary"]["error_count"] = error_spans
+            analysis["trace_summary"]["service_count"] = len(services)
+
+            # Analyze logs
+            log_levels = {}
+            for log in logs_data:
+                level = log.get("level", "INFO")
+                log_levels[level] = log_levels.get(level, 0) + 1
+
+            analysis["log_analysis"] = {
+                "total_logs": len(logs_data),
+                "log_levels": log_levels,
+                "error_logs": log_levels.get("ERROR", 0) + log_levels.get("FATAL", 0)
+            }
+
+            # Find correlations
+            for span in spans_data:
+                span_id = span.get("span_id")
+                span_logs = span.get("logs", [])
+                
+                if span_logs:
+                    # Check for error correlation
+                    has_span_error = span.get("has_error", False)
+                    has_log_errors = any(log.get("level", "").upper() in ["ERROR", "FATAL"] for log in span_logs)
+                    
+                    if has_span_error and has_log_errors:
+                        analysis["correlations"].append({
+                            "type": "error_correlation",
+                            "span_id": span_id,
+                            "service": span.get("service_name"),
+                            "operation": span.get("operation_name"),
+                            "description": "Span error correlates with error logs"
+                        })
+
+            return analysis
+
+        except Exception as e:
+            logger.error(f"Error analyzing trace correlation: {e}")
+            return {
+                "error": f"Failed to analyze trace correlation: {str(e)}",
+                "trace_summary": {},
+                "span_analysis": {},
+                "log_analysis": {},
+                "correlations": []
+            }

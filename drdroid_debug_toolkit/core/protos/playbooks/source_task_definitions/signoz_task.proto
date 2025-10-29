@@ -49,13 +49,25 @@ message Signoz {
     google.protobuf.StringValue duration = 7;
   }
 
-  message FetchTracesOrLogsTask {
-    google.protobuf.StringValue data_type = 1;  // "traces" or "logs"
+  message FetchLogsTask {
+    google.protobuf.StringValue filter_expression = 1;    // Filter expression for logs (e.g., "service.name = 'my-service'")
     google.protobuf.StringValue start_time = 2;
     google.protobuf.StringValue end_time = 3;
     google.protobuf.StringValue duration = 4;
-    google.protobuf.StringValue service_name = 5;
-    google.protobuf.Int32Value limit = 6;
+    google.protobuf.Int32Value limit = 5;
+  }
+
+  message FetchLogsForTraceTask {
+    google.protobuf.StringValue trace_id = 1;             // The specific trace ID to fetch logs for
+    google.protobuf.Int32Value limit = 2;                 // Limit number of logs (default: 10)
+  }
+
+  message FetchTracesTask {
+    google.protobuf.StringValue filter_expression = 1;    // Filter expression for traces (e.g., "name = 'GET /api/users'")
+    google.protobuf.StringValue start_time = 2;
+    google.protobuf.StringValue end_time = 3;
+    google.protobuf.StringValue duration = 4;
+    google.protobuf.Int32Value limit = 5;                 // Limit number of traces
   }
 
   enum TaskType {
@@ -67,7 +79,9 @@ message Signoz {
     FETCH_DASHBOARD_DETAILS = 5;
     FETCH_SERVICES = 6;
     FETCH_APM_METRICS = 7;
-    FETCH_TRACES_OR_LOGS = 8;
+    FETCH_LOGS = 8;
+    FETCH_LOGS_FOR_TRACE = 9;
+    FETCH_TRACES = 10;
   }
 
   TaskType type = 1;
@@ -79,6 +93,8 @@ message Signoz {
     FetchDashboardDetailsTask fetch_dashboard_details = 6;
     FetchServicesTask fetch_services = 7;
     FetchApmMetricsTask fetch_apm_metrics = 8;
-    FetchTracesOrLogsTask fetch_traces_or_logs = 9;
+    FetchLogsTask fetch_logs = 9;
+    FetchLogsForTraceTask fetch_logs_for_trace = 10;
+    FetchTracesTask fetch_traces = 11;
   }
 } 
