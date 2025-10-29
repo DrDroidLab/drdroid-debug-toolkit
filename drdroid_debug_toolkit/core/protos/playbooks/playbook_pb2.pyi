@@ -206,6 +206,9 @@ class PlaybookTask(google.protobuf.message.Message):
         TIMESERIES_OFFSETS_FIELD_NUMBER: builtins.int
         IS_RESULT_TRANSFORMER_ENABLED_FIELD_NUMBER: builtins.int
         RESULT_TRANSFORMER_LAMBDA_FUNCTION_FIELD_NUMBER: builtins.int
+        IS_APPROVAL_REQUIRED_FIELD_NUMBER: builtins.int
+        RESULT_TRANSFORMER_PROMPT_FIELD_NUMBER: builtins.int
+        IS_RESULT_TRANSFORMER_PROMPT_ENABLED_FIELD_NUMBER: builtins.int
         @property
         def is_bulk_execution(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
         @property
@@ -216,6 +219,12 @@ class PlaybookTask(google.protobuf.message.Message):
         def is_result_transformer_enabled(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
         @property
         def result_transformer_lambda_function(self) -> core.protos.playbooks.source_task_definitions.lambda_function_task_pb2.Lambda.Function: ...
+        @property
+        def is_approval_required(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+        @property
+        def result_transformer_prompt(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def is_result_transformer_prompt_enabled(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
         def __init__(
             self,
             *,
@@ -224,9 +233,12 @@ class PlaybookTask(google.protobuf.message.Message):
             timeseries_offsets: collections.abc.Iterable[builtins.int] | None = ...,
             is_result_transformer_enabled: google.protobuf.wrappers_pb2.BoolValue | None = ...,
             result_transformer_lambda_function: core.protos.playbooks.source_task_definitions.lambda_function_task_pb2.Lambda.Function | None = ...,
+            is_approval_required: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+            result_transformer_prompt: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            is_result_transformer_prompt_enabled: google.protobuf.wrappers_pb2.BoolValue | None = ...,
         ) -> None: ...
-        def HasField(self, field_name: typing_extensions.Literal["bulk_execution_var_field", b"bulk_execution_var_field", "is_bulk_execution", b"is_bulk_execution", "is_result_transformer_enabled", b"is_result_transformer_enabled", "result_transformer_lambda_function", b"result_transformer_lambda_function"]) -> builtins.bool: ...
-        def ClearField(self, field_name: typing_extensions.Literal["bulk_execution_var_field", b"bulk_execution_var_field", "is_bulk_execution", b"is_bulk_execution", "is_result_transformer_enabled", b"is_result_transformer_enabled", "result_transformer_lambda_function", b"result_transformer_lambda_function", "timeseries_offsets", b"timeseries_offsets"]) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["bulk_execution_var_field", b"bulk_execution_var_field", "is_approval_required", b"is_approval_required", "is_bulk_execution", b"is_bulk_execution", "is_result_transformer_enabled", b"is_result_transformer_enabled", "is_result_transformer_prompt_enabled", b"is_result_transformer_prompt_enabled", "result_transformer_lambda_function", b"result_transformer_lambda_function", "result_transformer_prompt", b"result_transformer_prompt"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["bulk_execution_var_field", b"bulk_execution_var_field", "is_approval_required", b"is_approval_required", "is_bulk_execution", b"is_bulk_execution", "is_result_transformer_enabled", b"is_result_transformer_enabled", "is_result_transformer_prompt_enabled", b"is_result_transformer_prompt_enabled", "result_transformer_lambda_function", b"result_transformer_lambda_function", "result_transformer_prompt", b"result_transformer_prompt", "timeseries_offsets", b"timeseries_offsets"]) -> None: ...
 
     ID_FIELD_NUMBER: builtins.int
     SOURCE_FIELD_NUMBER: builtins.int

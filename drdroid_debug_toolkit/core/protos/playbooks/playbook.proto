@@ -92,6 +92,9 @@ message PlaybookTask {
 
     google.protobuf.BoolValue is_result_transformer_enabled = 4;
     Lambda.Function result_transformer_lambda_function = 5;
+    google.protobuf.BoolValue is_approval_required = 6;
+    google.protobuf.StringValue result_transformer_prompt = 7;
+    google.protobuf.BoolValue is_result_transformer_prompt_enabled = 8;
   }
 
   google.protobuf.UInt64Value id = 1;
