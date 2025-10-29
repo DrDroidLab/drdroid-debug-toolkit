@@ -3,7 +3,9 @@
 isort:skip_file
 """
 import builtins
+import collections.abc
 import google.protobuf.descriptor
+import google.protobuf.internal.containers
 import google.protobuf.internal.enum_type_wrapper
 import google.protobuf.message
 import google.protobuf.wrappers_pb2
@@ -128,27 +130,6 @@ AND: Op.ValueType  # 20
 OR: Op.ValueType  # 21
 NOT: Op.ValueType  # 22
 global___Op = Op
-
-class _Context:
-    ValueType = typing.NewType("ValueType", builtins.int)
-    V: typing_extensions.TypeAlias = ValueType
-
-class _ContextEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_Context.ValueType], builtins.type):
-    DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
-    UNKNOWN_C: _Context.ValueType  # 0
-    PLAYBOOK: _Context.ValueType  # 1
-    PLAYBOOK_EXECUTION: _Context.ValueType  # 2
-    WORKFLOW: _Context.ValueType  # 3
-    WORKFLOW_EXECUTION: _Context.ValueType  # 4
-
-class Context(_Context, metaclass=_ContextEnumTypeWrapper): ...
-
-UNKNOWN_C: Context.ValueType  # 0
-PLAYBOOK: Context.ValueType  # 1
-PLAYBOOK_EXECUTION: Context.ValueType  # 2
-WORKFLOW: Context.ValueType  # 3
-WORKFLOW_EXECUTION: Context.ValueType  # 4
-global___Context = Context
 
 class _Source:
     ValueType = typing.NewType("ValueType", builtins.int)
@@ -855,6 +836,47 @@ KUBERNETES_STATEFULSET: SourceModelType.ValueType  # 6008
 KUBERNETES_NETWORK_MAP: SourceModelType.ValueType  # 6009
 global___SourceModelType = SourceModelType
 
+class _Context:
+    ValueType = typing.NewType("ValueType", builtins.int)
+    V: typing_extensions.TypeAlias = ValueType
+
+class _ContextEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_Context.ValueType], builtins.type):
+    DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+    UNKNOWN_C: _Context.ValueType  # 0
+    EVENT: _Context.ValueType  # 1
+    MONITOR_TRANSACTION: _Context.ValueType  # 2
+    ENTITY_INSTANCE: _Context.ValueType  # 3
+    EVENT_TYPE: _Context.ValueType  # 4
+    MONITOR: _Context.ValueType  # 5
+    ENTITY: _Context.ValueType  # 6
+    EVENTS_CLICKHOUSE: _Context.ValueType  # 7
+    PANEL_NAME: _Context.ValueType  # 8
+    DASHBOARD_NAME: _Context.ValueType  # 9
+    EVENTS_ALERT_OPS_CLICKHOUSE: _Context.ValueType  # 10
+    SLACK_ALERT: _Context.ValueType  # 11
+    EVENTS_PRODIGAL_CLICKHOUSE: _Context.ValueType  # 12
+    ALERT_OPS: _Context.ValueType  # 13
+    ALERT_MIDDLEWARE: _Context.ValueType  # 14
+
+class Context(_Context, metaclass=_ContextEnumTypeWrapper): ...
+
+UNKNOWN_C: Context.ValueType  # 0
+EVENT: Context.ValueType  # 1
+MONITOR_TRANSACTION: Context.ValueType  # 2
+ENTITY_INSTANCE: Context.ValueType  # 3
+EVENT_TYPE: Context.ValueType  # 4
+MONITOR: Context.ValueType  # 5
+ENTITY: Context.ValueType  # 6
+EVENTS_CLICKHOUSE: Context.ValueType  # 7
+PANEL_NAME: Context.ValueType  # 8
+DASHBOARD_NAME: Context.ValueType  # 9
+EVENTS_ALERT_OPS_CLICKHOUSE: Context.ValueType  # 10
+SLACK_ALERT: Context.ValueType  # 11
+EVENTS_PRODIGAL_CLICKHOUSE: Context.ValueType  # 12
+ALERT_OPS: Context.ValueType  # 13
+ALERT_MIDDLEWARE: Context.ValueType  # 14
+global___Context = Context
+
 @typing_extensions.final
 class TimeRange(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
@@ -1063,3 +1085,323 @@ class TaskCronRule(google.protobuf.message.Message):
     def ClearField(self, field_name: typing_extensions.Literal["rule", b"rule", "timezone", b"timezone"]) -> None: ...
 
 global___TaskCronRule = TaskCronRule
+
+@typing_extensions.final
+class EventKey(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    class _KeyType:
+        ValueType = typing.NewType("ValueType", builtins.int)
+        V: typing_extensions.TypeAlias = ValueType
+
+    class _KeyTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[EventKey._KeyType.ValueType], builtins.type):  # noqa: F821
+        DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+        UNKNOWN: EventKey._KeyType.ValueType  # 0
+        STRING: EventKey._KeyType.ValueType  # 1
+        LONG: EventKey._KeyType.ValueType  # 2
+        DOUBLE: EventKey._KeyType.ValueType  # 3
+        BOOLEAN: EventKey._KeyType.ValueType  # 4
+        BYTE: EventKey._KeyType.ValueType  # 5
+        ARRAY: EventKey._KeyType.ValueType  # 6
+        OBJECT: EventKey._KeyType.ValueType  # 7
+
+    class KeyType(_KeyType, metaclass=_KeyTypeEnumTypeWrapper): ...
+    UNKNOWN: EventKey.KeyType.ValueType  # 0
+    STRING: EventKey.KeyType.ValueType  # 1
+    LONG: EventKey.KeyType.ValueType  # 2
+    DOUBLE: EventKey.KeyType.ValueType  # 3
+    BOOLEAN: EventKey.KeyType.ValueType  # 4
+    BYTE: EventKey.KeyType.ValueType  # 5
+    ARRAY: EventKey.KeyType.ValueType  # 6
+    OBJECT: EventKey.KeyType.ValueType  # 7
+
+    ID_FIELD_NUMBER: builtins.int
+    KEY_FIELD_NUMBER: builtins.int
+    KEY_TYPE_FIELD_NUMBER: builtins.int
+    EVENT_TYPE_FIELD_NUMBER: builtins.int
+    id: builtins.int
+    key: builtins.str
+    key_type: global___EventKey.KeyType.ValueType
+    @property
+    def event_type(self) -> global___EventTypePartial: ...
+    def __init__(
+        self,
+        *,
+        id: builtins.int = ...,
+        key: builtins.str = ...,
+        key_type: global___EventKey.KeyType.ValueType = ...,
+        event_type: global___EventTypePartial | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["event_type", b"event_type"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["event_type", b"event_type", "id", b"id", "key", b"key", "key_type", b"key_type"]) -> None: ...
+
+global___EventKey = EventKey
+
+@typing_extensions.final
+class EventType(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    ID_FIELD_NUMBER: builtins.int
+    NAME_FIELD_NUMBER: builtins.int
+    KEYS_FIELD_NUMBER: builtins.int
+    EVENT_SOURCES_FIELD_NUMBER: builtins.int
+    id: builtins.int
+    name: builtins.str
+    @property
+    def keys(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___EventKey]: ...
+    @property
+    def event_sources(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[global___Event.EventSource.ValueType]: ...
+    def __init__(
+        self,
+        *,
+        id: builtins.int = ...,
+        name: builtins.str = ...,
+        keys: collections.abc.Iterable[global___EventKey] | None = ...,
+        event_sources: collections.abc.Iterable[global___Event.EventSource.ValueType] | None = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["event_sources", b"event_sources", "id", b"id", "keys", b"keys", "name", b"name"]) -> None: ...
+
+global___EventType = EventType
+
+@typing_extensions.final
+class EventTypeStats(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    KEYS_COUNT_FIELD_NUMBER: builtins.int
+    EVENT_COUNT_FIELD_NUMBER: builtins.int
+    MONITOR_COUNT_FIELD_NUMBER: builtins.int
+    @property
+    def keys_count(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+    @property
+    def event_count(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+    @property
+    def monitor_count(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+    def __init__(
+        self,
+        *,
+        keys_count: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+        event_count: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+        monitor_count: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["event_count", b"event_count", "keys_count", b"keys_count", "monitor_count", b"monitor_count"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["event_count", b"event_count", "keys_count", b"keys_count", "monitor_count", b"monitor_count"]) -> None: ...
+
+global___EventTypeStats = EventTypeStats
+
+@typing_extensions.final
+class EventTypePartial(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    ID_FIELD_NUMBER: builtins.int
+    NAME_FIELD_NUMBER: builtins.int
+    id: builtins.int
+    name: builtins.str
+    def __init__(
+        self,
+        *,
+        id: builtins.int = ...,
+        name: builtins.str = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["id", b"id", "name", b"name"]) -> None: ...
+
+global___EventTypePartial = EventTypePartial
+
+@typing_extensions.final
+class EventTypeSummary(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    EVENT_TYPE_FIELD_NUMBER: builtins.int
+    STATS_FIELD_NUMBER: builtins.int
+    @property
+    def event_type(self) -> global___EventTypePartial: ...
+    @property
+    def stats(self) -> global___EventTypeStats: ...
+    def __init__(
+        self,
+        *,
+        event_type: global___EventTypePartial | None = ...,
+        stats: global___EventTypeStats | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["event_type", b"event_type", "stats", b"stats"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["event_type", b"event_type", "stats", b"stats"]) -> None: ...
+
+global___EventTypeSummary = EventTypeSummary
+
+@typing_extensions.final
+class EventTypeDefinition(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    EVENT_TYPE_FIELD_NUMBER: builtins.int
+    STATS_FIELD_NUMBER: builtins.int
+    @property
+    def event_type(self) -> global___EventType: ...
+    @property
+    def stats(self) -> global___EventTypeStats: ...
+    def __init__(
+        self,
+        *,
+        event_type: global___EventType | None = ...,
+        stats: global___EventTypeStats | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["event_type", b"event_type", "stats", b"stats"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["event_type", b"event_type", "stats", b"stats"]) -> None: ...
+
+global___EventTypeDefinition = EventTypeDefinition
+
+@typing_extensions.final
+class Event(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    class _EventSource:
+        ValueType = typing.NewType("ValueType", builtins.int)
+        V: typing_extensions.TypeAlias = ValueType
+
+    class _EventSourceEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[Event._EventSource.ValueType], builtins.type):  # noqa: F821
+        DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+        UNKNOWN: Event._EventSource.ValueType  # 0
+        SAMPLE: Event._EventSource.ValueType  # 1
+        API: Event._EventSource.ValueType  # 2
+        SDK: Event._EventSource.ValueType  # 3
+        SEGMENT: Event._EventSource.ValueType  # 4
+        AMPLITUDE: Event._EventSource.ValueType  # 5
+        SNS: Event._EventSource.ValueType  # 6
+        CLOUDWATCH: Event._EventSource.ValueType  # 7
+        COLLECTOR: Event._EventSource.ValueType  # 8
+        AWS_KINESIS: Event._EventSource.ValueType  # 9
+        SLACK: Event._EventSource.ValueType  # 10
+        OPS_GENIE: Event._EventSource.ValueType  # 11
+
+    class EventSource(_EventSource, metaclass=_EventSourceEnumTypeWrapper): ...
+    UNKNOWN: Event.EventSource.ValueType  # 0
+    SAMPLE: Event.EventSource.ValueType  # 1
+    API: Event.EventSource.ValueType  # 2
+    SDK: Event.EventSource.ValueType  # 3
+    SEGMENT: Event.EventSource.ValueType  # 4
+    AMPLITUDE: Event.EventSource.ValueType  # 5
+    SNS: Event.EventSource.ValueType  # 6
+    CLOUDWATCH: Event.EventSource.ValueType  # 7
+    COLLECTOR: Event.EventSource.ValueType  # 8
+    AWS_KINESIS: Event.EventSource.ValueType  # 9
+    SLACK: Event.EventSource.ValueType  # 10
+    OPS_GENIE: Event.EventSource.ValueType  # 11
+
+    ID_FIELD_NUMBER: builtins.int
+    EVENT_TYPE_FIELD_NUMBER: builtins.int
+    KVS_FIELD_NUMBER: builtins.int
+    TIMESTAMP_FIELD_NUMBER: builtins.int
+    EVENT_SOURCE_FIELD_NUMBER: builtins.int
+    id: builtins.int
+    @property
+    def event_type(self) -> global___EventTypePartial: ...
+    @property
+    def kvs(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___KeyValue]: ...
+    timestamp: builtins.int
+    event_source: global___Event.EventSource.ValueType
+    def __init__(
+        self,
+        *,
+        id: builtins.int = ...,
+        event_type: global___EventTypePartial | None = ...,
+        kvs: collections.abc.Iterable[global___KeyValue] | None = ...,
+        timestamp: builtins.int = ...,
+        event_source: global___Event.EventSource.ValueType = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["event_type", b"event_type"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["event_source", b"event_source", "event_type", b"event_type", "id", b"id", "kvs", b"kvs", "timestamp", b"timestamp"]) -> None: ...
+
+global___Event = Event
+
+@typing_extensions.final
+class Value(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    STRING_VALUE_FIELD_NUMBER: builtins.int
+    BOOL_VALUE_FIELD_NUMBER: builtins.int
+    INT_VALUE_FIELD_NUMBER: builtins.int
+    DOUBLE_VALUE_FIELD_NUMBER: builtins.int
+    ARRAY_VALUE_FIELD_NUMBER: builtins.int
+    KVLIST_VALUE_FIELD_NUMBER: builtins.int
+    BYTES_VALUE_FIELD_NUMBER: builtins.int
+    string_value: builtins.str
+    bool_value: builtins.bool
+    int_value: builtins.int
+    double_value: builtins.float
+    @property
+    def array_value(self) -> global___ArrayValue: ...
+    @property
+    def kvlist_value(self) -> global___KeyValueList: ...
+    bytes_value: builtins.bytes
+    def __init__(
+        self,
+        *,
+        string_value: builtins.str = ...,
+        bool_value: builtins.bool = ...,
+        int_value: builtins.int = ...,
+        double_value: builtins.float = ...,
+        array_value: global___ArrayValue | None = ...,
+        kvlist_value: global___KeyValueList | None = ...,
+        bytes_value: builtins.bytes = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["array_value", b"array_value", "bool_value", b"bool_value", "bytes_value", b"bytes_value", "double_value", b"double_value", "int_value", b"int_value", "kvlist_value", b"kvlist_value", "string_value", b"string_value", "value", b"value"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["array_value", b"array_value", "bool_value", b"bool_value", "bytes_value", b"bytes_value", "double_value", b"double_value", "int_value", b"int_value", "kvlist_value", b"kvlist_value", "string_value", b"string_value", "value", b"value"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing_extensions.Literal["value", b"value"]) -> typing_extensions.Literal["string_value", "bool_value", "int_value", "double_value", "array_value", "kvlist_value", "bytes_value"] | None: ...
+
+global___Value = Value
+
+@typing_extensions.final
+class ArrayValue(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    VALUES_FIELD_NUMBER: builtins.int
+    @property
+    def values(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___Value]:
+        """Array of values. The array may be empty (contain 0 elements)."""
+    def __init__(
+        self,
+        *,
+        values: collections.abc.Iterable[global___Value] | None = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["values", b"values"]) -> None: ...
+
+global___ArrayValue = ArrayValue
+
+@typing_extensions.final
+class KeyValueList(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    VALUES_FIELD_NUMBER: builtins.int
+    @property
+    def values(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___KeyValue]:
+        """A collection of key/value pairs. The list may be empty (may
+        contain 0 elements).
+        The keys MUST be unique (it is not allowed to have more than one
+        value with the same key).
+        """
+    def __init__(
+        self,
+        *,
+        values: collections.abc.Iterable[global___KeyValue] | None = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["values", b"values"]) -> None: ...
+
+global___KeyValueList = KeyValueList
+
+@typing_extensions.final
+class KeyValue(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    KEY_FIELD_NUMBER: builtins.int
+    VALUE_FIELD_NUMBER: builtins.int
+    key: builtins.str
+    @property
+    def value(self) -> global___Value: ...
+    def __init__(
+        self,
+        *,
+        key: builtins.str = ...,
+        value: global___Value | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["value", b"value"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["key", b"key", "value", b"value"]) -> None: ...
+
+global___KeyValue = KeyValue

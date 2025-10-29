@@ -79,14 +79,6 @@ enum Op {
   NOT = 22;
 }
 
-enum Context {
-  UNKNOWN_C = 0;
-  PLAYBOOK = 1;
-  PLAYBOOK_EXECUTION = 2;
-  WORKFLOW = 3;
-  WORKFLOW_EXECUTION = 4;
-}
-
 message OpDescription {
   Op op = 1;
   string label = 2;
@@ -537,4 +529,121 @@ enum SourceModelType {
   KUBERNETES_REPLICASET = 6007;
   KUBERNETES_STATEFULSET = 6008;
   KUBERNETES_NETWORK_MAP = 6009;
+}
+
+message EventKey {
+  enum KeyType {
+    UNKNOWN = 0;
+    STRING = 1;
+    LONG = 2;
+    DOUBLE = 3;
+    BOOLEAN = 4;
+    BYTE = 5;
+    ARRAY = 6;
+    OBJECT = 7;
+  }
+  uint64 id = 1;
+  string key = 2;
+  KeyType key_type = 3;
+  EventTypePartial event_type = 4;
+}
+
+message EventType {
+  uint64 id = 1;
+  string name = 2;
+  repeated EventKey keys = 3;
+  repeated Event.EventSource event_sources = 4;
+}
+
+message EventTypeStats {
+  google.protobuf.UInt64Value keys_count = 1;
+  google.protobuf.UInt64Value event_count = 2;
+  google.protobuf.UInt64Value monitor_count = 3;
+}
+
+message EventTypePartial {
+  uint64 id = 1;
+  string name = 2;
+}
+
+message EventTypeSummary {
+  EventTypePartial event_type = 1;
+  EventTypeStats stats = 2;
+}
+
+message EventTypeDefinition {
+  EventType event_type = 1;
+  EventTypeStats stats = 2;
+}
+
+message Event {
+  enum EventSource {
+    UNKNOWN = 0;
+    SAMPLE = 1;
+    API = 2;
+    SDK = 3;
+    SEGMENT = 4;
+    AMPLITUDE = 5;
+    SNS = 6;
+    CLOUDWATCH = 7;
+    COLLECTOR = 8;
+    AWS_KINESIS = 9;
+    SLACK = 10;
+    OPS_GENIE = 11;
+  }
+  uint64 id = 1;
+  EventTypePartial event_type = 2;
+  repeated KeyValue kvs = 3;
+  sfixed64 timestamp = 4;
+  EventSource event_source = 5;
+}
+
+enum Context {
+  UNKNOWN_C = 0;
+  EVENT = 1;
+  MONITOR_TRANSACTION = 2;
+  ENTITY_INSTANCE = 3;
+  EVENT_TYPE = 4;
+  MONITOR = 5;
+  ENTITY = 6;
+  EVENTS_CLICKHOUSE = 7;
+  PANEL_NAME = 8;
+  DASHBOARD_NAME = 9;
+  EVENTS_ALERT_OPS_CLICKHOUSE = 10;
+  SLACK_ALERT = 11;
+  EVENTS_PRODIGAL_CLICKHOUSE = 12;
+  ALERT_OPS = 13;
+  ALERT_MIDDLEWARE = 14;
+}
+
+message Value {
+  // The value is one of the listed fields. It is valid for all values to be unspecified
+  // in which case this AnyValue is considered to be "empty".
+  oneof value {
+    string string_value = 1;
+    bool bool_value = 2;
+    int64 int_value = 3;
+    double double_value = 4;
+    ArrayValue array_value = 5;
+    KeyValueList kvlist_value = 6;
+    bytes bytes_value = 7;
+  }
+}
+
+message ArrayValue {
+  // Array of values. The array may be empty (contain 0 elements).
+  repeated Value values = 1;
+}
+
+message KeyValueList {
+  // A collection of key/value pairs. The list may be empty (may
+  // contain 0 elements).
+  // The keys MUST be unique (it is not allowed to have more than one
+  // value with the same key).
+  repeated KeyValue values = 1;
+}
+
+message KeyValue {
+  string key = 1;
+  Value value = 2;
 }
