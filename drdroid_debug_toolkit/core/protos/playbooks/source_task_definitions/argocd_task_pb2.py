@@ -25,7 +25,7 @@ _sym_db = _symbol_database.Default()
 from google.protobuf import wrappers_pb2 as google_dot_protobuf_dot_wrappers__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n?core/protos/playbooks/source_task_definitions/argocd_task.proto\x12\x15\x63ore.protos.playbooks\x1a\x1egoogle/protobuf/wrappers.proto\"\x8d\x0b\n\x06\x41rgoCD\x12\x34\n\x04type\x18\x01 \x01(\x0e\x32&.core.protos.playbooks.ArgoCD.TaskType\x12R\n\x15\x66\x65tch_deployment_info\x18\x02 \x01(\x0b\x32\x31.core.protos.playbooks.ArgoCD.FetchDeploymentInfoH\x00\x12Q\n\x14rollback_application\x18\x03 \x01(\x0b\x32\x31.core.protos.playbooks.ArgoCD.RollbackApplicationH\x00\x12T\n\x16\x66\x65tch_revision_history\x18\x04 \x01(\x0b\x32\x32.core.protos.playbooks.ArgoCD.FetchRevisionHistoryH\x00\x12I\n\x10sync_application\x18\x05 \x01(\x0b\x32-.core.protos.playbooks.ArgoCD.SyncApplicationH\x00\x12V\n\x17\x66\x65tch_application_state\x18\x06 \x01(\x0b\x32\x33.core.protos.playbooks.ArgoCD.FetchApplicationStateH\x00\x12T\n\x16get_application_health\x18\x07 \x01(\x0b\x32\x32.core.protos.playbooks.ArgoCD.GetApplicationHealthH\x00\x1aq\n\x13\x46\x65tchDeploymentInfo\x12*\n\x05\x63ount\x18\x01 \x01(\x0b\x32\x1b.google.protobuf.Int64Value\x12.\n\x08\x61pp_name\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1a\xaa\x01\n\x13RollbackApplication\x12.\n\x08\x61pp_name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12.\n\x08revision\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x33\n\rdeployment_id\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1ar\n\x14\x46\x65tchRevisionHistory\x12*\n\x05\x63ount\x18\x01 \x01(\x0b\x32\x1b.google.protobuf.Int64Value\x12.\n\x08\x61pp_name\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1ap\n\x0fSyncApplication\x12.\n\x08\x61pp_name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12-\n\x07version\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1aG\n\x15\x46\x65tchApplicationState\x12.\n\x08\x61pp_name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1a\x46\n\x14GetApplicationHealth\x12.\n\x08\x61pp_name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"\xb7\x01\n\x08TaskType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x19\n\x15\x46\x45TCH_DEPLOYMENT_INFO\x10\x01\x12\x18\n\x14ROLLBACK_APPLICATION\x10\x02\x12\x1a\n\x16\x46\x45TCH_REVISION_HISTORY\x10\x03\x12\x14\n\x10SYNC_APPLICATION\x10\x04\x12\x1b\n\x17\x46\x45TCH_APPLICATION_STATE\x10\x05\x12\x1a\n\x16GET_APPLICATION_HEALTH\x10\x06\x42\x06\n\x04taskb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n?core/protos/playbooks/source_task_definitions/argocd_task.proto\x12\x15\x63ore.protos.playbooks\x1a\x1egoogle/protobuf/wrappers.proto\"\x95\x0c\n\x06\x41rgoCD\x12\x34\n\x04type\x18\x01 \x01(\x0e\x32&.core.protos.playbooks.ArgoCD.TaskType\x12R\n\x15\x66\x65tch_deployment_info\x18\x02 \x01(\x0b\x32\x31.core.protos.playbooks.ArgoCD.FetchDeploymentInfoH\x00\x12Q\n\x14rollback_application\x18\x03 \x01(\x0b\x32\x31.core.protos.playbooks.ArgoCD.RollbackApplicationH\x00\x12T\n\x16\x66\x65tch_revision_history\x18\x04 \x01(\x0b\x32\x32.core.protos.playbooks.ArgoCD.FetchRevisionHistoryH\x00\x12I\n\x10sync_application\x18\x05 \x01(\x0b\x32-.core.protos.playbooks.ArgoCD.SyncApplicationH\x00\x12V\n\x17\x66\x65tch_application_state\x18\x06 \x01(\x0b\x32\x33.core.protos.playbooks.ArgoCD.FetchApplicationStateH\x00\x12T\n\x16get_application_health\x18\x07 \x01(\x0b\x32\x32.core.protos.playbooks.ArgoCD.GetApplicationHealthH\x00\x12=\n\nfetch_apps\x18\x08 \x01(\x0b\x32\'.core.protos.playbooks.ArgoCD.FetchAppsH\x00\x1aq\n\x13\x46\x65tchDeploymentInfo\x12*\n\x05\x63ount\x18\x01 \x01(\x0b\x32\x1b.google.protobuf.Int64Value\x12.\n\x08\x61pp_name\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1a\xaa\x01\n\x13RollbackApplication\x12.\n\x08\x61pp_name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12.\n\x08revision\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x33\n\rdeployment_id\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1ar\n\x14\x46\x65tchRevisionHistory\x12*\n\x05\x63ount\x18\x01 \x01(\x0b\x32\x1b.google.protobuf.Int64Value\x12.\n\x08\x61pp_name\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1ap\n\x0fSyncApplication\x12.\n\x08\x61pp_name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12-\n\x07version\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1aG\n\x15\x46\x65tchApplicationState\x12.\n\x08\x61pp_name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1a\x46\n\x14GetApplicationHealth\x12.\n\x08\x61pp_name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1a\x37\n\tFetchApps\x12*\n\x05\x63ount\x18\x01 \x01(\x0b\x32\x1b.google.protobuf.Int64Value\"\xc7\x01\n\x08TaskType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x19\n\x15\x46\x45TCH_DEPLOYMENT_INFO\x10\x01\x12\x18\n\x14ROLLBACK_APPLICATION\x10\x02\x12\x1a\n\x16\x46\x45TCH_REVISION_HISTORY\x10\x03\x12\x14\n\x10SYNC_APPLICATION\x10\x04\x12\x1b\n\x17\x46\x45TCH_APPLICATION_STATE\x10\x05\x12\x1a\n\x16GET_APPLICATION_HEALTH\x10\x06\x12\x0e\n\nFETCH_APPS\x10\x07\x42\x06\n\x04taskb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -33,19 +33,21 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'core.protos.playbooks.sourc
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
   _globals['_ARGOCD']._serialized_start=123
-  _globals['_ARGOCD']._serialized_end=1544
-  _globals['_ARGOCD_FETCHDEPLOYMENTINFO']._serialized_start=689
-  _globals['_ARGOCD_FETCHDEPLOYMENTINFO']._serialized_end=802
-  _globals['_ARGOCD_ROLLBACKAPPLICATION']._serialized_start=805
-  _globals['_ARGOCD_ROLLBACKAPPLICATION']._serialized_end=975
-  _globals['_ARGOCD_FETCHREVISIONHISTORY']._serialized_start=977
-  _globals['_ARGOCD_FETCHREVISIONHISTORY']._serialized_end=1091
-  _globals['_ARGOCD_SYNCAPPLICATION']._serialized_start=1093
-  _globals['_ARGOCD_SYNCAPPLICATION']._serialized_end=1205
-  _globals['_ARGOCD_FETCHAPPLICATIONSTATE']._serialized_start=1207
-  _globals['_ARGOCD_FETCHAPPLICATIONSTATE']._serialized_end=1278
-  _globals['_ARGOCD_GETAPPLICATIONHEALTH']._serialized_start=1280
-  _globals['_ARGOCD_GETAPPLICATIONHEALTH']._serialized_end=1350
-  _globals['_ARGOCD_TASKTYPE']._serialized_start=1353
-  _globals['_ARGOCD_TASKTYPE']._serialized_end=1536
+  _globals['_ARGOCD']._serialized_end=1680
+  _globals['_ARGOCD_FETCHDEPLOYMENTINFO']._serialized_start=752
+  _globals['_ARGOCD_FETCHDEPLOYMENTINFO']._serialized_end=865
+  _globals['_ARGOCD_ROLLBACKAPPLICATION']._serialized_start=868
+  _globals['_ARGOCD_ROLLBACKAPPLICATION']._serialized_end=1038
+  _globals['_ARGOCD_FETCHREVISIONHISTORY']._serialized_start=1040
+  _globals['_ARGOCD_FETCHREVISIONHISTORY']._serialized_end=1154
+  _globals['_ARGOCD_SYNCAPPLICATION']._serialized_start=1156
+  _globals['_ARGOCD_SYNCAPPLICATION']._serialized_end=1268
+  _globals['_ARGOCD_FETCHAPPLICATIONSTATE']._serialized_start=1270
+  _globals['_ARGOCD_FETCHAPPLICATIONSTATE']._serialized_end=1341
+  _globals['_ARGOCD_GETAPPLICATIONHEALTH']._serialized_start=1343
+  _globals['_ARGOCD_GETAPPLICATIONHEALTH']._serialized_end=1413
+  _globals['_ARGOCD_FETCHAPPS']._serialized_start=1415
+  _globals['_ARGOCD_FETCHAPPS']._serialized_end=1470
+  _globals['_ARGOCD_TASKTYPE']._serialized_start=1473
+  _globals['_ARGOCD_TASKTYPE']._serialized_end=1672
 # @@protoc_insertion_point(module_scope)
