@@ -47,6 +47,7 @@ message Grafana {
 
   message FetchDashboardVariablesTask {
     google.protobuf.StringValue dashboard_uid = 1;
+    google.protobuf.StringValue fixed_variables = 2;
   }
 
   message LokiDatasourceLogQueryTask {

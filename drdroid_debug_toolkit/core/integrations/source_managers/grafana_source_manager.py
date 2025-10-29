@@ -633,7 +633,11 @@ class GrafanaSourceManager(SourceManager):
                                                        grafana_connector: ConnectorProto):
         try:
             if not grafana_connector:
-                raise Exception("Task execution Failed:: No Grafana source found")
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value="Task execution Failed:: No Grafana source found")),
+                    source=self.source
+                )
 
             task = grafana_task.prometheus_datasource_metric_execution
             datasource_uid = task.datasource_uid.value
