@@ -5,6 +5,7 @@ from datetime import datetime, timedelta, timezone
 
 import requests
 from dateutil import parser as dateparser
+from typing import Optional
 
 from core.integrations.processor import Processor
 from core.protos.base_pb2 import TimeRange

@@ -1768,49 +1768,6 @@ class SignozSourceManager(SourceManager):
             logger.error(f"Error executing queries for panel '{panel_info.get('panel_title', 'UNKNOWN')}': {e}", exc_info=True)
             return None  # Indicate error for this panel
 
-    def _find_dashboard_asset(self, signoz_connector: ConnectorProto, dashboard_name: str) -> typing.Optional["SignozDashboardModel"]:
-        """Finds a specific dashboard asset by name."""
-        try:
-            # get_asset_model_values returns tuple: [assets], model_type_counts, current_page, total_pages
-            assets_list, _, _, _ = asset_manager_facade.get_asset_model_values(
-                signoz_connector,
-                SourceModelType.SIGNOZ_DASHBOARD,
-                AccountConnectorAssetsModelFilters(),  # Pass filters if possible later
-            )
-            
-            # Extract the AccountConnectorAssets from the list
-            if not assets_list or len(assets_list) == 0:
-                logger.warning(f"No assets list returned for connector {signoz_connector.id.value}")
-                return None
-                
-            account_connector_assets = assets_list[0]  # First (and typically only) element
-            
-            # Check if signoz assets exist
-            if not hasattr(account_connector_assets, 'signoz') or not account_connector_assets.signoz:
-                logger.warning(f"No Signoz section in assets for connector {signoz_connector.id.value}")
-                return None
-                
-            if not hasattr(account_connector_assets.signoz, 'assets') or not account_connector_assets.signoz.assets:
-                logger.warning(f"No Signoz dashboard assets found for connector {signoz_connector.id.value}")
-                return None
-
-            # Search through the assets for matching dashboard name
-            for asset in account_connector_assets.signoz.assets:
-                if (
-                    asset.type == SourceModelType.SIGNOZ_DASHBOARD
-                    and asset.HasField("signoz_dashboard")
-                    and asset.signoz_dashboard.title.value == dashboard_name
-                ):
-                    logger.info(f"Found matching dashboard: {dashboard_name} for connector {signoz_connector.id.value}")
-                    return asset.signoz_dashboard
-                    
-            logger.warning(f"Dashboard '{dashboard_name}' not found among {len(account_connector_assets.signoz.assets)} assets for connector {signoz_connector.id.value}")
-            return None
-            
-        except Exception as e:
-            logger.error(f"Error fetching dashboard assets for connector {signoz_connector.id.value}: {e}", exc_info=True)
-            return None  # Indicate error during fetch
-
     def _parse_dashboard_variables(self, task: Signoz.DashboardDataTask) -> tuple[dict, typing.Optional[PlaybookTaskResult]]:
         """Parses variables JSON from task input, returning dict and error result if any."""
         variables_json = task.variables_json.value if task.HasField("variables_json") and task.variables_json.value else "{}"
