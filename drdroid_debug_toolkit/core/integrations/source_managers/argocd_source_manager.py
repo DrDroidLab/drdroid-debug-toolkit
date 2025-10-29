@@ -279,6 +279,17 @@ class ArgoCDSourceManager(SourceManager):
             
             argocd_app_path = None
             
+            if app_name and app_name.value:
+                # Fetch app details in real-time to get the path
+                try:
+                    argocd_api_processor = self.get_connector_processor(argocd_connector)
+                    app_details = argocd_api_processor.get_application_details(app_name.value)
+                    if app_details and 'spec' in app_details and 'source' in app_details['spec']:
+                        argocd_app_path = app_details['spec']['source'].get('path')
+                except Exception as e:
+                    logger.warning(f"Could not fetch app details for {app_name.value}: {e}")
+                    # Continue without the path filter
+            
             # Use time_range parameter for start and end times directly
             start_time = time_range.time_geq
             end_time = time_range.time_lt
