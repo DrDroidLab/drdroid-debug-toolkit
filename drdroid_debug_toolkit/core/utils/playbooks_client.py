@@ -21,7 +21,7 @@ except Exception as e:
 
 
 if IS_PROD_ENV:
-    API_HOST = "http://localhost:8080/api"
+    API_HOST = "http://localhost:8080"
     API_TOKEN = MASTER_ASSETS_TOKEN
 else:
     API_HOST = "https://agent-api.drdroid.io/api"
