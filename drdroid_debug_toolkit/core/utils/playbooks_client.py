@@ -1,10 +1,21 @@
 from typing import Dict, Any
 import requests
 from requests.exceptions import RequestException
-from ..protos.base_pb2 import SourceModelType
-from ..protos.assets.asset_pb2 import AccountConnectorAssets
-from ..utils.proto_utils import dict_to_proto
+from django.conf import settings
+from core.protos.base_pb2 import SourceModelType
+from core.protos.assets.asset_pb2 import AccountConnectorAssets
+from core.utils.proto_utils import dict_to_proto
 
+IS_PROD_ENV = settings.IS_PROD_ENV if settings.IS_PROD_ENV else False
+
+
+
+if IS_PROD_ENV:
+    API_HOST = "http://localhost:8080/api"
+    API_TOKEN = settings.MASTER_API_TOKEN if settings.MASTER_API_TOKEN else None
+else:
+    API_HOST = "https://agent-api.drdroid.io/api"
+    API_TOKEN = settings.DRD_CLOUD_API_TOKEN if settings.DRD_CLOUD_API_TOKEN else None
 
 
 class PrototypeClient:
@@ -23,8 +34,8 @@ class PrototypeClient:
             api_token: The API token for authentication
             api_host: The API host URL
         """
-        self.auth_token = api_token
-        self.base_url = api_host
+        self.auth_token = api_token or API_TOKEN
+        self.base_url = api_host or API_HOST
         
         if not self.auth_token or not self.base_url:
             raise ValueError("API token and API host must be provided")
@@ -35,6 +46,13 @@ class PrototypeClient:
             'content-type': 'application/json',
             'Authorization': f'Bearer {self.auth_token}',
         }
+    
+    def _get_asset_url(self) -> str:
+        """Get the asset URL for the API request."""
+        if IS_PROD_ENV:
+            return f"{self.base_url}/connectors/master/assets/models/get"
+        else:
+            return f"{self.base_url}/connectors/proxy/assets/models/get"
 
     def get_connector_assets(
         self,
@@ -67,7 +85,7 @@ class PrototypeClient:
 
         try:
             response = requests.post(
-                f"{self.base_url}/connectors/proxy/assets/models/get",
+                self._get_asset_url(),
                 json=payload,
                 headers=self._get_headers()
             )
