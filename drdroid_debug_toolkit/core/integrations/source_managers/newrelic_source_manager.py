@@ -8,22 +8,20 @@ from google.protobuf.wrappers_pb2 import DoubleValue, StringValue
 
 from core.integrations.source_api_processors.new_relic_graph_ql_processor import NewRelicGraphQlConnector
 from core.integrations.source_manager import SourceManager
-from core.protos.base_pb2 import TimeRange, Source, SourceModelType
-from core.protos.connectors.connector_pb2 import Connector as ConnectorProto
-from core.protos.literal_pb2 import LiteralType
+from core.protos.base_pb2 import TimeRange, Source, SourceModelType, SourceKeyType
+from core.protos.connectors.connector_pb2 import Connector as ConnectorProto, ConnectorType
+from core.protos.literal_pb2 import LiteralType, Literal
 from core.protos.playbooks.playbook_commons_pb2 import PlaybookTaskResult, TimeseriesResult, LabelValuePair, \
     PlaybookTaskResultType, TextResult
 from core.protos.playbooks.source_task_definitions.new_relic_task_pb2 import NewRelic
 from core.protos.ui_definition_pb2 import FormField, FormFieldType
 from core.protos.assets.asset_pb2 import AccountConnectorAssets, AccountConnectorAssetsModelFilters
+from core.utils.playbooks_client import PrototypeClient
 
-from core.utils.credentilal_utils import generate_credentials_dict
+from core.utils.credentilal_utils import generate_credentials_dict, get_connector_key_type_string, CATEGORY, DISPLAY_NAME, APPLICATION_MONITORING
 from core.utils.string_utils import is_partial_match
-from core.integrations.source_metadata_extractors.newrelic_metadata_extractor import NewrelicSourceMetadataExtractor
-from core.integrations.source_asset_managers.newrelic_asset_manager import NewRelicAssetManager
 from core.utils.time_utils import calculate_timeseries_bucket_size
-from core.utils.proto_utils import dict_to_proto, proto_to_dict
-from core.utils.static_mappings import NEWRELIC_APM_QUERIES
+from collections.abc import MutableMapping
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +32,36 @@ def get_nrql_expression_result_alias(nrql_expression):
     if match:
         return match.group(1) or match.group(2)
     return 'result'
+
+
+def flatten_dict(d, parent_key='', sep='_'):
+    """Recursively flattens a nested dictionary."""
+    items = {}
+    for k, v in d.items():
+        if k == 'percentiles':
+            k = 'percentile'
+        new_key = f"{parent_key}{sep}{k}" if parent_key else k
+        if isinstance(v, MutableMapping):
+            items.update(flatten_dict(v, new_key, sep=sep))
+        else:
+            items[new_key] = v
+    return items
+
+
+def convert_list_to_flattened_dict(lst):
+    """Converts the given list of dictionaries into a single flattened dictionary."""
+    result = {}
+    for item in lst:
+        result.update(flatten_dict(item))
+    return result
+
+
+def get_first_matching_value(d, keys):
+    """Returns the value of the first key found in the dictionary from the given list of keys."""
+    for key in keys:
+        if key in d:
+            return d[key]
+    return None
 
 
 class NewRelicSourceManager(SourceManager):
@@ -48,6 +76,7 @@ class NewRelicSourceManager(SourceManager):
                 'result_type': PlaybookTaskResultType.TIMESERIES,
                 'display_name': 'Fetch a New Relic golden metric',
                 'category': 'Metrics',
+                'is_agent_enabled': False,
                 'form_fields': [
                     FormField(key_name=StringValue(value="application_entity_name"),
                               display_name=StringValue(value="Application"),
@@ -97,6 +126,7 @@ class NewRelicSourceManager(SourceManager):
                 'result_type': PlaybookTaskResultType.TIMESERIES,
                 'display_name': 'Fetch a metric from New Relic dashboard',
                 'category': 'Metrics',
+                'is_agent_enabled': False,
                 'form_fields': [
                     FormField(key_name=StringValue(value="dashboard_guid"),
                               display_name=StringValue(value="Dashboard"),
@@ -124,6 +154,7 @@ class NewRelicSourceManager(SourceManager):
                 'result_type': PlaybookTaskResultType.TIMESERIES,
                 'display_name': 'Fetch a custom NRQL query',
                 'category': 'Metrics',
+                'is_agent_enabled': False,
                 'form_fields': [
                     FormField(key_name=StringValue(value="metric_name"),
                               display_name=StringValue(value="Metric Name"),
@@ -143,6 +174,7 @@ class NewRelicSourceManager(SourceManager):
             },
             NewRelic.TaskType.FETCH_DASHBOARD_WIDGETS: {
                 'executor': self.execute_fetch_dashboard_widgets,
+                'model_types': [SourceModelType.NEW_RELIC_ENTITY_DASHBOARD_V2],
                 'result_type': PlaybookTaskResultType.TIMESERIES,
                 'display_name': 'Fetch all widgets from a New Relic dashboard',
                 'category': 'Metrics',
@@ -165,7 +197,106 @@ class NewRelicSourceManager(SourceManager):
                               form_field_type=FormFieldType.TEXT_FT,
                               is_optional=True),
                 ]
+            },
+            NewRelic.TaskType.ENTITY_APPLICATION_APM_DATABASE_SUMMARY: {
+                'executor': self.execute_entity_application_apm_database_summary,
+                'model_types': [SourceModelType.NEW_RELIC_ENTITY_APPLICATION],
+                'result_type': PlaybookTaskResultType.TIMESERIES,
+                'display_name': 'Fetch New Relic APM database summary',
+                'category': 'Metrics',
+                'form_fields': [
+                    FormField(key_name=StringValue(value="application_entity_guid"),
+                              display_name=StringValue(value="Application"),
+                              description=StringValue(value="Select Application"),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TYPING_DROPDOWN_FT),
+                    FormField(key_name=StringValue(value="sort_by"),
+                              display_name=StringValue(value="Sort By"),
+                              description=StringValue(value="Select sorting criteria"),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.DROPDOWN_FT,
+                              valid_values=[
+                                  Literal(type=LiteralType.STRING, string=StringValue(value="Most Time Consuming")),
+                                  Literal(type=LiteralType.STRING, string=StringValue(value="Slowest Query Time")),
+                                  Literal(type=LiteralType.STRING, string=StringValue(value="Throughput (Calls per minute)")),
+                              ],
+                              default_value=Literal(type=LiteralType.STRING, string=StringValue(value="Most Time Consuming")),
+                              is_optional=False),
+                ]
+            },
+            NewRelic.TaskType.ENTITY_APPLICATION_APM_TRANSACTION_SUMMARY: {
+                'executor': self.execute_entity_application_apm_transaction_summary,
+                'model_types': [SourceModelType.NEW_RELIC_ENTITY_APPLICATION],
+                'result_type': PlaybookTaskResultType.TIMESERIES,
+                'display_name': 'Fetch New Relic APM transaction summary',
+                'category': 'Metrics',
+                'form_fields': [
+                    FormField(key_name=StringValue(value="application_entity_guid"),
+                              display_name=StringValue(value="Application"),
+                              description=StringValue(value="Select Application"),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TYPING_DROPDOWN_FT),
+                    FormField(key_name=StringValue(value="sort_by"),
+                              display_name=StringValue(value="Sort By"),
+                              description=StringValue(value="Select sorting criteria"),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.DROPDOWN_FT,
+                              valid_values=[
+                                  Literal(type=LiteralType.STRING, string=StringValue(value="Most Time Consuming")),
+                                  Literal(type=LiteralType.STRING, string=StringValue(value="Slowest Average Response Time")),
+                                  Literal(type=LiteralType.STRING, string=StringValue(value="Throughput (Calls per minute)")),
+                              ],
+                              default_value=Literal(type=LiteralType.STRING, string=StringValue(value="Most Time Consuming")),
+                              is_optional=False),
+                ]
+            },
+        }
+
+        self.connector_form_configs = [
+            {
+                "name": StringValue(value="New Relic API Key Authentication"),
+                "description": StringValue(value="Connect to New Relic using your API Key, Account ID, and API Domain."),
+                "form_fields": {
+                    SourceKeyType.NEWRELIC_API_KEY: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.NEWRELIC_API_KEY)),
+                        display_name=StringValue(value="API Key"),
+                        helper_text=StringValue(value="Enter your New Relic User API Key."),
+                        description=StringValue(value='e.g. "1234567890abcdefghijklmnopqrstuvwxyz"'),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False,
+                        is_sensitive=True
+                    ),
+                    SourceKeyType.NEWRELIC_APP_ID: FormField( # Note: Display name is Account ID
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.NEWRELIC_APP_ID)),
+                        display_name=StringValue(value="Account ID"),
+                        helper_text=StringValue(value="Enter your New Relic Account ID."),
+                        description=StringValue(value='e.g. "1234567890"'),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False
+                    ),
+                    SourceKeyType.NEWRELIC_API_DOMAIN: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.NEWRELIC_API_DOMAIN)),
+                        display_name=StringValue(value="API Domain"),
+                        helper_text=StringValue(value="Select your New Relic API Domain"),
+                        description=StringValue(value='e.g. "api.newrelic.com" or "api.eu.newrelic.com"'),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.DROPDOWN_FT,
+                        valid_values=[
+                            Literal(type=LiteralType.STRING, string=StringValue(value="api.newrelic.com")),
+                            Literal(type=LiteralType.STRING, string=StringValue(value="api.eu.newrelic.com")),
+                            Literal(type=LiteralType.STRING, string=StringValue(value="api.fedramp.newrelic.com")),
+                        ],
+                        default_value=Literal(type=LiteralType.STRING, string=StringValue(value="api.newrelic.com")),
+                        is_optional=False
+                    )
+                }
             }
+        ]
+        self.connector_type_details = {
+            DISPLAY_NAME: "NEW RELIC",
+            CATEGORY: APPLICATION_MONITORING,
         }
 
     def get_connector_processor(self, grafana_connector, **kwargs):
@@ -184,8 +315,13 @@ class NewRelicSourceManager(SourceManager):
             timeseries_offsets = task.timeseries_offsets
 
             nrql_expression = task.golden_metric_nrql_expression.value
+            # Strip any trailing whitespace or newlines to avoid syntax errors
+            nrql_expression = nrql_expression.strip()
+
             if 'timeseries' not in nrql_expression.lower():
-                raise Exception("Invalid NRQL expression. TIMESERIES is missing in the NRQL expression")
+                logger.info("Invalid NRQL expression. TIMESERIES is missing in the NRQL expression")
+                nrql_expression = nrql_expression + 'TIMESERIES LIMIT'
+
             if 'limit max timeseries' in nrql_expression.lower():
                 nrql_expression = re.sub('limit max timeseries', 'TIMESERIES 5 MINUTE', nrql_expression,
                                          flags=re.IGNORECASE)
@@ -204,7 +340,10 @@ class NewRelicSourceManager(SourceManager):
 
             response = nr_gql_processor.execute_nrql_query(nrql_expression)
             if not response or 'results' not in response:
-                raise Exception("No data returned from New Relic")
+                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
+                                          text=TextResult(output=StringValue(
+                                              value=f"No data returned from New Relic for nrql expression: {nrql_expression}")),
+                                          source=self.source)
 
             results = response.get('results', [])
             metric_datapoints = []
@@ -273,11 +412,1062 @@ class NewRelicSourceManager(SourceManager):
             task_result = PlaybookTaskResult(
                 type=PlaybookTaskResultType.TIMESERIES,
                 timeseries=timeseries_result,
-                source=self.source
+                source=Source.NEW_RELIC
             )
             return task_result
         except Exception as e:
             raise Exception(f"Error while executing New Relic task: {e}")
+
+    def _prepare_apm_metric_nrql(self, nrql_expression: str, time_range: TimeRange) -> str:
+        """
+        Prepares the APM metric NRQL query string for execution by standardizing
+        the TIMESERIES and time range clauses based on the playbook context.
+        (Adapted from _prepare_widget_nrql)
+
+        Args:
+            nrql_expression: The original NRQL query from the APM metric asset.
+            time_range: The TimeRange object specifying the desired start and end times.
+
+        Returns:
+            The modified NRQL query string ready for execution.
+        """
+        return self._prepare_widget_nrql(nrql_expression, time_range) # Reuse existing logic for now
+
+    def _prepare_database_nrql(self, nrql_expression: str, time_range: TimeRange, metric_name: str = "") -> str:
+        """
+        Prepares the database NRQL query string for execution by standardizing
+        the TIMESERIES and time range clauses based on the playbook context.
+        Uses the same robust approach as _prepare_widget_nrql.
+
+        Args:
+            nrql_expression: The original NRQL query from the database metric.
+            time_range: The TimeRange object specifying the desired start and end times.
+            metric_name: The name of the metric for chart type determination.
+
+        Returns:
+            The modified NRQL query string ready for execution.
+        """
+        nrql_expression = nrql_expression.strip()
+        original_nrql = nrql_expression  # Keep a copy for logging
+
+        # 1. Calculate desired time range in milliseconds
+        start_ms = time_range.time_geq * 1000
+        end_ms = time_range.time_lt * 1000
+        total_seconds = time_range.time_lt - time_range.time_geq
+        if total_seconds <= 0:
+            # Default to 1 hour if range is invalid
+            end_ms = int(datetime.now(tz=pytz.UTC).timestamp() * 1000)
+            start_ms = end_ms - 3600 * 1000
+            total_seconds = 3600
+            logger.warning(
+                f"Invalid time range provided for database query '{metric_name}'. Defaulting to last 1 hour. Original NRQL: {original_nrql}")
+
+        # 2. Calculate appropriate bucket size for timeseries charts
+        bucket_size = calculate_timeseries_bucket_size(total_seconds)
+        calculated_timeseries_clause = f'TIMESERIES {bucket_size} SECONDS'
+        calculated_time_range_clause = f'SINCE {start_ms} UNTIL {end_ms}'
+
+        # 3. Remove existing time range clauses (SINCE, UNTIL)
+        nrql_expression = re.sub(
+            r'\bSINCE\s+(.*?)(?=\b(?:UNTIL|LIMIT|TIMESERIES|FACET|$))',
+            '', nrql_expression, flags=re.IGNORECASE | re.DOTALL
+        ).strip()
+        nrql_expression = re.sub(
+            r'\bUNTIL\s+(.*?)(?=\b(?:LIMIT|TIMESERIES|FACET|$))',
+            '', nrql_expression, flags=re.IGNORECASE | re.DOTALL
+        ).strip()
+
+        # 4. Remove/Replace existing TIMESERIES clause
+        nrql_expression = re.sub(
+            r'(?:\bLIMIT\s+MAX\s+)?\bTIMESERIES(?:\s+MAX|\s+AUTO|\s+\d+\s+\w+)?',
+            '', nrql_expression, flags=re.IGNORECASE
+        ).strip()
+
+        # 5. Determine chart type and add appropriate clauses
+        chart_type, result_type = self._get_metric_chart_config(metric_name)
+        
+        # Add time range clause
+        nrql_expression += f' {calculated_time_range_clause}'
+        
+        # Add TIMESERIES only for timeseries charts
+        if chart_type == "timeseries":
+            nrql_expression += f' {calculated_timeseries_clause}'
+
+        # Clean up potential multiple spaces
+        nrql_expression = re.sub(r'\s+', ' ', nrql_expression).strip()
+
+        return nrql_expression
+
+    def _prepare_transaction_nrql(self, nrql_expression: str, time_range: TimeRange, metric_name: str = "") -> str:
+        """
+        Prepares the transaction NRQL query string for execution by standardizing
+        the TIMESERIES and time range clauses based on the playbook context.
+        Uses the same robust approach as _prepare_widget_nrql.
+
+        Args:
+            nrql_expression: The original NRQL query from the transaction metric.
+            time_range: The TimeRange object specifying the desired start and end times.
+            metric_name: The name of the metric for chart type determination.
+
+        Returns:
+            The modified NRQL query string ready for execution.
+        """
+        nrql_expression = nrql_expression.strip()
+        original_nrql = nrql_expression  # Keep a copy for logging
+
+        # 1. Calculate desired time range in milliseconds
+        start_ms = time_range.time_geq * 1000
+        end_ms = time_range.time_lt * 1000
+        total_seconds = time_range.time_lt - time_range.time_geq
+        if total_seconds <= 0:
+            # Default to 1 hour if range is invalid
+            end_ms = int(datetime.now(tz=pytz.UTC).timestamp() * 1000)
+            start_ms = end_ms - 3600 * 1000
+            total_seconds = 3600
+            logger.warning(
+                f"Invalid time range provided for transaction query '{metric_name}'. Defaulting to last 1 hour. Original NRQL: {original_nrql}")
+
+        # 2. Calculate appropriate bucket size for timeseries charts
+        bucket_size = calculate_timeseries_bucket_size(total_seconds)
+        calculated_timeseries_clause = f'TIMESERIES {bucket_size} SECONDS'
+        calculated_time_range_clause = f'SINCE {start_ms} UNTIL {end_ms}'
+
+        # 3. Remove existing time range clauses (SINCE, UNTIL)
+        nrql_expression = re.sub(
+            r'\bSINCE\s+(.*?)(?=\b(?:UNTIL|LIMIT|TIMESERIES|FACET|$))',
+            '', nrql_expression, flags=re.IGNORECASE | re.DOTALL
+        ).strip()
+        nrql_expression = re.sub(
+            r'\bUNTIL\s+(.*?)(?=\b(?:LIMIT|TIMESERIES|FACET|$))',
+            '', nrql_expression, flags=re.IGNORECASE | re.DOTALL
+        ).strip()
+
+        # 4. Remove/Replace existing TIMESERIES clause
+        nrql_expression = re.sub(
+            r'(?:\bLIMIT\s+MAX\s+)?\bTIMESERIES(?:\s+MAX|\s+AUTO|\s+\d+\s+\w+)?',
+            '', nrql_expression, flags=re.IGNORECASE
+        ).strip()
+
+        # 5. Determine chart type and add appropriate clauses
+        chart_type, result_type = self._get_transaction_metric_chart_config(metric_name)
+        
+        # Add time range clause
+        nrql_expression += f' {calculated_time_range_clause}'
+        
+        # Add TIMESERIES only for timeseries charts
+        if chart_type == "timeseries":
+            nrql_expression += f' {calculated_timeseries_clause}'
+
+        # Clean up potential multiple spaces
+        nrql_expression = re.sub(r'\s+', ' ', nrql_expression).strip()
+
+        return nrql_expression
+
+    def _parse_apm_metric_response(self, response: Optional[Dict[str, Any]], metric_name: str, unit: str) -> List[TimeseriesResult.LabeledMetricTimeseries]:
+        """Parses the NRQL response for an APM metric and extracts timeseries data."""
+        labeled_metric_timeseries_list = []
+        if not response:
+            logger.warning(f"No data returned for APM metric '{metric_name}'")
+            return labeled_metric_timeseries_list
+
+        raw_response = response.get('rawResponse', {}) if isinstance(response, dict) else {}
+        facet_results = raw_response.get('facets', []) if isinstance(raw_response, dict) else []
+        
+        # Also check for direct results
+        direct_results = response.get('results', []) if isinstance(response, dict) else []
+        
+        results_to_process = []
+        is_faceted = False
+        
+        # Process faceted data (preferred for database queries)
+        if facet_results and isinstance(facet_results, list):
+            results_to_process = facet_results
+            is_faceted = True
+        elif direct_results and isinstance(direct_results, list):
+            # Check if direct results have facet information
+            if direct_results and isinstance(direct_results[0], dict) and 'facet' in direct_results[0]:
+                # Group by facet
+                facet_groups = {}
+                for result in direct_results:
+                    if isinstance(result, dict):
+                        facet_value = result.get('facet', 'default')
+                        # Handle facet values that might be lists or complex objects
+                        if isinstance(facet_value, (list, tuple)):
+                            facet_key = ' | '.join(str(v) for v in facet_value)
+                        elif isinstance(facet_value, dict):
+                            facet_key = str(facet_value)
+                        else:
+                            facet_key = str(facet_value)
+                        
+                        if facet_key not in facet_groups:
+                            facet_groups[facet_key] = []
+                        facet_groups[facet_key].append(result)
+                
+                # Convert to the format expected by the processor
+                for facet_key, facet_data in facet_groups.items():
+                    results_to_process.append({
+                        'name': facet_key,
+                        'timeSeries': facet_data
+                    })
+                is_faceted = True
+            else:
+                # Non-faceted results
+                results_to_process = [{'timeSeries': direct_results, 'name': 'default'}]
+        else:
+            logger.warning(f"No 'results' or 'facets' found in response for APM metric '{metric_name}'")
+            return labeled_metric_timeseries_list
+
+        # Process each series (facet or 'default')
+        for idx, series_data in enumerate(results_to_process):
+            metric_datapoints = []
+            
+            # Safely get series name and convert to string
+            series_name_raw = series_data.get('name', 'default')
+            if isinstance(series_name_raw, (list, tuple)):
+                series_name = ' | '.join(str(v) for v in series_name_raw)
+            elif isinstance(series_name_raw, dict):
+                series_name = str(series_name_raw)
+            else:
+                series_name = str(series_name_raw) if series_name_raw is not None else 'default'
+
+            timeseries_data = series_data.get('timeSeries', [])
+            # Handle edge cases where series_data might be the list or a single point
+            if not timeseries_data and isinstance(series_data, list):
+                timeseries_data = series_data
+            elif not timeseries_data and 'beginTimeSeconds' in series_data:
+                timeseries_data = [series_data]
+
+            for ts_idx, ts in enumerate(timeseries_data):
+                try:
+                    if not isinstance(ts, dict):
+                        continue
+                    utc_timestamp = ts.get('beginTimeSeconds')
+                    if utc_timestamp is None: 
+                        continue
+                    utc_datetime = datetime.utcfromtimestamp(utc_timestamp).replace(tzinfo=pytz.UTC)
+
+                    val = None
+                    potential_keys = ['result', 'score', 'count', 'average', 'sum', 'min', 'max', 'median'] # Common aggregates
+
+                    # First, check if we have a results array with nested values
+                    if 'results' in ts and isinstance(ts['results'], list) and len(ts['results']) > 0:
+                        result_item = ts['results'][0]
+                        if isinstance(result_item, dict):
+                            for p_key in potential_keys:
+                                if p_key in result_item and isinstance(result_item[p_key], (int, float)):
+                                    val = float(result_item[p_key])
+                                    break
+                    
+                    # If not found in results array, check top level
+                    if val is None:
+                        for p_key in potential_keys:
+                           if p_key in ts and isinstance(ts[p_key], dict) and 'score' in ts[p_key] and isinstance(ts[p_key]['score'], (int, float)):
+                                val = float(ts[p_key]['score'])
+                                break
+                           elif p_key in ts and isinstance(ts[p_key], (int, float)):
+                                val = float(ts[p_key])
+                                break
+
+                    # Fallback: iterate through all numeric values if specific keys not found (excluding metadata)
+                    if val is None:
+                        exclude_keys = ['beginTimeSeconds', 'endTimeSeconds', 'facet', 'inspectedCount', 'results']
+                        for k, v in ts.items():
+                            if isinstance(v, (int, float)) and k not in exclude_keys:
+                                val = float(v)
+                                break
+
+                    if val is None:
+                        logger.warning(
+                            f"Could not extract numeric value from datapoint {ts} for APM metric '{metric_name}', series '{series_name}'")
+                        continue
+
+                    datapoint = TimeseriesResult.LabeledMetricTimeseries.Datapoint(
+                        timestamp=int(utc_datetime.timestamp() * 1000),
+                        value=DoubleValue(value=val))
+                    metric_datapoints.append(datapoint)
+
+                except (ValueError, TypeError, KeyError, AttributeError) as e:
+                    logger.warning(
+                        f"Error processing datapoint {ts} for APM metric '{metric_name}', series '{series_name}': {str(e)}")
+                    continue
+
+            # Create LabeledMetricTimeseries if datapoints found
+            if metric_datapoints:
+                metric_label_values = [
+                    LabelValuePair(name=StringValue(value='apm_metric_name'), value=StringValue(value=metric_name)),
+                    LabelValuePair(name=StringValue(value='offset_seconds'), value=StringValue(value='0'))
+                ]
+
+                # Only add facet label if we have faceted data and series name is not default
+                if is_faceted and series_name != 'default':
+                    metric_label_values.append(
+                        LabelValuePair(name=StringValue(value='facet'), value=StringValue(value=series_name))
+                    )
+
+                labeled_metric_timeseries_list.append(
+                    TimeseriesResult.LabeledMetricTimeseries(
+                        metric_label_values=metric_label_values,
+                        unit=StringValue(value=unit),
+                        datapoints=metric_datapoints
+                    )
+                )
+            else:
+                 print(f"No valid datapoints found for series '{series_name}' in APM metric '{metric_name}'")
+
+        return labeled_metric_timeseries_list
+
+    def _parse_database_metric_response(self, response: Dict[str, Any], metric_name: str) -> List[TimeseriesResult.LabeledMetricTimeseries]:
+        """Alternative parsing method specifically for database metric responses that may have different structure."""
+        labeled_metric_timeseries_list = []
+        
+        # Try to extract data from different possible structures
+        results = response.get('results', [])
+        if not results:
+            print(f"No results found in database response for '{metric_name}'")
+            return labeled_metric_timeseries_list
+        
+        # Check if results are grouped by facet already
+        faceted_data = {}
+        for result in results:
+            if not isinstance(result, dict):
+                continue
+                
+            # Extract facet information
+            facet_key = 'default'
+            if 'facet' in result:
+                facet_value = result['facet']
+                if isinstance(facet_value, (list, tuple)):
+                    facet_key = ' | '.join(str(v) for v in facet_value)
+                else:
+                    facet_key = str(facet_value)
+            
+            # Initialize facet group if not exists
+            if facet_key not in faceted_data:
+                faceted_data[facet_key] = []
+            
+            faceted_data[facet_key].append(result)
+        
+        # Process each facet group
+        for facet_name, facet_results in faceted_data.items():
+            metric_datapoints = []
+            
+            for result in facet_results:
+                timestamp = result.get('beginTimeSeconds')
+                if timestamp is None:
+                    continue
+                    
+                # Find the numeric value
+                value = None
+                for key, val in result.items():
+                    if key not in ['beginTimeSeconds', 'endTimeSeconds', 'facet'] and isinstance(val, (int, float)):
+                        value = float(val)
+                        break
+                
+                if value is not None:
+                    utc_datetime = datetime.utcfromtimestamp(timestamp).replace(tzinfo=pytz.UTC)
+                    datapoint = TimeseriesResult.LabeledMetricTimeseries.Datapoint(
+                        timestamp=int(utc_datetime.timestamp() * 1000),
+                        value=DoubleValue(value=value))
+                    metric_datapoints.append(datapoint)
+            
+            if metric_datapoints:
+                metric_label_values = [
+                    LabelValuePair(name=StringValue(value='apm_metric_name'), value=StringValue(value=metric_name)),
+                    LabelValuePair(name=StringValue(value='offset_seconds'), value=StringValue(value='0'))
+                ]
+                
+                if facet_name != 'default':
+                    metric_label_values.append(
+                        LabelValuePair(name=StringValue(value='facet'), value=StringValue(value=facet_name))
+                    )
+                
+                labeled_metric_timeseries_list.append(
+                    TimeseriesResult.LabeledMetricTimeseries(
+                        metric_label_values=metric_label_values,
+                        unit=StringValue(value=""),
+                        datapoints=metric_datapoints
+                    )
+                )
+        
+        return labeled_metric_timeseries_list
+
+    def _parse_bar_chart_response(self, response: Dict[str, Any], metric_name: str) -> List[TimeseriesResult.LabeledMetricTimeseries]:
+        """Parse bar chart (non-timeseries) responses from New Relic."""
+        labeled_metric_timeseries_list = []
+        
+        if not response or not isinstance(response, dict):
+            print(f"No valid bar chart data for '{metric_name}'")
+            return labeled_metric_timeseries_list
+        
+        # For bar chart data, we get results without timeseries
+        results = response.get('results', [])
+        if not results:
+            print(f"No results found in bar chart response for '{metric_name}'")
+            return labeled_metric_timeseries_list
+        
+        # Create a single datapoint for each facet value (bar chart data)
+        for idx, result in enumerate(results):
+            if not isinstance(result, dict):
+                continue
+                
+            # Extract facet name
+            facet_value = result.get('facet', f'item_{idx}')
+            if isinstance(facet_value, (list, tuple)):
+                facet_name = ' | '.join(str(v) for v in facet_value)
+            else:
+                facet_name = str(facet_value)
+            
+            # Extract the numeric value
+            value = None
+            for key, val in result.items():
+                if key != 'facet' and isinstance(val, (int, float)):
+                    value = float(val)
+                    break
+            
+            if value is None:
+                continue
+            
+            # Create a single datapoint at current time (for bar chart visualization)
+            import time
+            current_timestamp = int(time.time() * 1000)
+            datapoint = TimeseriesResult.LabeledMetricTimeseries.Datapoint(
+                timestamp=current_timestamp,
+                value=DoubleValue(value=value)
+            )
+            
+            # Create labels for this bar
+            metric_label_values = [
+                LabelValuePair(name=StringValue(value='apm_metric_name'), value=StringValue(value=metric_name)),
+                LabelValuePair(name=StringValue(value='offset_seconds'), value=StringValue(value='0')),
+                LabelValuePair(name=StringValue(value='facet'), value=StringValue(value=facet_name)),
+                LabelValuePair(name=StringValue(value='chart_type'), value=StringValue(value='bar_chart'))
+            ]
+            
+            labeled_metric_timeseries_list.append(
+                TimeseriesResult.LabeledMetricTimeseries(
+                    metric_label_values=metric_label_values,
+                    unit=StringValue(value="ms"),  # Duration unit for database operations
+                    datapoints=[datapoint]  # Single datapoint for bar chart
+                )
+            )
+        
+        return labeled_metric_timeseries_list
+    
+    def _convert_bar_chart_to_table(self, response: Dict[str, Any], metric_name: str) -> TableResult:
+        """Converts bar chart response to TABLE format for proper visualization."""
+        from google.protobuf.wrappers_pb2 import StringValue, UInt64Value
+        
+        if not response or not isinstance(response, dict):
+            # Return empty table
+            return TableResult(
+                raw_query=StringValue(value=f"New Relic Database Query: {metric_name}"),
+                total_count=UInt64Value(value=0),
+                limit=UInt64Value(value=20),
+                offset=UInt64Value(value=0),
+                rows=[]
+            )
+        
+        results = response.get('results', [])
+        if not results:
+            return TableResult(
+                raw_query=StringValue(value=f"New Relic Database Query: {metric_name}"),
+                total_count=UInt64Value(value=0),
+                limit=UInt64Value(value=20),
+                offset=UInt64Value(value=0),
+                rows=[]
+            )
+        
+        # Create table rows from the faceted results
+        table_rows = []
+        for result in results:
+            if not isinstance(result, dict):
+                continue
+                
+            # Extract facet name (operation name)
+            facet_value = result.get('facet', 'Unknown')
+            if isinstance(facet_value, (list, tuple)):
+                operation_name = ' | '.join(str(v) for v in facet_value)
+            else:
+                operation_name = str(facet_value)
+            
+            # Extract the numeric value
+            value = None
+            for key, val in result.items():
+                if key != 'facet' and isinstance(val, (int, float)):
+                    value = val
+                    break
+            
+            if value is not None:
+                # Create table columns for this row
+                table_columns = [
+                    TableResult.TableColumn(
+                        name=StringValue(value="Database Operation"),
+                        value=StringValue(value=operation_name)
+                    ),
+                    TableResult.TableColumn(
+                        name=StringValue(value="Duration (ms)" if "time" in metric_name.lower() else "Value"),
+                        value=StringValue(value=f"{value:.2f}")
+                    )
+                ]
+                table_rows.append(TableResult.TableRow(columns=table_columns))
+        
+        # Create table
+        table = TableResult(
+            raw_query=StringValue(value=f"New Relic Database Query: {metric_name}"),
+            total_count=UInt64Value(value=len(table_rows)),
+            limit=UInt64Value(value=20),
+            offset=UInt64Value(value=0),
+            rows=table_rows
+        )
+        
+        return table
+
+    def execute_entity_application_apm_metric_execution(self, time_range: TimeRange, nr_task: NewRelic,
+                                                        nr_connector: ConnectorProto):
+        try:
+            if not nr_connector:
+                raise Exception("Task execution Failed:: No New Relic source found")
+
+            task = nr_task.entity_application_apm_metric_execution
+            application_name = task.application_entity_name.value
+            timeseries_offsets = list(task.timeseries_offsets) # Ensure it's a list
+            filter_metric_names_str = task.apm_metric_names.value if task.HasField('apm_metric_names') else ''
+            filter_metric_names = [name.strip().lower() for name in filter_metric_names_str.split(',') if name.strip()]
+
+            # 1. Get the specific application asset
+            client = PrototypeClient()
+            assets = client.get_connector_assets(
+                connector_type=ConnectorType.Name(nr_connector.type),
+                connector_id=str(nr_connector.id.value),
+                asset_type=SourceModelType.NEW_RELIC_ENTITY_APPLICATION,
+            )
+
+            if not assets:
+                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
+                                          text=TextResult(output=StringValue(
+                                              value=f"Application asset with GUID '{application_name}' not found")),
+                                          source=self.source)
+
+            application_asset = None
+            for newrelic_asset in assets.new_relic.assets:
+                if newrelic_asset.type == SourceModelType.NEW_RELIC_ENTITY_APPLICATION and \
+                   newrelic_asset.new_relic_entity_application.application_name.value == application_name:
+                    application_asset = newrelic_asset.new_relic_entity_application
+                    break
+
+            if not application_asset:
+                 return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
+                                           text=TextResult(output=StringValue(
+                                               value=f"Application asset with GUID '{application_name}' not found within returned data")),
+                                           source=self.source)
+
+            # 2. Filter APM metrics if requested
+            all_apm_metrics = list(application_asset.apm_metrics)
+            if not all_apm_metrics:
+                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
+                                          text=TextResult(output=StringValue(
+                                              value=f"No APM metrics defined for application with GUID '{application_name}'")),
+                                          source=self.source)
+
+            metrics_to_process = []
+            if filter_metric_names:
+                for metric in all_apm_metrics:
+                    if metric.metric_name.value.lower() in filter_metric_names:
+                        metrics_to_process.append(metric)
+                if not metrics_to_process:
+                     return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
+                                           text=TextResult(output=StringValue(
+                                               value=f"No APM metrics matching names {filter_metric_names_str} found for application with GUID")),
+                                           source=self.source)
+            else:
+                metrics_to_process = all_apm_metrics # Process all if no filter
+
+            # 3. Initialize the GraphQL processor
+            nr_gql_processor = self.get_connector_processor(nr_connector)
+            
+            # 4. Get the entity account ID for more accurate queries
+            entity_guid = application_asset.application_entity_guid.value
+            entity_account_id = None
+            try:
+                entity_account_id = nr_gql_processor.get_entity_account_id(entity_guid)
+                if entity_account_id:
+                    logger.info(f"Retrieved account ID {entity_account_id} for entity GUID {entity_guid}")
+                else:
+                    logger.warning(f"Could not retrieve account ID for entity GUID {entity_guid}, using connector account ID")
+            except Exception as e:
+                logger.error(f"Error retrieving account ID for entity GUID {entity_guid}: {e}, using connector account ID")
+                entity_account_id = None
+
+            # 5. Process each APM metric
+            task_results = []
+
+            for apm_metric in metrics_to_process:
+                try:
+                    metric_name = apm_metric.metric_name.value
+                    unit = apm_metric.metric_unit.value
+                    base_nrql_expression = apm_metric.metric_nrql_expression.value
+
+                    if not base_nrql_expression:
+                         logger.warning(f"Skipping APM metric '{metric_name}' for application '{application_name}' as it has no NRQL query.")
+                         continue
+
+                    all_labeled_metric_timeseries = [] # Collect base and offset series
+                    prepared_nrql = self._prepare_apm_metric_nrql(base_nrql_expression, time_range)
+
+                    print(
+                        "Playbook Task Downstream Request: Type -> {}, Account -> {}, App Name -> {}, Metric -> {}, NRQL -> {}".format(
+                            "NewRelicAPM", entity_account_id or nr_connector.account_id.value, application_name, metric_name, prepared_nrql), flush=True)
+
+                    response = nr_gql_processor.execute_nrql_query(prepared_nrql, entity_account_id)
+                    base_timeseries = self._parse_apm_metric_response(response, metric_name, unit) # Already has offset 0 label
+                    all_labeled_metric_timeseries.extend(base_timeseries)
+
+                    for offset in timeseries_offsets:
+                        if offset == 0: continue # Skip 0, already processed
+
+                        adjusted_start_time = time_range.time_geq - offset
+                        adjusted_end_time = time_range.time_lt - offset
+                        adjusted_time_range = TimeRange(time_geq=adjusted_start_time, time_lt=adjusted_end_time)
+
+                        offset_nrql = self._prepare_apm_metric_nrql(base_nrql_expression, adjusted_time_range)
+
+                        print(
+                            "Playbook Task Downstream Request: Type -> {}, Account -> {}, App GUID -> {}, Metric -> {}, NRQL -> {}, Offset -> {}".format(
+                                "NewRelicAPM", entity_account_id or nr_connector.account_id.value, application_name, metric_name, offset_nrql, offset), flush=True)
+
+                        offset_response = nr_gql_processor.execute_nrql_query(offset_nrql, entity_account_id)
+                        offset_timeseries = self._parse_apm_metric_response(offset_response, metric_name, unit)
+
+                        # Create new LabeledMetricTimeseries objects with updated labels for the offset
+                        for series in offset_timeseries:
+                            updated_labels = [
+                                LabelValuePair(name=StringValue(value='apm_metric_name'), value=StringValue(value=metric_name)),
+                                LabelValuePair(name=StringValue(value='offset_seconds'), value=StringValue(value=str(offset)))
+                            ]
+                            # Preserve facet label if present
+                            facet_label = None
+                            for label in series.metric_label_values:
+                                if label.name.value == 'facet':
+                                    facet_label = label
+                                    break
+                            if facet_label:
+                                updated_labels.append(facet_label)
+
+                            # Create a new LabeledMetricTimeseries with updated labels
+                            new_labeled_metric_timeseries = TimeseriesResult.LabeledMetricTimeseries(
+                                metric_label_values=updated_labels,
+                                unit=series.unit,  # Reuse unit from original series
+                                datapoints=series.datapoints # Reuse datapoints from original series
+                            )
+                            all_labeled_metric_timeseries.append(new_labeled_metric_timeseries)
+
+                    if all_labeled_metric_timeseries:
+                         # Use the base prepared NRQL for the expression field for consistency
+                        timeseries_result = TimeseriesResult(metric_expression=StringValue(value=prepared_nrql),
+                                                             metric_name=StringValue(value=metric_name),
+                                                             labeled_metric_timeseries=all_labeled_metric_timeseries)
+                        task_result = PlaybookTaskResult(type=PlaybookTaskResultType.TIMESERIES,
+                                                         timeseries=timeseries_result, source=self.source)
+                        task_results.append(task_result)
+                    else:
+                        logger.warning(f"No timeseries data could be parsed for APM metric '{metric_name}'.")
+
+                except Exception as e:
+                    logger.error(f"Error processing APM metric '{apm_metric.metric_name.value}' for application '{application_name}': {str(e)}", exc_info=True)
+                    continue
+
+            # Check if any results were generated
+            if not task_results:
+                filter_msg = f" matching names '{filter_metric_names_str}'" if filter_metric_names_str else ""
+                logger.warning(f"No data retrieved for any APM metrics{filter_msg} in application '{application_name}'.")
+                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
+                                          text=TextResult(output=StringValue(
+                                              value=f"No data found for the specified APM metrics{filter_msg} in application '{application_name}'. Check metric configurations and time range.")),
+                                          source=self.source)
+
+            return task_results # Return list of results
+
+        except Exception as e:
+            logger.error(f"General Error executing Fetch APM Metrics task for app {task.application_entity_name.value}: {str(e)}", exc_info=True)
+            raise Exception(f"Error while executing New Relic Fetch APM Metrics task: {e}")
+
+    def execute_entity_application_apm_database_summary(self, time_range: TimeRange, nr_task: NewRelic,
+                                                       nr_connector: ConnectorProto):
+        try:
+            if not nr_connector:
+                raise Exception("Task execution Failed:: No New Relic source found")
+
+            task = nr_task.entity_application_apm_database_summary
+            application_guid = task.application_entity_guid.value
+            sort_by = task.sort_by.value
+            timeseries_offsets = list(task.timeseries_offsets)
+
+            # Import the database queries
+            from integrations.utils.static_mappings import NEWRELIC_APM_DATABASE_QUERIES
+
+            # Get all queries to execute
+            base_queries = NEWRELIC_APM_DATABASE_QUERIES["base_queries"]
+            sort_by_queries = NEWRELIC_APM_DATABASE_QUERIES["sort_by_queries"].get(sort_by, {})
+            
+            # For "Most Time Consuming", we need special handling for the app name vs entity guid
+            if sort_by == "Most Time Consuming":
+                # Need to get application name for the Span query
+                client = PrototypeClient()
+                assets = client.get_connector_assets(
+                    connector_type=ConnectorType.Name(nr_connector.type),
+                    connector_id=str(nr_connector.id.value),
+                    asset_type=SourceModelType.NEW_RELIC_ENTITY_APPLICATION,
+                )
+
+                if not assets:
+                    return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
+                                              text=TextResult(output=StringValue(
+                                                  value=f"Application asset not found for '{application_guid}'")),
+                                              source=self.source)
+
+                application_asset = None
+                for newrelic_asset in assets.new_relic.assets:
+                    if newrelic_asset.type == SourceModelType.NEW_RELIC_ENTITY_APPLICATION and \
+                       newrelic_asset.new_relic_entity_application.application_entity_guid.value == application_guid:
+                        application_asset = newrelic_asset.new_relic_entity_application
+                        break
+
+                if not application_asset:
+                    return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
+                                              text=TextResult(output=StringValue(
+                                                  value=f"Application asset not found for '{application_guid}'")),
+                                              source=self.source)
+
+                app_name_for_span = application_asset.application_name.value
+
+            nr_gql_processor = self.get_connector_processor(nr_connector)
+            
+            # Get the entity account ID for more accurate queries
+            entity_account_id = None
+            try:
+                entity_account_id = nr_gql_processor.get_entity_account_id(application_guid)
+                if entity_account_id:
+                    logger.info(f"Retrieved account ID {entity_account_id} for entity GUID {application_guid}")
+                else:
+                    logger.warning(f"Could not retrieve account ID for entity GUID {application_guid}, using connector account ID")
+            except Exception as e:
+                logger.error(f"Error retrieving account ID for entity GUID {application_guid}: {e}, using connector account ID")
+                entity_account_id = None
+            
+            task_results = []
+
+            # Combine all queries to execute
+            all_queries = {}
+            all_queries.update(base_queries)
+            all_queries.update(sort_by_queries)
+
+            for metric_name, nrql_template in all_queries.items():
+                try:
+                    # Prepare the NRQL query with time range injection
+                    if sort_by == "Most Time Consuming" and metric_name == "Top 20 Database Operations":
+                        # Use app name for Span queries
+                        nrql_expression = nrql_template.format(f"'{app_name_for_span}'")
+                    else:
+                        # Use entity GUID for Metric queries
+                        entity_guid = application_asset.application_entity_guid.value if 'application_asset' in locals() else application_guid
+                        nrql_expression = nrql_template.format(f"'{entity_guid}'")
+
+                    # Inject time range into the query
+                    prepared_nrql = self._prepare_database_nrql(nrql_expression, time_range, metric_name)
+
+                    print(
+                        "Playbook Task Downstream Request: Type -> {}, Account -> {}, App -> {}, Sort By -> {}, Metric -> {}, NRQL -> {}".format(
+                            "NewRelicAPMDatabaseSummary", entity_account_id or nr_connector.account_id.value, application_guid, sort_by, metric_name, prepared_nrql),
+                        flush=True)
+
+                    # Execute the NRQL query
+                    response = nr_gql_processor.execute_nrql_query(prepared_nrql, entity_account_id)
+                    
+                    if not response:
+                        print(f"No data returned for database metric '{metric_name}' with sort_by '{sort_by}'")
+                        continue
+
+                    # Choose appropriate parsing and result type based on chart type configuration
+                    chart_type, result_type = self._get_metric_chart_config(metric_name)
+                    
+                    if chart_type == "bar_chart":
+                        # Create TABLE result for bar charts
+                        table = self._convert_bar_chart_to_table(response, metric_name)
+                        task_result = PlaybookTaskResult(
+                            type=PlaybookTaskResultType.TABLE,
+                            table=table,
+                            source=self.source
+                        )
+                        task_results.append(task_result)
+                        continue  # Skip to next metric
+                    else:
+                        # Handle timeseries data
+                        labeled_metric_timeseries_list = self._parse_apm_metric_response(response, metric_name, "")
+                        
+                        # Fallback for timeseries metrics that failed standard parsing
+                        if not labeled_metric_timeseries_list and response:
+                            print(f"Standard parsing failed for '{metric_name}', trying alternate database parsing")
+                            labeled_metric_timeseries_list = self._parse_database_metric_response(response, metric_name)
+
+                    # Handle timeseries offsets if specified
+                    all_labeled_metric_timeseries = labeled_metric_timeseries_list.copy()
+                    
+                    for offset in timeseries_offsets:
+                        if offset == 0:
+                            continue  # Skip 0, already processed
+
+                        adjusted_start_time = time_range.time_geq - offset
+                        adjusted_end_time = time_range.time_lt - offset
+                        adjusted_time_range = TimeRange(time_geq=adjusted_start_time, time_lt=adjusted_end_time)
+
+                        offset_nrql = self._prepare_database_nrql(nrql_expression, adjusted_time_range, metric_name)
+
+                        print(
+                            "Playbook Task Downstream Request: Type -> {}, Account -> {}, App -> {}, Sort By -> {}, Metric -> {}, NRQL -> {}, Offset -> {}".format(
+                                "NewRelicAPMDatabaseSummary", entity_account_id or nr_connector.account_id.value, application_guid, sort_by, metric_name, offset_nrql, offset),
+                            flush=True)
+
+                        offset_response = nr_gql_processor.execute_nrql_query(offset_nrql, entity_account_id)
+                        offset_timeseries = self._parse_apm_metric_response(offset_response, metric_name, "")
+
+                        # Update labels with offset information
+                        for series in offset_timeseries:
+                            updated_labels = []
+                            for label in series.metric_label_values:
+                                if label.name.value == 'offset_seconds':
+                                    updated_labels.append(
+                                        LabelValuePair(name=StringValue(value='offset_seconds'), value=StringValue(value=str(offset)))
+                                    )
+                                else:
+                                    updated_labels.append(label)
+                            
+                            # Add offset label if not present
+                            if not any(label.name.value == 'offset_seconds' for label in updated_labels):
+                                updated_labels.append(
+                                    LabelValuePair(name=StringValue(value='offset_seconds'), value=StringValue(value=str(offset)))
+                                )
+
+                            new_series = TimeseriesResult.LabeledMetricTimeseries(
+                                metric_label_values=updated_labels,
+                                unit=series.unit,
+                                datapoints=series.datapoints
+                            )
+                            all_labeled_metric_timeseries.append(new_series)
+
+                    if all_labeled_metric_timeseries:
+                        timeseries_result = TimeseriesResult(
+                            metric_expression=StringValue(value=prepared_nrql),
+                            metric_name=StringValue(value=f"{metric_name} ({sort_by})"),
+                            labeled_metric_timeseries=all_labeled_metric_timeseries
+                        )
+                        task_result = PlaybookTaskResult(
+                            type=PlaybookTaskResultType.TIMESERIES,
+                            timeseries=timeseries_result,
+                            source=self.source
+                        )
+                        task_results.append(task_result)
+
+                except Exception as metric_err:
+                    logger.error(f"Error processing database metric '{metric_name}' for application '{application_guid}': {str(metric_err)}", exc_info=True)
+                    continue
+
+            # Check if any results were generated
+            if not task_results:
+                logger.warning(f"No data retrieved for any database metrics for application '{application_guid}' with sort_by '{sort_by}'.")
+                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
+                                          text=TextResult(output=StringValue(
+                                              value=f"No database metrics data found for application '{application_guid}' with sort criteria '{sort_by}'. Check application configuration and time range.")),
+                                          source=self.source)
+
+            return task_results  # Return list of results
+
+        except Exception as e:
+            logger.error(f"General Error executing APM Database Summary task for app {task.application_entity_name.value}: {str(e)}", exc_info=True)
+            raise Exception(f"Error while executing New Relic APM Database Summary task: {e}")
+
+    def execute_entity_application_apm_transaction_summary(self, time_range: TimeRange, nr_task: NewRelic,
+                                                          nr_connector: ConnectorProto):
+        try:
+            if not nr_connector:
+                raise Exception("Task execution Failed:: No New Relic source found")
+
+            task = nr_task.entity_application_apm_transaction_summary
+            application_guid = task.application_entity_guid.value
+            sort_by = task.sort_by.value
+            timeseries_offsets = list(task.timeseries_offsets)
+
+            # Import the transaction queries
+            from integrations.utils.static_mappings import NEWRELIC_APM_TRANSACTION_QUERIES
+
+            # Get all queries to execute
+            base_queries = NEWRELIC_APM_TRANSACTION_QUERIES["base_queries"]
+            sort_by_queries = NEWRELIC_APM_TRANSACTION_QUERIES["sort_by_queries"].get(sort_by, {})
+            
+            nr_gql_processor = self.get_connector_processor(nr_connector)
+            
+            # Get the entity account ID for more accurate queries
+            entity_account_id = None
+            try:
+                entity_account_id = nr_gql_processor.get_entity_account_id(application_guid)
+                if entity_account_id:
+                    logger.info(f"Retrieved account ID {entity_account_id} for entity GUID {application_guid}")
+                else:
+                    logger.warning(f"Could not retrieve account ID for entity GUID {application_guid}, using connector account ID")
+            except Exception as e:
+                logger.error(f"Error retrieving account ID for entity GUID {application_guid}: {e}, using connector account ID")
+                entity_account_id = None
+            
+            task_results = []
+
+            # Combine all queries to execute
+            all_queries = {}
+            all_queries.update(base_queries)
+            all_queries.update(sort_by_queries)
+
+            for metric_name, nrql_template in all_queries.items():
+                try:
+                    # Prepare the NRQL query with entity GUID
+                    nrql_expression = nrql_template.format(f"'{application_guid}'")
+
+                    # Inject time range into the query
+                    prepared_nrql = self._prepare_transaction_nrql(nrql_expression, time_range, metric_name)
+
+                    print(
+                        "Playbook Task Downstream Request: Type -> {}, Account -> {}, App -> {}, Sort By -> {}, Metric -> {}, NRQL -> {}".format(
+                            "NewRelicAPMTransactionSummary", entity_account_id or nr_connector.account_id.value, application_guid, sort_by, metric_name, prepared_nrql),
+                        flush=True)
+
+                    # Execute the NRQL query
+                    response = nr_gql_processor.execute_nrql_query(prepared_nrql, entity_account_id)
+                    print(response)
+                    
+                    if not response:
+                        print(f"No data returned for transaction metric '{metric_name}' with sort_by '{sort_by}'")
+                        continue
+
+                    # Choose appropriate parsing and result type based on chart type configuration
+                    chart_type, result_type = self._get_transaction_metric_chart_config(metric_name)
+                    
+                    if chart_type == "bar_chart":
+                        # Create TABLE result for bar charts
+                        table = self._convert_bar_chart_to_table(response, metric_name)
+                        task_result = PlaybookTaskResult(
+                            type=PlaybookTaskResultType.TABLE,
+                            table=table,
+                            source=self.source
+                        )
+                        task_results.append(task_result)
+                        continue  # Skip to next metric
+                    else:
+                        # Handle timeseries data
+                        labeled_metric_timeseries_list = self._parse_apm_metric_response(response, metric_name, "")
+                        
+                        # Fallback for timeseries metrics that failed standard parsing
+                        if not labeled_metric_timeseries_list and response:
+                            print(f"Standard parsing failed for '{metric_name}', trying alternate transaction parsing")
+                            labeled_metric_timeseries_list = self._parse_database_metric_response(response, metric_name)
+
+                    # Handle timeseries offsets if specified
+                    all_labeled_metric_timeseries = labeled_metric_timeseries_list.copy()
+                    
+                    for offset in timeseries_offsets:
+                        if offset == 0:
+                            continue  # Skip 0, already processed
+
+                        adjusted_start_time = time_range.time_geq - offset
+                        adjusted_end_time = time_range.time_lt - offset
+                        adjusted_time_range = TimeRange(time_geq=adjusted_start_time, time_lt=adjusted_end_time)
+
+                        offset_nrql = self._prepare_transaction_nrql(nrql_expression, adjusted_time_range, metric_name)
+
+                        print(
+                            "Playbook Task Downstream Request: Type -> {}, Account -> {}, App -> {}, Sort By -> {}, Metric -> {}, NRQL -> {}, Offset -> {}".format(
+                                "NewRelicAPMTransactionSummary", entity_account_id or nr_connector.account_id.value, application_guid, sort_by, metric_name, offset_nrql, offset),
+                            flush=True)
+
+                        offset_response = nr_gql_processor.execute_nrql_query(offset_nrql, entity_account_id)
+                        offset_timeseries = self._parse_apm_metric_response(offset_response, metric_name, "")
+
+                        # Update labels with offset information
+                        for series in offset_timeseries:
+                            updated_labels = []
+                            for label in series.metric_label_values:
+                                if label.name.value == 'offset_seconds':
+                                    updated_labels.append(
+                                        LabelValuePair(name=StringValue(value='offset_seconds'), value=StringValue(value=str(offset)))
+                                    )
+                                else:
+                                    updated_labels.append(label)
+                            
+                            # Add offset label if not present
+                            if not any(label.name.value == 'offset_seconds' for label in updated_labels):
+                                updated_labels.append(
+                                    LabelValuePair(name=StringValue(value='offset_seconds'), value=StringValue(value=str(offset)))
+                                )
+
+                            new_series = TimeseriesResult.LabeledMetricTimeseries(
+                                metric_label_values=updated_labels,
+                                unit=series.unit,
+                                datapoints=series.datapoints
+                            )
+                            all_labeled_metric_timeseries.append(new_series)
+
+                    if all_labeled_metric_timeseries:
+                        timeseries_result = TimeseriesResult(
+                            metric_expression=StringValue(value=prepared_nrql),
+                            metric_name=StringValue(value=f"{metric_name} ({sort_by})"),
+                            labeled_metric_timeseries=all_labeled_metric_timeseries
+                        )
+                        task_result = PlaybookTaskResult(
+                            type=PlaybookTaskResultType.TIMESERIES,
+                            timeseries=timeseries_result,
+                            source=self.source
+                        )
+                        task_results.append(task_result)
+
+                except Exception as metric_err:
+                    logger.error(f"Error processing transaction metric '{metric_name}' for application '{application_guid}': {str(metric_err)}", exc_info=True)
+                    continue
+
+            # Check if any results were generated
+            if not task_results:
+                logger.warning(f"No data retrieved for any transaction metrics for application '{application_guid}' with sort_by '{sort_by}'.")
+                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
+                                          text=TextResult(output=StringValue(
+                                              value=f"No transaction metrics data found for application '{application_guid}' with sort criteria '{sort_by}'. Check application configuration and time range.")),
+                                          source=self.source)
+
+            return task_results  # Return list of results
+
+        except Exception as e:
+            logger.error(f"General Error executing APM Transaction Summary task for app {task.application_entity_name.value}: {str(e)}", exc_info=True)
+            raise Exception(f"Error while executing New Relic APM Transaction Summary task: {e}")
+
+    def _get_metric_chart_config(self, metric_name: str) -> tuple[str, str]:
+        """Returns chart type and result type for a metric."""
+        from integrations.utils.static_mappings import NEWRELIC_APM_DATABASE_QUERIES
+        
+        chart_config = NEWRELIC_APM_DATABASE_QUERIES.get("chart_types", {})
+        
+        for chart_type, config in chart_config.items():
+            if metric_name in config.get("metrics", []):
+                return chart_type, config.get("result_type", "TIMESERIES")
+        
+        # Default to timeseries for unknown metrics
+        return "timeseries", "TIMESERIES"
+    
+    def _get_transaction_metric_chart_config(self, metric_name: str) -> tuple[str, str]:
+        """Returns chart type and result type for a transaction metric."""
+        from integrations.utils.static_mappings import NEWRELIC_APM_TRANSACTION_QUERIES
+        
+        chart_config = NEWRELIC_APM_TRANSACTION_QUERIES.get("chart_types", {})
+        
+        for chart_type, config in chart_config.items():
+            if metric_name in config.get("metrics", []):
+                return chart_type, config.get("result_type", "TIMESERIES")
+        
+        # Default to timeseries for unknown metrics
+        return "timeseries", "TIMESERIES"
 
     def execute_entity_dashboard_widget_nrql_metric_execution(self, time_range: TimeRange, nr_task: NewRelic,
                                                               nr_connector: ConnectorProto):
@@ -291,11 +1481,18 @@ class NewRelicSourceManager(SourceManager):
                 unit = task.unit.value
             else:
                 unit = ''
-            timeseries_offsets = task.timeseries_offsets
 
+            timeseries_offsets = None  # task.timeseries_offsets
+
+            # Parse the NRQL expression
             nrql_expression = task.widget_nrql_expression.value
+
+            # Strip any trailing whitespace or newlines to avoid syntax errors
+            nrql_expression = nrql_expression.strip()
+
             if 'timeseries' not in nrql_expression.lower():
-                raise Exception("Invalid NRQL expression. TIMESERIES is missing in the NRQL expression")
+                logger.info("Invalid NRQL expression. TIMESERIES is missing in the NRQL expression")
+                nrql_expression = nrql_expression + ' TIMESERIES LIMIT'
             if 'limit max timeseries' in nrql_expression.lower():
                 nrql_expression = re.sub('limit max timeseries', 'TIMESERIES 5 MINUTE', nrql_expression,
                                          flags=re.IGNORECASE)
@@ -308,88 +1505,116 @@ class NewRelicSourceManager(SourceManager):
             nr_gql_processor = self.get_connector_processor(nr_connector)
             response = nr_gql_processor.execute_nrql_query(nrql_expression)
             if not response:
-                raise Exception("No data returned from New Relic")
+                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
+                                          text=TextResult(output=StringValue(
+                                              value=f"No data returned from New Relic for nrql expression: {nrql_expression}")),
+                                          source=self.source)
 
             labeled_metric_timeseries_list = []
-            facet_keys = response.get('metadata', {}).get('facets', [])
-            results = response.get('rawResponse', {}).get('facets', [response.get('rawResponse')])
 
-            if 'TIMESERIES' in nrql_expression:
-                for item in results:
-                    metric_label_values = []
-                    if 'name' in item:
-                        facets = item['name']
-                        if isinstance(facets, str):
-                            facets = [facets]
-                        if len(facets) == len(facet_keys):
-                            for idx, f in enumerate(facets):
-                                metric_label_values.append(LabelValuePair(name=StringValue(value=facet_keys[idx]),
-                                                                          value=StringValue(value=f)))
+            metric_function = ""
+            if 'rawResponse' in response and 'metadata' in response['rawResponse'] and 'contents' in \
+                    response['rawResponse']['metadata']:
+                contents = response['rawResponse']['metadata'].get('contents', {}).get('timeSeries', {}).get('contents',
+                                                                                                             [])
+                if contents and len(contents) > 0:
+                    metric_function = contents[0].get('function', '')
+
+            # Process facets from rawResponse
+            if 'rawResponse' in response and 'facets' in response['rawResponse']:
+                facets = response['rawResponse']['facets']
+
+                for facet in facets:
+                    facet_name = facet.get('name', 'unknown')
                     metric_datapoints = []
-                    for ts in item['timeSeries']:
-                        utc_timestamp = ts['beginTimeSeconds']
+
+                    # Process timeseries data for this facet
+                    for ts in facet.get('timeSeries', []):
+                        utc_timestamp = ts.get('beginTimeSeconds')
                         utc_datetime = datetime.utcfromtimestamp(utc_timestamp)
                         utc_datetime = utc_datetime.replace(tzinfo=pytz.UTC)
-                        val = ts['results'][0].get(next(iter(ts['results'][0])), 0)
+
+                        results = ts.get('results', [])
+                        val = 0
+                        if results and len(results) > 0:
+                            val = results[0].get(metric_function, 0)
+
+                            if val == 0 and len(results[0]) > 0:
+                                first_key = next(iter(results[0]))
+                                val = results[0].get(first_key, 0)
+
                         datapoint = TimeseriesResult.LabeledMetricTimeseries.Datapoint(
-                            timestamp=int(utc_datetime.timestamp() * 1000), value=DoubleValue(value=val))
+                            timestamp=int(utc_datetime.timestamp() * 1000),
+                            value=DoubleValue(value=val))
                         metric_datapoints.append(datapoint)
+
+                    # Add this facet as a labeled metric timeseries
                     labeled_metric_timeseries_list.append(
-                        TimeseriesResult.LabeledMetricTimeseries(metric_label_values=metric_label_values,
-                                                                 unit=StringValue(value=unit),
-                                                                 datapoints=metric_datapoints))
+                        TimeseriesResult.LabeledMetricTimeseries(
+                            metric_label_values=[
+                                LabelValuePair(
+                                    name=StringValue(value="facet"),
+                                    value=StringValue(value=facet_name)
+                                )
+                            ],
+                            unit=StringValue(value=unit),
+                            datapoints=metric_datapoints
+                        )
+                    )
 
-            # Process offset values if specified
-            if timeseries_offsets:
-                offsets = [offset for offset in timeseries_offsets]
-                for offset in offsets:
-                    adjusted_start_time = time_range.time_geq - offset
-                    adjusted_end_time = time_range.time_lt - offset
-                    total_seconds = adjusted_end_time - adjusted_start_time
-                    adjusted_nrql_expression = re.sub(
-                        r'SINCE\s+\d+\s+SECONDS\s+AGO', f'SINCE {total_seconds} SECONDS AGO', nrql_expression)
+            # If no facets were found, try processing the results array directly
+            elif 'results' in response:
+                # Group results by facet
+                facet_groups = {}
+                for result in response['results']:
+                    facet_name = result.get('facet', 'unknown')
+                    if facet_name not in facet_groups:
+                        facet_groups[facet_name] = []
+                    facet_groups[facet_name].append(result)
 
-                    print(
-                        "Playbook Task Downstream Request: Type -> {}, Account -> {}, Nrql_Expression -> {}, "
-                        "Offset -> {}".format(
-                            "NewRelic", nr_connector.account_id.value, adjusted_nrql_expression, offset), flush=True)
+                # Process each facet group
+                for facet_name, results in facet_groups.items():
+                    metric_datapoints = []
 
-                    offset_response = nr_gql_processor.execute_nrql_query(adjusted_nrql_expression)
-                    if not offset_response:
-                        print(f"No data returned from New Relic for offset {offset} seconds")
-                        continue
+                    # Get the metric key (the key with the actual value)
+                    metric_key = None
+                    for key in results[0].keys():
+                        if key not in ['facet', 'beginTimeSeconds', 'endTimeSeconds', 'segmentName']:
+                            metric_key = key
+                            break
 
-                    facet_keys = offset_response.get('metadata', {}).get('facets', [])
-                    results = offset_response.get('rawResponse', {}).get('facets', [offset_response.get('rawResponse')])
-                    for item in results:
-                        metric_label_values = []
-                        if 'name' in item:
-                            facets = item['name']
-                            if isinstance(facets, str):
-                                facets = [facets]
-                            if len(facets) == len(facet_keys):
-                                for idx, f in enumerate(facets):
-                                    metric_label_values.append(LabelValuePair(name=StringValue(value=facet_keys[idx]),
-                                                                              value=StringValue(value=f)))
-                        metric_datapoints = []
-                        for ts in item['timeSeries']:
-                            utc_timestamp = ts['beginTimeSeconds']
+                    if metric_key:
+                        for result in results:
+                            utc_timestamp = result.get('beginTimeSeconds')
                             utc_datetime = datetime.utcfromtimestamp(utc_timestamp)
                             utc_datetime = utc_datetime.replace(tzinfo=pytz.UTC)
-                            val = ts['results'][0].get(next(iter(ts['results'][0])), 0)
-                            datapoint = TimeseriesResult.LabeledMetricTimeseries.Datapoint(
-                                timestamp=int(utc_datetime.timestamp() * 1000), value=DoubleValue(value=val))
-                            metric_datapoints.append(datapoint)
-                        labeled_metric_timeseries_list.append(
-                            TimeseriesResult.LabeledMetricTimeseries(metric_label_values=metric_label_values,
-                                                                     unit=StringValue(value=unit),
-                                                                     datapoints=metric_datapoints))
 
+                            val = result.get(metric_key, 0)
+                            datapoint = TimeseriesResult.LabeledMetricTimeseries.Datapoint(
+                                timestamp=int(utc_datetime.timestamp() * 1000),
+                                value=DoubleValue(value=val))
+                            metric_datapoints.append(datapoint)
+
+                        labeled_metric_timeseries_list.append(
+                            TimeseriesResult.LabeledMetricTimeseries(
+                                metric_label_values=[
+                                    LabelValuePair(
+                                        name=StringValue(value="facet"),
+                                        value=StringValue(value=facet_name)
+                                    )
+                                ],
+                                unit=StringValue(value=unit),
+                                datapoints=metric_datapoints
+                            )
+                        )
+
+            # Create and return the final result
             timeseries_result = TimeseriesResult(
                 metric_expression=StringValue(value=nrql_expression),
                 metric_name=StringValue(value=metric_name),
                 labeled_metric_timeseries=labeled_metric_timeseries_list
             )
+
             task_result = PlaybookTaskResult(
                 type=PlaybookTaskResultType.TIMESERIES,
                 timeseries=timeseries_result,
@@ -415,8 +1640,10 @@ class NewRelicSourceManager(SourceManager):
             timeseries_offsets = task.timeseries_offsets
 
             nrql_expression = task.nrql_expression.value
+            nrql_expression = nrql_expression.strip()
             if 'timeseries' not in nrql_expression.lower():
-                raise Exception("Invalid NRQL expression. TIMESERIES is missing in the NRQL expression")
+                logger.info("Invalid NRQL expression. TIMESERIES is missing in the NRQL expression")
+                nrql_expression = nrql_expression + ' TIMESERIES LIMIT'
 
             if 'limit max timeseries' in nrql_expression.lower():
                 nrql_expression = re.sub('limit max timeseries', 'TIMESERIES 5 MINUTE', nrql_expression,
@@ -427,7 +1654,6 @@ class NewRelicSourceManager(SourceManager):
                 total_seconds = (time_until - time_since)
                 nrql_expression = nrql_expression + f' SINCE {total_seconds} SECONDS AGO'
 
-            result_alias = get_nrql_expression_result_alias(nrql_expression)
             nr_gql_processor = self.get_connector_processor(nr_connector)
 
             print(
@@ -436,26 +1662,144 @@ class NewRelicSourceManager(SourceManager):
 
             response = nr_gql_processor.execute_nrql_query(nrql_expression)
             if not response:
-                raise Exception("No data returned from New Relic")
+                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
+                                          text=TextResult(output=StringValue(
+                                              value=f"No data returned from New Relic for nrql expression: {nrql_expression}")),
+                                          source=self.source)
 
-            results = response.get('results', [])
-            metric_datapoints = []
-            for item in results:
-                utc_timestamp = item['beginTimeSeconds']
-                utc_datetime = datetime.utcfromtimestamp(utc_timestamp)
-                utc_datetime = utc_datetime.replace(tzinfo=pytz.UTC)
-                val = item.get(result_alias)
-                datapoint = TimeseriesResult.LabeledMetricTimeseries.Datapoint(
-                    timestamp=int(utc_datetime.timestamp() * 1000), value=DoubleValue(value=val))
-                metric_datapoints.append(datapoint)
+            labeled_metric_timeseries_list = []
 
-            metric_label_values = [
-                LabelValuePair(name=StringValue(value='offset_seconds'), value=StringValue(value='0'))
-            ]
-            labeled_metric_timeseries_list = [
-                TimeseriesResult.LabeledMetricTimeseries(
-                    metric_label_values=metric_label_values, unit=StringValue(value=unit), datapoints=metric_datapoints)
-            ]
+            metric_function = ""
+            if 'rawResponse' in response and 'metadata' in response['rawResponse'] and 'contents' in \
+                    response['rawResponse']['metadata']:
+                contents = response['rawResponse']['metadata'].get('contents', {}).get('timeSeries', {}).get('contents',
+                                                                                                             [])
+                if contents and len(contents) > 0:
+                    metric_function = contents[0].get('function', '')
+
+            if 'rawResponse' in response and 'facets' in response['rawResponse']:
+                facets = response['rawResponse']['facets']
+
+                for facet in facets:
+                    facet_name = facet.get('name', 'unknown')
+                    metric_datapoints = []
+
+                    for ts in facet.get('timeSeries', []):
+                        utc_timestamp = ts.get('beginTimeSeconds')
+                        utc_datetime = datetime.utcfromtimestamp(utc_timestamp)
+                        utc_datetime = utc_datetime.replace(tzinfo=pytz.UTC)
+
+                        results = ts.get('results', [])
+                        val = 0
+                        if results and len(results) > 0:
+                            val = results[0].get(metric_function, 0)
+
+                            # Fallback to first key if function name not found
+                            if val == 0 and len(results[0]) > 0:
+                                first_key = next(iter(results[0]))
+                                val = results[0].get(first_key, 0)
+
+                        datapoint = TimeseriesResult.LabeledMetricTimeseries.Datapoint(
+                            timestamp=int(utc_datetime.timestamp() * 1000), value=DoubleValue(value=val))
+                        metric_datapoints.append(datapoint)
+
+                    metric_label_values = [
+                        LabelValuePair(name=StringValue(value='offset_seconds'), value=StringValue(value='0')),
+                        LabelValuePair(name=StringValue(value='facet'), value=StringValue(value=facet_name))
+                    ]
+
+                    labeled_metric_timeseries_list.append(
+                        TimeseriesResult.LabeledMetricTimeseries(
+                            metric_label_values=metric_label_values,
+                            unit=StringValue(value=unit),
+                            datapoints=metric_datapoints
+                        )
+                    )
+
+            elif 'results' in response:
+                # Group results by facet if present
+                facet_groups = {}
+                has_facet = False
+
+                for result in response['results']:
+                    if 'facet' in result:
+                        has_facet = True
+                        facet_name = result.get('facet', 'unknown')
+                        if facet_name not in facet_groups:
+                            facet_groups[facet_name] = []
+                        facet_groups[facet_name].append(result)
+
+                if has_facet:
+                    # Process each facet group
+                    for facet_name, results in facet_groups.items():
+                        metric_datapoints = []
+
+                        # Get the metric key
+                        metric_key = None
+                        for key in results[0].keys():
+                            if key not in ['facet', 'beginTimeSeconds', 'endTimeSeconds', 'segmentName']:
+                                metric_key = key
+                                break
+
+                        if metric_key:
+                            for result in results:
+                                utc_timestamp = result.get('beginTimeSeconds')
+                                utc_datetime = datetime.utcfromtimestamp(utc_timestamp)
+                                utc_datetime = utc_datetime.replace(tzinfo=pytz.UTC)
+
+                                val = result.get(metric_key, 0)
+                                datapoint = TimeseriesResult.LabeledMetricTimeseries.Datapoint(
+                                    timestamp=int(utc_datetime.timestamp() * 1000),
+                                    value=DoubleValue(value=val))
+                                metric_datapoints.append(datapoint)
+
+                            metric_label_values = [
+                                LabelValuePair(name=StringValue(value='offset_seconds'), value=StringValue(value='0')),
+                                LabelValuePair(name=StringValue(value='facet'), value=StringValue(value=facet_name))
+                            ]
+
+                            labeled_metric_timeseries_list.append(
+                                TimeseriesResult.LabeledMetricTimeseries(
+                                    metric_label_values=metric_label_values,
+                                    unit=StringValue(value=unit),
+                                    datapoints=metric_datapoints
+                                )
+                            )
+                else:
+                    # No facets in results, process as a single series
+                    metric_datapoints = []
+
+                    # Find the metric key
+                    metric_key = None
+                    if len(response['results']) > 0:
+                        for key in response['results'][0].keys():
+                            if key not in ['beginTimeSeconds', 'endTimeSeconds']:
+                                metric_key = key
+                                break
+
+                    if metric_key:
+                        for result in response['results']:
+                            utc_timestamp = result.get('beginTimeSeconds')
+                            utc_datetime = datetime.utcfromtimestamp(utc_timestamp)
+                            utc_datetime = utc_datetime.replace(tzinfo=pytz.UTC)
+
+                            val = result.get(metric_key, 0)
+                            datapoint = TimeseriesResult.LabeledMetricTimeseries.Datapoint(
+                                timestamp=int(utc_datetime.timestamp() * 1000),
+                                value=DoubleValue(value=val))
+                            metric_datapoints.append(datapoint)
+
+                        metric_label_values = [
+                            LabelValuePair(name=StringValue(value='offset_seconds'), value=StringValue(value='0'))
+                        ]
+
+                        labeled_metric_timeseries_list.append(
+                            TimeseriesResult.LabeledMetricTimeseries(
+                                metric_label_values=metric_label_values,
+                                unit=StringValue(value=unit),
+                                datapoints=metric_datapoints
+                            )
+                        )
 
             # Process offset values if specified
             if timeseries_offsets:
@@ -477,25 +1821,135 @@ class NewRelicSourceManager(SourceManager):
                         print(f"No data returned from New Relic for offset {offset} seconds")
                         continue
 
-                    offset_results = offset_response.get('results', [])
-                    offset_metric_datapoints = []
-                    for item in offset_results:
-                        utc_timestamp = item['beginTimeSeconds']
-                        utc_datetime = datetime.utcfromtimestamp(utc_timestamp)
-                        utc_datetime = utc_datetime.replace(tzinfo=pytz.UTC)
-                        val = item.get(result_alias)
-                        datapoint = TimeseriesResult.LabeledMetricTimeseries.Datapoint(
-                            timestamp=int(utc_datetime.timestamp() * 1000), value=DoubleValue(value=val))
-                        offset_metric_datapoints.append(datapoint)
+                    # Process the offset response - similar logic as above but with the offset labeled
+                    if 'rawResponse' in offset_response and 'facets' in offset_response['rawResponse']:
+                        facets = offset_response['rawResponse']['facets']
 
-                    offset_metric_label_values = [
-                        LabelValuePair(name=StringValue(value='offset_seconds'), value=StringValue(value=str(offset)))
-                    ]
-                    labeled_metric_timeseries_list.append(
-                        TimeseriesResult.LabeledMetricTimeseries(
-                            metric_label_values=offset_metric_label_values, unit=StringValue(value=unit),
-                            datapoints=offset_metric_datapoints)
-                    )
+                        for facet in facets:
+                            facet_name = facet.get('name', 'unknown')
+                            offset_metric_datapoints = []
+
+                            for ts in facet.get('timeSeries', []):
+                                utc_timestamp = ts.get('beginTimeSeconds')
+                                utc_datetime = datetime.utcfromtimestamp(utc_timestamp)
+                                utc_datetime = utc_datetime.replace(tzinfo=pytz.UTC)
+
+                                results = ts.get('results', [])
+                                val = 0
+                                if results and len(results) > 0:
+                                    val = results[0].get(metric_function, 0)
+
+                                    if val == 0 and len(results[0]) > 0:
+                                        first_key = next(iter(results[0]))
+                                        val = results[0].get(first_key, 0)
+
+                                datapoint = TimeseriesResult.LabeledMetricTimeseries.Datapoint(
+                                    timestamp=int(utc_datetime.timestamp() * 1000),
+                                    value=DoubleValue(value=val))
+                                offset_metric_datapoints.append(datapoint)
+
+                            offset_metric_label_values = [
+                                LabelValuePair(name=StringValue(value='offset_seconds'),
+                                               value=StringValue(value=str(offset))),
+                                LabelValuePair(name=StringValue(value='metric'),
+                                               value=StringValue(value=metric_name)),
+                                LabelValuePair(name=StringValue(value='facet'),
+                                               value=StringValue(value=facet_name))
+                            ]
+
+                            labeled_metric_timeseries_list.append(
+                                TimeseriesResult.LabeledMetricTimeseries(
+                                    metric_label_values=offset_metric_label_values,
+                                    unit=StringValue(value=unit),
+                                    datapoints=offset_metric_datapoints
+                                )
+                            )
+
+                    # Process offset response without facets
+                    elif 'results' in offset_response:
+                        facet_groups = {}
+                        has_facet = False
+
+                        for result in offset_response['results']:
+                            if 'facet' in result:
+                                has_facet = True
+                                facet_name = result.get('facet', 'unknown')
+                                if facet_name not in facet_groups:
+                                    facet_groups[facet_name] = []
+                                facet_groups[facet_name].append(result)
+
+                        if has_facet:
+                            for facet_name, results in facet_groups.items():
+                                metric_datapoints = []
+
+                                metric_key = None
+                                for key in results[0].keys():
+                                    if key not in ['facet', 'beginTimeSeconds', 'endTimeSeconds', 'segmentName']:
+                                        metric_key = key
+                                        break
+
+                                if metric_key:
+                                    for result in results:
+                                        utc_timestamp = result.get('beginTimeSeconds')
+                                        utc_datetime = datetime.utcfromtimestamp(utc_timestamp)
+                                        utc_datetime = utc_datetime.replace(tzinfo=pytz.UTC)
+
+                                        val = result.get(metric_key, 0)
+                                        datapoint = TimeseriesResult.LabeledMetricTimeseries.Datapoint(
+                                            timestamp=int(utc_datetime.timestamp() * 1000),
+                                            value=DoubleValue(value=val))
+                                        metric_datapoints.append(datapoint)
+
+                                    offset_metric_label_values = [
+                                        LabelValuePair(name=StringValue(value='offset_seconds'),
+                                                       value=StringValue(value=str(offset))),
+                                        LabelValuePair(name=StringValue(value='metric'),
+                                                       value=StringValue(value=metric_name))
+                                    ]
+
+                                    labeled_metric_timeseries_list.append(
+                                        TimeseriesResult.LabeledMetricTimeseries(
+                                            metric_label_values=offset_metric_label_values,
+                                            unit=StringValue(value=unit),
+                                            datapoints=metric_datapoints
+                                        )
+                                    )
+                        else:
+                            offset_metric_datapoints = []
+
+                            metric_key = None
+                            if len(offset_response['results']) > 0:
+                                for key in offset_response['results'][0].keys():
+                                    if key not in ['beginTimeSeconds', 'endTimeSeconds']:
+                                        metric_key = key
+                                        break
+
+                            if metric_key:
+                                for result in offset_response['results']:
+                                    utc_timestamp = result.get('beginTimeSeconds')
+                                    utc_datetime = datetime.utcfromtimestamp(utc_timestamp)
+                                    utc_datetime = utc_datetime.replace(tzinfo=pytz.UTC)
+
+                                    val = result.get(metric_key, 0)
+                                    datapoint = TimeseriesResult.LabeledMetricTimeseries.Datapoint(
+                                        timestamp=int(utc_datetime.timestamp() * 1000),
+                                        value=DoubleValue(value=val))
+                                    metric_datapoints.append(datapoint)
+
+                                offset_metric_label_values = [
+                                    LabelValuePair(name=StringValue(value='offset_seconds'),
+                                                   value=StringValue(value=str(offset))),
+                                    LabelValuePair(name=StringValue(value='metric'),
+                                                   value=StringValue(value=metric_name))
+                                ]
+
+                                labeled_metric_timeseries_list.append(
+                                    TimeseriesResult.LabeledMetricTimeseries(
+                                        metric_label_values=offset_metric_label_values,
+                                        unit=StringValue(value=unit),
+                                        datapoints=metric_datapoints
+                                    )
+                                )
 
             timeseries_result = TimeseriesResult(
                 metric_expression=StringValue(value=nrql_expression),
@@ -510,37 +1964,19 @@ class NewRelicSourceManager(SourceManager):
             return task_result
         except Exception as e:
             raise Exception(f"Error while executing New Relic task: {e}")
-    
+
     def _find_matching_dashboard_widgets(self, nr_connector: ConnectorProto, dashboard_name: str,
                                          page_name: Optional[str] = None, widget_names: Optional[list[str]] = None) -> \
             list[dict]:
         """Finds a dashboard by name and returns its filtered widgets."""
-        # Get connector credentials
-        generated_credentials = generate_credentials_dict(nr_connector.type, nr_connector.keys)
-        
-        # Create metadata extractor instance
-        newrelic_metadata_extractor = NewrelicSourceMetadataExtractor(
-            request_id="dashboard_widgets_request",
-            connector_name=nr_connector.name.value,
-            nr_api_key=generated_credentials.get('nr_api_key'),
-            nr_app_id=generated_credentials.get('nr_app_id'),
-            nr_api_domain=generated_credentials.get('nr_api_domain', 'api.newrelic.com')
+        client = PrototypeClient()
+        assets = client.get_connector_assets(
+            connector_type=ConnectorType.Name(nr_connector.type),
+            connector_id=str(nr_connector.id.value),
+            asset_type=SourceModelType.NEW_RELIC_ENTITY_DASHBOARD,
         )
 
-        # Get dashboard entities data directly from metadata extractor
-        dashboard_entities_data = newrelic_metadata_extractor.get_dashboard_entities_data()
-
-        if not dashboard_entities_data:
-            raise Exception(f"No dashboard assets found for the account {nr_connector.account_id.value}")
-
-        # Use asset manager to process the raw data
-        newrelic_asset_manager = NewRelicAssetManager()
-        filters = AccountConnectorAssetsModelFilters()
-        assets = newrelic_asset_manager.get_asset_values(
-            nr_connector, filters, SourceModelType.NEW_RELIC_ENTITY_DASHBOARD, dashboard_entities_data
-        )
-
-        if not assets or not assets.new_relic or not assets.new_relic.assets:
+        if not assets:
             raise Exception(f"No dashboard assets found for the account {nr_connector.account_id.value}")
 
         matching_widgets = []
@@ -679,21 +2115,6 @@ class NewRelicSourceManager(SourceManager):
 
 
         return nrql_expression
-
-    def _prepare_apm_metric_nrql(self, nrql_expression: str, time_range: TimeRange) -> str:
-        """
-        Prepares the APM metric NRQL query string for execution by standardizing
-        the TIMESERIES and time range clauses based on the playbook context.
-        (Adapted from _prepare_widget_nrql)
-
-        Args:
-            nrql_expression: The original NRQL query from the APM metric asset.
-            time_range: The TimeRange object specifying the desired start and end times.
-
-        Returns:
-            The modified NRQL query string ready for execution.
-        """
-        return self._prepare_widget_nrql(nrql_expression, time_range) # Reuse existing logic for now
 
     # Refactored _parse_nrql_response
     def _parse_nrql_response(self, response: dict, widget_title: str) -> list[TimeseriesResult.LabeledMetricTimeseries]:
@@ -862,103 +2283,6 @@ class NewRelicSourceManager(SourceManager):
             logger.warning(f"Widget '{widget_title}': Failed to parse any timeseries data from the response.")
 
         return all_labeled_metric_timeseries
-    
-    def _parse_apm_metric_response(self, response: dict, metric_name: str, unit: str) -> list[TimeseriesResult.LabeledMetricTimeseries]:
-        """Parses the NRQL response for an APM metric and extracts timeseries data."""
-        labeled_metric_timeseries_list = []
-        if not response:
-            logger.warning(f"No data returned for APM metric '{metric_name}'")
-            return labeled_metric_timeseries_list
-
-        # APM metric responses typically have 'results' or sometimes 'facets' in rawResponse
-        direct_results = response.get('results', [])
-        facet_results = response.get('rawResponse', {}).get('facets', [])
-
-        results_to_process = []
-        is_faceted = False
-        if facet_results:
-            results_to_process = facet_results
-            is_faceted = True
-        elif direct_results:
-            results_to_process = [{'timeSeries': direct_results, 'name': 'default'}]
-        else:
-            logger.warning(f"No 'results' or 'facets' found in response for APM metric '{metric_name}'")
-            return labeled_metric_timeseries_list
-
-        # Process each series (facet or 'default')
-        for series_data in results_to_process:
-            metric_datapoints = []
-            series_name = series_data.get('name', 'default')
-
-            timeseries_data = series_data.get('timeSeries', [])
-            # Handle edge cases where series_data might be the list or a single point
-            if not timeseries_data and isinstance(series_data, list):
-                timeseries_data = series_data
-            elif not timeseries_data and 'beginTimeSeconds' in series_data:
-                timeseries_data = [series_data]
-
-            for ts in timeseries_data:
-                try:
-                    utc_timestamp = ts.get('beginTimeSeconds')
-                    if utc_timestamp is None: continue
-                    utc_datetime = datetime.utcfromtimestamp(utc_timestamp).replace(tzinfo=pytz.UTC)
-
-                    val = None
-                    potential_keys = ['result', 'score', 'count', 'average', 'sum', 'min', 'max', 'median'] # Common aggregates
-
-                    for p_key in potential_keys:
-                       if p_key in ts and isinstance(ts[p_key], dict) and 'score' in ts[p_key] and isinstance(ts[p_key]['score'], (int, float)):
-                            val = float(ts[p_key]['score'])
-                            break
-                       elif p_key in ts and isinstance(ts[p_key], (int, float)):
-                            val = float(ts[p_key])
-                            break
-
-                    # Fallback: iterate through all numeric values if specific keys not found
-                    if val is None:
-                        for k, v in ts.items():
-                            if isinstance(v, (int, float)) and k not in ['beginTimeSeconds', 'endTimeSeconds', 'facet']:
-                                val = float(v)
-                                break
-
-                    if val is None:
-                        logger.warning(
-                            f"Could not extract numeric value from datapoint {ts} for APM metric '{metric_name}', series '{series_name}'")
-                        continue
-
-                    datapoint = TimeseriesResult.LabeledMetricTimeseries.Datapoint(
-                        timestamp=int(utc_datetime.timestamp() * 1000),
-                        value=DoubleValue(value=val))
-                    metric_datapoints.append(datapoint)
-
-                except (ValueError, TypeError, KeyError, AttributeError) as e:
-                    logger.warning(
-                        f"Error processing datapoint {ts} for APM metric '{metric_name}', series '{series_name}': {str(e)}")
-                    continue
-
-            # Create LabeledMetricTimeseries if datapoints found
-            if metric_datapoints:
-                metric_label_values = [
-                    LabelValuePair(name=StringValue(value='apm_metric_name'), value=StringValue(value=metric_name)),
-                    LabelValuePair(name=StringValue(value='offset_seconds'), value=StringValue(value='0'))
-                ]
-                if is_faceted and series_name != 'default':
-                    metric_label_values.append(
-                        LabelValuePair(name=StringValue(value='facet'), value=StringValue(value=series_name))
-                    )
-
-                labeled_metric_timeseries_list.append(
-                    TimeseriesResult.LabeledMetricTimeseries(
-                        metric_label_values=metric_label_values,
-                        unit=StringValue(value=unit),
-                        datapoints=metric_datapoints
-                    )
-                )
-            else:
-                 logger.warning(f"No valid datapoints found for series '{series_name}' in APM metric '{metric_name}'")
-
-
-        return labeled_metric_timeseries_list
 
     def execute_fetch_dashboard_widgets(self, time_range: TimeRange, nr_task: NewRelic,
                                         nr_connector: ConnectorProto):
@@ -1110,49 +2434,39 @@ class NewRelicSourceManager(SourceManager):
                                              page_name: Optional[str] = None, widget_names: Optional[list[str]] = None) -> \
                 list[dict]:
         """Finds V2 dashboards/widgets using the exact filtering logic from V1."""
-        # Get connector credentials
-        generated_credentials = generate_credentials_dict(nr_connector.type, nr_connector.keys)
-        
-        # Create metadata extractor instance
-        newrelic_metadata_extractor = NewrelicSourceMetadataExtractor(
-            request_id="dashboard_widgets_v2_request",
-            connector_name=nr_connector.name.value,
-            nr_api_key=generated_credentials.get('nr_api_key'),
-            nr_app_id=generated_credentials.get('nr_app_id'),
-            nr_api_domain=generated_credentials.get('nr_api_domain', 'api.newrelic.com')
+        client = PrototypeClient()
+        assets = client.get_connector_assets(
+            connector_type=ConnectorType.Name(nr_connector.type),
+            connector_id=str(nr_connector.id.value),
+            asset_type=SourceModelType.NEW_RELIC_ENTITY_DASHBOARD_V2,
         )
 
-        # Get dashboard entities v2 data directly from metadata extractor
-        dashboard_entities_v2_data = newrelic_metadata_extractor.get_dashboard_entities_v2_data()
-
-        # Check if the data is missing/empty
-        if not dashboard_entities_v2_data:
+        # Check if the nested assets are missing/empty
+        if not assets or not assets.new_relic or not assets.new_relic.assets:
             logger.warning(f"No V2 dashboard assets found for the account {nr_connector.account_id.value}")
             # Return empty list instead of raising Exception here, let caller handle no data
             return []
 
-        # Use asset manager to process the raw data
-        newrelic_asset_manager = NewRelicAssetManager()
-        filters = AccountConnectorAssetsModelFilters()
-        assets = newrelic_asset_manager.get_asset_values(
-            nr_connector, filters, SourceModelType.NEW_RELIC_ENTITY_DASHBOARD_V2, dashboard_entities_v2_data
-        )
-        if not assets or not assets.new_relic or not assets.new_relic.assets:
-            logger.warning(f"No V2 dashboard assets found for the account {nr_connector.account_id.value}")
-            return []
+        newrelic_assets = assets.new_relic.assets
+
+        # Filter for V2 dashboard assets specifically
+        all_dashboard_entities_v2 = [
+            asset.new_relic_entity_dashboard_v2
+            for asset in newrelic_assets
+            if asset.HasField('new_relic_entity_dashboard_v2')
+        ]
+
+        if not all_dashboard_entities_v2:
+             logger.warning(f"No V2 dashboard entities found in asset list for connector {nr_connector.id.value}")
+             return []
 
         # 1. Group entities by dashboard_guid
         entities_by_guid = {}
-        newrelic_assets = assets.new_relic.assets
-        all_dashboard_entities_v2 = [newrelic_asset.new_relic_entity_dashboard_v2 for newrelic_asset
-                                     in newrelic_assets if
-                                     newrelic_asset.type == SourceModelType.NEW_RELIC_ENTITY_DASHBOARD_V2]
-
-        for dashboard_entity in all_dashboard_entities_v2:
-            guid = dashboard_entity.dashboard_guid.value
+        for entity in all_dashboard_entities_v2:
+            guid = entity.dashboard_guid.value
             if guid not in entities_by_guid:
                 entities_by_guid[guid] = []
-            entities_by_guid[guid].append(dashboard_entity)
+            entities_by_guid[guid].append(entity)
 
         # 2. Find GUIDs matching the input dashboard_name using V1 logic
         matched_guids = set()
@@ -1160,8 +2474,6 @@ class NewRelicSourceManager(SourceManager):
         for guid, entities in entities_by_guid.items():
             for entity in entities: # Check all names associated with this GUID
                 current_dashboard_name = entity.dashboard_name.value
-                print(f"current_dashboard_name: {current_dashboard_name}")
-                logger.info(f"current_dashboard_name: {current_dashboard_name}")
                 match = False
                 if page_name:
                     target_name = f"{dashboard_name} / {page_name}"
@@ -1205,7 +2517,7 @@ class NewRelicSourceManager(SourceManager):
                     # Process widgets on this unique page
                     for widget in page.widgets:
                         widget_id = widget.widget_id.value
-                        widget_title = widget.widget_title.value or f"Widget_{widget_id}"
+                        widget_title = widget.widget_title.value if widget.widget_title.value else f"Widget_{widget_id}"
 
                         # Apply widget name filter (if provided)
                         if widget_names and not is_partial_match(widget_title, widget_names):
@@ -1387,183 +2699,4 @@ class NewRelicSourceManager(SourceManager):
             )
 
         return processed_series_list
-    
-    def execute_entity_application_apm_metric_execution(self, time_range: TimeRange, nr_task: NewRelic,
-                                                        nr_connector: ConnectorProto):
-        try:
-            if not nr_connector:
-                raise Exception("Task execution Failed:: No New Relic source found")
 
-            task = nr_task.entity_application_apm_metric_execution
-            application_name = task.application_entity_name.value
-            timeseries_offsets = list(task.timeseries_offsets) # Ensure it's a list
-            filter_metric_names_str = task.apm_metric_names.value if task.HasField('apm_metric_names') else ''
-            filter_metric_names = [name.strip().lower() for name in filter_metric_names_str.split(',') if name.strip()]
-
-            # 1. Get the specific application asset
-            # Get connector credentials
-            generated_credentials = generate_credentials_dict(nr_connector.type, nr_connector.keys)
-            
-            # Create metadata extractor instance
-            newrelic_metadata_extractor = NewrelicSourceMetadataExtractor(
-                request_id="application_apm_request",
-                connector_name=nr_connector.name.value,
-                nr_api_key=generated_credentials.get('nr_api_key'),
-                nr_app_id=generated_credentials.get('nr_app_id'),
-                nr_api_domain=generated_credentials.get('nr_api_domain', 'api.newrelic.com')
-            )
-
-            # Get application entities data directly from metadata extractor
-            application_entities_data = newrelic_metadata_extractor.get_application_entities_data()
-
-            if not application_entities_data:
-                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
-                                          text=TextResult(output=StringValue(
-                                              value=f"Application asset with GUID '{application_name}' not found")),
-                                          source=self.source)
-
-            # Use asset manager to process the raw data
-            newrelic_asset_manager = NewRelicAssetManager()
-            filters = AccountConnectorAssetsModelFilters()
-            assets = newrelic_asset_manager.get_asset_values(
-                nr_connector, filters, SourceModelType.NEW_RELIC_ENTITY_APPLICATION, application_entities_data
-            )
-
-            if not assets or not assets.new_relic or not assets.new_relic.assets:
-                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
-                                          text=TextResult(output=StringValue(
-                                              value=f"Application asset with GUID '{application_name}' not found")),
-                                          source=self.source)
-
-            # Find the specific application asset
-            application_asset = None
-            newrelic_assets = assets.new_relic.assets
-            all_application_entities = [newrelic_asset.new_relic_entity_application for newrelic_asset
-                                       in newrelic_assets if
-                                       newrelic_asset.type == SourceModelType.NEW_RELIC_ENTITY_APPLICATION]
-            
-            for app_entity in all_application_entities:
-                if app_entity.application_entity_guid.value == application_name:
-                    application_asset = app_entity
-                    break
-
-            if not application_asset:
-                 return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
-                                           text=TextResult(output=StringValue(
-                                               value=f"Application asset with GUID '{application_name}' not found within returned data")),
-                                           source=self.source)
-
-            # 2. Filter APM metrics if requested
-            all_apm_metrics = application_asset.apm_metrics
-            if not all_apm_metrics:
-                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
-                                          text=TextResult(output=StringValue(
-                                              value=f"No APM metrics defined for application with GUID '{application_name}'")),
-                                          source=self.source)
-
-            metrics_to_process = []
-            if filter_metric_names:
-                for metric in all_apm_metrics:
-                    if metric.metric_name.value.lower() in filter_metric_names:
-                        metrics_to_process.append(metric)
-                if not metrics_to_process:
-                     return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
-                                           text=TextResult(output=StringValue(
-                                               value=f"No APM metrics matching names {filter_metric_names_str} found for application '{application_name}'")),
-                                           source=self.source)
-            else:
-                metrics_to_process = all_apm_metrics # Process all if no filter
-
-            # 3. Process each APM metric
-            task_results = []
-            nr_gql_processor = self.get_connector_processor(nr_connector)
-
-            for apm_metric in metrics_to_process:
-                try:
-                    metric_name = apm_metric.metric_name.value
-                    unit = apm_metric.metric_unit.value
-                    base_nrql_expression = apm_metric.metric_nrql_expression.value
-
-                    if not base_nrql_expression:
-                         logger.warning(f"Skipping APM metric '{metric_name}' for application '{application_name}' as it has no NRQL query.")
-                         continue
-
-                    all_labeled_metric_timeseries = [] # Collect base and offset series
-                    prepared_nrql = self._prepare_apm_metric_nrql(base_nrql_expression, time_range)
-
-                    print(
-                        "Playbook Task Downstream Request: Type -> {}, Account -> {}, App Name -> {}, Metric -> {}, NRQL -> {}".format(
-                            "NewRelicAPM", nr_connector.account_id.value, application_name, metric_name, prepared_nrql), flush=True)
-
-                    response = nr_gql_processor.execute_nrql_query(prepared_nrql)
-                    base_timeseries = self._parse_apm_metric_response(response, metric_name, unit) # Already has offset 0 label
-                    all_labeled_metric_timeseries.extend(base_timeseries)
-
-                    for offset in timeseries_offsets:
-                        if offset == 0: continue # Skip 0, already processed
-
-                        adjusted_start_time = time_range.time_geq - offset
-                        adjusted_end_time = time_range.time_lt - offset
-                        adjusted_time_range = TimeRange(time_geq=adjusted_start_time, time_lt=adjusted_end_time)
-
-                        offset_nrql = self._prepare_apm_metric_nrql(base_nrql_expression, adjusted_time_range)
-
-                        print(
-                            "Playbook Task Downstream Request: Type -> {}, Account -> {}, App GUID -> {}, Metric -> {}, NRQL -> {}, Offset -> {}".format(
-                                "NewRelicAPM", nr_connector.account_id.value, application_name, metric_name, offset_nrql, offset), flush=True)
-
-                        offset_response = nr_gql_processor.execute_nrql_query(offset_nrql)
-                        offset_timeseries = self._parse_apm_metric_response(offset_response, metric_name, unit)
-
-                        # Create new LabeledMetricTimeseries objects with updated labels for the offset
-                        for series in offset_timeseries:
-                            updated_labels = [
-                                LabelValuePair(name=StringValue(value='apm_metric_name'), value=StringValue(value=metric_name)),
-                                LabelValuePair(name=StringValue(value='offset_seconds'), value=StringValue(value=str(offset)))
-                            ]
-                            # Preserve facet label if present
-                            facet_label = None
-                            for label in series.metric_label_values:
-                                if label.name.value == 'facet':
-                                    facet_label = label
-                                    break
-                            if facet_label:
-                                updated_labels.append(facet_label)
-
-                            # Create a new LabeledMetricTimeseries with updated labels
-                            new_labeled_metric_timeseries = TimeseriesResult.LabeledMetricTimeseries(
-                                metric_label_values=updated_labels,
-                                unit=series.unit,  # Reuse unit from original series
-                                datapoints=series.datapoints # Reuse datapoints from original series
-                            )
-                            all_labeled_metric_timeseries.append(new_labeled_metric_timeseries)
-
-                    if all_labeled_metric_timeseries:
-                         # Use the base prepared NRQL for the expression field for consistency
-                        timeseries_result = TimeseriesResult(metric_expression=StringValue(value=prepared_nrql),
-                                                             metric_name=StringValue(value=metric_name),
-                                                             labeled_metric_timeseries=all_labeled_metric_timeseries)
-                        task_result = PlaybookTaskResult(type=PlaybookTaskResultType.TIMESERIES,
-                                                         timeseries=timeseries_result, source=self.source)
-                        task_results.append(task_result)
-                    else:
-                        logger.warning(f"No timeseries data could be parsed for APM metric '{metric_name}'.")
-
-                except Exception as e:
-                    logger.error(f"Error processing APM metric '{apm_metric.metric_name.value}' for application '{application_name}': {str(e)}", exc_info=True)
-                    continue
-
-            # Check if any results were generated
-            if not task_results:
-                filter_msg = f" matching names '{filter_metric_names_str}'" if filter_metric_names_str else ""
-                logger.warning(f"No data retrieved for any APM metrics{filter_msg} in application '{application_name}'.")
-                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
-                                          text=TextResult(output=StringValue(
-                                              value=f"No data found for the specified APM metrics{filter_msg} in application '{application_name}'. Check metric configurations and time range.")),
-                                          source=self.source)
-
-            return task_results # Return list of results
-
-        except Exception as e:
-            logger.error(f"General Error executing Fetch APM Metrics task for app {task.application_entity_name.value}: {str(e)}", exc_info=True)
-            raise Exception(f"Error while executing New Relic Fetch APM Metrics task: {e}")

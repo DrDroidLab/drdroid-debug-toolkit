@@ -24,6 +24,20 @@ message NewRelic {
     google.protobuf.StringValue apm_metric_names = 7;
   }
 
+  message EntityApplicationAPMDatabaseSummaryTask {
+    google.protobuf.StringValue application_entity_guid = 1;
+    google.protobuf.StringValue application_entity_name = 2;
+    google.protobuf.StringValue sort_by = 3;
+    repeated uint32 timeseries_offsets = 4;
+  }
+
+  message EntityApplicationAPMTransactionSummaryTask {
+    google.protobuf.StringValue application_entity_guid = 1;
+    google.protobuf.StringValue application_entity_name = 2;
+    google.protobuf.StringValue sort_by = 3;
+    repeated uint32 timeseries_offsets = 4;
+  }
+
   message EntityDashboardWidgetNRQLMetricExecutionTask {
     google.protobuf.StringValue dashboard_guid = 1;
     google.protobuf.StringValue dashboard_name = 2;
@@ -67,6 +81,8 @@ message NewRelic {
     DASHBOARD_MULTIPLE_WIDGETS = 4;
     ENTITY_APPLICATION_APM_METRIC_EXECUTION = 5;
     FETCH_DASHBOARD_WIDGETS = 6;
+    ENTITY_APPLICATION_APM_DATABASE_SUMMARY = 7;
+    ENTITY_APPLICATION_APM_TRANSACTION_SUMMARY = 8;
   }
 
   TaskType type = 1;
@@ -77,6 +93,8 @@ message NewRelic {
     DashboardWidgetByIdTask dashboard_multiple_widgets = 5;
     EntityApplicationAPMMetricExecutionTask entity_application_apm_metric_execution = 6;
     FetchDashboardWidgetsTask fetch_dashboard_widgets = 7;
+    EntityApplicationAPMDatabaseSummaryTask entity_application_apm_database_summary = 8;
+    EntityApplicationAPMTransactionSummaryTask entity_application_apm_transaction_summary = 9;
   }
 }
 
