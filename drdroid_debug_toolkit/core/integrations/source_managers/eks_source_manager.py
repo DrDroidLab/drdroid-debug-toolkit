@@ -32,7 +32,6 @@ class EksSourceManager(SourceManager):
                 'result_type': PlaybookTaskResultType.BASH_COMMAND_OUTPUT,
                 'display_name': 'Execute Kubectl Command in EKS Cluster',
                 'category': 'Actions',
-                'asset_descriptor': self.kubectl_command_asset_descriptor,
                 'form_fields': [
                     FormField(key_name=StringValue(value="region"),
                               display_name=StringValue(value="Region"),
