@@ -1,7 +1,7 @@
 import re
 import logging
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Dict, Any, List
 
 import pytz
 from google.protobuf.wrappers_pb2 import DoubleValue, StringValue
@@ -12,7 +12,7 @@ from core.protos.base_pb2 import TimeRange, Source, SourceModelType, SourceKeyTy
 from core.protos.connectors.connector_pb2 import Connector as ConnectorProto, ConnectorType
 from core.protos.literal_pb2 import LiteralType, Literal
 from core.protos.playbooks.playbook_commons_pb2 import PlaybookTaskResult, TimeseriesResult, LabelValuePair, \
-    PlaybookTaskResultType, TextResult
+    PlaybookTaskResultType, TextResult, TableResult
 from core.protos.playbooks.source_task_definitions.new_relic_task_pb2 import NewRelic
 from core.protos.ui_definition_pb2 import FormField, FormFieldType
 from core.protos.assets.asset_pb2 import AccountConnectorAssets, AccountConnectorAssetsModelFilters
@@ -1103,7 +1103,7 @@ class NewRelicSourceManager(SourceManager):
             timeseries_offsets = list(task.timeseries_offsets)
 
             # Import the database queries
-            from integrations.utils.static_mappings import NEWRELIC_APM_DATABASE_QUERIES
+            from core.utils.static_mappings import NEWRELIC_APM_DATABASE_QUERIES
 
             # Get all queries to execute
             base_queries = NEWRELIC_APM_DATABASE_QUERIES["base_queries"]
@@ -1297,7 +1297,7 @@ class NewRelicSourceManager(SourceManager):
             timeseries_offsets = list(task.timeseries_offsets)
 
             # Import the transaction queries
-            from integrations.utils.static_mappings import NEWRELIC_APM_TRANSACTION_QUERIES
+            from core.utils.static_mappings import NEWRELIC_APM_TRANSACTION_QUERIES
 
             # Get all queries to execute
             base_queries = NEWRELIC_APM_TRANSACTION_QUERIES["base_queries"]
@@ -1445,7 +1445,7 @@ class NewRelicSourceManager(SourceManager):
 
     def _get_metric_chart_config(self, metric_name: str) -> tuple[str, str]:
         """Returns chart type and result type for a metric."""
-        from integrations.utils.static_mappings import NEWRELIC_APM_DATABASE_QUERIES
+        from core.utils.static_mappings import NEWRELIC_APM_DATABASE_QUERIES
         
         chart_config = NEWRELIC_APM_DATABASE_QUERIES.get("chart_types", {})
         
@@ -1458,7 +1458,7 @@ class NewRelicSourceManager(SourceManager):
     
     def _get_transaction_metric_chart_config(self, metric_name: str) -> tuple[str, str]:
         """Returns chart type and result type for a transaction metric."""
-        from integrations.utils.static_mappings import NEWRELIC_APM_TRANSACTION_QUERIES
+        from core.utils.static_mappings import NEWRELIC_APM_TRANSACTION_QUERIES
         
         chart_config = NEWRELIC_APM_TRANSACTION_QUERIES.get("chart_types", {})
         
