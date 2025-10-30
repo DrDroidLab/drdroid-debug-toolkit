@@ -27,12 +27,6 @@ else:
     API_HOST = "https://agent-api.drdroid.io/api"
     API_TOKEN = settings.DRD_CLOUD_API_TOKEN
 
-
-logger = logging.getLogger(__name__)
-logger.info(f"IS_PROD_ENV: {IS_PROD_ENV}")
-logger.info(f"API_HOST: {API_HOST}")
-logger.info(f"API_TOKEN: {API_TOKEN}")
-
 class PrototypeClient:
     """
     Client for interacting with the DrDroid Platform.
