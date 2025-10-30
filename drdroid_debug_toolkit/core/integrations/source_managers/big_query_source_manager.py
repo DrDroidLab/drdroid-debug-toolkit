@@ -2,13 +2,14 @@ from google.protobuf.wrappers_pb2 import StringValue, UInt64Value, Int64Value
 
 from core.integrations.source_api_processors.bigquery_api_processor import BigQueryApiProcessor
 from core.integrations.source_manager import SourceManager
-from core.protos.base_pb2 import Source, TimeRange
+from core.protos.base_pb2 import Source, TimeRange, SourceKeyType
 from core.protos.connectors.connector_pb2 import Connector as ConnectorProto
+from core.protos.playbooks.playbook_commons_pb2 import TextResult
 from core.protos.literal_pb2 import LiteralType, Literal
 from core.protos.playbooks.playbook_commons_pb2 import PlaybookTaskResult, TableResult, PlaybookTaskResultType
 from core.protos.playbooks.source_task_definitions.big_query_task_pb2 import BigQuery
 from core.protos.ui_definition_pb2 import FormField, FormFieldType
-from core.utils.credentilal_utils import generate_credentials_dict
+from core.utils.credentilal_utils import generate_credentials_dict, get_connector_key_type_string, CATEGORY, DISPLAY_NAME, ANALYTICS
 
 
 class BigQuerySourceManager(SourceManager):
@@ -35,6 +36,36 @@ class BigQuerySourceManager(SourceManager):
                               form_field_type=FormFieldType.TEXT_FT),
                 ]
             },
+        }
+        self.connector_form_configs = [
+            {
+                "name": StringValue(value="Google BigQuery Service Account Authentication"),
+                "description": StringValue(value="Connect to Google BigQuery using a Service Account JSON key and Project ID."),
+                "form_fields": {
+                    SourceKeyType.BIG_QUERY_PROJECT_ID: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.BIG_QUERY_PROJECT_ID)),
+                        display_name=StringValue(value="Project ID"),
+                        description=StringValue(value='e.g. "my-project-123", "analytics-prod-456", "data-warehouse-789"'),
+                        helper_text=StringValue(value="Enter your Google Cloud Project ID"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False
+                    ),
+                    SourceKeyType.BIG_QUERY_SERVICE_ACCOUNT_JSON: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.BIG_QUERY_SERVICE_ACCOUNT_JSON)),
+                        display_name=StringValue(value="Service Account JSON"),
+                        description=StringValue(value='e.g. {\n  "type": "service_account",\n  "project_id": "my-project-123",\n  "private_key_id": "abc123...",\n  "private_key": "-----BEGIN PRIVATE KEY-----\\n..."\n}'),
+                        helper_text=StringValue(value="Paste the content of your Google Cloud Service Account JSON key file"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.MULTILINE_FT,
+                        is_optional=False
+                    )
+                }
+            }
+        ]
+        self.connector_type_details = {
+            DISPLAY_NAME: "BIG QUERY",
+            CATEGORY: ANALYTICS,
         }
 
     def get_connector_processor(self, bq_connector, **kwargs):
@@ -67,12 +98,14 @@ class BigQuerySourceManager(SourceManager):
 
             bq_job = bq_client.query(full_query)
             if not bq_job or not bq_job.total_rows:
-                raise Exception(f"No data found for the query: {query}")
+                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT, text=TextResult(output=StringValue(
+                    value=f"No data returned from Big Query for query: {full_query}")), source=self.source)
 
             rows = [dict(row) for row in bq_job]
             count_result = len(rows)
             if count_result == 0:
-                raise Exception(f"No data found for the query: {query}")
+                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT, text=TextResult(output=StringValue(
+                    value=f"No data returned from Big Query for query: {full_query}")), source=self.source)
 
             table_rows: [TableResult.TableRow] = []
             for row in rows:
