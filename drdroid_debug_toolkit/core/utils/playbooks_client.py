@@ -6,16 +6,25 @@ from core.protos.base_pb2 import SourceModelType
 from core.protos.assets.asset_pb2 import AccountConnectorAssets
 from core.utils.proto_utils import dict_to_proto
 
-IS_PROD_ENV = settings.IS_PROD_ENV if settings.IS_PROD_ENV else False
+IS_PROD_ENV = False
 
+try:
+    IS_PROD_ENV = settings.IS_PROD_ENV
+except Exception as e:
+    pass
+
+try:
+    MASTER_ASSETS_TOKEN = settings.MASTER_ASSETS_TOKEN
+except Exception as e:
+    MASTER_ASSETS_TOKEN = None
 
 
 if IS_PROD_ENV:
     API_HOST = "http://localhost:8080/api"
-    API_TOKEN = settings.MASTER_API_TOKEN if settings.MASTER_API_TOKEN else None
+    API_TOKEN = MASTER_ASSETS_TOKEN
 else:
     API_HOST = "https://agent-api.drdroid.io/api"
-    API_TOKEN = settings.DRD_CLOUD_API_TOKEN if settings.DRD_CLOUD_API_TOKEN else None
+    API_TOKEN = settings.DRD_CLOUD_API_TOKEN
 
 
 class PrototypeClient:
