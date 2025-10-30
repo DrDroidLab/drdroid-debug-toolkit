@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timezone
 from operator import attrgetter
 
@@ -8,15 +9,16 @@ from kubernetes.client import V1PodList, V1DeploymentList, CoreV1EventList, V1Se
 from core.integrations.source_api_processors.eks_api_processor import EKSApiProcessor
 from core.integrations.source_api_processors.kubectl_api_processor import KubectlApiProcessor
 from core.integrations.source_manager import SourceManager
-from core.protos.base_pb2 import Source, TimeRange, SourceModelType
+from core.protos.base_pb2 import Source, TimeRange, SourceModelType, SourceKeyType
 from core.protos.connectors.connector_pb2 import Connector as ConnectorProto
 from core.protos.literal_pb2 import LiteralType
 from core.protos.playbooks.playbook_commons_pb2 import PlaybookTaskResult, TableResult, PlaybookTaskResultType, \
     BashCommandOutputResult
 from core.protos.playbooks.source_task_definitions.eks_task_pb2 import Eks
 from core.protos.ui_definition_pb2 import FormField, FormFieldType
-from core.utils.credentilal_utils import generate_credentials_dict
+from core.utils.credentilal_utils import generate_credentials_dict, get_connector_key_type_string, CATEGORY, DISPLAY_NAME, KUBERNETES
 
+logger = logging.getLogger(__name__)
 
 class EksSourceManager(SourceManager):
 
@@ -24,108 +26,13 @@ class EksSourceManager(SourceManager):
         self.source = Source.EKS
         self.task_proto = Eks
         self.task_type_callable_map = {
-            Eks.TaskType.GET_PODS: {
-                'executor': self.get_pods,
-                'model_types': [SourceModelType.EKS_CLUSTER],
-                'result_type': PlaybookTaskResultType.TABLE,
-                'display_name': 'Get Pods from EKS Cluster',
-                'category': 'Deployment',
-                'form_fields': [
-                    FormField(key_name=StringValue(value="region"),
-                              display_name=StringValue(value="Region"),
-                              description=StringValue(value='Select AWS region'),
-                              data_type=LiteralType.STRING,
-                              form_field_type=FormFieldType.TYPING_DROPDOWN_FT),
-                    FormField(key_name=StringValue(value="cluster"),
-                              display_name=StringValue(value="Cluster"),
-                              description=StringValue(value='Select EKS cluster'),
-                              data_type=LiteralType.STRING,
-                              form_field_type=FormFieldType.TYPING_DROPDOWN_FT),
-                    FormField(key_name=StringValue(value="namespace"),
-                              display_name=StringValue(value="Namespace"),
-                              description=StringValue(value='Select Namespace'),
-                              data_type=LiteralType.STRING,
-                              form_field_type=FormFieldType.TYPING_DROPDOWN_FT),
-                ]
-            },
-            Eks.TaskType.GET_DEPLOYMENTS: {
-                'executor': self.get_deployments,
-                'model_types': [SourceModelType.EKS_CLUSTER],
-                'result_type': PlaybookTaskResultType.TABLE,
-                'display_name': 'Get Deployments from EKS Cluster',
-                'category': 'Deployment',
-                'form_fields': [
-                    FormField(key_name=StringValue(value="region"),
-                              display_name=StringValue(value="Region"),
-                              description=StringValue(value='Select AWS region'),
-                              data_type=LiteralType.STRING,
-                              form_field_type=FormFieldType.TYPING_DROPDOWN_FT),
-                    FormField(key_name=StringValue(value="cluster"),
-                              display_name=StringValue(value="Cluster"),
-                              description=StringValue(value='Select EKS cluster'),
-                              data_type=LiteralType.STRING,
-                              form_field_type=FormFieldType.TYPING_DROPDOWN_FT),
-                    FormField(key_name=StringValue(value="namespace"),
-                              display_name=StringValue(value="Namespace"),
-                              description=StringValue(value='Select Namespace'),
-                              data_type=LiteralType.STRING,
-                              form_field_type=FormFieldType.TYPING_DROPDOWN_FT),
-                ]
-            },
-            Eks.TaskType.GET_EVENTS: {
-                'executor': self.get_events,
-                'model_types': [SourceModelType.EKS_CLUSTER],
-                'result_type': PlaybookTaskResultType.TABLE,
-                'display_name': 'Get Events from EKS Cluster',
-                'category': 'Deployment',
-                'form_fields': [
-                    FormField(key_name=StringValue(value="region"),
-                              display_name=StringValue(value="Region"),
-                              description=StringValue(value='Select AWS region'),
-                              data_type=LiteralType.STRING,
-                              form_field_type=FormFieldType.TYPING_DROPDOWN_FT),
-                    FormField(key_name=StringValue(value="cluster"),
-                              display_name=StringValue(value="Cluster"),
-                              description=StringValue(value='Select EKS cluster'),
-                              data_type=LiteralType.STRING,
-                              form_field_type=FormFieldType.TYPING_DROPDOWN_FT),
-                    FormField(key_name=StringValue(value="namespace"),
-                              display_name=StringValue(value="Namespace"),
-                              description=StringValue(value='Select Namespace'),
-                              data_type=LiteralType.STRING,
-                              form_field_type=FormFieldType.TYPING_DROPDOWN_FT),
-                ]
-            },
-            Eks.TaskType.GET_SERVICES: {
-                'executor': self.get_services,
-                'model_types': [SourceModelType.EKS_CLUSTER],
-                'result_type': PlaybookTaskResultType.TABLE,
-                'display_name': 'Get Services from EKS Cluster',
-                'category': 'Deployment',
-                'form_fields': [
-                    FormField(key_name=StringValue(value="region"),
-                              display_name=StringValue(value="Region"),
-                              description=StringValue(value='Select AWS region'),
-                              data_type=LiteralType.STRING,
-                              form_field_type=FormFieldType.TYPING_DROPDOWN_FT),
-                    FormField(key_name=StringValue(value="cluster"),
-                              display_name=StringValue(value="Cluster"),
-                              description=StringValue(value='Select EKS cluster'),
-                              data_type=LiteralType.STRING,
-                              form_field_type=FormFieldType.TYPING_DROPDOWN_FT),
-                    FormField(key_name=StringValue(value="namespace"),
-                              display_name=StringValue(value="Namespace"),
-                              description=StringValue(value='Select Namespace'),
-                              data_type=LiteralType.STRING,
-                              form_field_type=FormFieldType.TYPING_DROPDOWN_FT),
-                ]
-            },
             Eks.TaskType.KUBECTL_COMMAND: {
                 'executor': self.execute_kubectl_command,
                 'model_types': [SourceModelType.EKS_CLUSTER],
                 'result_type': PlaybookTaskResultType.BASH_COMMAND_OUTPUT,
                 'display_name': 'Execute Kubectl Command in EKS Cluster',
                 'category': 'Actions',
+                'asset_descriptor': self.kubectl_command_asset_descriptor,
                 'form_fields': [
                     FormField(key_name=StringValue(value="region"),
                               display_name=StringValue(value="Region"),
@@ -143,6 +50,101 @@ class EksSourceManager(SourceManager):
                               form_field_type=FormFieldType.MULTILINE_FT),
                 ]
             },
+        }
+        self.connector_form_configs = [
+            {
+                "name": StringValue(value="AWS Access/Secret Key Authentication"),
+                "description": StringValue(value="Connect to AWS EKS using your AWS Access Key ID, Secret Access Key, Region, and EKS Role ARN."),
+                "form_fields": {
+                    SourceKeyType.AWS_ACCESS_KEY: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.AWS_ACCESS_KEY)),
+                        display_name=StringValue(value="AWS Access Key ID"),
+                        description=StringValue(value='e.g. "AKIAIOSFODNN7EXAMPLE"'),
+                        helper_text=StringValue(value="Enter your AWS Access Key ID found in IAM User security credentials"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False
+                    ),
+                    SourceKeyType.AWS_SECRET_KEY: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.AWS_SECRET_KEY)),
+                        display_name=StringValue(value="AWS Secret Access Key"),
+                        description=StringValue(value='e.g. "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"'),
+                        helper_text=StringValue(value="Enter your AWS Secret Access Key found in IAM User security credentials"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False,
+                        is_sensitive=True
+                    ),
+                    SourceKeyType.AWS_REGION: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.AWS_REGION)),
+                        display_name=StringValue(value="AWS Region"),
+                        description=StringValue(value='e.g. "us-east-1", "eu-west-2", "ap-southeast-1"'),
+                        helper_text=StringValue(value="Enter the AWS region where your EKS clusters are located"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False
+                    ),
+                    SourceKeyType.EKS_ROLE_ARN: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.EKS_ROLE_ARN)),
+                        display_name=StringValue(value="EKS Role ARN"),
+                        description=StringValue(value='e.g. "arn:aws:iam::123456789012:role/eks-cluster-role"'),
+                        helper_text=StringValue(value="Enter the ARN of the IAM role that has permissions to manage your EKS clusters"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False,
+                        is_sensitive=True
+                    )
+                }
+            },
+            {
+                "name": StringValue(value="AWS Assumed Role ARN Authentication"),
+                "description": StringValue(value="Connect to AWS EKS by assuming an IAM Role, specifying the DrDroid Cloud Role ARN, EKS Role ARN and Region."),
+                "form_fields": {
+                    SourceKeyType.AWS_ASSUMED_ROLE_ARN: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.AWS_ASSUMED_ROLE_ARN)),
+                        display_name=StringValue(value="AWS Assumed Role ARN"),
+                        description=StringValue(value='e.g. "arn:aws:iam::123456789012:role/cross-account-role"'),
+                        helper_text=StringValue(value="Enter the ARN of the IAM role to be assumed for cross-account access"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False,
+                        is_sensitive=True
+                    ),
+                    SourceKeyType.AWS_DRD_CLOUD_ROLE_ARN: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.AWS_DRD_CLOUD_ROLE_ARN)),
+                        display_name=StringValue(value="AWS DrDroid Cloud Role ARN"),
+                        description=StringValue(value='e.g. "arn:aws:iam::987654321098:role/drdroid-cloud-role"'),
+                        helper_text=StringValue(value="Enter the DrDroid Cloud Role ARN for cross-account access (optional)"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=True,
+                        is_sensitive=True
+                    ),
+                    SourceKeyType.AWS_REGION: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.AWS_REGION)),
+                        display_name=StringValue(value="AWS Region"),
+                        description=StringValue(value='e.g. "us-east-1", "eu-west-2", "ap-southeast-1"'),
+                        helper_text=StringValue(value="Enter the AWS region where your EKS clusters are located"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False
+                    ),
+                    SourceKeyType.EKS_ROLE_ARN: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.EKS_ROLE_ARN)),
+                        display_name=StringValue(value="EKS Role ARN"),
+                        description=StringValue(value='e.g. "arn:aws:iam::123456789012:role/eks-cluster-role"'),
+                        helper_text=StringValue(value="Enter the ARN of the IAM role that has permissions to manage your EKS clusters"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False,
+                        is_sensitive=True
+                    )
+                }
+            }
+        ]
+        self.connector_type_details = {
+            DISPLAY_NAME: "EKS KUBERNETES",
+            CATEGORY: KUBERNETES,
         }
 
     def get_connector_processor(self, eks_connector, **kwargs):

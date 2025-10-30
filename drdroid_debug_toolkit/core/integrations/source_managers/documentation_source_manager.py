@@ -7,6 +7,7 @@ from core.protos.literal_pb2 import LiteralType
 from core.protos.playbooks.playbook_commons_pb2 import PlaybookTaskResult, PlaybookTaskResultType, TextResult
 from core.protos.playbooks.source_task_definitions.documentation_task_pb2 import Documentation
 from core.protos.ui_definition_pb2 import FormField, FormFieldType
+from core.utils.credentilal_utils import DISPLAY_NAME, CATEGORY, DOCUMENTATION
 
 
 class DocumentationSourceManager(SourceManager):
@@ -46,6 +47,12 @@ class DocumentationSourceManager(SourceManager):
                               form_field_type=FormFieldType.IFRAME_RENDER_FT),
                 ]
             },
+        }
+
+        self.connector_form_configs = []
+        self.connector_type_details = {
+            DISPLAY_NAME: "DOCUMENTATION",
+            CATEGORY: DOCUMENTATION,
         }
 
     def execute_markdown(self, time_range: TimeRange, doc_task: Documentation,
