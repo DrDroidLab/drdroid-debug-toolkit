@@ -5,6 +5,7 @@ from django.conf import settings
 from core.protos.base_pb2 import SourceModelType
 from core.protos.assets.asset_pb2 import AccountConnectorAssets
 from core.utils.proto_utils import dict_to_proto
+import logging
 
 IS_PROD_ENV = False
 
@@ -26,6 +27,11 @@ else:
     API_HOST = "https://agent-api.drdroid.io/api"
     API_TOKEN = settings.DRD_CLOUD_API_TOKEN
 
+
+logger = logging.getLogger(__name__)
+logger.info(f"IS_PROD_ENV: {IS_PROD_ENV}")
+logger.info(f"API_HOST: {API_HOST}")
+logger.info(f"API_TOKEN: {API_TOKEN}")
 
 class PrototypeClient:
     """

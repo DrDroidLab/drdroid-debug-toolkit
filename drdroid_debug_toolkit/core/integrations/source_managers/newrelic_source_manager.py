@@ -2441,7 +2441,7 @@ class NewRelicSourceManager(SourceManager):
             asset_type=SourceModelType.NEW_RELIC_ENTITY_DASHBOARD_V2,
         )
 
-        print(f"NR assets: {assets}")
+        logger.info(f"NR Dashboard V2 Assets: {assets}")
         # Check if the nested assets are missing/empty
         if not assets or not assets.new_relic or not assets.new_relic.assets:
             logger.warning(f"No V2 dashboard assets found for the account {nr_connector.account_id.value}")
