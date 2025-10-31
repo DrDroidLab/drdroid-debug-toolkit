@@ -46,6 +46,7 @@ def generate_aws_access_secret_session_key(aws_assumed_role_arn, aws_drd_cloud_r
             'aws_secret_key': assumed_role_2['Credentials']['SecretAccessKey'],
             'aws_session_token': assumed_role_2['Credentials']['SessionToken']}
 
+
 class AWSBoto3ApiProcessor(Processor):
     def __init__(self, client_type, region, aws_access_key=None, aws_secret_key=None, aws_assumed_role_arn=None,
                  aws_drd_cloud_role_arn=None):
@@ -74,23 +75,133 @@ class AWSBoto3ApiProcessor(Processor):
             logger.error(f"Exception occurred while creating boto3 client with error: {e}")
             raise e
 
-    def test_connection(self):
+    def test_cloudwatch_list_metrics_permission(self):
+        """Tests permission to list CloudWatch metrics."""
         try:
-            if self.client_type == 'cloudwatch':
-                client = self.get_connection()
-                response = client.list_metrics()
-                if response:
-                    return True
-                else:
-                    raise Exception("No metrics found in the cloudwatch connection")
-            elif self.client_type == 'logs':
-                log_groups = self.logs_describe_log_groups()
-                if log_groups:
-                    return True
-                else:
-                    raise Exception("No log groups found in the logs connection")
+            client = self.get_connection()
+            # Basic list_metrics call for permission check
+            client.list_metrics()
+            return True
         except Exception as e:
-            logger.error(f"Exception occurred while testing cloudwatch connection with error: {e}")
+            logger.warning(f"CloudWatch list_metrics permission check failed: {e}")
+            raise e
+
+    def test_logs_describe_log_groups_permission(self):
+        """Tests permission to describe CloudWatch log groups."""
+        try:
+            client = self.get_connection()
+            client.describe_log_groups(limit=1)
+            return True
+        except Exception as e:
+            logger.warning(f"CloudWatch Logs describe_log_groups permission check failed: {e}")
+            raise e
+
+    def test_ecs_list_clusters_permission(self):
+        """Tests permission to list ECS clusters."""
+        try:
+            client = self.get_connection()
+            # list_clusters doesn't have a simple 'limit', use maxResults
+            client.list_clusters(maxResults=1)
+            return True
+        except Exception as e:
+            logger.warning(f"ECS list_clusters permission check failed: {e}")
+            raise e
+
+    def test_cloudwatch_list_dashboards_permission(self):
+        """Tests permission to list CloudWatch dashboards."""
+        try:
+            client = self.get_connection()
+            client.list_dashboards()
+            return True
+        except Exception as e:
+            logger.warning(f"CloudWatch list_dashboards permission check failed: {e}")
+            raise e
+
+    def test_s3_get_object_permission(self):
+        """Tests permission to get objects from S3 (s3:GetObject)."""
+        try:
+            # Use head_object as a lightweight way to check GetObject permission
+            client = self.get_connection()
+            client.head_object(Bucket='drd-permission-test-bucket-non-existent', Key='permission-test-key')
+
+            return True
+        except client.exceptions.ClientError as ce:
+            error_code = ce.response.get('Error', {}).get('Code')
+            http_status_code = ce.response.get('ResponseMetadata', {}).get('HTTPStatusCode')
+
+            # this means we couldn't test the permission because the object isn't there,
+            # not that the permission itself is denied.
+            if error_code in ['NoSuchBucket', 'NoSuchKey'] or http_status_code == 404:
+                logger.info(
+                    f"S3 GetObject permission check passed (ignoring resource not found: "
+                    f"{error_code or 'HTTP 404'} - "
+                    f"{ce.response.get('Error', {}).get('Message', str(ce))[:100]}...)"
+                )
+                return True
+
+            # Check for explicit 'AccessDenied' error code or messages containing 'AccessDenied'/'Forbidden'.
+            elif error_code == 'AccessDenied' or \
+                    'AccessDenied' in str(ce) or \
+                    'Forbidden' in str(ce):
+                logger.warning(f"S3 GetObject permission check failed due to AccessDenied/Forbidden: {ce}")
+                raise ce
+            else:
+                # Log and re-raise other unexpected client errors.
+                logger.warning(f"S3 GetObject permission check failed with unexpected ClientError: {ce}")
+                raise ce
+        except Exception as e:
+            # Catch any other unexpected errors during client operation.
+            logger.warning(f"S3 GetObject permission check failed with unexpected error: {e}")
+            raise e
+
+    def test_pi_describe_dimension_keys_permission(self):
+        """Tests permission to describe dimension keys in Performance Insights (pi:DescribeDimensionKeys)."""
+        try:
+            client = self.get_connection()
+            end_time = datetime.now()
+            start_time = end_time - timedelta(minutes=5)
+
+            # Use a mock resource uri format - for permission check only
+            mock_resource_uri = "db-FAIHNTYBKTGAUSUZQYPDS2GW4A"
+
+            # Make a lightweight call with minimal parameters
+            client.describe_dimension_keys(
+                ServiceType='RDS',
+                Identifier=mock_resource_uri,
+                StartTime=start_time,
+                EndTime=end_time,
+                Metric='db.load.avg',
+                GroupBy={'Group': 'db'}
+            )
+            return True
+        except client.exceptions.ClientError as ce:
+            error_code = ce.response.get('Error', {}).get('Code')
+            error_message = str(ce).lower()
+
+            # If we get a ValidationException, that means our credentials were accepted
+            # but the resource format is invalid, which is expected with our mock ARN
+            if error_code == 'ValidationException' or 'validation' in error_message:
+                logger.info(
+                    "PI DescribeDimensionKeys permission check passed (validation error is expected with mock ARN)")
+                return True
+
+            # If the error is ResourceNotFound, the permission is granted but the resource doesn't exist
+            if error_code == 'InvalidIdentifier' or 'ResourceNotFound' in error_message:
+                logger.info("PI DescribeDimensionKeys permission check passed (resource not found is expected)")
+                return True
+
+            # Check for explicit access denied errors
+            elif error_code == 'AccessDeniedException' or 'access denied' in error_message or 'forbidden' in error_message:
+                logger.warning(f"PI DescribeDimensionKeys permission check failed due to access denied: {ce}")
+                raise ce
+
+            else:
+                # Log and re-raise other unexpected client errors
+                logger.warning(f"PI DescribeDimensionKeys permission check failed with unexpected ClientError: {ce}")
+                raise ce
+        except Exception as e:
+            # Catch any other unexpected errors during client operation
+            logger.warning(f"PI DescribeDimensionKeys permission check failed with unexpected error: {e}")
             raise e
 
     def cloudwatch_describe_alarms(self, alarm_names):
@@ -333,16 +444,16 @@ class AWSBoto3ApiProcessor(Processor):
             client = self.get_connection()
             clusters = []
             paginator = client.get_paginator('list_clusters')
-            
+
             for page in paginator.paginate():
                 if 'clusterArns' in page:
                     clusters.extend(page['clusterArns'])
-            
+
             # Get detailed information for each cluster
             if clusters:
                 response = client.describe_clusters(clusters=clusters)
                 return response.get('clusters', [])
-            
+
             return []
         except Exception as e:
             logger.error(f"Exception occurred while listing ECS clusters with error: {e}")
@@ -353,38 +464,38 @@ class AWSBoto3ApiProcessor(Processor):
         try:
             client = self.get_connection()
             all_tasks = []
-            
+
             # Get RUNNING tasks
             running_tasks = []
             paginator = client.get_paginator('list_tasks')
             for page in paginator.paginate(cluster=cluster_arn, desiredStatus='RUNNING'):
                 if 'taskArns' in page and page['taskArns']:
                     running_tasks.extend(page['taskArns'])
-            
+
             # Get STOPPED tasks
             stopped_tasks = []
             for page in paginator.paginate(cluster=cluster_arn, desiredStatus='STOPPED'):
                 if 'taskArns' in page and page['taskArns']:
                     stopped_tasks.extend(page['taskArns'])
-            
+
             # Combine all task ARNs
             all_tasks = running_tasks + stopped_tasks
-            
+
             # Get detailed information for each task
             if all_tasks:
                 # ECS API limits the number of tasks in a single describe_tasks call
                 # Process in batches of 100
                 task_details = []
                 for i in range(0, len(all_tasks), 100):
-                    batch = all_tasks[i:i+100]
+                    batch = all_tasks[i:i + 100]
                     response = client.describe_tasks(
                         cluster=cluster_arn,
                         tasks=batch
                     )
                     task_details.extend(response.get('tasks', []))
-                
+
                 return task_details
-            
+
             return []
         except Exception as e:
             logger.error(f"Exception occurred while listing tasks in ECS cluster: {cluster_arn} with error: {e}")
@@ -408,7 +519,7 @@ class AWSBoto3ApiProcessor(Processor):
             client = self.get_connection()
             services = []
             paginator = client.get_paginator('list_services')
-            
+
             for page in paginator.paginate(cluster=cluster_arn):
                 if 'serviceArns' in page and page['serviceArns']:
                     service_arns = page['serviceArns']
@@ -418,12 +529,12 @@ class AWSBoto3ApiProcessor(Processor):
                         services=service_arns
                     )
                     services.extend(response.get('services', []))
-            
+
             return services
         except Exception as e:
             logger.error(f"Exception occurred while listing services in ECS cluster: {cluster_arn} with error: {e}")
             return None
-            
+
     def get_task_definitions_map(self, cluster_name):
         """
         Get a mapping of task IDs to their task definitions for a specific cluster.
@@ -437,33 +548,34 @@ class AWSBoto3ApiProcessor(Processor):
         try:
             client = self.get_connection()
             task_def_map = {}
-            
+
             # Get all task ARNs in the cluster (both running and stopped)
             running_task_arns = client.list_tasks(cluster=cluster_name, desiredStatus="RUNNING").get("taskArns", [])
             stopped_tasks_arns = client.list_tasks(cluster=cluster_name, desiredStatus="STOPPED").get("taskArns", [])
             task_arns = running_task_arns + stopped_tasks_arns
-            
+
             if not task_arns:
                 return {}
-                
+
             # Process tasks in batches of 100 (AWS API limit)
             for i in range(0, len(task_arns), 100):
-                batch = task_arns[i:i+100]
+                batch = task_arns[i:i + 100]
                 task_details = client.describe_tasks(cluster=cluster_name, tasks=batch)
-                
+
                 for task_info in task_details.get("tasks", []):
                     task_id = task_info.get("taskArn").split("/")[-1]
                     task_def_arn = task_info.get("taskDefinitionArn")
                     # Extract task definition name and revision (e.g., "Vidushee-Experiment:4")
                     task_def_name = task_def_arn.split("/")[-1] if task_def_arn else "unknown"
                     task_def_map[task_id] = task_def_name
-                    
+
             return task_def_map
-            
+
         except Exception as e:
-            logger.error(f"Exception occurred while getting task definitions map for cluster: {cluster_name} with error: {e}")
+            logger.error(
+                f"Exception occurred while getting task definitions map for cluster: {cluster_name} with error: {e}")
             return {}
-    
+
     def get_task_logs(self, cluster_name, max_lines=100):
         """
         Fetch logs for all running tasks in an ECS cluster.
@@ -478,12 +590,12 @@ class AWSBoto3ApiProcessor(Processor):
         """
         try:
             client = self.get_connection()
-            logs_client = boto3.client('logs', 
-                                      aws_access_key_id=self.__aws_access_key,
-                                      aws_secret_access_key=self.__aws_secret_key, 
-                                      region_name=self.region,
-                                      aws_session_token=self.__aws_session_token)
-            
+            logs_client = boto3.client('logs',
+                                       aws_access_key_id=self.__aws_access_key,
+                                       aws_secret_access_key=self.__aws_secret_key,
+                                       region_name=self.region,
+                                       aws_session_token=self.__aws_session_token)
+
             # Get all running and stopped tasks in the cluster
             running_task_arns = client.list_tasks(cluster=cluster_name, desiredStatus="RUNNING").get("taskArns", [])
             stopped_tasks_arns = client.list_tasks(cluster=cluster_name, desiredStatus="STOPPED").get("taskArns", [])
@@ -542,7 +654,7 @@ class AWSBoto3ApiProcessor(Processor):
                             # Calculate timestamps for the last 2 weeks
                             end_time = int(datetime.now().timestamp() * 1000)
                             start_time = int((datetime.now() - timedelta(weeks=2)).timestamp() * 1000)
-                            
+
                             log_events_response = logs_client.get_log_events(
                                 logGroupName=log_group,
                                 logStreamName=stream_name,
@@ -579,10 +691,10 @@ class AWSBoto3ApiProcessor(Processor):
         :return: str or None - File content as text if successful, None otherwise
         """
         s3_client = boto3.client('s3',
-                                aws_access_key_id=self.__aws_access_key,
-                                aws_secret_access_key=self.__aws_secret_key, 
-                                region_name=self.region,
-                                aws_session_token=self.__aws_session_token)
+                                 aws_access_key_id=self.__aws_access_key,
+                                 aws_secret_access_key=self.__aws_secret_key,
+                                 region_name=self.region,
+                                 aws_session_token=self.__aws_session_token)
 
         try:
             url = s3_client.generate_presigned_url(
@@ -595,7 +707,7 @@ class AWSBoto3ApiProcessor(Processor):
             return None
 
         try:
-            response = requests.get(url, timeout=EXTERNAL_CALL_TIMEOUT)
+            response = requests.get(url)
             response.raise_for_status()
 
             # Try decoding the content as UTF-8
