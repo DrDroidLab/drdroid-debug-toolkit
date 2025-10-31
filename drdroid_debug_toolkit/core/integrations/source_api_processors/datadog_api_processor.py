@@ -65,101 +65,156 @@ class DatadogApiProcessor(Processor):
         self._QUERY_TEMPLATES_1 = [
             ["sum:trace.django.request.hits{{env:{env},service:{service}}}.as_count()"],
             ["sum:trace.django.request.errors{{env:{env},service:{service}}}.as_count()"],
-            ["p50:trace.django.request{{env:{env},service:{service}}}",
-             "p75:trace.django.request{{env:{env},service:{service}}}",
-             "p90:trace.django.request{{env:{env},service:{service}}}",
-             "p95:trace.django.request{{env:{env},service:{service}}}",
-             "p99:trace.django.request{{env:{env},service:{service}}}",
-             "p99.9:trace.django.request{{env:{env},service:{service}}}",
-             "max:trace.django.request{{env:{env},service:{service}}}"]
+            ["p95:trace.django.request{{env:{env},service:{service}}}",
+             "p99:trace.django.request{{env:{env},service:{service}}}"]
         ]
         self._QUERY_TEMPLATES_2 = [
             ["sum:trace.flask.request.hits{{env:{env},service:{service}}}.as_count()"],
             ["sum:trace.flask.request.errors{{env:{env},service:{service}}}.as_count()"],
-            ["p50:trace.flask.request{{env:{env},service:{service}}}",
-             "p75:trace.flask.request{{env:{env},service:{service}}}",
-             "p90:trace.flask.request{{env:{env},service:{service}}}",
-             "p95:trace.flask.request{{env:{env},service:{service}}}",
-             "p99:trace.flask.request{{env:{env},service:{service}}}",
-             "p99.9:trace.flask.request{{env:{env},service:{service}}}",
-             "max:trace.flask.request{{env:{env},service:{service}}}"]
+            ["p95:trace.flask.request{{env:{env},service:{service}}}",
+             "p99:trace.flask.request{{env:{env},service:{service}}}"]
         ] 
         self._QUERY_TEMPLATES_3 = [
             ["sum:trace.postgres.query.hits{{env:{env},service:{service}}}.as_count()"],
             ["sum:trace.postgres.query.errors{{env:{env},service:{service}}}.as_count()"],
-            ["p50:trace.postgres.query{{env:{env},service:{service}}}",
-             "p75:trace.postgres.query{{env:{env},service:{service}}}",
-             "p90:trace.postgres.query{{env:{env},service:{service}}}",
-             "p95:trace.postgres.query{{env:{env},service:{service}}}",
-             "p99:trace.postgres.query{{env:{env},service:{service}}}",
-             "p99.9:trace.postgres.query{{env:{env},service:{service}}}",
-             "max:trace.postgres.query{{env:{env},service:{service}}}"]
+            ["p95:trace.postgres.query{{env:{env},service:{service}}}",
+             "p99:trace.postgres.query{{env:{env},service:{service}}}"]
         ] 
         self._QUERY_TEMPLATES_4 = [
             ["sum:trace.redis.command.hits{{env:{env},service:{service}}}.as_count()"],
             ["sum:trace.redis.command.errors{{env:{env},service:{service}}}.as_count()"],
-            ["p50:trace.redis.command{{env:{env},service:{service}}}",
-             "p75:trace.redis.command{{env:{env},service:{service}}}",
-             "p90:trace.redis.command{{env:{env},service:{service}}}",
-             "p95:trace.redis.command{{env:{env},service:{service}}}",
-             "p99:trace.redis.command{{env:{env},service:{service}}}",
-             "p99.9:trace.redis.command{{env:{env},service:{service}}}",
-             "max:trace.redis.command{{env:{env},service:{service}}}"]
+            ["p95:trace.redis.command{{env:{env},service:{service}}}",
+             "p99:trace.redis.command{{env:{env},service:{service}}}"]
         ] 
         self._QUERY_TEMPLATES_5 = [
             ["sum:trace.celery.run.hits{{env:{env},service:{service}}}.as_count()"],
             ["sum:trace.celery.run.errors{{env:{env},service:{service}}}.as_count()"],
-            ["p50:trace.celery.run{{env:{env},service:{service}}}",
-             "p75:trace.celery.run{{env:{env},service:{service}}}",
-             "p90:trace.celery.run{{env:{env},service:{service}}}",
-             "p95:trace.celery.run{{env:{env},service:{service}}}",
-             "p99:trace.celery.run{{env:{env},service:{service}}}",
-             "p99.9:trace.celery.run{{env:{env},service:{service}}}",
-             "max:trace.celery.run{{env:{env},service:{service}}}"]
+            ["p95:trace.celery.run{{env:{env},service:{service}}}",
+             "p99:trace.celery.run{{env:{env},service:{service}}}"]
         ] 
         self._QUERY_TEMPLATES_6 = [
             ["sum:trace.requests.request.hits{{env:{env},service:{service}}}.as_count()"],
             ["sum:trace.requests.request.errors{{env:{env},service:{service}}}.as_count()"],
-            ["p50:trace.requests.request{{env:{env},service:{service}}}",
-             "p75:trace.requests.request{{env:{env},service:{service}}}",
-             "p90:trace.requests.request{{env:{env},service:{service}}}",
-             "p95:trace.requests.request{{env:{env},service:{service}}}",
-             "p99:trace.requests.request{{env:{env},service:{service}}}",
-             "p99.9:trace.requests.request{{env:{env},service:{service}}}",
-             "max:trace.requests.request{{env:{env},service:{service}}}"]
+            ["p95:trace.requests.request{{env:{env},service:{service}}}",
+             "p99:trace.requests.request{{env:{env},service:{service}}}"]
         ] 
         self._QUERY_TEMPLATES_7 = [
             ["sum:trace.jinja2.request.hits{{env:{env},service:{service}}}.as_count()"],
             ["sum:trace.jinja2.request.errors{{env:{env},service:{service}}}.as_count()"],
-            ["p50:trace.jinja2.request{{env:{env},service:{service}}}",
-             "p75:trace.jinja2.request{{env:{env},service:{service}}}",
-             "p90:trace.jinja2.request{{env:{env},service:{service}}}",
-             "p95:trace.jinja2.request{{env:{env},service:{service}}}",
-             "p99:trace.jinja2.request{{env:{env},service:{service}}}",
-             "p99.9:trace.jinja2.request{{env:{env},service:{service}}}",
-             "max:trace.jinja2.request{{env:{env},service:{service}}}"]
+            ["p95:trace.jinja2.request{{env:{env},service:{service}}}",
+             "p99:trace.jinja2.request{{env:{env},service:{service}}}"]
         ] 
         self._QUERY_TEMPLATES_8 = [
             ["sum:trace.s3.command.hits{{env:{env},service:{service}}}.as_count()"],
             ["sum:trace.s3.command.errors{{env:{env},service:{service}}}.as_count()"],
-            ["p50:trace.s3.command{{env:{env},service:{service}}}",
-             "p75:trace.s3.command{{env:{env},service:{service}}}",
-             "p90:trace.s3.command{{env:{env},service:{service}}}",
-             "p95:trace.s3.command{{env:{env},service:{service}}}",
-             "p99:trace.s3.command{{env:{env},service:{service}}}",
-             "p99.9:trace.s3.command{{env:{env},service:{service}}}",
-             "max:trace.s3.command{{env:{env},service:{service}}}"]
+            ["p95:trace.s3.command{{env:{env},service:{service}}}",
+             "p99:trace.s3.command{{env:{env},service:{service}}}"]
         ]
         self._QUERY_TEMPLATES_9 = [
             ["sum:trace.celery.beat.tick.hits{{env:{env},service:{service}}}.as_count()"],
             ["sum:trace.celery.beat.tick.errors{{env:{env},service:{service}}}.as_count()"],
-            ["p50:trace.celery.beat.tick{{env:{env},service:{service}}}",
-             "p75:trace.celery.beat.tick{{env:{env},service:{service}}}",
-             "p90:trace.celery.beat.tick{{env:{env},service:{service}}}",
-             "p95:trace.celery.beat.tick{{env:{env},service:{service}}}",
-             "p99:trace.celery.beat.tick{{env:{env},service:{service}}}",
-             "p99.9:trace.celery.beat.tick{{env:{env},service:{service}}}",
-             "max:trace.celery.beat.tick{{env:{env},service:{service}}}"]
+            ["p95:trace.celery.beat.tick{{env:{env},service:{service}}}",
+             "p99:trace.celery.beat.tick{{env:{env},service:{service}}}"]
+        ]
+
+        # Additional templates for missing frameworks
+        self._QUERY_TEMPLATES_10 = [  # trace.redis.query
+            ["sum:trace.redis.query.hits{{env:{env},service:{service}}}.as_count()"],
+            ["sum:trace.redis.query.errors{{env:{env},service:{service}}}.as_count()"],
+            ["p95:trace.redis.query{{env:{env},service:{service}}}",
+             "p99:trace.redis.query{{env:{env},service:{service}}}"]
+        ]
+
+        self._QUERY_TEMPLATES_11 = [  # trace.postgresql.query
+            ["sum:trace.postgresql.query.hits{{env:{env},service:{service}}}.as_count()"],
+            ["sum:trace.postgresql.query.errors{{env:{env},service:{service}}}.as_count()"],
+            ["p95:trace.postgresql.query{{env:{env},service:{service}}}",
+             "p99:trace.postgresql.query{{env:{env},service:{service}}}"]
+        ]
+
+        self._QUERY_TEMPLATES_12 = [  # trace.Internal
+            ["sum:trace.Internal.hits{{env:{env},service:{service}}}.as_count()"],
+            ["sum:trace.Internal.errors{{env:{env},service:{service}}}.as_count()"],
+            ["p95:trace.Internal{{env:{env},service:{service}}}",
+             "p99:trace.Internal{{env:{env},service:{service}}}"]
+        ]
+
+        self._QUERY_TEMPLATES_13 = [  # trace.http.server.request
+            ["sum:trace.http.server.request.hits{{env:{env},service:{service}}}.as_count()"],
+            ["sum:trace.http.server.request.errors{{env:{env},service:{service}}}.as_count()"],
+            ["p95:trace.http.server.request{{env:{env},service:{service}}}",
+             "p99:trace.http.server.request{{env:{env},service:{service}}}"]
+        ]
+
+        self._QUERY_TEMPLATES_14 = [  # trace.http.client.request
+            ["sum:trace.http.client.request.hits{{env:{env},service:{service}}}.as_count()"],
+            ["sum:trace.http.client.request.errors{{env:{env},service:{service}}}.as_count()"],
+            ["p95:trace.http.client.request{{env:{env},service:{service}}}",
+             "p99:trace.http.client.request{{env:{env},service:{service}}}"]
+        ]
+
+        self._QUERY_TEMPLATES_15 = [  # trace.grpc.server.request
+            ["sum:trace.grpc.server.request.hits{{env:{env},service:{service}}}.as_count()"],
+            ["sum:trace.grpc.server.request.errors{{env:{env},service:{service}}}.as_count()"],
+            ["p95:trace.grpc.server.request{{env:{env},service:{service}}}",
+             "p99:trace.grpc.server.request{{env:{env},service:{service}}}"]
+        ]
+
+        self._QUERY_TEMPLATES_16 = [  # trace.grpc.client.request
+            ["sum:trace.grpc.client.request.hits{{env:{env},service:{service}}}.as_count()"],
+            ["sum:trace.grpc.client.request.errors{{env:{env},service:{service}}}.as_count()"],
+            ["p95:trace.grpc.client.request{{env:{env},service:{service}}}",
+             "p99:trace.grpc.client.request{{env:{env},service:{service}}}"]
+        ]
+
+        self._QUERY_TEMPLATES_17 = [  # trace.graphql.server.request
+            ["sum:trace.graphql.server.request.hits{{env:{env},service:{service}}}.as_count()"],
+            ["p95:trace.graphql.server.request{{env:{env},service:{service}}}",
+             "p99:trace.graphql.server.request{{env:{env},service:{service}}}"]
+        ]
+
+        self._QUERY_TEMPLATES_18 = [  # trace.Consumer
+            ["sum:trace.Consumer.hits{{env:{env},service:{service}}}.as_count()"],
+            ["p95:trace.Consumer{{env:{env},service:{service}}}",
+             "p99:trace.Consumer{{env:{env},service:{service}}}"]
+        ]
+
+        self._QUERY_TEMPLATES_19 = [  # trace.client.request
+            ["sum:trace.client.request.hits{{env:{env},service:{service}}}.as_count()"],
+            ["sum:trace.client.request.errors{{env:{env},service:{service}}}.as_count()"],
+            ["p95:trace.client.request{{env:{env},service:{service}}}",
+             "p99:trace.client.request{{env:{env},service:{service}}}"]
+        ]
+
+        self._QUERY_TEMPLATES_20 = [  # trace.bullmq.publish
+            ["sum:trace.bullmq.publish.hits{{env:{env},service:{service}}}.as_count()"],
+            ["p95:trace.bullmq.publish{{env:{env},service:{service}}}",
+             "p99:trace.bullmq.publish{{env:{env},service:{service}}}"]
+        ]
+
+        self._QUERY_TEMPLATES_21 = [  # trace.bullmq.process
+            ["sum:trace.bullmq.process.hits{{env:{env},service:{service}}}.as_count()"],
+            ["sum:trace.bullmq.process.errors{{env:{env},service:{service}}}.as_count()"],
+            ["p95:trace.bullmq.process{{env:{env},service:{service}}}",
+             "p99:trace.bullmq.process{{env:{env},service:{service}}}"]
+        ]
+
+        self._QUERY_TEMPLATES_22 = [  # trace.bullmq.create
+            ["sum:trace.bullmq.create.hits{{env:{env},service:{service}}}.as_count()"],
+            ["p95:trace.bullmq.create{{env:{env},service:{service}}}",
+             "p99:trace.bullmq.create{{env:{env},service:{service}}}"]
+        ]
+
+        self._QUERY_TEMPLATES_23 = [  # trace.better_sqlite3.query
+            ["sum:trace.better_sqlite3.query.hits{{env:{env},service:{service}}}.as_count()"],
+            ["p95:trace.better_sqlite3.query{{env:{env},service:{service}}}",
+             "p99:trace.better_sqlite3.query{{env:{env},service:{service}}}"]
+        ]
+
+        self._QUERY_TEMPLATES_24 = [  # trace.aws.mappings.request
+            ["sum:trace.aws.mappings.request.hits{{env:{env},service:{service}}}.as_count()"],
+            ["p95:trace.aws.mappings.request{{env:{env},service:{service}}}",
+             "p99:trace.aws.mappings.request{{env:{env},service:{service}}}"]
         ]
 
         # Mapping of framework names to their respective query templates 
@@ -185,7 +240,22 @@ class DatadogApiProcessor(Processor):
             self._QUERY_TEMPLATES_6,
             self._QUERY_TEMPLATES_7,
             self._QUERY_TEMPLATES_8,
-            self._QUERY_TEMPLATES_9
+            self._QUERY_TEMPLATES_9,
+            self._QUERY_TEMPLATES_10,
+            self._QUERY_TEMPLATES_11,
+            self._QUERY_TEMPLATES_12,
+            self._QUERY_TEMPLATES_13,
+            self._QUERY_TEMPLATES_14,
+            self._QUERY_TEMPLATES_15,
+            self._QUERY_TEMPLATES_16,
+            self._QUERY_TEMPLATES_17,
+            self._QUERY_TEMPLATES_18,
+            self._QUERY_TEMPLATES_19,
+            self._QUERY_TEMPLATES_20,
+            self._QUERY_TEMPLATES_21,
+            self._QUERY_TEMPLATES_22,
+            self._QUERY_TEMPLATES_23,
+            self._QUERY_TEMPLATES_24
         ]
 
         self.map_of_framework_to_query_templates = {}
@@ -202,34 +272,94 @@ class DatadogApiProcessor(Processor):
     def build_queries(self, service_name="*", env="prod", matching_metrics=None):
         """
         Replaces `{service}` and `{env}` placeholders in each query template.
+        Processes ALL matching metrics to get their framework keys.
         """
         queries = []
+        processed_frameworks = set()  # Track which frameworks we've already processed
+        
         for metric in matching_metrics:
-            framework_key = metric #'.'.join(metric.split('.')[:3])
+            # Extract framework key by finding the base framework
+            parts = metric.split('.')
+            
+            # Handle different metric structures
+            if len(parts) < 2:
+                continue
+            elif len(parts) == 2:
+                # e.g., "trace.hits" -> "trace" (but this might be too generic)
+                framework_key = parts[0]
+            else:
+                # Find the framework by looking for known metric types
+                # Known metric types: hits, errors, duration, apdex, etc.
+                metric_types = ['hits', 'errors', 'duration', 'apdex', 'p50', 'p75', 'p90', 'p95', 'p99', 'p99.9', 'max', 'mean', 'min', 'stddev']
+                
+                framework_key = None
+                for i, part in enumerate(parts):
+                    if part in metric_types:
+                        # Found a metric type, everything before it is the framework
+                        framework_key = '.'.join(parts[:i])
+                        break
+                
+                if not framework_key:
+                    # Fallback: try to match against known template keys
+                    # Try different combinations to find a match
+                    for i in range(len(parts), 0, -1):
+                        candidate = '.'.join(parts[:i])
+                        if candidate in self.map_of_framework_to_query_templates:
+                            framework_key = candidate
+                            break
+                    
+                    if not framework_key:
+                        # Last resort: remove the last part
+                        framework_key = '.'.join(parts[:-1])
+            
+            # Skip if we've already processed this framework
+            if framework_key in processed_frameworks:
+                continue
+                
             if framework_key in self.map_of_framework_to_query_templates:
                 query_templates = self.map_of_framework_to_query_templates[framework_key]
-                break
-        if not query_templates:
-            logger.error(f"No query templates found for the metric: {metric}")
-            return []
-
-        for template in query_templates:
-            if len(template) == 1:
-                query = template[0].format(service=service_name, env=env)
-                queries.append([query])
+                processed_frameworks.add(framework_key)
+                
+                for template in query_templates:
+                    if len(template) == 1:
+                        # Single query template
+                        template_query = template[0]
+                        try:
+                            query = template_query.format(service=service_name, env=env)
+                            queries.append([query])
+                        except ValueError as e:
+                            logger.error(f"Error formatting query template: {template_query} with service={service_name}, env={env}. Error: {e}")
+                            # Fallback to string replacement
+                            query = template_query.replace("{service}", str(service_name)).replace("{env}", str(env))
+                            queries.append([query])
+                    else:
+                        # Multiple query templates
+                        query_mini_list = []
+                        for query in template:
+                            try:
+                                formatted_query = query.format(service=service_name, env=env)
+                                query_mini_list.append(formatted_query)
+                            except ValueError as e:
+                                logger.error(f"Error formatting query template: {query} with service={service_name}, env={env}. Error: {e}")
+                                # Fallback to string replacement
+                                formatted_query = query.replace("{service}", str(service_name)).replace("{env}", str(env))
+                                query_mini_list.append(formatted_query)
+                        if query_mini_list:  # Only add if we have queries
+                            queries.append(query_mini_list)
             else:
-                query_mini_list = []
-                for query in template:
-                    query = query.format(service=service_name, env=env)
-                    query_mini_list.append(query)
-                queries.append(query_mini_list)
+                logger.warning(f"No query templates found for framework: {framework_key}")
+        
+        if not queries:
+            logger.error(f"No queries generated for any of the {len(matching_metrics)} matching metrics")
+            return []
+        
         return queries
     
     def fetch_query_results(self, service_name="*", env="prod", start_time=None, end_time=None, matching_metrics=None, interval=300000):
         """
         Fetches query results for each generated query string.
         """
-        base_url = "https://api.datadoghq.com/api/v1/query"
+        base_url = self.__dd_host + "/api/v1/query"
         
         results = []
         queries = self.build_queries(service_name, env, matching_metrics)
@@ -239,7 +369,11 @@ class DatadogApiProcessor(Processor):
 
         for query_group in queries:  # each sublist
             result = {}
-            for query in query_group:
+            for i, query in enumerate(query_group):
+                # Add a small delay between queries to avoid rate limiting
+                if i > 0:
+                    import time
+                    time.sleep(0.1)  # 100ms delay between queries
                 params = {
                     "from": start_time,
                     "to": end_time,
@@ -251,11 +385,32 @@ class DatadogApiProcessor(Processor):
                     "DD-APPLICATION-KEY": self.__dd_app_key
                 }
 
+                logger.info(f"Executing query: {query}")
                 response = requests.get(base_url, params=params, headers=headers)
-                if response.ok:
-                    result[query] = response.json()
+                logger.info(f"Query response status: {response.status_code}")
+                
+                # Check for rate limiting - EXIT IMMEDIATELY
+                if response.status_code == 429:
+                    logger.warning(f"Rate limit exceeded for query: {query}. Exiting task immediately.")
+                    rate_limit_reset = response.headers.get('x-ratelimit-reset')
+                    if rate_limit_reset:
+                        logger.info(f"Rate limit will reset in {rate_limit_reset} seconds")
+                    # Add what we have so far to results
+                    if result:
+                        results.append(result)
+                    # Return immediately with what we've collected so far
+                    return results
+                elif response.ok:
+                    response_data = response.json()
+                    # Check if the response indicates no data vs other issues
+                    if 'series' in response_data and len(response_data['series']) == 0:
+                        logger.info(f"No data returned from Datadog for query: {query}")
+                        result[query] = {"message": "No data available", "data": response_data}
+                    else:
+                        result[query] = response_data
                 else:
-                    result[query] = {"error": response.text}
+                    logger.error(f"Query failed with status {response.status_code}: {query}")
+                    result[query] = {"error": f"Status {response.status_code}: {response.text}"}
             
             results.append(result)  # One dictionary per sublist
         return results
@@ -477,7 +632,7 @@ class DatadogApiProcessor(Processor):
 
         result_dict = {}
         print(url, self.headers, payload_dict)
-        response = requests.request("POST", url, headers=self.headers, json=payload_dict, timeout=EXTERNAL_CALL_TIMEOUT)
+        response = requests.request("POST", url, headers=self.headers, json=payload_dict)
         print("Datadog R2D2 Handler Log:: Query V2 TS API", {"response": response.text})
         logger.info("Datadog R2D2 Handler Log:: Query V2 TS API", {"response": response.status_code})
         if response.status_code == 429:
@@ -532,7 +687,19 @@ class DatadogApiProcessor(Processor):
             with ApiClient(configuration) as api_client:
                 api_instance = DashboardsApi(api_client)
                 response = api_instance.list_dashboards()
-                return response.to_dict()
+                dashboard_dict = response.to_dict()
+                
+                # Convert to JSON string with datetime handling
+                import json
+                from datetime import datetime
+                
+                def json_serializer(obj):
+                    """JSON serializer for objects not serializable by default json code"""
+                    if isinstance(obj, datetime):
+                        return obj.isoformat()
+                    raise TypeError(f"Type {type(obj)} not serializable")
+                
+                return json.dumps(dashboard_dict, indent=2, default=json_serializer)
         except Exception as e:
             logger.error(f"Exception occurred while fetching dashboards with error: {e}")
             raise e
@@ -656,7 +823,7 @@ class DatadogApiProcessor(Processor):
             if start and end:
                 url += "&start={}&end={}".format(int(start), int(end))
 
-            response = requests.request("GET", url, headers=self.headers, timeout=EXTERNAL_CALL_TIMEOUT)
+            response = requests.request("GET", url, headers=self.headers)
             if response.status_code == 200:
                 return response.json()
         except Exception as e:
@@ -688,13 +855,31 @@ class DatadogApiProcessor(Processor):
                 response = api_instance.list_tags_by_metric_name(metric_name=metric_name)
                 return response.to_dict()
         except ApiException as e:
-            logger.error("Exception when calling MetricsApi->list_tags_by_metric_name: %s\n" % e)
-            raise e
+            # Check if it's a 429 rate limit error
+            if e.status == 429:
+                logger.warning(f"Rate limit exceeded when fetching metric tags for {metric_name}. Headers: {e.headers}")
+                # Extract rate limit reset time from headers (Datadog uses x-ratelimit-reset)
+                rate_limit_reset = e.headers.get('x-ratelimit-reset')
+                if rate_limit_reset:
+                    import time
+                    reset_time = int(rate_limit_reset)
+                    logger.info(f"Rate limit will reset in {reset_time} seconds...")
+                    time.sleep(reset_time)
+                    # Retry the request once
+                    return self.fetch_metric_tags(metric_name)
+                else:
+                    # Fallback: wait 60 seconds if no reset time provided
+                    logger.warning("No rate limit reset time provided, waiting 60 seconds...")
+                    time.sleep(60)
+                    return self.fetch_metric_tags(metric_name)
+            else:
+                logger.error("Exception when calling MetricsApi->list_tags_by_metric_name: %s\n" % e)
+                raise e
         except Exception as e:
             logger.error("Exception occurred while fetching metric tags with error: %s\n" % e)
             raise e
 
-    def fetch_logs(self, query, tr: TimeRange):
+    def fetch_logs(self, query, tr: TimeRange, limit=100):
         try:
             configuration = self.get_connection()
             from_tr = str(tr.time_geq * 1000)
@@ -707,7 +892,7 @@ class DatadogApiProcessor(Processor):
                 ),
                 sort=LogsSort.TIMESTAMP_DESCENDING,
                 page=LogsListRequestPage(
-                    limit=1000,
+                    limit=limit,
                 ),
             )
             with ApiClient(configuration) as api_client:
@@ -808,3 +993,235 @@ class DatadogApiProcessor(Processor):
         except Exception as e:
             logger.error(f"Exception occurred while fetching logs stream data: {e}")
             raise e
+
+    def execute_raw_query(self, start_time, end_time, query, interval=None):
+        """
+        Execute a raw Datadog query directly using the metrics query API.
+        
+        Args:
+            start_time (int): Start time in Unix timestamp (seconds)
+            end_time (int): End time in Unix timestamp (seconds)
+            query (str): The Datadog query string (e.g. "avg:system.cpu.user{*}")
+            interval (int, optional): Interval in seconds for data point rollup
+            
+        Returns:
+            dict: The response from Datadog API containing the query results
+        """
+        try:
+            url = self.__dd_host + "/api/v1/query"
+            
+            params = {
+                "from": int(start_time),
+                "to": int(end_time),
+                "query": query
+            }
+            
+            # Only add interval if specified
+            if interval:
+                params["interval"] = interval
+
+            response = requests.get(url, params=params, headers=self.headers)
+            
+            if response.status_code == 200:
+                return response.json()
+            else:
+                logger.error(f"Error executing Datadog query. Status code: {response.status_code}, Response: {response.text}")
+                return None
+                
+        except Exception as e:
+            logger.error(f"Exception occurred while executing raw query: {e}")
+            raise e
+
+    def get_dashboard_config_details(self, dashboard_id):
+        """
+        Get detailed configuration for a specific dashboard.
+        
+        Args:
+            dashboard_id (str): The dashboard ID to get configuration for
+            
+        Returns:
+            str: JSON string of the dashboard configuration details
+        """
+        try:
+            # Get raw dashboard details from Datadog API
+            dashboard_details = self.fetch_dashboard_details(dashboard_id)
+            
+            if not dashboard_details:
+                return None
+            
+            # Convert to JSON string with datetime handling
+            import json
+            from datetime import datetime
+            
+            def json_serializer(obj):
+                """JSON serializer for objects not serializable by default json code"""
+                if isinstance(obj, datetime):
+                    return obj.isoformat()
+                raise TypeError(f"Type {type(obj)} not serializable")
+            
+            return json.dumps(dashboard_details, indent=2, default=json_serializer)
+                
+        except Exception as e:
+            logger.error(f"Exception occurred while getting dashboard config details: {e}")
+            raise e
+
+    def get_dashboard_variable_values(self, dashboard_id, variable_name=None):
+        """
+        Get available values for dashboard template variables.
+        
+        Args:
+            dashboard_id (str): The dashboard ID to get variable values for
+            variable_name (str, optional): Specific variable name to get values for
+            
+        Returns:
+            str: JSON string of the template variables
+        """
+        try:
+            # Get raw dashboard details and extract template variables
+            dashboard_details = self.fetch_dashboard_details(dashboard_id)
+            
+            if not dashboard_details:
+                return None
+            
+            template_variables = dashboard_details.get('template_variables', [])
+            
+            # If variable_name is specified, filter the variables
+            if variable_name:
+                template_variables = [var for var in template_variables if var.get('name') == variable_name]
+            
+            result = {
+                'template_variables': template_variables,
+                'dashboard_id': dashboard_id,
+                'variable_name': variable_name
+            }
+            
+            # Convert to JSON string with datetime handling
+            import json
+            from datetime import datetime
+            
+            def json_serializer(obj):
+                """JSON serializer for objects not serializable by default json code"""
+                if isinstance(obj, datetime):
+                    return obj.isoformat()
+                raise TypeError(f"Type {type(obj)} not serializable")
+            
+            return json.dumps(result, indent=2, default=json_serializer)
+            
+        except Exception as e:
+            logger.error(f"Exception occurred while getting dashboard variable values: {e}")
+            raise e
+
+    def fetch_logs_for_field_extraction(self, start_time, end_time, limit=10000):
+        """
+        Fetch logs for field extraction analysis with pagination support.
+        
+        Args:
+            start_time (int): Start time in Unix timestamp (seconds)
+            end_time (int): End time in Unix timestamp (seconds)
+            limit (int): Maximum number of logs to fetch (default: 10000)
+            
+        Returns:
+            list: List of log entries for field analysis
+        """
+        logger.info(f"fetch_logs_for_field_extraction called with limit={limit}, start_time={start_time}, end_time={end_time}")
+        try:
+            # Use a broad query to get diverse log samples
+            query = "*"  # Get all logs
+            
+            # Convert timestamps to milliseconds for Datadog API
+            from_tr = str(start_time * 1000)
+            to_tr = str(end_time * 1000)
+            
+            all_logs = []
+            cursor = None
+            batch_size = 1000  # Datadog API limit per request
+            total_fetched = 0
+            previous_cursor = None
+            
+            configuration = self.get_connection()
+            
+            while total_fetched < limit:
+                # Calculate how many logs to fetch in this batch
+                remaining = limit - total_fetched
+                current_batch_size = min(batch_size, remaining)
+                
+                # Prepare request body
+                page_config = LogsListRequestPage(limit=current_batch_size)
+                if cursor:
+                    page_config.cursor = cursor
+                    logger.info(f"Using cursor for pagination: {cursor}")
+                
+                body = LogsListRequest(
+                    filter=LogsQueryFilter(
+                        query=query,
+                        _from=from_tr,
+                        to=to_tr,
+                    ),
+                    sort=LogsSort.TIMESTAMP_DESCENDING,
+                    page=page_config,
+                )
+                
+                with ApiClient(configuration) as api_client:
+                    api_instance = LogsApi(api_client)
+                    response = api_instance.list_logs(body=body)
+                    
+                    if not response or not response.data:
+                        logger.info(f"No more logs available. Fetched {total_fetched} logs total.")
+                        break
+                    
+                    # Convert to list of dictionaries for easier processing
+                    batch_logs = []
+                    for log in response.data:
+                        log_dict = log.to_dict()
+                        batch_logs.append(log_dict)
+                    
+                    all_logs.extend(batch_logs)
+                    total_fetched += len(batch_logs)
+                    
+                    logger.info(f"Fetched {len(batch_logs)} logs in this batch. Total: {total_fetched}")
+                    
+                    # Debug: Log response structure to understand pagination
+                    logger.info(f"Response type: {type(response)}")
+                    if hasattr(response, 'meta'):
+                        logger.info(f"Response meta: {response.meta}")
+                        if hasattr(response.meta, 'page'):
+                            logger.info(f"Response meta.page: {response.meta.page}")
+                            if hasattr(response.meta.page, 'after'):
+                                logger.info(f"Response meta.page.after: {response.meta.page.after}")
+                    
+                    # Check if we have a next page cursor
+                    # For v2 API, the cursor is in response.meta.page.after
+                    cursor = None
+                    if hasattr(response, 'meta') and hasattr(response.meta, 'page'):
+                        if hasattr(response.meta.page, 'after') and response.meta.page.after:
+                            cursor = response.meta.page.after
+                            logger.info(f"Found pagination cursor: {cursor}")
+                            
+                            # Check if cursor is the same as previous (infinite loop protection)
+                            if cursor == previous_cursor:
+                                logger.warning("Cursor is the same as previous request. Breaking to avoid infinite loop.")
+                                break
+                            previous_cursor = cursor
+                        else:
+                            logger.info("No pagination cursor found. Reached end of logs.")
+                            break
+                    else:
+                        # If no pagination info, we've likely reached the end
+                        logger.info("No pagination meta found. Assuming end of logs.")
+                        break
+                    
+                    # Add a small delay between requests to be respectful to the API
+                    import time
+                    time.sleep(0.1)
+            
+            logger.info(f"Successfully fetched {len(all_logs)} logs for field extraction")
+            return all_logs
+                    
+        except ApiException as e:
+            logger.error(f"Exception when calling LogsApi->list_logs for field extraction: {e}")
+            if e.status == 429:
+                logger.warning("Rate limit exceeded when fetching logs for field extraction")
+            return all_logs if 'all_logs' in locals() else []
+        except Exception as e:
+            logger.error(f"Exception occurred while fetching logs for field extraction: {e}")
+            return all_logs if 'all_logs' in locals() else []

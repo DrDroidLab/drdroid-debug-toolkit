@@ -38,6 +38,10 @@ class Datadog(google.protobuf.message.Message):
         LOG_COUNT_BY_SERVICE_EXECUTION: Datadog._TaskType.ValueType  # 5
         DASHBOARD_MULTIPLE_WIDGETS: Datadog._TaskType.ValueType  # 6
         APM_QUERY: Datadog._TaskType.ValueType  # 7
+        GENERIC_QUERY: Datadog._TaskType.ValueType  # 8
+        GET_DASHBOARD_CONFIG_DETAILS: Datadog._TaskType.ValueType  # 9
+        GET_DASHBOARD_VARIABLE_VALUES: Datadog._TaskType.ValueType  # 10
+        FETCH_DASHBOARDS: Datadog._TaskType.ValueType  # 11
 
     class TaskType(_TaskType, metaclass=_TaskTypeEnumTypeWrapper): ...
     UNKNOWN: Datadog.TaskType.ValueType  # 0
@@ -48,6 +52,10 @@ class Datadog(google.protobuf.message.Message):
     LOG_COUNT_BY_SERVICE_EXECUTION: Datadog.TaskType.ValueType  # 5
     DASHBOARD_MULTIPLE_WIDGETS: Datadog.TaskType.ValueType  # 6
     APM_QUERY: Datadog.TaskType.ValueType  # 7
+    GENERIC_QUERY: Datadog.TaskType.ValueType  # 8
+    GET_DASHBOARD_CONFIG_DETAILS: Datadog.TaskType.ValueType  # 9
+    GET_DASHBOARD_VARIABLE_VALUES: Datadog.TaskType.ValueType  # 10
+    FETCH_DASHBOARDS: Datadog.TaskType.ValueType  # 11
 
     @typing_extensions.final
     class ServiceMetricExecutionTask(google.protobuf.message.Message):
@@ -154,15 +162,19 @@ class Datadog(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
         QUERY_FIELD_NUMBER: builtins.int
+        LIMIT_FIELD_NUMBER: builtins.int
         @property
         def query(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def limit(self) -> google.protobuf.wrappers_pb2.Int64Value: ...
         def __init__(
             self,
             *,
             query: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            limit: google.protobuf.wrappers_pb2.Int64Value | None = ...,
         ) -> None: ...
-        def HasField(self, field_name: typing_extensions.Literal["query", b"query"]) -> builtins.bool: ...
-        def ClearField(self, field_name: typing_extensions.Literal["query", b"query"]) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["limit", b"limit", "query", b"query"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["limit", b"limit", "query", b"query"]) -> None: ...
 
     @typing_extensions.final
     class LogCountByServiceExecutionTask(google.protobuf.message.Message):
@@ -220,18 +232,85 @@ class Datadog(google.protobuf.message.Message):
 
         SERVICE_NAME_FIELD_NUMBER: builtins.int
         INTERVAL_FIELD_NUMBER: builtins.int
+        METRIC_FAMILIES_FIELD_NUMBER: builtins.int
         @property
         def service_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
         @property
         def interval(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+        @property
+        def metric_families(self) -> google.protobuf.wrappers_pb2.StringValue: ...
         def __init__(
             self,
             *,
             service_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
             interval: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+            metric_families: google.protobuf.wrappers_pb2.StringValue | None = ...,
         ) -> None: ...
-        def HasField(self, field_name: typing_extensions.Literal["interval", b"interval", "service_name", b"service_name"]) -> builtins.bool: ...
-        def ClearField(self, field_name: typing_extensions.Literal["interval", b"interval", "service_name", b"service_name"]) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["interval", b"interval", "metric_families", b"metric_families", "service_name", b"service_name"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["interval", b"interval", "metric_families", b"metric_families", "service_name", b"service_name"]) -> None: ...
+
+    @typing_extensions.final
+    class GenericQueryTask(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        QUERY_FIELD_NUMBER: builtins.int
+        INTERVAL_FIELD_NUMBER: builtins.int
+        @property
+        def query(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def interval(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+        def __init__(
+            self,
+            *,
+            query: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            interval: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["interval", b"interval", "query", b"query"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["interval", b"interval", "query", b"query"]) -> None: ...
+
+    @typing_extensions.final
+    class GetDashboardConfigDetailsTask(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        DASHBOARD_ID_FIELD_NUMBER: builtins.int
+        @property
+        def dashboard_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        def __init__(
+            self,
+            *,
+            dashboard_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["dashboard_id", b"dashboard_id"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["dashboard_id", b"dashboard_id"]) -> None: ...
+
+    @typing_extensions.final
+    class GetDashboardVariableValuesTask(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        DASHBOARD_ID_FIELD_NUMBER: builtins.int
+        VARIABLE_NAME_FIELD_NUMBER: builtins.int
+        @property
+        def dashboard_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def variable_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        def __init__(
+            self,
+            *,
+            dashboard_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            variable_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["dashboard_id", b"dashboard_id", "variable_name", b"variable_name"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["dashboard_id", b"dashboard_id", "variable_name", b"variable_name"]) -> None: ...
+
+    @typing_extensions.final
+    class FetchDashboardsTask(google.protobuf.message.Message):
+        """No parameters needed - fetches all dashboards"""
+
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        def __init__(
+            self,
+        ) -> None: ...
 
     TYPE_FIELD_NUMBER: builtins.int
     SERVICE_METRIC_EXECUTION_FIELD_NUMBER: builtins.int
@@ -241,6 +320,10 @@ class Datadog(google.protobuf.message.Message):
     LOG_COUNT_BY_SERVICE_EXECUTION_FIELD_NUMBER: builtins.int
     DASHBOARD_MULTIPLE_WIDGETS_FIELD_NUMBER: builtins.int
     APM_QUERY_FIELD_NUMBER: builtins.int
+    GENERIC_QUERY_FIELD_NUMBER: builtins.int
+    GET_DASHBOARD_CONFIG_DETAILS_FIELD_NUMBER: builtins.int
+    GET_DASHBOARD_VARIABLE_VALUES_FIELD_NUMBER: builtins.int
+    FETCH_DASHBOARDS_FIELD_NUMBER: builtins.int
     type: global___Datadog.TaskType.ValueType
     @property
     def service_metric_execution(self) -> global___Datadog.ServiceMetricExecutionTask: ...
@@ -256,6 +339,14 @@ class Datadog(google.protobuf.message.Message):
     def dashboard_multiple_widgets(self) -> global___Datadog.DashboardMultipleWidgetsTask: ...
     @property
     def apm_query(self) -> global___Datadog.APMQuery: ...
+    @property
+    def generic_query(self) -> global___Datadog.GenericQueryTask: ...
+    @property
+    def get_dashboard_config_details(self) -> global___Datadog.GetDashboardConfigDetailsTask: ...
+    @property
+    def get_dashboard_variable_values(self) -> global___Datadog.GetDashboardVariableValuesTask: ...
+    @property
+    def fetch_dashboards(self) -> global___Datadog.FetchDashboardsTask: ...
     def __init__(
         self,
         *,
@@ -267,9 +358,13 @@ class Datadog(google.protobuf.message.Message):
         log_count_by_service_execution: global___Datadog.LogCountByServiceExecutionTask | None = ...,
         dashboard_multiple_widgets: global___Datadog.DashboardMultipleWidgetsTask | None = ...,
         apm_query: global___Datadog.APMQuery | None = ...,
+        generic_query: global___Datadog.GenericQueryTask | None = ...,
+        get_dashboard_config_details: global___Datadog.GetDashboardConfigDetailsTask | None = ...,
+        get_dashboard_variable_values: global___Datadog.GetDashboardVariableValuesTask | None = ...,
+        fetch_dashboards: global___Datadog.FetchDashboardsTask | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["apm_query", b"apm_query", "dashboard_multiple_widgets", b"dashboard_multiple_widgets", "log_count_by_service_execution", b"log_count_by_service_execution", "log_query_execution", b"log_query_execution", "query_dashboard_widget_metric", b"query_dashboard_widget_metric", "query_metric_execution", b"query_metric_execution", "service_metric_execution", b"service_metric_execution", "task", b"task"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["apm_query", b"apm_query", "dashboard_multiple_widgets", b"dashboard_multiple_widgets", "log_count_by_service_execution", b"log_count_by_service_execution", "log_query_execution", b"log_query_execution", "query_dashboard_widget_metric", b"query_dashboard_widget_metric", "query_metric_execution", b"query_metric_execution", "service_metric_execution", b"service_metric_execution", "task", b"task", "type", b"type"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing_extensions.Literal["task", b"task"]) -> typing_extensions.Literal["service_metric_execution", "query_metric_execution", "log_query_execution", "query_dashboard_widget_metric", "log_count_by_service_execution", "dashboard_multiple_widgets", "apm_query"] | None: ...
+    def HasField(self, field_name: typing_extensions.Literal["apm_query", b"apm_query", "dashboard_multiple_widgets", b"dashboard_multiple_widgets", "fetch_dashboards", b"fetch_dashboards", "generic_query", b"generic_query", "get_dashboard_config_details", b"get_dashboard_config_details", "get_dashboard_variable_values", b"get_dashboard_variable_values", "log_count_by_service_execution", b"log_count_by_service_execution", "log_query_execution", b"log_query_execution", "query_dashboard_widget_metric", b"query_dashboard_widget_metric", "query_metric_execution", b"query_metric_execution", "service_metric_execution", b"service_metric_execution", "task", b"task"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["apm_query", b"apm_query", "dashboard_multiple_widgets", b"dashboard_multiple_widgets", "fetch_dashboards", b"fetch_dashboards", "generic_query", b"generic_query", "get_dashboard_config_details", b"get_dashboard_config_details", "get_dashboard_variable_values", b"get_dashboard_variable_values", "log_count_by_service_execution", b"log_count_by_service_execution", "log_query_execution", b"log_query_execution", "query_dashboard_widget_metric", b"query_dashboard_widget_metric", "query_metric_execution", b"query_metric_execution", "service_metric_execution", b"service_metric_execution", "task", b"task", "type", b"type"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing_extensions.Literal["task", b"task"]) -> typing_extensions.Literal["service_metric_execution", "query_metric_execution", "log_query_execution", "query_dashboard_widget_metric", "log_count_by_service_execution", "dashboard_multiple_widgets", "apm_query", "generic_query", "get_dashboard_config_details", "get_dashboard_variable_values", "fetch_dashboards"] | None: ...
 
 global___Datadog = Datadog
