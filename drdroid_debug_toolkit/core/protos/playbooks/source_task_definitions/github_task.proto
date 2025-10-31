@@ -16,6 +16,7 @@ message Github {
     google.protobuf.StringValue owner = 1;
     google.protobuf.StringValue repo = 2;
     google.protobuf.StringValue file_path = 3;
+    sfixed64 timestamp = 4; // getting this timestamp from sentry(or other services), will use it fetch file version from that timestamp
   }
 
   message UpdateFile {
@@ -68,6 +69,7 @@ message Github {
     FETCH_RECENT_COMMITS = 4;
     FETCH_RECENT_MERGES = 5;
     CREATE_PULL_REQUEST = 6;
+    ANALYZE_SENTRY_CREATE_PR =7;
   }
 
   TaskType type = 1;

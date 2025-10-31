@@ -2,7 +2,7 @@ import logging
 
 from google.protobuf.struct_pb2 import Struct
 
-from core.utils.credentilal_utils import generate_credentials_dict
+from core.utils.credentilal_utils import generate_credentials_dict, get_connector_key_type_string, DISPLAY_NAME, CATEGORY, CODE_REPOSITORY
 from core.utils.proto_utils import dict_to_proto
 from core.utils.time_utils import format_to_github_timestamp
 
@@ -10,7 +10,7 @@ from google.protobuf.wrappers_pb2 import StringValue
 
 from core.integrations.source_api_processors.github_api_processor import GithubAPIProcessor
 from core.integrations.source_manager import SourceManager
-from core.protos.base_pb2 import TimeRange, Source, SourceModelType
+from core.protos.base_pb2 import TimeRange, Source, SourceModelType, SourceKeyType
 from core.protos.connectors.connector_pb2 import Connector as ConnectorProto
 from core.protos.literal_pb2 import LiteralType, Literal
 from core.protos.playbooks.playbook_commons_pb2 import PlaybookTaskResult, PlaybookTaskResultType, ApiResponseResult, \
@@ -70,7 +70,7 @@ class GithubSourceManager(SourceManager):
                     FormField(key_name=StringValue(value="file_path"),
                               display_name=StringValue(value="Enter File Name"),
                               data_type=LiteralType.STRING,
-                              form_field_type=FormFieldType.TEXT_FT),
+                              form_field_type=FormFieldType.TEXT_FT)
                 ]
             },
             Github.TaskType.UPDATE_FILE: {
@@ -208,7 +208,43 @@ class GithubSourceManager(SourceManager):
                               default_value=Literal(type=LiteralType.STRING, string=StringValue(
                                   value='[{"path": "path/to/file1.js", "content": "content of file1"},{"path": "path/to/file2.js", "content": "content of file2"}]')))
                 ]
+            },
+            Github.TaskType.ANALYZE_SENTRY_CREATE_PR: {
+                'display_name': 'Analyze Sentry Alerts and Create PR',
+                'model_types': [SourceModelType.GITHUB_REPOSITORY]
             }
+        }
+
+        self.connector_form_configs = [
+            {
+                "name": StringValue(value="GitHub Authentication"),
+                "description": StringValue(value="Connect to GitHub using a Personal Access Token (PAT) and specify the Organization. Ensure the PAT has the necessary scopes (e.g., `repo` for private repositories, `org:read` for organization details)."),
+                "form_fields": {
+                    SourceKeyType.GITHUB_TOKEN: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.GITHUB_TOKEN)),
+                        display_name=StringValue(value="GitHub Token"),
+                        description=StringValue(value='e.g. "ghp_1234567890abcdefghijklmnopqrstuvwxyz"'),
+                        helper_text=StringValue(value="Enter your GitHub Personal Access Token with 'repo' and 'org:read' scopes from Developer Settings > Personal Access Tokens"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False,
+                        is_sensitive=True
+                    ),
+                    SourceKeyType.GITHUB_ORG: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.GITHUB_ORG)),
+                        display_name=StringValue(value="GitHub Organization"),
+                        description=StringValue(value='e.g. "github.com/my-org", "github.com/acme-corp", "github.com/awesome-team"'),
+                        helper_text=StringValue(value="Enter your GitHub organization name (found in the URL: github.com/org-name)"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False
+                    )
+                }
+            }
+        ]
+        self.connector_type_details = {
+            DISPLAY_NAME: "GITHUB",
+            CATEGORY: CODE_REPOSITORY,
         }
 
     def get_connector_processor(self, github_connector, **kwargs):
@@ -258,12 +294,13 @@ class GithubSourceManager(SourceManager):
             task = github_task.fetch_file
             repo = task.repo.value
             file_path = task.file_path.value
+            timestamp = task.timestamp if task.timestamp != 0 else None
             processor = self.get_connector_processor(github_connector)
             all_repos = processor.list_all_repos()
             all_repo_names = [repo['name'] for repo in all_repos]
             if repo not in all_repo_names:
                 raise Exception(f"Repository {repo} not found")
-            file_details = processor.fetch_file(repo, file_path)
+            file_details = processor.fetch_file(repo, file_path, timestamp=timestamp)
             response_struct = dict_to_proto(file_details, Struct)
             file_output = ApiResponseResult(response_body=response_struct)
             return PlaybookTaskResult(
@@ -272,7 +309,7 @@ class GithubSourceManager(SourceManager):
                 api_response=file_output
             )
         except Exception as e:
-            raise Exception(f"Error while executing Github fetch_related_commits task: {e}")
+            raise Exception(f"Error while executing Github fetch_file task: {e}")
 
     def update_file(self, time_range: TimeRange, github_task: Github,
                     github_connector: ConnectorProto):
@@ -290,8 +327,9 @@ class GithubSourceManager(SourceManager):
             all_repo_names = [repo['name'] for repo in all_repos]
             if repo not in all_repo_names:
                 raise Exception(f"Repository {repo} not found")
-            file_details = processor.update_file(repo, file_path, sha, content, committer_name, committer_email,
-                                                 branch)
+            file_details = processor.update_file(repo=repo, file_path=file_path, content=content, sha=sha,
+                                                 committer_name=committer_name, committer_email=committer_email,
+                                                 branch_name=branch)
             response_struct = dict_to_proto(file_details, Struct)
             file_output = ApiResponseResult(response_body=response_struct)
             return PlaybookTaskResult(
@@ -300,7 +338,7 @@ class GithubSourceManager(SourceManager):
                 api_response=file_output
             )
         except Exception as e:
-            raise Exception(f"Error while executing Github fetch_related_commits task: {e}")
+            raise Exception(f"Error while executing Github update_file task: {e}")
 
     def fetch_recent_commits(self, time_range: TimeRange, github_task: Github,
                              github_connector: ConnectorProto):
@@ -322,23 +360,6 @@ class GithubSourceManager(SourceManager):
             )
         except Exception as e:
             raise Exception(f"Error while executing Github fetch_recent_commits task: {e}")
-
-    def fetch_recent_merges(self, time_range: TimeRange, github_task: Github,
-                            github_connector: ConnectorProto):
-        try:
-            task = github_task.fetch_recent_merges
-            repo = task.repo.value
-            branch = task.branch.value
-            recent_merges = self.get_connector_processor(github_connector).get_recent_merges(repo, branch)
-            response_struct = dict_to_proto({"recent_merges": recent_merges}, Struct)
-            commit_output = ApiResponseResult(response_body=response_struct)
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.API_RESPONSE,
-                source=self.source,
-                api_response=commit_output
-            )
-        except Exception as e:
-            raise Exception(f"Error while executing Github fetch_recent_merges task: {e}")
 
     def create_pull_request(self, time_range: TimeRange, github_task: Github,
                             github_connector: ConnectorProto):
@@ -394,3 +415,20 @@ class GithubSourceManager(SourceManager):
                                       api_response=pr_output)
         except Exception as e:
             raise Exception(f"Error while executing Github create_pull_request task: {e}")
+
+    def fetch_recent_merges(self, time_range: TimeRange, github_task: Github,
+                            github_connector: ConnectorProto):
+        try:
+            task = github_task.fetch_recent_merges
+            repo = task.repo.value
+            branch = task.branch.value
+            recent_merges = self.get_connector_processor(github_connector).get_recent_merges(repo, branch)
+            response_struct = dict_to_proto({"recent_merges": recent_merges}, Struct)
+            commit_output = ApiResponseResult(response_body=response_struct)
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                source=self.source,
+                api_response=commit_output
+            )
+        except Exception as e:
+            raise Exception(f"Error while executing Github fetch_recent_merges task: {e}")
