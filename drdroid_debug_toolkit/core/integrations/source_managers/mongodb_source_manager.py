@@ -8,12 +8,12 @@ from google.protobuf.wrappers_pb2 import StringValue, UInt64Value, Int64Value
 from core.integrations.source_api_processors.mongodb_processor import MongoDBProcessor
 from core.integrations.source_manager import SourceManager
 from core.protos.connectors.connector_pb2 import Connector as ConnectorProto
-from core.protos.base_pb2 import TimeRange, Source
+from core.protos.base_pb2 import TimeRange, Source, SourceKeyType, SourceModelType
 from core.protos.literal_pb2 import LiteralType, Literal
 from core.protos.playbooks.playbook_commons_pb2 import PlaybookTaskResult, TableResult, PlaybookTaskResultType
 from core.protos.playbooks.source_task_definitions.mongodb_task_pb2 import MongoDB
 from core.protos.ui_definition_pb2 import FormField, FormFieldType
-from core.utils.credentilal_utils import generate_credentials_dict
+from core.utils.credentilal_utils import generate_credentials_dict, get_connector_key_type_string, CATEGORY, DISPLAY_NAME, DATABASES
 
 
 class TimeoutException(Exception):
@@ -28,7 +28,7 @@ class MongoDBSourceManager(SourceManager):
         self.task_type_callable_map = {
             MongoDB.TaskType.DATA_FETCH: {
                 'executor': self.execute_mongo_query,
-                'model_types': [],
+                'model_types': [SourceModelType.MONGODB_DATABASE],
                 'result_type': PlaybookTaskResultType.LOGS,
                 'display_name': 'Query a MongoDB Database',
                 'category': 'Database',
@@ -47,7 +47,7 @@ class MongoDBSourceManager(SourceManager):
                               display_name=StringValue(value="Filters"),
                               data_type=LiteralType.STRING,
                               form_field_type=FormFieldType.TEXT_FT,
-                              default_value=Literal(type=LiteralType.STRING, string=StringValue(value='\{\}'))),
+                              default_value=Literal(type=LiteralType.STRING, string=StringValue(value='{}'))),
                     FormField(key_name=StringValue(value="projection"),
                               display_name=StringValue(value="Projection"),
                               data_type=LiteralType.STRING,
@@ -73,6 +73,28 @@ class MongoDBSourceManager(SourceManager):
             },
         }
 
+        self.connector_form_configs = [
+            {
+                "name": StringValue(value="MongoDB Connection String"),
+                "description": StringValue(value="Connect to MongoDB using a Connection String URI."),
+                "form_fields": {
+                    SourceKeyType.MONGODB_CONNECTION_STRING: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.MONGODB_CONNECTION_STRING)),
+                        display_name=StringValue(value="Connection String URI"),
+                        helper_text=StringValue(value="Enter your MongoDB Connection String URI (e.g., mongodb://user:pass@host:port/db?authSource=admin)."),
+                        description=StringValue(value='e.g. "mongodb://user:pass@host:port/db?authSource=admin"'),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False,
+                        is_sensitive=True
+                    )
+                }
+            }
+        ]
+        self.connector_type_details = {
+            DISPLAY_NAME: "MONGODB",
+            CATEGORY: DATABASES,
+        }
     def get_connector_processor(self, mongodb_connector, **kwargs):
         generated_credentials = generate_credentials_dict(mongodb_connector.type, mongodb_connector.keys)
         return MongoDBProcessor(**generated_credentials)
