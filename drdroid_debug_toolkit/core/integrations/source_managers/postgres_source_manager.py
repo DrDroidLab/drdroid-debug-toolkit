@@ -10,7 +10,7 @@ from core.protos.literal_pb2 import LiteralType, Literal
 from core.protos.playbooks.playbook_commons_pb2 import PlaybookTaskResult, TableResult, PlaybookTaskResultType
 from core.protos.playbooks.source_task_definitions.sql_data_fetch_task_pb2 import SqlDataFetch
 from core.protos.ui_definition_pb2 import FormField, FormFieldType
-from core.utils.credentilal_utils import generate_credentials_dict
+from core.utils.credentilal_utils import generate_credentials_dict, get_connector_key_type_string, DISPLAY_NAME, CATEGORY, DATABASES
 
 
 class TimeoutException(Exception):
@@ -25,7 +25,7 @@ class PostgresSourceManager(SourceManager):
         self.task_type_callable_map = {
             SqlDataFetch.TaskType.SQL_QUERY: {
                 'executor': self.execute_sql_query,
-                'model_types': [SourceModelType.POSTGRES_QUERY],
+                'model_types': [SourceModelType.POSTGRES_TABLE],
                 'result_type': PlaybookTaskResultType.TABLE,
                 'display_name': 'Query a Postgres Database',
                 'category': 'Database',
@@ -47,6 +47,66 @@ class PostgresSourceManager(SourceManager):
                               form_field_type=FormFieldType.TEXT_FT)
                 ]
             },
+        }
+
+        self.connector_form_configs = [
+            {
+                "name": StringValue(value="PostgreSQL Connection"),
+                "description": StringValue(value="Connect to your PostgreSQL database using Host, User, Password, Port, and Database Name."),
+                "form_fields": {
+                    SourceKeyType.POSTGRES_HOST: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.POSTGRES_HOST)),
+                        display_name=StringValue(value="Host"),
+                        helper_text=StringValue(value="Enter the PostgreSQL host"),
+                        description=StringValue(value='e.g. "localhost" or "192.168.1.100"'),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False
+                    ),
+                    SourceKeyType.POSTGRES_USER: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.POSTGRES_USER)),
+                        display_name=StringValue(value="DB User"),
+                        helper_text=StringValue(value="Enter the username for PostgreSQL connection."),
+                        description=StringValue(value='e.g. "admin" or "user"'),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False
+                    ),
+                    SourceKeyType.POSTGRES_PASSWORD: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.POSTGRES_PASSWORD)),
+                        display_name=StringValue(value="Password"),
+                        helper_text=StringValue(value="Enter the password for the PostgreSQL user."),
+                        description=StringValue(value='e.g. "password" or "1234567890"'),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False,
+                        is_sensitive=True
+                    ),
+                    SourceKeyType.POSTGRES_PORT: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.POSTGRES_PORT)),
+                        display_name=StringValue(value="Port"),
+                        helper_text=StringValue(value="Enter the port number for PostgreSQL"),
+                        description=StringValue(value='e.g. "5432"'),
+                        data_type=LiteralType.LONG,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False,
+                        default_value=Literal(type=LiteralType.LONG, long=Int64Value(value=5432))
+                    ),
+                    SourceKeyType.POSTGRES_DATABASE: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.POSTGRES_DATABASE)),
+                        display_name=StringValue(value="Database"),
+                        helper_text=StringValue(value="Enter the name of the PostgreSQL database to connect to."),
+                        description=StringValue(value='e.g. "postgres" or "my_database"'),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False
+                    )
+                }
+            }
+        ]
+        self.connector_type_details = {
+            DISPLAY_NAME: "POSTGRES",
+            CATEGORY: DATABASES,
         }
 
     def get_connector_processor(self, pg_connector, **kwargs):
