@@ -1,18 +1,18 @@
 import json
 from datetime import datetime, timedelta
 import pytz
-from google.protobuf.wrappers_pb2 import StringValue, UInt64Value, Int64Value, DoubleValue
+from google.protobuf.wrappers_pb2 import StringValue, UInt64Value, Int64Value, DoubleValue, BoolValue
 
 from core.integrations.source_api_processors.elastic_search_api_processor import ElasticSearchApiProcessor
 from core.integrations.source_manager import SourceManager
-from core.protos.base_pb2 import Source, TimeRange, SourceModelType
+from core.protos.base_pb2 import Source, TimeRange, SourceModelType, SourceKeyType
 from core.protos.connectors.connector_pb2 import Connector as ConnectorProto
 from core.protos.literal_pb2 import LiteralType, Literal
 from core.protos.playbooks.playbook_commons_pb2 import PlaybookTaskResult, TableResult, PlaybookTaskResultType, TextResult, \
     TimeseriesResult, LabelValuePair
 from core.protos.playbooks.source_task_definitions.elastic_search_task_pb2 import ElasticSearch as ElasticSearchProto
 from core.protos.ui_definition_pb2 import FormField, FormFieldType
-from core.utils.credentilal_utils import generate_credentials_dict
+from core.utils.credentilal_utils import generate_credentials_dict, get_connector_key_type_string, DISPLAY_NAME, CATEGORY, DATABASES
 
 ACCOUNT_INDEX_MAPPING = {
     17: "apm-*"
@@ -138,7 +138,368 @@ class ElasticSearchSourceManager(SourceManager):
                               form_field_type=FormFieldType.TEXT_FT),
                 ]
             },
+            ElasticSearchProto.TaskType.GET_METRIC_FOR_APPLICATION_TRANSACTIONS: {
+                'executor': self.execute_get_metric_for_application_transactions,
+                'model_types': [SourceModelType.ELASTIC_SEARCH_SERVICES],
+                'result_type': PlaybookTaskResultType.TIMESERIES,
+                'display_name': 'Get Elasticsearch Metrics for Application Transactions',
+                'category': 'APM',
+                'form_fields': [
+                    FormField(key_name=StringValue(value="service_name"),
+                              display_name=StringValue(value="Service Name"),
+                              description=StringValue(value="Enter Service Name"),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT),
+                    FormField(key_name=StringValue(value="interval"),
+                              display_name=StringValue(value="Interval (Ex. 5m, 1h, 1d)"),
+                              description=StringValue(value="Enter Interval"),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT),
+                ]
+            },
+            ElasticSearchProto.TaskType.GET_TRANSACTION_NAMES_BY_SERVICE: {
+                'executor': self.execute_get_transaction_names_by_service,
+                'model_types': [SourceModelType.ELASTIC_SEARCH_SERVICES],
+                'result_type': PlaybookTaskResultType.LOGS,
+                'display_name': 'Get Transaction Names for a Service',
+                'category': 'APM',
+                'form_fields': [
+                    FormField(key_name=StringValue(value="service_name"),
+                              display_name=StringValue(value="Service Name"),
+                              description=StringValue(value="Enter Service Name"),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT),
+                ]
+            },
+            ElasticSearchProto.TaskType.GET_TRACES_FOR_SERVICE: {
+                'executor': self.execute_get_traces_for_service,
+                'model_types': [SourceModelType.ELASTIC_SEARCH_SERVICES],
+                'result_type': PlaybookTaskResultType.LOGS,
+                'display_name': 'Get Traces for a Service',
+                'category': 'APM',
+                'form_fields': [
+                    FormField(key_name=StringValue(value="service_name"),
+                              display_name=StringValue(value="Service Name"),
+                              description=StringValue(value="Enter Service Name"),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT),
+                    FormField(key_name=StringValue(value="max_count"),
+                              display_name=StringValue(value="Max Count"),
+                              description=StringValue(value="Maximum number of traces to return"),
+                              data_type=LiteralType.LONG,
+                              default_value=Literal(type=LiteralType.LONG, long=Int64Value(value=100)),
+                              form_field_type=FormFieldType.TEXT_FT),
+                    FormField(key_name=StringValue(value="transaction_name"),
+                              display_name=StringValue(value="Transaction Name (Optional)"),
+                              description=StringValue(value="Filter by specific transaction name"),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT,
+                              is_optional=True),
+                    FormField(key_name=StringValue(value="error_only"),
+                              display_name=StringValue(value="Error Only"),
+                              description=StringValue(value="Show only error traces"),
+                              data_type=LiteralType.BOOLEAN,
+                              default_value=Literal(type=LiteralType.BOOLEAN, boolean=BoolValue(value=False)),
+                              form_field_type=FormFieldType.CHECKBOX_FT,
+                              is_optional=True),
+                    FormField(key_name=StringValue(value="sort_by"),
+                              display_name=StringValue(value="Sort By"),
+                              description=StringValue(value="Field to sort by (e.g., @timestamp)"),
+                              data_type=LiteralType.STRING,
+                              default_value=Literal(type=LiteralType.STRING,
+                                                    string=StringValue(value="@timestamp")),
+                              form_field_type=FormFieldType.TEXT_FT,
+                              is_optional=True),
+                    FormField(key_name=StringValue(value="sort_order"),
+                              display_name=StringValue(value="Sort Order"),
+                              description=StringValue(value="Sort order: desc or asc"),
+                              data_type=LiteralType.STRING,
+                              default_value=Literal(type=LiteralType.STRING, string=StringValue(value="desc")),
+                              form_field_type=FormFieldType.DROPDOWN_FT,
+                              valid_values=[Literal(type=LiteralType.STRING, string=StringValue(value='desc')),
+                                            Literal(type=LiteralType.STRING, string=StringValue(value='asc'))],
+                              is_optional=True),
+                ]
+            },
+            ElasticSearchProto.TaskType.GET_TRACES_FOR_TRANSACTION: {
+                'executor': self.execute_get_traces_for_transaction,
+                'model_types': [SourceModelType.ELASTIC_SEARCH_SERVICES],
+                'result_type': PlaybookTaskResultType.LOGS,
+                'display_name': 'Get Traces for a Transaction',
+                'category': 'APM',
+                'form_fields': [
+                    FormField(key_name=StringValue(value="transaction_name"),
+                              display_name=StringValue(value="Transaction Name"),
+                              description=StringValue(value="Enter Transaction Name"),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT),
+                    FormField(key_name=StringValue(value="max_count"),
+                              display_name=StringValue(value="Max Count"),
+                              description=StringValue(value="Maximum number of traces to return"),
+                              data_type=LiteralType.LONG,
+                              default_value=Literal(type=LiteralType.LONG, long=Int64Value(value=100)),
+                              form_field_type=FormFieldType.TEXT_FT),
+                    FormField(key_name=StringValue(value="service_name"),
+                              display_name=StringValue(value="Service Name (Optional)"),
+                              description=StringValue(value="Filter by specific service name"),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT,
+                              is_optional=True),
+                    FormField(key_name=StringValue(value="error_only"),
+                              display_name=StringValue(value="Error Only"),
+                              description=StringValue(value="Show only error traces"),
+                              data_type=LiteralType.BOOLEAN,
+                              default_value=Literal(type=LiteralType.BOOLEAN, boolean=BoolValue(value=False)),
+                              form_field_type=FormFieldType.CHECKBOX_FT,
+                              is_optional=True),
+                    FormField(key_name=StringValue(value="sort_by"),
+                              display_name=StringValue(value="Sort By"),
+                              description=StringValue(value="Field to sort by (e.g., @timestamp)"),
+                              data_type=LiteralType.STRING,
+                              default_value=Literal(type=LiteralType.STRING,
+                                                    string=StringValue(value="@timestamp")),
+                              form_field_type=FormFieldType.TEXT_FT,
+                              is_optional=True),
+                    FormField(key_name=StringValue(value="sort_order"),
+                              display_name=StringValue(value="Sort Order"),
+                              description=StringValue(value="Sort order: desc or asc"),
+                              data_type=LiteralType.STRING,
+                              default_value=Literal(type=LiteralType.STRING, string=StringValue(value="desc")),
+                              form_field_type=FormFieldType.DROPDOWN_FT,
+                              valid_values=[Literal(type=LiteralType.STRING, string=StringValue(value='desc')),
+                                            Literal(type=LiteralType.STRING, string=StringValue(value='asc'))],
+                              is_optional=True),
+                ]
+            },
         }
+        self.connector_form_configs = [
+            {
+                "name": StringValue(value="Elasticsearch API Key Authentication (Full)"),
+                "description": StringValue(
+                    value="Connect to Elasticsearch using Protocol, Host, Port, API Key ID, API Key, and SSL verification settings."),
+                "form_fields": {
+                    SourceKeyType.ELASTIC_SEARCH_PROTOCOL: FormField(
+                        key_name=StringValue(
+                            value=get_connector_key_type_string(SourceKeyType.ELASTIC_SEARCH_PROTOCOL)),
+                        display_name=StringValue(value="Protocol"),
+                        description=StringValue(
+                            value='e.g. "https" for secure connection, "http" for local/development'),
+                        helper_text=StringValue(value="Select the protocol to connect to your Elasticsearch cluster"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.DROPDOWN_FT,
+                        valid_values=[Literal(type=LiteralType.STRING, string=StringValue(value='http')),
+                                      Literal(type=LiteralType.STRING, string=StringValue(value='https'))],
+                        default_value=Literal(type=LiteralType.STRING, string=StringValue(value='https')),
+                        is_optional=False
+                    ),
+                    SourceKeyType.ELASTIC_SEARCH_HOST: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.ELASTIC_SEARCH_HOST)),
+                        display_name=StringValue(value="Host"),
+                        description=StringValue(value='e.g. "localhost", "es.example.com", "192.168.1.100"'),
+                        helper_text=StringValue(value="Enter your Elasticsearch host address or domain name"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False
+                    ),
+                    SourceKeyType.ELASTIC_SEARCH_PORT: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.ELASTIC_SEARCH_PORT)),
+                        display_name=StringValue(value="Port"),
+                        description=StringValue(value='e.g. 9200 (default), 9243 (cloud), 443 (HTTPS)'),
+                        helper_text=StringValue(value="Enter your Elasticsearch port number (defaults to 9200)"),
+                        data_type=LiteralType.LONG,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        default_value=Literal(type=LiteralType.LONG, long=Int64Value(value=9200)),
+                        is_optional=True
+                    ),
+                    SourceKeyType.ELASTIC_SEARCH_API_KEY_ID: FormField(
+                        key_name=StringValue(
+                            value=get_connector_key_type_string(SourceKeyType.ELASTIC_SEARCH_API_KEY_ID)),
+                        display_name=StringValue(value="API Key ID"),
+                        description=StringValue(value='e.g. "VuaCfGcBCdbkQm-e5aOx"'),
+                        helper_text=StringValue(value="Enter your Elasticsearch API Key ID from Security > API Keys"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False
+                    ),
+                    SourceKeyType.ELASTIC_SEARCH_API_KEY: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.ELASTIC_SEARCH_API_KEY)),
+                        display_name=StringValue(value="API Key"),
+                        description=StringValue(value='e.g. "dWMjNGVHhCQ0NtLWU1YU94OlZLUmpmR2NCQ2Ria1FtLWU1YU94"'),
+                        helper_text=StringValue(value="Enter your Elasticsearch API Key from Security > API Keys"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False,
+                        is_sensitive=True
+                    ),
+                    SourceKeyType.SSL_VERIFY: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.SSL_VERIFY)),
+                        display_name=StringValue(value="SSL Verify"),
+                        description=StringValue(
+                            value='Enable for production environments, disable for self-signed certificates'),
+                        helper_text=StringValue(
+                            value="Toggle SSL certificate verification (recommended to keep enabled)"),
+                        data_type=LiteralType.BOOLEAN,
+                        form_field_type=FormFieldType.CHECKBOX_FT,
+                        default_value=Literal(type=LiteralType.BOOLEAN, boolean=BoolValue(value=True)),
+                        is_optional=True
+                    )
+                }
+            },
+            {
+                "name": StringValue(value="Elasticsearch API Key Authentication (No Port/SSL)"),
+                "description": StringValue(
+                    value="Connect to Elasticsearch using Protocol, Host, API Key ID, and API Key."),
+                "form_fields": {
+                    SourceKeyType.ELASTIC_SEARCH_PROTOCOL: FormField(
+                        key_name=StringValue(
+                            value=get_connector_key_type_string(SourceKeyType.ELASTIC_SEARCH_PROTOCOL)),
+                        display_name=StringValue(value="Protocol"),
+                        description=StringValue(
+                            value='e.g. "https" for secure connection, "http" for local/development'),
+                        helper_text=StringValue(value="Select the protocol to connect to your Elasticsearch cluster"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.DROPDOWN_FT,
+                        valid_values=[Literal(type=LiteralType.STRING, string=StringValue(value='http')),
+                                      Literal(type=LiteralType.STRING, string=StringValue(value='https'))],
+                        default_value=Literal(type=LiteralType.STRING, string=StringValue(value='https')),
+                        is_optional=False
+                    ),
+                    SourceKeyType.ELASTIC_SEARCH_HOST: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.ELASTIC_SEARCH_HOST)),
+                        display_name=StringValue(value="Host"),
+                        description=StringValue(value='e.g. "localhost", "es.example.com", "192.168.1.100"'),
+                        helper_text=StringValue(value="Enter your Elasticsearch host address or domain name"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False
+                    ),
+                    SourceKeyType.ELASTIC_SEARCH_API_KEY_ID: FormField(
+                        key_name=StringValue(
+                            value=get_connector_key_type_string(SourceKeyType.ELASTIC_SEARCH_API_KEY_ID)),
+                        display_name=StringValue(value="API Key ID"),
+                        description=StringValue(value='e.g. "VuaCfGcBCdbkQm-e5aOx"'),
+                        helper_text=StringValue(value="Enter your Elasticsearch API Key ID from Security > API Keys"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False
+                    ),
+                    SourceKeyType.ELASTIC_SEARCH_API_KEY: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.ELASTIC_SEARCH_API_KEY)),
+                        display_name=StringValue(value="API Key"),
+                        description=StringValue(value='e.g. "dWMjNGVHhCQ0NtLWU1YU94OlZLUmpmR2NCQ2Ria1FtLWU1YU94"'),
+                        helper_text=StringValue(value="Enter your Elasticsearch API Key from Security > API Keys"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False,
+                        is_sensitive=True
+                    )
+                }
+            },
+            {
+                "name": StringValue(value="Elasticsearch Host Only (Assumes defaults for other fields)"),
+                "description": StringValue(
+                    value="Connect to Elasticsearch using only the Host. Protocol defaults to https, port to 9200. API keys must be configured server-side or not required."),
+                "form_fields": {
+                    SourceKeyType.ELASTIC_SEARCH_HOST: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.ELASTIC_SEARCH_HOST)),
+                        display_name=StringValue(value="Host"),
+                        description=StringValue(value='e.g. "localhost", "es.example.com", "192.168.1.100"'),
+                        helper_text=StringValue(value="Enter your Elasticsearch host address or domain name"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False
+                    )
+                }
+            },
+            {
+                "name": StringValue(value="Elasticsearch API Key Authentication (Kibana Host Included)"),
+                "description": StringValue(
+                    value="Connect to Elasticsearch using Protocol, Host, Port, API Key ID, API Key, and SSL verification settings."),
+                "form_fields": {
+                    SourceKeyType.ELASTIC_SEARCH_PROTOCOL: FormField(
+                        key_name=StringValue(
+                            value=get_connector_key_type_string(SourceKeyType.ELASTIC_SEARCH_PROTOCOL)),
+                        display_name=StringValue(value="Protocol"),
+                        description=StringValue(
+                            value='e.g. "https" for secure connection, "http" for local/development'),
+                        helper_text=StringValue(value="Select the protocol to connect to your Elasticsearch cluster"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.DROPDOWN_FT,
+                        valid_values=[Literal(type=LiteralType.STRING, string=StringValue(value='http')),
+                                      Literal(type=LiteralType.STRING, string=StringValue(value='https'))],
+                        default_value=Literal(type=LiteralType.STRING, string=StringValue(value='https')),
+                        is_optional=False
+                    ),
+                    SourceKeyType.ELASTIC_SEARCH_HOST: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.ELASTIC_SEARCH_HOST)),
+                        display_name=StringValue(value="Host"),
+                        description=StringValue(value='e.g. "localhost", "es.example.com", "192.168.1.100"'),
+                        helper_text=StringValue(value="Enter your Elasticsearch host address or domain name"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False
+                    ),
+                    SourceKeyType.KIBANA_HOST: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.KIBANA_HOST)),
+                        display_name=StringValue(value="Kibana Host"),
+                        description=StringValue(value='e.g. "localhost", "es.example.com", "192.168.1.100"'),
+                        helper_text=StringValue(value="Enter your Kibana host address or domain name"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False
+                    ),
+                    SourceKeyType.ELASTIC_SEARCH_PORT: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.ELASTIC_SEARCH_PORT)),
+                        display_name=StringValue(value="Port"),
+                        description=StringValue(value='e.g. 9200 (default), 9243 (cloud), 443 (HTTPS)'),
+                        helper_text=StringValue(value="Enter your Elasticsearch port number (defaults to 9200)"),
+                        data_type=LiteralType.LONG,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        default_value=Literal(type=LiteralType.LONG, long=Int64Value(value=9200)),
+                        is_optional=True
+                    ),
+                    SourceKeyType.ELASTIC_SEARCH_API_KEY_ID: FormField(
+                        key_name=StringValue(
+                            value=get_connector_key_type_string(SourceKeyType.ELASTIC_SEARCH_API_KEY_ID)),
+                        display_name=StringValue(value="API Key ID"),
+                        description=StringValue(value='e.g. "VuaCfGcBCdbkQm-e5aOx"'),
+                        helper_text=StringValue(value="Enter your Elasticsearch API Key ID from Security > API Keys"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False
+                    ),
+                    SourceKeyType.ELASTIC_SEARCH_API_KEY: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.ELASTIC_SEARCH_API_KEY)),
+                        display_name=StringValue(value="API Key"),
+                        description=StringValue(value='e.g. "dWMjNGVHhCQ0NtLWU1YU94OlZLUmpmR2NCQ2Ria1FtLWU1YU94"'),
+                        helper_text=StringValue(value="Enter your Elasticsearch API Key from Security > API Keys"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False,
+                        is_sensitive=True
+                    ),
+                    SourceKeyType.SSL_VERIFY: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.SSL_VERIFY)),
+                        display_name=StringValue(value="SSL Verify"),
+                        description=StringValue(
+                            value='Enable for production environments, disable for self-signed certificates'),
+                        helper_text=StringValue(
+                            value="Toggle SSL certificate verification (recommended to keep enabled)"),
+                        data_type=LiteralType.BOOLEAN,
+                        form_field_type=FormFieldType.CHECKBOX_FT,
+                        default_value=Literal(type=LiteralType.BOOLEAN, boolean=BoolValue(value=True)),
+                        is_optional=True
+                    )
+                }
+            },
+        ]
+        self.connector_type_details = {
+            DISPLAY_NAME: "ELASTIC SEARCH",
+            CATEGORY: DATABASES,
+        }
+
+    def _get_account_index(self, account_id: int) -> str:
+        return ACCOUNT_INDEX_MAPPING.get(account_id, "traces-apm-*")
 
     def get_connector_processor(self, es_connector, **kwargs):
         generated_credentials = generate_credentials_dict(es_connector.type, es_connector.keys)
@@ -213,12 +574,24 @@ class ElasticSearchSourceManager(SourceManager):
 
             result = es_client.query(index, query)
             if 'hits' not in result or not result['hits']['hits']:
-                raise Exception(f"No data found for the query: {lucene_query}")
+                # Check if the result structure indicates an empty response (which could be from a missing index)
+                if result.get('hits', {}).get('total', {}).get('value') == 0 and not result.get('hits', {}).get('hits'):
+                    # This could be a missing index scenario handled gracefully by the API processor
+                    return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT, text=TextResult(output=StringValue(
+                        value=f"Index '{index}' not found or no data returned from Elasticsearch for query: {lucene_query}. "
+                              f"This could indicate that the index doesn't exist or contains no matching documents.")),
+                                              source=self.source)
+                else:
+                    return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT, text=TextResult(output=StringValue(
+                        value=f"No data returned from Elastic Search for query: {lucene_query} on index: {index}")),
+                                              source=self.source)
 
             hits = result['hits']['hits']
             count_result = len(hits)
             if count_result == 0:
-                raise Exception(f"No data found for the query: {query}")
+                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT, text=TextResult(output=StringValue(
+                    value=f"No data returned from Elasticsearch for query: {lucene_query} on index: {index}")),
+                                          source=self.source)
 
             table_rows: [TableResult.TableRow] = []
             for hit in hits:
@@ -247,77 +620,78 @@ class ElasticSearchSourceManager(SourceManager):
             raise Exception(f"Error while executing ElasticSearch task: {e}")
 
     def execute_check_cluster_health(self, time_range: TimeRange, es_task: ElasticSearchProto,
-                                   es_connector: ConnectorProto):
+                                     es_connector: ConnectorProto):
         try:
             if not es_connector:
                 raise Exception("Task execution Failed:: No ElasticSearch source found")
 
             es_client = self.get_connector_processor(es_connector)
             result = es_client.get_cluster_health()
-            
+
             # Extract the key metrics we want to check
             status = result.get('status', 'unknown')
             pending_tasks = result.get('number_of_pending_tasks', 0)
             active_shards_percent = result.get('active_shards_percent_as_number', 0)
-            
+
             # Evaluate the health status
             health_issues = []
             if status == 'red':
                 health_issues.append("⚠️ Cluster status is RED - some data is unavailable")
             elif status == 'yellow':
-                health_issues.append("⚠️ Cluster status is YELLOW - all data is available but some replicas are not allocated")
-                
+                health_issues.append(
+                    "⚠️ Cluster status is YELLOW - all data is available but some replicas are not allocated")
+
             if pending_tasks > 10:  # Threshold can be adjusted
                 health_issues.append(f"⚠️ High number of pending tasks: {pending_tasks}")
-                
+
             if active_shards_percent < 90:  # Threshold can be adjusted
                 health_issues.append(f"⚠️ Low active shards percentage: {active_shards_percent}%")
-            
+
             # Format the output
             output = f"## Elasticsearch Cluster Health\n\n"
             output += f"- **Status**: {status} {'✅' if status == 'green' else '⚠️'}\n"
             output += f"- **Number of Pending Tasks**: {pending_tasks} {'✅' if pending_tasks <= 10 else '⚠️'}\n"
             output += f"- **Active Shards Percent**: {active_shards_percent}% {'✅' if active_shards_percent >= 90 else '⚠️'}\n\n"
-            
+
             if health_issues:
                 output += "### Issues Detected:\n\n"
                 for issue in health_issues:
                     output += f"- {issue}\n"
             else:
                 output += "### No issues detected. Cluster is healthy! ✅\n"
-            
+
             # Include the full health data for reference
             output += "\n### Full Cluster Health Data:\n\n```json\n"
             output += json.dumps(result, indent=2)
             output += "\n```"
-            
+
             return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT, 
+                type=PlaybookTaskResultType.TEXT,
                 text=TextResult(output=StringValue(value=output)),
                 source=self.source
             )
         except Exception as e:
             raise Exception(f"Error while checking ElasticSearch cluster health: {e}")
-            
+
     def execute_node_stats(self, time_range: TimeRange, es_task: ElasticSearchProto,
-                          es_connector: ConnectorProto):
+                           es_connector: ConnectorProto):
         try:
             if not es_connector:
                 raise Exception("Task execution Failed:: No ElasticSearch source found")
 
             es_client = self.get_connector_processor(es_connector)
             result = es_client.get_nodes_stats()
-            
+
             # Format the output
             output = f"## Elasticsearch Node Stats\n\n"
-            
+
             # Include the full node stats data
             output += "### Full Node Stats Data:\n\n```json\n"
             output += json.dumps(result, indent=2)
             output += "\n```"
-            
+
             return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT, 
+                type=PlaybookTaskResultType.TEXT,
                 text=TextResult(output=StringValue(value=output)),
                 source=self.source
             )
@@ -325,20 +699,20 @@ class ElasticSearchSourceManager(SourceManager):
             raise Exception(f"Error while fetching ElasticSearch node stats: {e}")
 
     def execute_cat_indices(self, time_range: TimeRange, es_task: ElasticSearchProto,
-                           es_connector: ConnectorProto):
+                            es_connector: ConnectorProto):
         try:
             if not es_connector:
                 raise Exception("Task execution Failed:: No ElasticSearch source found")
 
             es_client = self.get_connector_processor(es_connector)
             result = es_client.get_cat_indices()
-            
+
             # Convert to table format
             table_rows = []
             if result and len(result) > 0:
                 # Get headers from first item
                 headers = list(result[0].keys())
-                
+
                 # Create rows
                 for item in result:
                     table_columns = []
@@ -349,7 +723,7 @@ class ElasticSearchSourceManager(SourceManager):
                         )
                         table_columns.append(table_column)
                     table_rows.append(TableResult.TableRow(columns=table_columns))
-                
+
                 table = TableResult(
                     raw_query=StringValue(value="GET /_cat/indices?v"),
                     total_count=UInt64Value(value=len(result)),
@@ -358,7 +732,7 @@ class ElasticSearchSourceManager(SourceManager):
                 return PlaybookTaskResult(type=PlaybookTaskResultType.LOGS, logs=table, source=self.source)
             else:
                 return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT, 
+                    type=PlaybookTaskResultType.TEXT,
                     text=TextResult(output=StringValue(value="No indices found")),
                     source=self.source
                 )
@@ -366,20 +740,20 @@ class ElasticSearchSourceManager(SourceManager):
             raise Exception(f"Error while fetching ElasticSearch cat indices: {e}")
 
     def execute_cat_thread_pool_search(self, time_range: TimeRange, es_task: ElasticSearchProto,
-                                      es_connector: ConnectorProto):
+                                       es_connector: ConnectorProto):
         try:
             if not es_connector:
                 raise Exception("Task execution Failed:: No ElasticSearch source found")
 
             es_client = self.get_connector_processor(es_connector)
             result = es_client.get_cat_thread_pool_search()
-            
+
             # Convert to table format
             table_rows = []
             if result and len(result) > 0:
                 # Get headers from first item
                 headers = list(result[0].keys())
-                
+
                 # Create rows
                 for item in result:
                     table_columns = []
@@ -390,7 +764,7 @@ class ElasticSearchSourceManager(SourceManager):
                         )
                         table_columns.append(table_column)
                     table_rows.append(TableResult.TableRow(columns=table_columns))
-                
+
                 table = TableResult(
                     raw_query=StringValue(value="GET /_cat/thread_pool/search?v"),
                     total_count=UInt64Value(value=len(result)),
@@ -399,7 +773,7 @@ class ElasticSearchSourceManager(SourceManager):
                 return PlaybookTaskResult(type=PlaybookTaskResultType.LOGS, logs=table, source=self.source)
             else:
                 return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT, 
+                    type=PlaybookTaskResultType.TEXT,
                     text=TextResult(output=StringValue(value="No thread pool search data found")),
                     source=self.source
                 )
@@ -414,7 +788,7 @@ class ElasticSearchSourceManager(SourceManager):
         return curr_val - prev_val if curr_val >= prev_val else curr_val  # handle resets
 
     def execute_monitoring_cluster_stats(self, time_range: TimeRange, es_task: ElasticSearchProto,
-                                       es_connector: ConnectorProto) -> PlaybookTaskResult:
+                                         es_connector: ConnectorProto):
         try:
             if not es_connector:
                 raise Exception("Task execution Failed:: No ElasticSearch source found")
@@ -442,7 +816,7 @@ class ElasticSearchSourceManager(SourceManager):
                 )
 
             for i in range(1, len(buckets)):
-                
+
                 curr = buckets[i]
                 prev = buckets[i - 1]
                 ts = curr["key"]
@@ -461,9 +835,9 @@ class ElasticSearchSourceManager(SourceManager):
                                 value=DoubleValue(value=search_rate_val)
                             )
                         )
-                
+
                 # Compute deltas
-                dq_sum = self.safe_delta( curr, prev, "query_total_sum")
+                dq_sum = self.safe_delta(curr, prev, "query_total_sum")
                 dqt = self.safe_delta(curr, prev, "query_time_sum")
 
                 # Search Latency = total time / total queries in the interval (ms)
@@ -475,7 +849,7 @@ class ElasticSearchSourceManager(SourceManager):
                             value=DoubleValue(value=search_latency)
                         )
                     )
-                
+
                 # Indexing Rate Total- derived directly from Elasticsearch via derivative agg
                 if get_val("indexing_rate") is not None:
                     indexing_rate_val = float(get_val("indexing_rate")) / 30.0
@@ -486,7 +860,7 @@ class ElasticSearchSourceManager(SourceManager):
                                 value=DoubleValue(value=indexing_rate_val)
                             )
                         )
-                
+
                 # Indexing Rate Total- derived directly from Elasticsearch via derivative agg
                 if get_val("indexing_rate_primary") is not None:
                     indexing_rate_val = float(get_val("indexing_rate_primary")) / 30.0
@@ -518,7 +892,8 @@ class ElasticSearchSourceManager(SourceManager):
                     labeled_metric_timeseries_list.append(
                         TimeseriesResult.LabeledMetricTimeseries(
                             metric_label_values=[
-                                LabelValuePair(name=StringValue(value='metric'), value=StringValue(value='Total Shards'))
+                                LabelValuePair(name=StringValue(value='metric'),
+                                               value=StringValue(value='Total Shards'))
                             ],
                             unit=StringValue(value='count/s'),
                             datapoints=search_rate_datapoints
@@ -531,7 +906,8 @@ class ElasticSearchSourceManager(SourceManager):
                     labeled_metric_timeseries_list.append(
                         TimeseriesResult.LabeledMetricTimeseries(
                             metric_label_values=[
-                                LabelValuePair(name=StringValue(value='metric'), value=StringValue(value='Total Shards'))
+                                LabelValuePair(name=StringValue(value='metric'),
+                                               value=StringValue(value='Total Shards'))
                             ],
                             unit=StringValue(value='ms'),
                             datapoints=search_latency_datapoints
@@ -545,20 +921,22 @@ class ElasticSearchSourceManager(SourceManager):
                     labeled_metric_timeseries_list.append(
                         TimeseriesResult.LabeledMetricTimeseries(
                             metric_label_values=[
-                                LabelValuePair(name=StringValue(value='metric'), value=StringValue(value='Total Shards'))
+                                LabelValuePair(name=StringValue(value='metric'),
+                                               value=StringValue(value='Total Shards'))
                             ],
                             unit=StringValue(value='count/s'),
                             datapoints=indexing_rate_datapoints
                         )
                     )
-                
+
                 # Add Primary Shards metric
                 indexing_rate_primary_datapoints.sort(key=lambda x: x.timestamp)
                 if indexing_rate_primary_datapoints:
                     labeled_metric_timeseries_list.append(
                         TimeseriesResult.LabeledMetricTimeseries(
                             metric_label_values=[
-                                LabelValuePair(name=StringValue(value='metric'), value=StringValue(value='Primary Shards'))
+                                LabelValuePair(name=StringValue(value='metric'),
+                                               value=StringValue(value='Primary Shards'))
                             ],
                             unit=StringValue(value='count/s'),
                             datapoints=indexing_rate_primary_datapoints
@@ -571,7 +949,8 @@ class ElasticSearchSourceManager(SourceManager):
                     labeled_metric_timeseries_list.append(
                         TimeseriesResult.LabeledMetricTimeseries(
                             metric_label_values=[
-                                LabelValuePair(name=StringValue(value='metric'), value=StringValue(value='Primary Shards'))
+                                LabelValuePair(name=StringValue(value='metric'),
+                                               value=StringValue(value='Primary Shards'))
                             ],
                             unit=StringValue(value='ms'),
                             datapoints=indexing_latency_datapoints
@@ -596,10 +975,10 @@ class ElasticSearchSourceManager(SourceManager):
 
         except Exception as e:
             raise Exception(f"Error while fetching ElasticSearch monitoring cluster stats: {e}")
-        
+
     ######################################################## APM TASKS ########################################################
     def execute_get_metric_for_service(self, time_range: TimeRange, es_task: ElasticSearchProto,
-                                      es_connector: ConnectorProto):
+                                       es_connector: ConnectorProto):
         try:
             if not es_connector:
                 raise Exception("Task execution Failed:: No ElasticSearch source found")
@@ -613,8 +992,8 @@ class ElasticSearchSourceManager(SourceManager):
             es_client = self.get_connector_processor(es_connector)
 
             # Convert time range to datetime objects
-            start_time = datetime.fromtimestamp(time_range.time_geq, tz=pytz.UTC)
-            end_time = datetime.fromtimestamp(time_range.time_lt, tz=pytz.UTC)
+            start_time = datetime.datetime.fromtimestamp(time_range.time_geq, tz=pytz.UTC)
+            end_time = datetime.datetime.fromtimestamp(time_range.time_lt, tz=pytz.UTC)
 
             # Get metrics from Elasticsearch
             metrics_data = es_client.get_time_series_metrics(
@@ -622,7 +1001,8 @@ class ElasticSearchSourceManager(SourceManager):
                 time_window="1h",  # This will be ignored since we're providing start/end times
                 start_time=start_time,
                 end_time=end_time,
-                interval=interval
+                interval=interval,
+                indices=[self._get_account_index(es_connector.account_id.value)]
             )
 
             if not metrics_data:
@@ -636,7 +1016,8 @@ class ElasticSearchSourceManager(SourceManager):
             # Process throughput metrics
             throughput_datapoints = []
             for metric in metrics_data:
-                timestamp = int(datetime.strptime(metric['timestamp'], "%Y-%m-%dT%H:%M:%S.%fZ").timestamp()) * 1000 # Convert to milliseconds, else frontend won't render properly
+                timestamp = int(datetime.datetime.strptime(metric['timestamp'],
+                                                           "%Y-%m-%dT%H:%M:%S.%fZ").timestamp()) * 1000  # Convert to milliseconds, else frontend won't render properly
                 throughput_datapoints.append(
                     TimeseriesResult.LabeledMetricTimeseries.Datapoint(
                         timestamp=timestamp,
@@ -667,7 +1048,8 @@ class ElasticSearchSourceManager(SourceManager):
             # Process error rate metrics
             error_rate_datapoints = []
             for metric in metrics_data:
-                timestamp = int(datetime.strptime(metric['timestamp'], "%Y-%m-%dT%H:%M:%S.%fZ").timestamp()) * 1000 # Convert to milliseconds, else frontend won't render properly
+                timestamp = int(datetime.datetime.strptime(metric['timestamp'],
+                                                           "%Y-%m-%dT%H:%M:%S.%fZ").timestamp()) * 1000  # Convert to milliseconds, else frontend won't render properly
                 error_rate_datapoints.append(
                     TimeseriesResult.LabeledMetricTimeseries.Datapoint(
                         timestamp=timestamp,
@@ -698,7 +1080,8 @@ class ElasticSearchSourceManager(SourceManager):
             # Process latency P95 metrics
             latency_p95_datapoints = []
             for metric in metrics_data:
-                timestamp = int(datetime.strptime(metric['timestamp'], "%Y-%m-%dT%H:%M:%S.%fZ").timestamp()) * 1000 # Convert to milliseconds, else frontend won't render properly
+                timestamp = int(datetime.datetime.strptime(metric['timestamp'],
+                                                           "%Y-%m-%dT%H:%M:%S.%fZ").timestamp()) * 1000  # Convert to milliseconds, else frontend won't render properly
                 latency_p95_datapoints.append(
                     TimeseriesResult.LabeledMetricTimeseries.Datapoint(
                         timestamp=timestamp,
@@ -729,7 +1112,8 @@ class ElasticSearchSourceManager(SourceManager):
             # Process latency P99 metrics
             latency_p99_datapoints = []
             for metric in metrics_data:
-                timestamp = int(datetime.strptime(metric['timestamp'], "%Y-%m-%dT%H:%M:%S.%fZ").timestamp()) * 1000 # Convert to milliseconds, else frontend won't render properly
+                timestamp = int(
+                    datetime.datetime.strptime(metric['timestamp'], "%Y-%m-%dT%H:%M:%S.%fZ").timestamp()) * 1000
                 latency_p99_datapoints.append(
                     TimeseriesResult.LabeledMetricTimeseries.Datapoint(
                         timestamp=timestamp,
@@ -760,7 +1144,8 @@ class ElasticSearchSourceManager(SourceManager):
             # Process total requests metrics
             total_requests_datapoints = []
             for metric in metrics_data:
-                timestamp = int(datetime.strptime(metric['timestamp'], "%Y-%m-%dT%H:%M:%S.%fZ").timestamp()) * 1000 # Convert to milliseconds, else frontend won't render properly
+                timestamp = int(
+                    datetime.datetime.strptime(metric['timestamp'], "%Y-%m-%dT%H:%M:%S.%fZ").timestamp()) * 1000
                 total_requests_datapoints.append(
                     TimeseriesResult.LabeledMetricTimeseries.Datapoint(
                         timestamp=timestamp,
@@ -775,7 +1160,8 @@ class ElasticSearchSourceManager(SourceManager):
                     labeled_metric_timeseries=[
                         TimeseriesResult.LabeledMetricTimeseries(
                             metric_label_values=[
-                                LabelValuePair(name=StringValue(value='metric'), value=StringValue(value='Total Requests'))
+                                LabelValuePair(name=StringValue(value='metric'),
+                                               value=StringValue(value='Total Requests'))
                             ],
                             unit=StringValue(value='req'),
                             datapoints=total_requests_datapoints
@@ -794,7 +1180,7 @@ class ElasticSearchSourceManager(SourceManager):
             raise Exception(f"Error while fetching metrics for service {service_name}: {e}")
 
     def execute_get_dashboard(self, time_range: TimeRange, es_task: ElasticSearchProto,
-                           es_connector: ConnectorProto):
+                              es_connector: ConnectorProto):
         try:
             if not es_connector:
                 raise Exception("Task execution Failed:: No ElasticSearch source found")
@@ -808,16 +1194,20 @@ class ElasticSearchSourceManager(SourceManager):
 
             # Get dashboard data
             dashboard_data = es_client.get_dashboard_widget_data(dashboard_name, time_range)
+            # dump dashboard_data to a file
+            # with open('dashboard_data.json', 'w') as f:
+            #     json.dump(dashboard_data, f)
             if not dashboard_data or not dashboard_data[0].get('data'):
                 return [PlaybookTaskResult(
                     type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=f"No data returned from Elastic Search for dashboard: {dashboard_name}")),
+                    text=TextResult(output=StringValue(
+                        value=f"No data returned from Elastic Search for dashboard: {dashboard_name}")),
                     source=self.source
                 )]
 
             # Process each widget based on its type
             results = []
-            
+
             for widget in dashboard_data:
                 yaxis = widget.get('configuration', {}).get('yaxis', [])
                 y_label = yaxis[0]['label'] if yaxis and 'label' in yaxis[0] else 'Value'
@@ -846,7 +1236,8 @@ class ElasticSearchSourceManager(SourceManager):
                         filters = params.get('filters', [])
                         if filters:
                             query = filters[0].get('input', {}).get('query', '')
-                    series_to_plot.append((query, per_interval)) if query else series_to_plot.append(('all', per_interval))
+                    series_to_plot.append((query, per_interval)) if query else series_to_plot.append(
+                        ('all', per_interval))
 
                 for service_label, per_interval in series_to_plot:
                     datapoints = []
@@ -879,7 +1270,8 @@ class ElasticSearchSourceManager(SourceManager):
                     labeled_metric_timeseries.append(
                         TimeseriesResult.LabeledMetricTimeseries(
                             metric_label_values=[
-                                LabelValuePair(name=StringValue(value='service'), value=StringValue(value=service_label))
+                                LabelValuePair(name=StringValue(value='service'),
+                                               value=StringValue(value=service_label))
                             ],
                             unit=StringValue(value=self.get_unit(y_operation, y_field)),
                             datapoints=datapoints
@@ -914,3 +1306,511 @@ class ElasticSearchSourceManager(SourceManager):
         if y_operation == 'sum':
             return 'sum'
         return ''
+
+    def execute_get_metric_for_application_transactions(self, time_range: TimeRange, es_task: ElasticSearchProto,
+                                                        es_connector: ConnectorProto):
+        try:
+            if not es_connector:
+                raise Exception("Task execution Failed:: No ElasticSearch source found")
+
+            service_name = es_task.get_metric_for_application_transactions.service_name.value
+            interval = es_task.get_metric_for_application_transactions.interval.value
+
+            if not service_name:
+                raise Exception("Task execution Failed:: No service name provided")
+
+            es_client = self.get_connector_processor(es_connector)
+
+            # Convert time range to datetime objects
+            start_time = datetime.datetime.fromtimestamp(time_range.time_geq, tz=pytz.UTC)
+            end_time = datetime.datetime.fromtimestamp(time_range.time_lt, tz=pytz.UTC)
+
+            # Get transaction metrics from Elasticsearch
+            transaction_data = es_client.get_service_metrics_by_transaction(
+                service_name=service_name,
+                start_time=start_time,
+                end_time=end_time,
+                interval=interval,
+                index_pattern=self._get_account_index(es_connector.account_id.value)
+            )
+
+            if not transaction_data:
+                return [PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value=f"No transaction data found for service: {service_name}")),
+                    source=self.source)]
+
+            final_result = []
+
+            # Process each transaction type
+            for transaction_info in transaction_data:
+                transaction_name = transaction_info['transaction_name']
+                series = transaction_info['series']
+
+                # Process throughput metrics
+                throughput_datapoints = []
+                for data_point in series:
+                    timestamp = int(
+                        datetime.datetime.strptime(data_point['timestamp'], "%Y-%m-%dT%H:%M:%S.%fZ").timestamp()) * 1000
+                    throughput_datapoints.append(
+                        TimeseriesResult.LabeledMetricTimeseries.Datapoint(
+                            timestamp=timestamp,
+                            value=DoubleValue(value=data_point['throughput'])
+                        )
+                    )
+
+                if throughput_datapoints:
+                    throughput_timeseries = TimeseriesResult(
+                        metric_name=StringValue(value=f'Transaction Throughput - {transaction_name}'),
+                        metric_expression=StringValue(
+                            value=f'Throughput for transaction: {transaction_name} in service: {service_name}'),
+                        labeled_metric_timeseries=[
+                            TimeseriesResult.LabeledMetricTimeseries(
+                                metric_label_values=[
+                                    LabelValuePair(name=StringValue(value='transaction'),
+                                                   value=StringValue(value=transaction_name))
+                                ],
+                                unit=StringValue(value='tps'),
+                                datapoints=throughput_datapoints
+                            )
+                        ]
+                    )
+                    final_result.append(PlaybookTaskResult(
+                        type=PlaybookTaskResultType.TIMESERIES,
+                        source=self.source,
+                        timeseries=throughput_timeseries
+                    ))
+
+                # Process error rate metrics
+                error_rate_datapoints = []
+                for data_point in series:
+                    timestamp = int(
+                        datetime.datetime.strptime(data_point['timestamp'], "%Y-%m-%dT%H:%M:%S.%fZ").timestamp()) * 1000
+                    error_rate_datapoints.append(
+                        TimeseriesResult.LabeledMetricTimeseries.Datapoint(
+                            timestamp=timestamp,
+                            value=DoubleValue(value=data_point['error_rate'])
+                        )
+                    )
+
+                if error_rate_datapoints:
+                    error_rate_timeseries = TimeseriesResult(
+                        metric_name=StringValue(value=f'Transaction Error Rate - {transaction_name}'),
+                        metric_expression=StringValue(
+                            value=f'Error rate for transaction: {transaction_name} in service: {service_name}'),
+                        labeled_metric_timeseries=[
+                            TimeseriesResult.LabeledMetricTimeseries(
+                                metric_label_values=[
+                                    LabelValuePair(name=StringValue(value='transaction'),
+                                                   value=StringValue(value=transaction_name))
+                                ],
+                                unit=StringValue(value='%'),
+                                datapoints=error_rate_datapoints
+                            )
+                        ]
+                    )
+                    final_result.append(PlaybookTaskResult(
+                        type=PlaybookTaskResultType.TIMESERIES,
+                        source=self.source,
+                        timeseries=error_rate_timeseries
+                    ))
+
+                # Process latency P95 metrics
+                latency_p95_datapoints = []
+                for data_point in series:
+                    timestamp = int(
+                        datetime.datetime.strptime(data_point['timestamp'], "%Y-%m-%dT%H:%M:%S.%fZ").timestamp()) * 1000
+                    latency_p95_datapoints.append(
+                        TimeseriesResult.LabeledMetricTimeseries.Datapoint(
+                            timestamp=timestamp,
+                            value=DoubleValue(value=data_point['latency_p95'])
+                        )
+                    )
+
+                if latency_p95_datapoints:
+                    latency_p95_timeseries = TimeseriesResult(
+                        metric_name=StringValue(value=f'Transaction Latency P95 - {transaction_name}'),
+                        metric_expression=StringValue(
+                            value=f'Latency P95 for transaction: {transaction_name} in service: {service_name}'),
+                        labeled_metric_timeseries=[
+                            TimeseriesResult.LabeledMetricTimeseries(
+                                metric_label_values=[
+                                    LabelValuePair(name=StringValue(value='transaction'),
+                                                   value=StringValue(value=transaction_name))
+                                ],
+                                unit=StringValue(value='ms'),
+                                datapoints=latency_p95_datapoints
+                            )
+                        ]
+                    )
+                    final_result.append(PlaybookTaskResult(
+                        type=PlaybookTaskResultType.TIMESERIES,
+                        source=self.source,
+                        timeseries=latency_p95_timeseries
+                    ))
+
+                # Process latency P99 metrics
+                latency_p99_datapoints = []
+                for data_point in series:
+                    timestamp = int(
+                        datetime.datetime.strptime(data_point['timestamp'], "%Y-%m-%dT%H:%M:%S.%fZ").timestamp()) * 1000
+                    latency_p99_datapoints.append(
+                        TimeseriesResult.LabeledMetricTimeseries.Datapoint(
+                            timestamp=timestamp,
+                            value=DoubleValue(value=data_point['latency_p99'])
+                        )
+                    )
+
+                if latency_p99_datapoints:
+                    latency_p99_timeseries = TimeseriesResult(
+                        metric_name=StringValue(value=f'Transaction Latency P99 - {transaction_name}'),
+                        metric_expression=StringValue(
+                            value=f'Latency P99 for transaction: {transaction_name} in service: {service_name}'),
+                        labeled_metric_timeseries=[
+                            TimeseriesResult.LabeledMetricTimeseries(
+                                metric_label_values=[
+                                    LabelValuePair(name=StringValue(value='transaction'),
+                                                   value=StringValue(value=transaction_name))
+                                ],
+                                unit=StringValue(value='ms'),
+                                datapoints=latency_p99_datapoints
+                            )
+                        ]
+                    )
+                    final_result.append(PlaybookTaskResult(
+                        type=PlaybookTaskResultType.TIMESERIES,
+                        source=self.source,
+                        timeseries=latency_p99_timeseries
+                    ))
+
+                # Process total requests metrics
+                total_requests_datapoints = []
+                for data_point in series:
+                    timestamp = int(
+                        datetime.datetime.strptime(data_point['timestamp'], "%Y-%m-%dT%H:%M:%S.%fZ").timestamp()) * 1000
+                    total_requests_datapoints.append(
+                        TimeseriesResult.LabeledMetricTimeseries.Datapoint(
+                            timestamp=timestamp,
+                            value=DoubleValue(value=data_point['total_requests'])
+                        )
+                    )
+
+                if total_requests_datapoints:
+                    total_requests_timeseries = TimeseriesResult(
+                        metric_name=StringValue(value=f'Transaction Total Requests - {transaction_name}'),
+                        metric_expression=StringValue(
+                            value=f'Total requests for transaction: {transaction_name} in service: {service_name}'),
+                        labeled_metric_timeseries=[
+                            TimeseriesResult.LabeledMetricTimeseries(
+                                metric_label_values=[
+                                    LabelValuePair(name=StringValue(value='transaction'),
+                                                   value=StringValue(value=transaction_name))
+                                ],
+                                unit=StringValue(value='req'),
+                                datapoints=total_requests_datapoints
+                            )
+                        ]
+                    )
+                    final_result.append(PlaybookTaskResult(
+                        type=PlaybookTaskResultType.TIMESERIES,
+                        source=self.source,
+                        timeseries=total_requests_timeseries
+                    ))
+
+            return final_result
+
+        except Exception as e:
+            raise Exception(f"Error while fetching transaction metrics for service {service_name}: {e}")
+
+    def execute_get_transaction_names_by_service(self, time_range: TimeRange, es_task: ElasticSearchProto,
+                                                 es_connector: ConnectorProto):
+        try:
+            if not es_connector:
+                raise Exception("Task execution Failed:: No ElasticSearch source found")
+
+            service_name = es_task.get_transaction_names_by_service.service_name.value
+            if not service_name:
+                raise Exception("Task execution Failed:: No service name provided")
+
+            es_client = self.get_connector_processor(es_connector)
+
+            # Get transaction names from Elasticsearch
+            transaction_names = es_client.get_transaction_names_by_service(service_name=service_name, index_pattern=self._get_account_index(es_connector.account_id.value))
+
+            if not transaction_names:
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(
+                        output=StringValue(value=f"No transaction names found for service: {service_name}")),
+                    source=self.source
+                )
+
+            # Convert to table format
+            table_rows = []
+            for transaction_info in transaction_names:
+                table_columns = [
+                    TableResult.TableColumn(
+                        name=StringValue(value="Transaction Name"),
+                        value=StringValue(value=transaction_info['transaction_name'])
+                    ),
+                    TableResult.TableColumn(
+                        name=StringValue(value="Count"),
+                        value=StringValue(value=str(transaction_info['count']))
+                    )
+                ]
+                table_rows.append(TableResult.TableRow(columns=table_columns))
+
+            table = TableResult(
+                raw_query=StringValue(value=f"Get transaction names for service: {service_name}"),
+                total_count=UInt64Value(value=len(transaction_names)),
+                rows=table_rows
+            )
+
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.LOGS,
+                logs=table,
+                source=self.source
+            )
+
+        except Exception as e:
+            raise Exception(f"Error while fetching transaction names for service {service_name}: {e}")
+
+    def execute_get_traces_for_service(self, time_range: TimeRange, es_task: ElasticSearchProto,
+                                       es_connector: ConnectorProto):
+        try:
+            if not es_connector:
+                raise Exception("Task execution Failed:: No ElasticSearch source found")
+
+            service_name = es_task.get_traces_for_service.service_name.value
+            max_count = es_task.get_traces_for_service.max_count.value if es_task.get_traces_for_service.max_count.value else 100
+            transaction_name = es_task.get_traces_for_service.transaction_name.value if es_task.get_traces_for_service.transaction_name.value else None
+            error_only = es_task.get_traces_for_service.error_only.value if es_task.get_traces_for_service.error_only.value else False
+            sort_by = es_task.get_traces_for_service.sort_by.value if es_task.get_traces_for_service.sort_by.value else "@timestamp"
+            sort_order = es_task.get_traces_for_service.sort_order.value if es_task.get_traces_for_service.sort_order.value else "desc"
+
+            if not service_name:
+                raise Exception("Task execution Failed:: No service name provided")
+
+            es_client = self.get_connector_processor(es_connector)
+
+            # Convert time range to datetime objects
+            start_time = datetime.datetime.fromtimestamp(time_range.time_geq, tz=pytz.UTC)
+            end_time = datetime.datetime.fromtimestamp(time_range.time_lt, tz=pytz.UTC)
+
+            # Get traces from Elasticsearch
+            result = es_client.get_traces_for_service(service_name=service_name, start_time=start_time,
+                                                      end_time=end_time, max_count=max_count,
+                                                      transaction_name=transaction_name, error_only=error_only,
+                                                      sort_by=sort_by, sort_order=sort_order, include_summary=True, index_pattern=self._get_account_index(es_connector.account_id.value))
+
+            if not result or 'hits' not in result or not result['hits']['hits']:
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value=f"No traces found for service: {service_name}")),
+                    source=self.source
+                )
+
+            hits = result['hits']['hits']
+            summary = result.get('summary', {})
+
+            # Create table rows for traces
+            table_rows = []
+            for hit in hits:
+                source = hit['_source']
+                table_columns = []
+
+                # Add trace ID
+                table_columns.append(TableResult.TableColumn(
+                    name=StringValue(value="Trace ID"),
+                    value=StringValue(value=source.get('transaction', {}).get('id', 'N/A'))
+                ))
+
+                # Add timestamp
+                table_columns.append(TableResult.TableColumn(
+                    name=StringValue(value="Timestamp"),
+                    value=StringValue(value=source.get('@timestamp', 'N/A'))
+                ))
+
+                # Add transaction name
+                table_columns.append(TableResult.TableColumn(
+                    name=StringValue(value="Transaction Name"),
+                    value=StringValue(value=source.get('transaction', {}).get('name', 'N/A'))
+                ))
+
+                # Add result
+                table_columns.append(TableResult.TableColumn(
+                    name=StringValue(value="Result"),
+                    value=StringValue(value=source.get('transaction', {}).get('result', 'N/A'))
+                ))
+
+                # Add duration
+                duration_us = source.get('transaction', {}).get('duration', {}).get('us', 0)
+                duration_ms = round(duration_us / 1000, 2) if duration_us > 0 else 0
+                table_columns.append(TableResult.TableColumn(
+                    name=StringValue(value="Duration (ms)"),
+                    value=StringValue(value=str(duration_ms))
+                ))
+
+                # Add service name
+                table_columns.append(TableResult.TableColumn(
+                    name=StringValue(value="Service Name"),
+                    value=StringValue(value=source.get('service', {}).get('name', 'N/A'))
+                ))
+
+                table_rows.append(TableResult.TableRow(columns=table_columns))
+
+            # Create summary text
+            summary_text = f"## Trace Summary for Service: {service_name}\n\n"
+            summary_text += f"- **Total Traces**: {summary.get('total_traces', 0)}\n"
+            summary_text += f"- **Error Count**: {summary.get('error_count', 0)}\n"
+            summary_text += f"- **Success Count**: {summary.get('success_count', 0)}\n"
+            summary_text += f"- **Error Rate**: {summary.get('error_rate_percentage', 0)}%\n"
+            summary_text += f"- **Average Duration**: {summary.get('avg_duration_ms', 0)} ms\n"
+            summary_text += f"- **P95 Duration**: {summary.get('p95_duration_ms', 0)} ms\n"
+            summary_text += f"- **P99 Duration**: {summary.get('p99_duration_ms', 0)} ms\n\n"
+
+            if summary.get('top_transactions'):
+                summary_text += "### Top Transactions:\n"
+                for tx in summary['top_transactions'][:5]:  # Show top 5
+                    summary_text += f"- {tx['transaction_name']}: {tx['count']} traces\n"
+
+            # Create table result
+            table = TableResult(
+                raw_query=StringValue(value=f"Get traces for service: {service_name}"),
+                total_count=UInt64Value(value=len(hits)),
+                rows=table_rows
+            )
+
+            # Return both summary and table
+            return [
+                # PlaybookTaskResult(
+                #     type=PlaybookTaskResultType.TEXT,
+                #     text=TextResult(output=StringValue(value=summary_text)),
+                #     source=self.source
+                # ),
+                PlaybookTaskResult(
+                    type=PlaybookTaskResultType.LOGS,
+                    logs=table,
+                    source=self.source
+                )
+            ]
+
+        except Exception as e:
+            raise Exception(f"Error while fetching traces for service {service_name}: {e}")
+
+    def execute_get_traces_for_transaction(self, time_range: TimeRange, es_task: ElasticSearchProto,
+                                           es_connector: ConnectorProto):
+        try:
+            if not es_connector:
+                raise Exception("Task execution Failed:: No ElasticSearch source found")
+
+            transaction_name = es_task.get_traces_for_transaction.transaction_name.value
+            max_count = es_task.get_traces_for_transaction.max_count.value if es_task.get_traces_for_transaction.max_count.value else 100
+            service_name = es_task.get_traces_for_transaction.service_name.value if es_task.get_traces_for_transaction.service_name.value else None
+            error_only = es_task.get_traces_for_transaction.error_only.value if es_task.get_traces_for_transaction.error_only.value else False
+            sort_by = es_task.get_traces_for_transaction.sort_by.value if es_task.get_traces_for_transaction.sort_by.value else "@timestamp"
+            sort_order = es_task.get_traces_for_transaction.sort_order.value if es_task.get_traces_for_transaction.sort_order.value else "desc"
+
+            if not transaction_name:
+                raise Exception("Task execution Failed:: No transaction name provided")
+
+            es_client = self.get_connector_processor(es_connector)
+
+            # Convert time range to datetime objects
+            start_time = datetime.datetime.fromtimestamp(time_range.time_geq, tz=pytz.UTC)
+            end_time = datetime.datetime.fromtimestamp(time_range.time_lt, tz=pytz.UTC)
+
+            # Get traces from Elasticsearch
+            result = es_client.get_traces_for_transaction(transaction_name=transaction_name, start_time=start_time,
+                                                          end_time=end_time, max_count=max_count,
+                                                          service_name=service_name, error_only=error_only,
+                                                          sort_by=sort_by, sort_order=sort_order, include_summary=True, index_pattern=self._get_account_index(es_connector.account_id.value))
+
+            if not result or 'hits' not in result or not result['hits']['hits']:
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value=f"No traces found for transaction: {transaction_name}")),
+                    source=self.source
+                )
+
+            hits = result['hits']['hits']
+            summary = result.get('summary', {})
+
+            # Create table rows for traces
+            table_rows = []
+            for hit in hits:
+                source = hit['_source']
+                table_columns = []
+
+                # Add trace ID
+                table_columns.append(TableResult.TableColumn(
+                    name=StringValue(value="Trace ID"),
+                    value=StringValue(value=source.get('transaction', {}).get('id', 'N/A'))
+                ))
+
+                # Add timestamp
+                table_columns.append(TableResult.TableColumn(
+                    name=StringValue(value="Timestamp"),
+                    value=StringValue(value=source.get('@timestamp', 'N/A'))
+                ))
+
+                # Add service name
+                table_columns.append(TableResult.TableColumn(
+                    name=StringValue(value="Service Name"),
+                    value=StringValue(value=source.get('service', {}).get('name', 'N/A'))
+                ))
+
+                # Add result
+                table_columns.append(TableResult.TableColumn(
+                    name=StringValue(value="Result"),
+                    value=StringValue(value=source.get('transaction', {}).get('result', 'N/A'))
+                ))
+
+                # Add duration
+                duration_us = source.get('transaction', {}).get('duration', {}).get('us', 0)
+                duration_ms = round(duration_us / 1000, 2) if duration_us > 0 else 0
+                table_columns.append(TableResult.TableColumn(
+                    name=StringValue(value="Duration (ms)"),
+                    value=StringValue(value=str(duration_ms))
+                ))
+
+                table_rows.append(TableResult.TableRow(columns=table_columns))
+
+            # Create summary text
+            summary_text = f"## Trace Summary for Transaction: {transaction_name}\n\n"
+            summary_text += f"- **Total Traces**: {summary.get('total_traces', 0)}\n"
+            summary_text += f"- **Error Count**: {summary.get('error_count', 0)}\n"
+            summary_text += f"- **Success Count**: {summary.get('success_count', 0)}\n"
+            summary_text += f"- **Error Rate**: {summary.get('error_rate_percentage', 0)}%\n"
+            summary_text += f"- **Average Duration**: {summary.get('avg_duration_ms', 0)} ms\n"
+            summary_text += f"- **P95 Duration**: {summary.get('p95_duration_ms', 0)} ms\n"
+            summary_text += f"- **P99 Duration**: {summary.get('p99_duration_ms', 0)} ms\n\n"
+
+            if summary.get('services_breakdown'):
+                summary_text += "### Services Breakdown:\n"
+                for service in summary['services_breakdown'][:5]:  # Show top 5
+                    summary_text += f"- {service['service_name']}: {service['total_traces']} traces ({service['error_rate_percentage']}% errors)\n"
+
+            # Create table result
+            table = TableResult(
+                raw_query=StringValue(value=f"Get traces for transaction: {transaction_name}"),
+                total_count=UInt64Value(value=len(hits)),
+                rows=table_rows
+            )
+
+            # Return both summary and table
+            return [
+                # PlaybookTaskResult(
+                #     type=PlaybookTaskResultType.TEXT,
+                #     text=TextResult(output=StringValue(value=summary_text)),
+                #     source=self.source
+                # ),
+                PlaybookTaskResult(
+                    type=PlaybookTaskResultType.LOGS,
+                    logs=table,
+                    source=self.source
+                )
+            ]
+
+        except Exception as e:
+            raise Exception(f"Error while fetching traces for transaction {transaction_name}: {e}")

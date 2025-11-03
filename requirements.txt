@@ -62,3 +62,4 @@ pytest-cov>=4.0.0
 black>=22.0.0
 flake8>=5.0.0
 mypy>=1.0.0
+pandas~=2.3.3
