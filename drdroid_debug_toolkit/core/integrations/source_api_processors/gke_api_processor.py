@@ -92,6 +92,12 @@ class GkeApiProcessor(Processor):
                 elif client == 'app':
                     app_instance = kubernetes.client.AppsV1Api(api_client)
                     return app_instance
+                elif client == 'networking':
+                    networking_instance = kubernetes.client.NetworkingV1Api(api_client)
+                    return networking_instance
+                elif client == 'autoscaling':
+                    autoscaling_instance = kubernetes.client.AutoscalingV1Api(api_client)
+                    return autoscaling_instance
         except Exception as e:
             logger.error(f"Exception occurred while configuring kubernetes client with error: {e}")
             raise e
@@ -152,3 +158,43 @@ class GkeApiProcessor(Processor):
         api_client = self.get_api_instance(zone, cluster_name)
         events = api_client.list_namespaced_event(namespace)
         return events
+
+    def list_ingresses(self, zone, cluster_name, namespace=None):
+        api_client = self.get_api_instance(zone, cluster_name, client='networking')
+        if namespace:
+            ingresses = api_client.list_namespaced_ingress(namespace)
+        else:
+            ingresses = api_client.list_ingress_for_all_namespaces()
+        return ingresses
+
+    def list_network_policies(self, zone, cluster_name, namespace=None):
+        api_client = self.get_api_instance(zone, cluster_name, client='networking')
+        if namespace:
+            policies = api_client.list_namespaced_network_policy(namespace)
+        else:
+            policies = api_client.list_network_policy_for_all_namespaces()
+        return policies
+
+    def list_horizontal_pod_autoscalers(self, zone, cluster_name, namespace=None):
+        api_client = self.get_api_instance(zone, cluster_name, client='autoscaling')
+        if namespace:
+            hpas = api_client.list_namespaced_horizontal_pod_autoscaler(namespace)
+        else:
+            hpas = api_client.list_horizontal_pod_autoscaler_for_all_namespaces()
+        return hpas
+
+    def list_replicasets(self, zone, cluster_name, namespace=None):
+        api_client = self.get_api_instance(zone, cluster_name, client='app')
+        if namespace:
+            replicasets = api_client.list_namespaced_replica_set(namespace)
+        else:
+            replicasets = api_client.list_replica_set_for_all_namespaces()
+        return replicasets
+
+    def list_statefulsets(self, zone, cluster_name, namespace=None):
+        api_client = self.get_api_instance(zone, cluster_name, client='app')
+        if namespace:
+            statefulsets = api_client.list_namespaced_stateful_set(namespace)
+        else:
+            statefulsets = api_client.list_stateful_set_for_all_namespaces()
+        return statefulsets
