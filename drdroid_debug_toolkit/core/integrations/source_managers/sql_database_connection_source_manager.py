@@ -4,13 +4,13 @@ from google.protobuf.wrappers_pb2 import StringValue, UInt64Value, Int64Value
 
 from core.integrations.source_api_processors.db_connection_string_processor import DBConnectionStringProcessor
 from core.integrations.source_manager import SourceManager
-from core.protos.base_pb2 import Source, TimeRange
+from core.protos.base_pb2 import Source, TimeRange, SourceKeyType, SourceModelType
 from core.protos.connectors.connector_pb2 import Connector as ConnectorProto
 from core.protos.literal_pb2 import LiteralType, Literal
 from core.protos.playbooks.playbook_commons_pb2 import PlaybookTaskResult, TableResult, PlaybookTaskResultType
 from core.protos.playbooks.source_task_definitions.sql_data_fetch_task_pb2 import SqlDataFetch
 from core.protos.ui_definition_pb2 import FormField, FormFieldType
-from core.utils.credentilal_utils import generate_credentials_dict
+from core.utils.credentilal_utils import generate_credentials_dict, get_connector_key_type_string, DISPLAY_NAME, CATEGORY, DATABASES
 
 
 class TimeoutException(Exception):
@@ -25,7 +25,8 @@ class SqlDatabaseConnectionSourceManager(SourceManager):
         self.task_type_callable_map = {
             SqlDataFetch.TaskType.SQL_QUERY: {
                 'executor': self.execute_sql_query,
-                'model_types': [],
+                'asset_descriptor': self.sql_db_asset_descriptor,
+                'model_types': [SourceModelType.SQL_DATABASE_TABLE],
                 'result_type': PlaybookTaskResultType.TABLE,
                 'display_name': 'Query any SQL Database',
                 'category': 'Database',
@@ -43,9 +44,31 @@ class SqlDatabaseConnectionSourceManager(SourceManager):
                 ]
             },
         }
+        self.connector_form_configs = [
+            {
+                "name": StringValue(value="SQL Database Connection String Configuration"),
+                "description": StringValue(value="Connect to your SQL database using a connection string."),
+                "form_fields": {
+                    SourceKeyType.SQL_DATABASE_CONNECTION_STRING_URI: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.SQL_DATABASE_CONNECTION_STRING_URI)),
+                        display_name=StringValue(value="Connection String URI"),
+                        description=StringValue(value='e.g. "postgresql://user:pass@localhost:5432/mydb", "mysql://user:pass@db.example.com:3306/prod_db"'),
+                        helper_text=StringValue(value="Enter the full connection string URI for your SQL database"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False,
+                        is_sensitive=True
+                    )
+                }
+            }
+        ]
+        self.connector_type_details = {
+            DISPLAY_NAME: "SQL DATABASE CONNECTION",
+            CATEGORY: DATABASES,
+        }
 
-    def get_connector_processor(self, sql_database_connector, **kwargs):
-        generated_credentials = generate_credentials_dict(sql_database_connector.type, sql_database_connector.keys)
+    def get_connector_processor(self, sql_db_connector, **kwargs):
+        generated_credentials = generate_credentials_dict(sql_db_connector.type, sql_db_connector.keys)
         return DBConnectionStringProcessor(**generated_credentials)
 
     def execute_sql_query(self, time_range: TimeRange, sql_data_fetch_task: SqlDataFetch,
