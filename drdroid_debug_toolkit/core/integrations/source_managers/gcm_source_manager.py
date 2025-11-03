@@ -8,14 +8,14 @@ import pytz
 from google.protobuf.wrappers_pb2 import StringValue, DoubleValue, UInt64Value, Int64Value
 
 from core.integrations.source_manager import SourceManager
-from core.protos.base_pb2 import TimeRange, Source
+from core.protos.base_pb2 import TimeRange, Source, SourceModelType, SourceKeyType
 from core.protos.connectors.connector_pb2 import Connector as ConnectorProto
 from core.protos.literal_pb2 import LiteralType, Literal
 from core.protos.playbooks.playbook_commons_pb2 import TimeseriesResult, LabelValuePair, PlaybookTaskResult, \
     PlaybookTaskResultType, TableResult, TextResult
 from core.protos.playbooks.source_task_definitions.gcm_task_pb2 import Gcm
 from core.protos.ui_definition_pb2 import FormField, FormFieldType
-from core.utils.credentilal_utils import generate_credentials_dict
+from core.utils.credentilal_utils import generate_credentials_dict, get_connector_key_type_string, DISPLAY_NAME, CATEGORY, CLOUD_MANAGED_SERVICES
 from core.integrations.source_api_processors.gcm_api_processor import GcmApiProcessor
 from core.utils.static_mappings import GCM_SERVICE_DASHBOARD_QUERIES
 from core.utils.time_utils import calculate_timeseries_bucket_size
@@ -24,13 +24,13 @@ from core.utils.time_utils import calculate_timeseries_bucket_size
 logger = logging.getLogger(__name__)
 
 
+
 def get_project_id(gcm_connector: ConnectorProto) -> str:
     gcm_connector_keys = gcm_connector.keys
     generated_credentials = generate_credentials_dict(gcm_connector.type, gcm_connector_keys)
     if 'project_id' not in generated_credentials:
         raise Exception("GCM project ID not configured for GCM connector")
     return generated_credentials['project_id']
-
 
 class GcmSourceManager(SourceManager):
 
@@ -55,6 +55,12 @@ class GcmSourceManager(SourceManager):
                               display_name=StringValue(value="MQL Expression"),
                               data_type=LiteralType.STRING,
                               form_field_type=FormFieldType.MULTILINE_FT),
+                    FormField(key_name=StringValue(value="interval"),
+                              display_name=StringValue(value="Interval(Seconds)"),
+                              description=StringValue(value='(Optional)Enter Interval'),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT,
+                              is_optional=True),
                 ]
             },
             Gcm.TaskType.FILTER_LOG_EVENTS: {
@@ -82,6 +88,7 @@ class GcmSourceManager(SourceManager):
             },
             Gcm.TaskType.DASHBOARD_VIEW: {
                 'executor': self.execute_dashboard_view,
+                'model_types': [SourceModelType.GCM_DASHBOARD],
                 'result_type': PlaybookTaskResultType.TIMESERIES,
                 'display_name': 'View GCM Dashboard Widget',
                 'category': 'Dashboards',
@@ -105,6 +112,7 @@ class GcmSourceManager(SourceManager):
             },
             Gcm.TaskType.SHEETS_DATA_FETCH: {
                 'executor': self.execute_sheets_data_fetch,
+                'model_types': [],
                 'result_type': PlaybookTaskResultType.TABLE,
                 'display_name': 'Fetch Google Sheets Data',
                 'category': 'Google Sheets',
@@ -137,6 +145,7 @@ class GcmSourceManager(SourceManager):
             },
             Gcm.TaskType.CLOUD_RUN_SERVICE_DASHBOARD: {
                 'executor': self.execute_cloud_run_service_dashboard,
+                'model_types': [SourceModelType.GCM_CLOUD_RUN_SERVICE_DASHBOARD],
                 'result_type': PlaybookTaskResultType.TIMESERIES,
                 'display_name': 'View Cloud Run Service Metrics',
                 'category': 'Cloud Run',
@@ -165,6 +174,38 @@ class GcmSourceManager(SourceManager):
             }
         }
 
+        self.connector_form_configs = [
+            {
+                "name": StringValue(value="Google Cloud Monitoring Authentication"),
+                "description": StringValue(value="Connect to Google Cloud Monitoring using a Project ID and Service Account JSON."),
+                "form_fields": {
+                    SourceKeyType.GCM_PROJECT_ID: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.GCM_PROJECT_ID)),
+                        display_name=StringValue(value="Project ID"),
+                        description=StringValue(value='e.g. "my-project-123", "production-app-456"'),
+                        helper_text=StringValue(value="Enter your Google Cloud Project ID from the project settings"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False
+                    ),
+                    SourceKeyType.GCM_SERVICE_ACCOUNT_JSON: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.GCM_SERVICE_ACCOUNT_JSON)),
+                        display_name=StringValue(value="Service Account JSON"),
+                        description=StringValue(value='e.g. {"type": "service_account", "project_id": "my-project", "private_key_id": "abc123..."}'),
+                        helper_text=StringValue(value="Paste the entire JSON content of your service account key file from IAM & Admin > Service Accounts"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.MULTILINE_FT,
+                        is_optional=False,
+                        is_sensitive=True
+                    )
+                }
+            }
+        ]
+        self.connector_type_details = {
+            DISPLAY_NAME: "GOOGLE CLOUD MONITORING",
+            CATEGORY: CLOUD_MANAGED_SERVICES,
+        }
+
     def get_connector_processor(self, gcm_connector, **kwargs):
         generated_credentials = generate_credentials_dict(gcm_connector.type, gcm_connector.keys)
         return GcmApiProcessor(**generated_credentials)
@@ -181,6 +222,7 @@ class GcmSourceManager(SourceManager):
             mql_task = gcm_task.mql_execution
             mql = mql_task.query.value.strip()
             timeseries_offsets = mql_task.timeseries_offsets
+            interval = mql_task.interval.value if mql_task.interval else None
 
             if "| within " in mql:
                 mql = mql.split("| within ")[0].strip()
@@ -214,8 +256,13 @@ class GcmSourceManager(SourceManager):
                     flush=True
                 )
 
-                response = gcm_api_processor.execute_mql(query_with_time, project_id)
-
+                response = gcm_api_processor.execute_mql(query_with_time, project_id, interval)
+                if isinstance(response, str):
+                    return PlaybookTaskResult(
+                        type=PlaybookTaskResultType.TEXT,
+                        text=TextResult(output=StringValue(value=response)),
+                        source=self.source
+                    )
                 if not response:
                     print(f"No data returned from GCM for offset {offset} seconds")
                     continue
@@ -310,8 +357,8 @@ class GcmSourceManager(SourceManager):
             response = logs_api_processor.fetch_logs(filter_query, order_by=order_by, page_size=page_size,
                                                      page_token=page_token, resource_names=resource_names)
             if not response:
-                logger.error("No data returned from GCM Logs")
-                raise Exception("No data returned from GCM Logs")
+                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT, text=TextResult(output=StringValue(
+                    value=f"No data returned from GCM Logs for query: {filter_query}")), source=self.source)
 
             table_rows = []
             for item in response:
@@ -339,7 +386,7 @@ class GcmSourceManager(SourceManager):
         except Exception as e:
             logger.error(f"Error while executing GCM task: {e}")
             raise Exception(f"Error while executing GCM task: {e}")
-    
+
     def execute_dashboard_view(self, time_range: TimeRange, gcm_task: Gcm,
                                gcm_connector: ConnectorProto):
         try:
