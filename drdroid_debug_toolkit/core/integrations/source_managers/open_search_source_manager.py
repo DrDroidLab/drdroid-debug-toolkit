@@ -1,18 +1,18 @@
 import json
 
 from google.protobuf.struct_pb2 import Struct
-from google.protobuf.wrappers_pb2 import StringValue, UInt64Value, Int64Value
+from google.protobuf.wrappers_pb2 import StringValue, UInt64Value, Int64Value, BoolValue
 
 from core.integrations.source_api_processors.open_search_api_processor import OpenSearchApiProcessor
 from core.integrations.source_manager import SourceManager
-from core.protos.base_pb2 import Source, SourceModelType, TimeRange
+from core.protos.base_pb2 import Source, SourceModelType, TimeRange, SourceKeyType
 from core.protos.connectors.connector_pb2 import Connector as ConnectorProto
 from core.protos.literal_pb2 import LiteralType, Literal
 from core.protos.playbooks.playbook_commons_pb2 import PlaybookTaskResultType, TableResult, PlaybookTaskResult, TextResult, \
     ApiResponseResult
 from core.protos.playbooks.source_task_definitions.open_search_task_pb2 import OpenSearch
 from core.protos.ui_definition_pb2 import FormField, FormFieldType
-from core.utils.credentilal_utils import generate_credentials_dict
+from core.utils.credentilal_utils import generate_credentials_dict, get_connector_key_type_string, DISPLAY_NAME, CATEGORY, APPLICATION_MONITORING
 from core.utils.proto_utils import dict_to_proto
 
 
@@ -53,7 +53,7 @@ class OpenSearchSourceManager(SourceManager):
             OpenSearch.TaskType.DELETE_INDEX: {
                 'executor': self.execute_delete_index,
                 'model_types': [SourceModelType.OPEN_SEARCH_INDEX],
-                'result_type': PlaybookTaskResultType.LOGS,
+                'result_type': PlaybookTaskResultType.TEXT,
                 'display_name': 'Delete OpenSearch Index (Use with caution)',
                 'category': 'Actions',
                 'form_fields': [
@@ -146,6 +146,95 @@ class OpenSearchSourceManager(SourceManager):
             }
         }
 
+        self.connector_form_configs = [
+            {
+                "name": StringValue(value="OpenSearch Connection with Basic Auth"),
+                "description": StringValue(value="Connect to OpenSearch using Host, Port, Username, and Password. SSL verification is optional."),
+                "form_fields": {
+                    SourceKeyType.OPEN_SEARCH_PROTOCOL: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.OPEN_SEARCH_PROTOCOL)),
+                        display_name=StringValue(value="Protocol"),
+                        helper_text=StringValue(value="Select the protocol (http or https)."),
+                        description=StringValue(value='e.g. "http" or "https"'),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.DROPDOWN_FT,
+                        valid_values=[
+                            Literal(type=LiteralType.STRING, string=StringValue(value="http")),
+                            Literal(type=LiteralType.STRING, string=StringValue(value="https"))
+                        ],
+                        default_value=Literal(type=LiteralType.STRING, string=StringValue(value="https")),
+                        is_optional=False
+                    ),
+                    SourceKeyType.OPEN_SEARCH_HOST: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.OPEN_SEARCH_HOST)),
+                        display_name=StringValue(value="Host"),
+                        helper_text=StringValue(value="Enter the OpenSearch host"),
+                        description=StringValue(value='e.g. "localhost:9200" or "my-opensearch.example.com"'),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False
+                    ),
+                    SourceKeyType.OPEN_SEARCH_PORT: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.OPEN_SEARCH_PORT)),
+                        display_name=StringValue(value="Port"),
+                        helper_text=StringValue(value="Enter the OpenSearch port"),
+                        description=StringValue(value='e.g. "9200"'),
+                        data_type=LiteralType.LONG,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=True
+                    ),
+                    SourceKeyType.OPEN_SEARCH_USERNAME: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.OPEN_SEARCH_USERNAME)),
+                        display_name=StringValue(value="Username"),
+                        helper_text=StringValue(value="Enter your OpenSearch username."),
+                        description=StringValue(value='e.g. "admin"'),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=True
+                    ),
+                    SourceKeyType.OPEN_SEARCH_PASSWORD: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.OPEN_SEARCH_PASSWORD)),
+                        display_name=StringValue(value="Password"),
+                        helper_text=StringValue(value="Enter your OpenSearch password."),
+                        description=StringValue(value='e.g. "password"'),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=True,
+                        is_sensitive=True
+                    ),
+                    SourceKeyType.SSL_VERIFY: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.SSL_VERIFY)),
+                        display_name=StringValue(value="SSL Verify"),
+                        description=StringValue(value="true or false"),
+                        helper_text=StringValue(value="Enable or disable SSL certificate verification. Defaults to true."),
+                        data_type=LiteralType.BOOLEAN,
+                        form_field_type=FormFieldType.CHECKBOX_FT,
+                        is_optional=True,
+                        default_value=Literal(type=LiteralType.BOOLEAN, boolean=BoolValue(value=True))
+                    )
+                }
+            },
+            {
+                "name": StringValue(value="OpenSearch Connection (Host Only)"),
+                "description": StringValue(value="Connect to OpenSearch using only the Host. Useful for local or unsecured instances."),
+                "form_fields": {
+                    SourceKeyType.OPEN_SEARCH_HOST: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.OPEN_SEARCH_HOST)),
+                        display_name=StringValue(value="Host"),
+                        helper_text=StringValue(value="Enter the OpenSearch host"),
+                        description=StringValue(value='e.g. "localhost:9200" or "my-opensearch.example.com"'),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False
+                    )
+                }
+            }
+        ]
+        self.connector_type_details = {
+            DISPLAY_NAME: "OPEN SEARCH",
+            CATEGORY: APPLICATION_MONITORING,
+        }
+
     def get_connector_processor(self, os_connector, **kwargs):
         generated_credentials = generate_credentials_dict(os_connector.type, os_connector.keys)
         return OpenSearchApiProcessor(**generated_credentials)
@@ -229,6 +318,7 @@ class OpenSearchSourceManager(SourceManager):
             raise Exception(f"OpenSearchSourceManager.execute_query_logs:: Error while executing OpenSearch task: "
                             f"{str(e)}")
 
+    # delete index task functions
     def execute_delete_index(self, time_range: TimeRange, os_task: OpenSearch,
                              os_connector: ConnectorProto):
         try:
@@ -251,9 +341,23 @@ class OpenSearchSourceManager(SourceManager):
             return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT, text=TextResult(output=StringValue(
                 value=f"Failed to delete Index {index}")), source=self.source)
         except Exception as e:
-            raise Exception(
-                f"OpenSearchSourceManager.execute_delete_index:: Error while executing OpenSearch task: {str(e)}")
+            raise Exception(f"OpenSearchSourceManager.execute_delete_index:: Error while executing OpenSearch "
+                            f"task: {str(e)}")
 
+    @staticmethod
+    def task_descriptor_delete_index(os_task: OpenSearch):
+        try:
+            index = os_task.delete_index.index.value
+            return f'Delete index {index}'
+        except Exception as e:
+            raise Exception(f"OpenSearchSourceManager.task_descriptor_delete_index:: Error while generating "
+                            f"descriptor for task: {e}")
+
+    @staticmethod
+    def validate_delete_index(account_id: str, os_task: OpenSearch):
+        return "REQUIRES_APPROVAL"
+
+    # node stats task functions
     def execute_get_node_stats(self, time_range: TimeRange, os_task: OpenSearch,
                                os_connector: ConnectorProto):
         try:
@@ -271,6 +375,7 @@ class OpenSearchSourceManager(SourceManager):
             raise Exception(
                 f"OpenSearchSourceManager.execute_get_node_stats:: Error while executing OpenSearch task: {str(e)}")
 
+    # index stats task functions
     def execute_get_index_stats(self, time_range: TimeRange, os_task: OpenSearch,
                                 os_connector: ConnectorProto):
         try:
@@ -287,7 +392,7 @@ class OpenSearchSourceManager(SourceManager):
         except Exception as e:
             raise Exception(
                 f"OpenSearchSourceManager.execute_get_index_stats:: Error while executing OpenSearch task: {str(e)}")
-        
+
     # cluster health task functions
     def execute_get_cluster_health(self, time_range: TimeRange, os_task: OpenSearch,
                                    os_connector: ConnectorProto):
