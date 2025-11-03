@@ -25,7 +25,6 @@ class SqlDatabaseConnectionSourceManager(SourceManager):
         self.task_type_callable_map = {
             SqlDataFetch.TaskType.SQL_QUERY: {
                 'executor': self.execute_sql_query,
-                'asset_descriptor': self.sql_db_asset_descriptor,
                 'model_types': [SourceModelType.SQL_DATABASE_TABLE],
                 'result_type': PlaybookTaskResultType.TABLE,
                 'display_name': 'Query any SQL Database',
