@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 from core.protos.base_pb2 import TimeRange
 
 from elasticsearch import Elasticsearch
+import pandas as pd
 
 from core.integrations.processor import Processor
 from core.settings import EXTERNAL_CALL_TIMEOUT
