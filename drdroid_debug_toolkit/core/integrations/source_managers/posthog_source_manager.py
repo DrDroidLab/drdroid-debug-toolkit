@@ -7,13 +7,13 @@ from google.protobuf.wrappers_pb2 import StringValue, UInt64Value
 
 from core.integrations.source_api_processors.posthog_api_processor import PosthogApiProcessor
 from core.integrations.source_manager import SourceManager
-from core.protos.base_pb2 import Source, SourceModelType, TimeRange
+from core.protos.base_pb2 import Source, SourceModelType, TimeRange, SourceKeyType
 from core.protos.connectors.connector_pb2 import Connector as ConnectorProto
 from core.protos.literal_pb2 import LiteralType
 from core.protos.playbooks.playbook_commons_pb2 import PlaybookTaskResult, PlaybookTaskResultType, TableResult, TextResult
 from core.protos.playbooks.source_task_definitions.posthog_task_pb2 import PostHog
 from core.protos.ui_definition_pb2 import FormField, FormFieldType
-from core.utils.credentilal_utils import generate_credentials_dict
+from core.utils.credentilal_utils import generate_credentials_dict, get_connector_key_type_string, DISPLAY_NAME, CATEGORY, ANALYTICS
 
 logger = logging.getLogger(__name__)
 
@@ -25,20 +25,61 @@ class PosthogSourceManager(SourceManager):
         self.task_proto = PostHog
         self.task_type_callable_map = {
             PostHog.TaskType.HOGQL_QUERY: {
-                "executor": self.execute_hogql_query,
-                "model_types": [SourceModelType.POSTHOG_PROPERTY],
-                "result_type": PlaybookTaskResultType.TABLE,
-                "display_name": "Execute HogQL Query to get events",
-                "category": "Events",
-                "form_fields": [
+                'executor': self.execute_hogql_query,
+                'model_types': [SourceModelType.POSTHOG_PROPERTY],
+                'result_type': PlaybookTaskResultType.TABLE,
+                'display_name': 'Execute HogQL Query to get events',
+                'category': 'Events',
+                'form_fields': [
                     FormField(key_name=StringValue(value="query"),
                               display_name=StringValue(value="HogQL Query"),
-                              description=StringValue(value="Enter your HogQL query"),
+                              description=StringValue(value='Enter your HogQL query'),
                               data_type=LiteralType.STRING,
                               is_optional=False,
                               form_field_type=FormFieldType.MULTILINE_FT),
                 ]
             },
+        }
+
+        self.connector_form_configs = [
+            {
+                "name": StringValue(value="PostHog Connection"),
+                "description": StringValue(value="Connect to PostHog using your Personal API Key, App Host, and Project ID."),
+                "form_fields": {
+                    SourceKeyType.POSTHOG_API_KEY: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.POSTHOG_API_KEY)),
+                        display_name=StringValue(value="Personal API Key"),
+                        helper_text=StringValue(value="Enter your PostHog Personal API Key."),
+                        description=StringValue(value='e.g. "phc_1234567890abcdefghijklmnopqrstuvwxyz"'),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False,
+                        is_sensitive=True
+                    ),
+                    SourceKeyType.POSTHOG_APP_HOST: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.POSTHOG_APP_HOST)),
+                        display_name=StringValue(value="App Host"),
+                        helper_text=StringValue(value="Enter your PostHog App Host"),
+                        description=StringValue(value='e.g. "https://app.posthog.com" or "https://your-self-hosted-instance.com"'),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False
+                    ),
+                    SourceKeyType.POSTHOG_PROJECT_ID: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.POSTHOG_PROJECT_ID)),
+                        display_name=StringValue(value="Project ID"),
+                        helper_text=StringValue(value="Enter your PostHog Project ID."),
+                        description=StringValue(value='e.g. "1234567890"'),
+                        data_type=LiteralType.STRING, # Project ID is usually a number, but string is safer
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False
+                    )
+                }
+            }
+        ]
+        self.connector_type_details = {
+            DISPLAY_NAME: "POSTHOG",
+            CATEGORY: ANALYTICS,
         }
 
     def get_connector_processor(self, posthog_connector, **kwargs):
@@ -69,8 +110,8 @@ class PosthogSourceManager(SourceManager):
 
                     if isinstance(properties_dict, list):
                         properties = properties_dict
-                    elif isinstance(properties_dict, dict) and "values" in properties_dict:
-                        properties = properties_dict["values"]
+                    elif isinstance(properties_dict, dict) and 'values' in properties_dict:
+                        properties = properties_dict['values']
                     else:
                         properties = []
                         
@@ -105,24 +146,24 @@ class PosthogSourceManager(SourceManager):
                 event_columns = []
 
                 event_columns.append(TableResult.TableColumn(
-                    name=StringValue(value="event"),
-                    value=StringValue(value=event.get("event", ""))
+                    name=StringValue(value='event'),
+                    value=StringValue(value=event.get('event', ''))
                 ))
                 
                 event_columns.append(TableResult.TableColumn(
-                    name=StringValue(value="distinct_id"),
-                    value=StringValue(value=event.get("distinct_id", ""))
+                    name=StringValue(value='distinct_id'),
+                    value=StringValue(value=event.get('distinct_id', ''))
                 ))
 
                 event_columns.append(TableResult.TableColumn(
-                    name=StringValue(value="timestamp"),
-                    value=StringValue(value=event.get("timestamp", ""))
+                    name=StringValue(value='timestamp'),
+                    value=StringValue(value=event.get('timestamp', ''))
                 ))
                 
-                properties = event.get("properties", {})
+                properties = event.get('properties', {})
                 properties_json = json.dumps(properties)
                 event_columns.append(TableResult.TableColumn(
-                    name=StringValue(value="properties"),
+                    name=StringValue(value='properties'),
                     value=StringValue(value=properties_json)
                 ))
 
@@ -133,7 +174,7 @@ class PosthogSourceManager(SourceManager):
                         prop_value = str(prop_value)
                     
                     event_columns.append(TableResult.TableColumn(
-                        name=StringValue(value=f"prop_{prop_key}"),
+                        name=StringValue(value=f'prop_{prop_key}'),
                         value=StringValue(value=prop_value)
                     ))
                 
@@ -185,19 +226,21 @@ class PosthogSourceManager(SourceManager):
             
             # Get the PostHog API processor
             posthog_api_processor = self.get_connector_processor(posthog_connector)
+            print(f"Got posthog api processor: {query}")
             # Execute the HogQL query
             query_result = posthog_api_processor.execute_hogql_query(query)
+            print(f"Got query result: {query_result}")
             # Check for errors
-            if "error" in query_result:
+            if 'error' in query_result:
                 return PlaybookTaskResult(
                     type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=query_result["error"])),
+                    text=TextResult(output=StringValue(value=query_result['error'])),
                     source=self.source
                 )
                 
             # Get results and columns
-            results = query_result.get("results", [])
-            columns = query_result.get("columns", [])
+            results = query_result.get('results', [])
+            columns = query_result.get('columns', [])
             
             if not results:
                 return PlaybookTaskResult(
