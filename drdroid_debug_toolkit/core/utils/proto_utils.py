@@ -1,7 +1,7 @@
 from typing import Dict
 
 from google.protobuf.json_format import MessageToJson, Parse, MessageToDict, ParseDict
-from google.protobuf.message import Message
+from google.protobuf.message import Message, Message as ProtoMessage
 from django.http import JsonResponse
 from google.protobuf.wrappers_pb2 import BoolValue, UInt32Value
 
