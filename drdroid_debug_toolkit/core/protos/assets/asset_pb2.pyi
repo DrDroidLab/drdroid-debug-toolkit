@@ -26,6 +26,7 @@ import core.protos.assets.posthog_asset_pb2
 import core.protos.assets.signoz_asset_pb2
 import core.protos.assets.slack_asset_pb2
 import core.protos.assets.sql_database_asset_pb2
+import core.protos.base_pb2
 import core.protos.connectors.connector_pb2
 import google.protobuf.descriptor
 import google.protobuf.message
@@ -85,7 +86,7 @@ class ConnectorModelTypeOptions(google.protobuf.message.Message):
     SIGNOZ_DASHBOARD_MODEL_OPTIONS_FIELD_NUMBER: builtins.int
     SIGNOZ_ALERT_MODEL_OPTIONS_FIELD_NUMBER: builtins.int
     GRAFANA_LOKI_DATASOURCE_MODEL_OPTIONS_FIELD_NUMBER: builtins.int
-    model_type: core.protos.connectors.connector_pb2.ConnectorMetadataModelType.ValueType
+    model_type: core.protos.base_pb2.SourceModelType.ValueType
     @property
     def cloudwatch_log_group_model_options(self) -> core.protos.assets.cloudwatch_asset_pb2.CloudwatchLogGroupAssetOptions: ...
     @property
@@ -173,7 +174,7 @@ class ConnectorModelTypeOptions(google.protobuf.message.Message):
     def __init__(
         self,
         *,
-        model_type: core.protos.connectors.connector_pb2.ConnectorMetadataModelType.ValueType = ...,
+        model_type: core.protos.base_pb2.SourceModelType.ValueType = ...,
         cloudwatch_log_group_model_options: core.protos.assets.cloudwatch_asset_pb2.CloudwatchLogGroupAssetOptions | None = ...,
         cloudwatch_metric_model_options: core.protos.assets.cloudwatch_asset_pb2.CloudwatchMetricAssetOptions | None = ...,
         grafana_target_metric_promql_model_options: core.protos.assets.grafana_asset_pb2.GrafanaTargetMetricPromQlAssetOptions | None = ...,

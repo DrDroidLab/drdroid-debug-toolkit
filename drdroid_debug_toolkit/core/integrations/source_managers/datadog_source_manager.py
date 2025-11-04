@@ -9,7 +9,7 @@ from google.protobuf.wrappers_pb2 import DoubleValue, StringValue, UInt64Value, 
 from core.integrations.source_api_processors.datadog_api_processor import DatadogApiProcessor
 from core.integrations.source_manager import SourceManager
 from core.protos.base_pb2 import TimeRange, Source, SourceModelType, SourceKeyType
-from core.protos.connectors.connector_pb2 import Connector as ConnectorProto, ConnectorType
+from core.protos.connectors.connector_pb2 import Connector as ConnectorProto
 from core.protos.literal_pb2 import LiteralType, Literal
 from core.protos.playbooks.playbook_commons_pb2 import PlaybookTaskResult, TimeseriesResult, LabelValuePair, \
     PlaybookTaskResultType, TableResult, TextResult, ApiResponseResult
@@ -648,7 +648,7 @@ class DatadogSourceManager(SourceManager):
                 # Get all dashboard entities
                 client = PrototypeClient()
                 assets = client.get_connector_assets(
-                    connector_type=ConnectorType.Name(datadog_connector.type),
+                    connector_type=Source.Name(datadog_connector.type),
                     connector_id=str(datadog_connector.id.value),
                     asset_type=SourceModelType.DATADOG_DASHBOARD,
                 )
@@ -1213,7 +1213,7 @@ class DatadogSourceManager(SourceManager):
             # Fetch dashboard assets once
             client = PrototypeClient()
             assets = client.get_connector_assets(
-                connector_type=ConnectorType.Name(datadog_connector.type),
+                connector_type=Source.Name(datadog_connector.type),
                 connector_id=str(datadog_connector.id.value),
                 asset_type=SourceModelType.DATADOG_DASHBOARD,
             )
@@ -1271,7 +1271,7 @@ class DatadogSourceManager(SourceManager):
         try:
             client = PrototypeClient()
             assets: AccountConnectorAssets = client.get_connector_assets(
-                connector_type=ConnectorType.Name(dd_connector.type),
+                connector_type=Source.Name(dd_connector.type),
                 connector_id=str(dd_connector.id.value),
                 asset_type=SourceModelType.DATADOG_SERVICE,
             )

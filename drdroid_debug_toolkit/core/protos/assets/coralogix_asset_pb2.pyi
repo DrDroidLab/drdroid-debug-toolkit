@@ -4,7 +4,7 @@ isort:skip_file
 """
 import builtins
 import collections.abc
-import core.protos.connectors.connector_pb2
+import core.protos.base_pb2
 import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.message
@@ -130,8 +130,8 @@ class CoralogixAssetModel(google.protobuf.message.Message):
     CORALOGIX_INDEX_MAPPING_FIELD_NUMBER: builtins.int
     @property
     def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
-    connector_type: core.protos.connectors.connector_pb2.ConnectorType.ValueType
-    type: core.protos.connectors.connector_pb2.ConnectorMetadataModelType.ValueType
+    connector_type: core.protos.base_pb2.Source.ValueType
+    type: core.protos.base_pb2.SourceModelType.ValueType
     last_updated: builtins.int
     @property
     def coralogix_dashboard(self) -> global___CoralogixDashboardWidgetAssetModel: ...
@@ -141,8 +141,8 @@ class CoralogixAssetModel(google.protobuf.message.Message):
         self,
         *,
         id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
-        connector_type: core.protos.connectors.connector_pb2.ConnectorType.ValueType = ...,
-        type: core.protos.connectors.connector_pb2.ConnectorMetadataModelType.ValueType = ...,
+        connector_type: core.protos.base_pb2.Source.ValueType = ...,
+        type: core.protos.base_pb2.SourceModelType.ValueType = ...,
         last_updated: builtins.int = ...,
         coralogix_dashboard: global___CoralogixDashboardWidgetAssetModel | None = ...,
         coralogix_index_mapping: global___CoralogixIndexMappingAssetModel | None = ...,

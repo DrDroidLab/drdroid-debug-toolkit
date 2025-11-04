@@ -68,7 +68,7 @@ message GetAlertOpsIssuesResponse {
 
 message GetAlertOpsAlertsSearchRequest {
   Meta meta = 1;
-  ConnectorType alert_source = 2;
+  Source alert_source = 2;
   google.protobuf.StringValue alert_channel_uid = 3;
   google.protobuf.StringValue alert_type = 4;
   FuzzySearchRequest fuzzy_search_request = 5;
@@ -505,7 +505,7 @@ message TestConnectorResponse {
 }
 
 message RequestConnectorAPIRequest {
-  ConnectorType connector_type = 1;
+  Source connector_type = 1;
 }
 
 message RequestConnectorAPIResponse {
@@ -566,7 +566,7 @@ message GoogleAuthResponse {
 
 ///////////////////// Connector APIs /////////////////////
 message GetConnectorKeysOptionsRequest {
-  ConnectorType connector_type = 1;
+  Source connector_type = 1;
 }
 
 message GetConnectorKeysOptionsResponse {
@@ -578,7 +578,7 @@ message GetConnectorKeysOptionsResponse {
 
 message GetConnectorKeysRequest {
   google.protobuf.UInt64Value connector_id = 1;
-  ConnectorType connector_type = 2;
+  Source connector_type = 2;
 }
 
 message GetConnectorKeysResponse {
@@ -590,7 +590,7 @@ message GetConnectorKeysResponse {
 
 
 message SaveConnectorKeysRequest {
-  ConnectorType connector_type = 1;
+  Source connector_type = 1;
   repeated ConnectorKey connector_keys = 2;
 }
 
@@ -610,7 +610,7 @@ message ApiGetConnectorsResponse {
 }
 
 message GetConnectorsListRequest {
-  ConnectorType connector_type = 1;
+  Source connector_type = 1;
 }
 
 message GetConnectorsListResponse {
@@ -685,7 +685,7 @@ message AlertOpsReportsResponse {
 ///////////////////// AlertOps APIs /////////////////////
 message GetAlertOpsGroupedAlertsListRequest {
   Meta meta = 1;
-  ConnectorType alert_source = 2;
+  Source alert_source = 2;
   repeated string alert_types = 3;
   string alert_title = 4;
   repeated string alert_channels = 5;
@@ -795,31 +795,31 @@ message GetAlertOpsSourceOptionsResponse {
   Meta meta = 1;
   google.protobuf.BoolValue success = 2;
   Message message = 3;
-  repeated ConnectorType active_alert_sources = 4;
-  repeated ConnectorType available_alert_sources = 5;
+  repeated Source active_alert_sources = 4;
+  repeated Source available_alert_sources = 5;
 }
 
 message GetAlertOpsOptionsRequest {
   Meta meta = 1;
   google.protobuf.BoolValue mode_playground = 2;
-  ConnectorType alert_source = 3;
-  repeated ConnectorType connector_type = 4;
+  Source alert_source = 3;
+  repeated Source connector_type = 4;
   repeated string filter_channels = 5;
   repeated string filter_alert_types = 6;
   repeated string filter_alert_tags = 7;
 }
 
 message GetAlertOpsOptionsRequestV2 {
-  message ConnectorTypeRequest {
-    ConnectorType alert_source = 1;
-    ConnectorType connector_type = 2;
+  message SourceRequest {
+    Source alert_source = 1;
+    Source connector_type = 2;
     repeated string filter_channels = 3;
     repeated string filter_alert_types = 4;
     repeated string filter_alert_tags = 5;
   }
   Meta meta = 1;
   google.protobuf.BoolValue mode_playground = 2;
-  repeated ConnectorTypeRequest connector_type_requests = 3;
+  repeated SourceRequest connector_type_requests = 3;
 }
 
 message GetAlertOpsOptionsResponse {
@@ -842,7 +842,7 @@ message AlertOpsUserPreferencesResponse {
 message GetAlertOpsSlackAlertMetricRequest {
   Meta meta = 1;
   google.protobuf.BoolValue mode_playground = 2;
-  ConnectorType alert_source = 3;
+  Source alert_source = 3;
   google.protobuf.StringValue metric_name = 4;
   google.protobuf.StringValue metric_title = 5;
   repeated string filter_channels = 6;
@@ -861,7 +861,7 @@ message GetAlertOpsSlackAlertMetricResponse {
 message GetAlertOpsTopAlertingEntitiesByToolRequest {
   Meta meta = 1;
   google.protobuf.BoolValue mode_playground = 2;
-  ConnectorType alert_source = 3;
+  Source alert_source = 3;
   google.protobuf.UInt64Value threshold = 4;
   repeated string filter_channels = 5;
   repeated string filter_alert_types = 6;
@@ -891,7 +891,7 @@ message GetAlertOpsTopAlertingEntitiesByToolResponse {
 message AlertOpsSlackAlertsGenerateAQSRequest {
   Meta meta = 1;
   google.protobuf.BoolValue mode_playground = 2;
-  ConnectorType alert_source = 3;
+  Source alert_source = 3;
   repeated string filter_channels = 4;
 }
 
@@ -969,7 +969,7 @@ message AlertOpsSlackAlertsAutoRCAUpdateStateResponse {
 }
 
 message AlertOpsUpdateConnectorConfigurationRequest {
-  ConnectorType connector_type = 1;
+  Source connector_type = 1;
   google.protobuf.UInt64Value connector_id = 2;
   google.protobuf.UInt64Value model_id = 3;
   oneof connector_configuration {
@@ -1165,7 +1165,7 @@ message GetConnectedPlaybooksResponse {
 
 message IsIntegrationConnectedRequest {
   Meta meta = 1;
-  ConnectorType connector_type = 2;
+  Source connector_type = 2;
 }
 
 message IsIntegrationConnectedResponse {

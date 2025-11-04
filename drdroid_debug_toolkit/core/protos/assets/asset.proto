@@ -30,7 +30,7 @@ import "core/protos/assets/sql_database_asset.proto";
 import "core/protos/assets/mongodb_asset.proto";
 
 message ConnectorModelTypeOptions {
-  ConnectorMetadataModelType model_type = 1;
+  SourceModelType model_type = 1;
   oneof options {
     CloudwatchLogGroupAssetOptions cloudwatch_log_group_model_options = 2;
     CloudwatchMetricAssetOptions cloudwatch_metric_model_options = 3;

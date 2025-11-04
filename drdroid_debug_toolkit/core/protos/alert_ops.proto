@@ -6,6 +6,7 @@ import "google/protobuf/struct.proto";
 import "core/protos/connectors/connector.proto";
 
 import "core/protos/alert_metadata_details.proto";
+import "core/protos/base.proto";
 
 ////////////// AlertOps Comm Workspace Protos (Deprecated) //////////////
 message CommWorkspace {
@@ -137,7 +138,7 @@ message AQSScoreModel {
 message AlertSource {
   google.protobuf.UInt64Value id = 1;
   google.protobuf.StringValue name = 2;
-  core.protos.connectors.ConnectorType source_type = 3;
+  Source source_type = 3;
 }
 
 message AlertChannel {
@@ -274,7 +275,7 @@ message AgentTaskConfig {
     repeated string tags = 1;
   }
 
-  core.protos.connectors.ConnectorType source = 1;
+  Source source = 1;
   google.protobuf.StringValue source_description = 2;
   google.protobuf.StringValue task_type = 3;
   google.protobuf.StringValue display_name = 4;

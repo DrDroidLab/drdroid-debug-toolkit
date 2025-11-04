@@ -5,6 +5,7 @@ isort:skip_file
 import builtins
 import collections.abc
 import core.protos.alert_metadata_details_pb2
+import core.protos.base_pb2
 import core.protos.connectors.connector_pb2
 import google.protobuf.descriptor
 import google.protobuf.internal.containers
@@ -585,13 +586,13 @@ class AlertSource(google.protobuf.message.Message):
     def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     @property
     def name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    source_type: core.protos.connectors.connector_pb2.ConnectorType.ValueType
+    source_type: core.protos.base_pb2.Source.ValueType
     def __init__(
         self,
         *,
         id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
         name: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        source_type: core.protos.connectors.connector_pb2.ConnectorType.ValueType = ...,
+        source_type: core.protos.base_pb2.Source.ValueType = ...,
     ) -> None: ...
     def HasField(self, field_name: typing_extensions.Literal["id", b"id", "name", b"name"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing_extensions.Literal["id", b"id", "name", b"name", "source_type", b"source_type"]) -> None: ...
@@ -1000,7 +1001,7 @@ class AgentTaskConfig(google.protobuf.message.Message):
     ASSET_TYPES_FIELD_NUMBER: builtins.int
     IS_ACTIVE_FIELD_NUMBER: builtins.int
     METADATA_FIELD_NUMBER: builtins.int
-    source: core.protos.connectors.connector_pb2.ConnectorType.ValueType
+    source: core.protos.base_pb2.Source.ValueType
     @property
     def source_description(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
@@ -1020,7 +1021,7 @@ class AgentTaskConfig(google.protobuf.message.Message):
     def __init__(
         self,
         *,
-        source: core.protos.connectors.connector_pb2.ConnectorType.ValueType = ...,
+        source: core.protos.base_pb2.Source.ValueType = ...,
         source_description: google.protobuf.wrappers_pb2.StringValue | None = ...,
         task_type: google.protobuf.wrappers_pb2.StringValue | None = ...,
         display_name: google.protobuf.wrappers_pb2.StringValue | None = ...,

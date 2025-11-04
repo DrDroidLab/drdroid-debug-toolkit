@@ -265,7 +265,7 @@ class GetAlertOpsAlertsSearchRequest(google.protobuf.message.Message):
     ALERT_TITLE_FIELD_NUMBER: builtins.int
     @property
     def meta(self) -> global___Meta: ...
-    alert_source: core.protos.connectors.connector_pb2.ConnectorType.ValueType
+    alert_source: core.protos.base_pb2.Source.ValueType
     @property
     def alert_channel_uid(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
@@ -280,7 +280,7 @@ class GetAlertOpsAlertsSearchRequest(google.protobuf.message.Message):
         self,
         *,
         meta: global___Meta | None = ...,
-        alert_source: core.protos.connectors.connector_pb2.ConnectorType.ValueType = ...,
+        alert_source: core.protos.base_pb2.Source.ValueType = ...,
         alert_channel_uid: google.protobuf.wrappers_pb2.StringValue | None = ...,
         alert_type: google.protobuf.wrappers_pb2.StringValue | None = ...,
         fuzzy_search_request: core.protos.search_pb2.FuzzySearchRequest | None = ...,
@@ -1977,11 +1977,11 @@ class RequestConnectorAPIRequest(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
     CONNECTOR_TYPE_FIELD_NUMBER: builtins.int
-    connector_type: core.protos.connectors.connector_pb2.ConnectorType.ValueType
+    connector_type: core.protos.base_pb2.Source.ValueType
     def __init__(
         self,
         *,
-        connector_type: core.protos.connectors.connector_pb2.ConnectorType.ValueType = ...,
+        connector_type: core.protos.base_pb2.Source.ValueType = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing_extensions.Literal["connector_type", b"connector_type"]) -> None: ...
 
@@ -2202,11 +2202,11 @@ class GetConnectorKeysOptionsRequest(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
     CONNECTOR_TYPE_FIELD_NUMBER: builtins.int
-    connector_type: core.protos.connectors.connector_pb2.ConnectorType.ValueType
+    connector_type: core.protos.base_pb2.Source.ValueType
     def __init__(
         self,
         *,
-        connector_type: core.protos.connectors.connector_pb2.ConnectorType.ValueType = ...,
+        connector_type: core.protos.base_pb2.Source.ValueType = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing_extensions.Literal["connector_type", b"connector_type"]) -> None: ...
 
@@ -2249,12 +2249,12 @@ class GetConnectorKeysRequest(google.protobuf.message.Message):
     CONNECTOR_TYPE_FIELD_NUMBER: builtins.int
     @property
     def connector_id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
-    connector_type: core.protos.connectors.connector_pb2.ConnectorType.ValueType
+    connector_type: core.protos.base_pb2.Source.ValueType
     def __init__(
         self,
         *,
         connector_id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
-        connector_type: core.protos.connectors.connector_pb2.ConnectorType.ValueType = ...,
+        connector_type: core.protos.base_pb2.Source.ValueType = ...,
     ) -> None: ...
     def HasField(self, field_name: typing_extensions.Literal["connector_id", b"connector_id"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing_extensions.Literal["connector_id", b"connector_id", "connector_type", b"connector_type"]) -> None: ...
@@ -2296,13 +2296,13 @@ class SaveConnectorKeysRequest(google.protobuf.message.Message):
 
     CONNECTOR_TYPE_FIELD_NUMBER: builtins.int
     CONNECTOR_KEYS_FIELD_NUMBER: builtins.int
-    connector_type: core.protos.connectors.connector_pb2.ConnectorType.ValueType
+    connector_type: core.protos.base_pb2.Source.ValueType
     @property
     def connector_keys(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[core.protos.connectors.connector_pb2.ConnectorKey]: ...
     def __init__(
         self,
         *,
-        connector_type: core.protos.connectors.connector_pb2.ConnectorType.ValueType = ...,
+        connector_type: core.protos.base_pb2.Source.ValueType = ...,
         connector_keys: collections.abc.Iterable[core.protos.connectors.connector_pb2.ConnectorKey] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing_extensions.Literal["connector_keys", b"connector_keys", "connector_type", b"connector_type"]) -> None: ...
@@ -2372,11 +2372,11 @@ class GetConnectorsListRequest(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
     CONNECTOR_TYPE_FIELD_NUMBER: builtins.int
-    connector_type: core.protos.connectors.connector_pb2.ConnectorType.ValueType
+    connector_type: core.protos.base_pb2.Source.ValueType
     def __init__(
         self,
         *,
-        connector_type: core.protos.connectors.connector_pb2.ConnectorType.ValueType = ...,
+        connector_type: core.protos.base_pb2.Source.ValueType = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing_extensions.Literal["connector_type", b"connector_type"]) -> None: ...
 
@@ -2644,7 +2644,7 @@ class GetAlertOpsGroupedAlertsListRequest(google.protobuf.message.Message):
     SHOW_HIDDEN_ALERTS_FIELD_NUMBER: builtins.int
     @property
     def meta(self) -> global___Meta: ...
-    alert_source: core.protos.connectors.connector_pb2.ConnectorType.ValueType
+    alert_source: core.protos.base_pb2.Source.ValueType
     @property
     def alert_types(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
     alert_title: builtins.str
@@ -2660,7 +2660,7 @@ class GetAlertOpsGroupedAlertsListRequest(google.protobuf.message.Message):
         self,
         *,
         meta: global___Meta | None = ...,
-        alert_source: core.protos.connectors.connector_pb2.ConnectorType.ValueType = ...,
+        alert_source: core.protos.base_pb2.Source.ValueType = ...,
         alert_types: collections.abc.Iterable[builtins.str] | None = ...,
         alert_title: builtins.str = ...,
         alert_channels: collections.abc.Iterable[builtins.str] | None = ...,
@@ -3055,17 +3055,17 @@ class GetAlertOpsSourceOptionsResponse(google.protobuf.message.Message):
     @property
     def message(self) -> global___Message: ...
     @property
-    def active_alert_sources(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[core.protos.connectors.connector_pb2.ConnectorType.ValueType]: ...
+    def active_alert_sources(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[core.protos.base_pb2.Source.ValueType]: ...
     @property
-    def available_alert_sources(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[core.protos.connectors.connector_pb2.ConnectorType.ValueType]: ...
+    def available_alert_sources(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[core.protos.base_pb2.Source.ValueType]: ...
     def __init__(
         self,
         *,
         meta: global___Meta | None = ...,
         success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
         message: global___Message | None = ...,
-        active_alert_sources: collections.abc.Iterable[core.protos.connectors.connector_pb2.ConnectorType.ValueType] | None = ...,
-        available_alert_sources: collections.abc.Iterable[core.protos.connectors.connector_pb2.ConnectorType.ValueType] | None = ...,
+        active_alert_sources: collections.abc.Iterable[core.protos.base_pb2.Source.ValueType] | None = ...,
+        available_alert_sources: collections.abc.Iterable[core.protos.base_pb2.Source.ValueType] | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing_extensions.Literal["active_alert_sources", b"active_alert_sources", "available_alert_sources", b"available_alert_sources", "message", b"message", "meta", b"meta", "success", b"success"]) -> None: ...
@@ -3087,9 +3087,9 @@ class GetAlertOpsOptionsRequest(google.protobuf.message.Message):
     def meta(self) -> global___Meta: ...
     @property
     def mode_playground(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
-    alert_source: core.protos.connectors.connector_pb2.ConnectorType.ValueType
+    alert_source: core.protos.base_pb2.Source.ValueType
     @property
-    def connector_type(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[core.protos.connectors.connector_pb2.ConnectorType.ValueType]: ...
+    def connector_type(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[core.protos.base_pb2.Source.ValueType]: ...
     @property
     def filter_channels(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
     @property
@@ -3101,8 +3101,8 @@ class GetAlertOpsOptionsRequest(google.protobuf.message.Message):
         *,
         meta: global___Meta | None = ...,
         mode_playground: google.protobuf.wrappers_pb2.BoolValue | None = ...,
-        alert_source: core.protos.connectors.connector_pb2.ConnectorType.ValueType = ...,
-        connector_type: collections.abc.Iterable[core.protos.connectors.connector_pb2.ConnectorType.ValueType] | None = ...,
+        alert_source: core.protos.base_pb2.Source.ValueType = ...,
+        connector_type: collections.abc.Iterable[core.protos.base_pb2.Source.ValueType] | None = ...,
         filter_channels: collections.abc.Iterable[builtins.str] | None = ...,
         filter_alert_types: collections.abc.Iterable[builtins.str] | None = ...,
         filter_alert_tags: collections.abc.Iterable[builtins.str] | None = ...,
@@ -3117,7 +3117,7 @@ class GetAlertOpsOptionsRequestV2(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
     @typing_extensions.final
-    class ConnectorTypeRequest(google.protobuf.message.Message):
+    class SourceRequest(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
         ALERT_SOURCE_FIELD_NUMBER: builtins.int
@@ -3125,8 +3125,8 @@ class GetAlertOpsOptionsRequestV2(google.protobuf.message.Message):
         FILTER_CHANNELS_FIELD_NUMBER: builtins.int
         FILTER_ALERT_TYPES_FIELD_NUMBER: builtins.int
         FILTER_ALERT_TAGS_FIELD_NUMBER: builtins.int
-        alert_source: core.protos.connectors.connector_pb2.ConnectorType.ValueType
-        connector_type: core.protos.connectors.connector_pb2.ConnectorType.ValueType
+        alert_source: core.protos.base_pb2.Source.ValueType
+        connector_type: core.protos.base_pb2.Source.ValueType
         @property
         def filter_channels(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
         @property
@@ -3136,8 +3136,8 @@ class GetAlertOpsOptionsRequestV2(google.protobuf.message.Message):
         def __init__(
             self,
             *,
-            alert_source: core.protos.connectors.connector_pb2.ConnectorType.ValueType = ...,
-            connector_type: core.protos.connectors.connector_pb2.ConnectorType.ValueType = ...,
+            alert_source: core.protos.base_pb2.Source.ValueType = ...,
+            connector_type: core.protos.base_pb2.Source.ValueType = ...,
             filter_channels: collections.abc.Iterable[builtins.str] | None = ...,
             filter_alert_types: collections.abc.Iterable[builtins.str] | None = ...,
             filter_alert_tags: collections.abc.Iterable[builtins.str] | None = ...,
@@ -3152,13 +3152,13 @@ class GetAlertOpsOptionsRequestV2(google.protobuf.message.Message):
     @property
     def mode_playground(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
     @property
-    def connector_type_requests(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___GetAlertOpsOptionsRequestV2.ConnectorTypeRequest]: ...
+    def connector_type_requests(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___GetAlertOpsOptionsRequestV2.SourceRequest]: ...
     def __init__(
         self,
         *,
         meta: global___Meta | None = ...,
         mode_playground: google.protobuf.wrappers_pb2.BoolValue | None = ...,
-        connector_type_requests: collections.abc.Iterable[global___GetAlertOpsOptionsRequestV2.ConnectorTypeRequest] | None = ...,
+        connector_type_requests: collections.abc.Iterable[global___GetAlertOpsOptionsRequestV2.SourceRequest] | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing_extensions.Literal["meta", b"meta", "mode_playground", b"mode_playground"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing_extensions.Literal["connector_type_requests", b"connector_type_requests", "meta", b"meta", "mode_playground", b"mode_playground"]) -> None: ...
@@ -3253,7 +3253,7 @@ class GetAlertOpsSlackAlertMetricRequest(google.protobuf.message.Message):
     def meta(self) -> global___Meta: ...
     @property
     def mode_playground(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
-    alert_source: core.protos.connectors.connector_pb2.ConnectorType.ValueType
+    alert_source: core.protos.base_pb2.Source.ValueType
     @property
     def metric_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
@@ -3270,7 +3270,7 @@ class GetAlertOpsSlackAlertMetricRequest(google.protobuf.message.Message):
         *,
         meta: global___Meta | None = ...,
         mode_playground: google.protobuf.wrappers_pb2.BoolValue | None = ...,
-        alert_source: core.protos.connectors.connector_pb2.ConnectorType.ValueType = ...,
+        alert_source: core.protos.base_pb2.Source.ValueType = ...,
         metric_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
         metric_title: google.protobuf.wrappers_pb2.StringValue | None = ...,
         filter_channels: collections.abc.Iterable[builtins.str] | None = ...,
@@ -3340,7 +3340,7 @@ class GetAlertOpsTopAlertingEntitiesByToolRequest(google.protobuf.message.Messag
     def meta(self) -> global___Meta: ...
     @property
     def mode_playground(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
-    alert_source: core.protos.connectors.connector_pb2.ConnectorType.ValueType
+    alert_source: core.protos.base_pb2.Source.ValueType
     @property
     def threshold(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     @property
@@ -3352,7 +3352,7 @@ class GetAlertOpsTopAlertingEntitiesByToolRequest(google.protobuf.message.Messag
         *,
         meta: global___Meta | None = ...,
         mode_playground: google.protobuf.wrappers_pb2.BoolValue | None = ...,
-        alert_source: core.protos.connectors.connector_pb2.ConnectorType.ValueType = ...,
+        alert_source: core.protos.base_pb2.Source.ValueType = ...,
         threshold: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
         filter_channels: collections.abc.Iterable[builtins.str] | None = ...,
         filter_alert_types: collections.abc.Iterable[builtins.str] | None = ...,
@@ -3453,7 +3453,7 @@ class AlertOpsSlackAlertsGenerateAQSRequest(google.protobuf.message.Message):
     def meta(self) -> global___Meta: ...
     @property
     def mode_playground(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
-    alert_source: core.protos.connectors.connector_pb2.ConnectorType.ValueType
+    alert_source: core.protos.base_pb2.Source.ValueType
     @property
     def filter_channels(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
     def __init__(
@@ -3461,7 +3461,7 @@ class AlertOpsSlackAlertsGenerateAQSRequest(google.protobuf.message.Message):
         *,
         meta: global___Meta | None = ...,
         mode_playground: google.protobuf.wrappers_pb2.BoolValue | None = ...,
-        alert_source: core.protos.connectors.connector_pb2.ConnectorType.ValueType = ...,
+        alert_source: core.protos.base_pb2.Source.ValueType = ...,
         filter_channels: collections.abc.Iterable[builtins.str] | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing_extensions.Literal["meta", b"meta", "mode_playground", b"mode_playground"]) -> builtins.bool: ...
@@ -3773,7 +3773,7 @@ class AlertOpsUpdateConnectorConfigurationRequest(google.protobuf.message.Messag
     MODEL_ID_FIELD_NUMBER: builtins.int
     SLACK_ALERT_OPS_CONFIGURATION_FIELD_NUMBER: builtins.int
     ASANA_ALERT_OPS_CONFIGURATION_FIELD_NUMBER: builtins.int
-    connector_type: core.protos.connectors.connector_pb2.ConnectorType.ValueType
+    connector_type: core.protos.base_pb2.Source.ValueType
     @property
     def connector_id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     @property
@@ -3785,7 +3785,7 @@ class AlertOpsUpdateConnectorConfigurationRequest(google.protobuf.message.Messag
     def __init__(
         self,
         *,
-        connector_type: core.protos.connectors.connector_pb2.ConnectorType.ValueType = ...,
+        connector_type: core.protos.base_pb2.Source.ValueType = ...,
         connector_id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
         model_id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
         slack_alert_ops_configuration: global___SlackAlertOpsConfiguration | None = ...,
@@ -4553,12 +4553,12 @@ class IsIntegrationConnectedRequest(google.protobuf.message.Message):
     CONNECTOR_TYPE_FIELD_NUMBER: builtins.int
     @property
     def meta(self) -> global___Meta: ...
-    connector_type: core.protos.connectors.connector_pb2.ConnectorType.ValueType
+    connector_type: core.protos.base_pb2.Source.ValueType
     def __init__(
         self,
         *,
         meta: global___Meta | None = ...,
-        connector_type: core.protos.connectors.connector_pb2.ConnectorType.ValueType = ...,
+        connector_type: core.protos.base_pb2.Source.ValueType = ...,
     ) -> None: ...
     def HasField(self, field_name: typing_extensions.Literal["meta", b"meta"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing_extensions.Literal["connector_type", b"connector_type", "meta", b"meta"]) -> None: ...

@@ -10,7 +10,7 @@ from core.integrations.source_api_processors.aws_boto_3_api_processor import AWS
 from core.protos.base_pb2 import TimeRange, Source, SourceModelType, SourceKeyType
 from core.protos.assets.asset_pb2 import AccountConnectorAssets
 from core.protos.assets.cloudwatch_asset_pb2 import CloudwatchDashboardAssetModel, CloudwatchAssetModel
-from core.protos.connectors.connector_pb2 import Connector as ConnectorProto, ConnectorType
+from core.protos.connectors.connector_pb2 import Connector as ConnectorProto
 from core.protos.literal_pb2 import LiteralType, Literal
 from core.protos.playbooks.playbook_commons_pb2 import TimeseriesResult, LabelValuePair, PlaybookTaskResult, \
     PlaybookTaskResultType, TableResult, TextResult, ApiResponseResult
@@ -797,7 +797,7 @@ class CloudwatchSourceManager(SourceManager):
             # 1. Fetch the Dashboard Asset from the database/cache
             client = PrototypeClient()
             assets = client.get_connector_assets(
-                connector_type=ConnectorType.Name(cloudwatch_connector.type),
+                connector_type=Source.Name(cloudwatch_connector.type),
                 connector_id=str(cloudwatch_connector.id.value),
                 asset_type=SourceModelType.CLOUDWATCH_DASHBOARD,
             )

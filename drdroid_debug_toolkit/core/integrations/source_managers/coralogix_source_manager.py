@@ -11,7 +11,7 @@ from integrations.source_api_processors.coralogix_api_processor import Coralogix
 from core.integrations.source_manager import SourceManager
 from core.protos.assets.coralogix_asset_pb2 import CoralogixAssetModel, CoralogixDashboardAssetOptions
 from drdroid_debug_toolkit.core.protos.base_pb2 import TimeRange
-from drdroid_debug_toolkit.core.protos.connectors.connector_pb2 import Connector as ConnectorProto, ConnectorType
+from drdroid_debug_toolkit.core.protos.connectors.connector_pb2 import Connector as ConnectorProto
 from core.utils.playbooks_client import PrototypeClient
 from drdroid_debug_toolkit.core.protos.base_pb2 import SourceKeyType, Source, SourceModelType
 from drdroid_debug_toolkit.core.protos.literal_pb2 import LiteralType
@@ -847,7 +847,7 @@ class CoralogixSourceManager(SourceManager):
             # 1. Get dashboard assets to extract widget information
             client = PrototypeClient()
             assets = client.get_connector_assets(
-                connector_type=ConnectorType.Name(coralogix_connector.type),
+                connector_type=Source.Name(coralogix_connector.type),
                 connector_id=str(coralogix_connector.id.value),
                 asset_type=SourceModelType.CORALOGIX_DASHBOARD,
             )
@@ -1072,7 +1072,7 @@ class CoralogixSourceManager(SourceManager):
             # 1. Get dashboard assets to extract variable information
             client = PrototypeClient()
             assets = client.get_connector_assets(
-                connector_type=ConnectorType.Name(coralogix_connector.type),
+                connector_type=Source.Name(coralogix_connector.type),
                 connector_id=str(coralogix_connector.id.value),
                 asset_type=SourceModelType.CORALOGIX_DASHBOARD,
             )

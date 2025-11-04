@@ -32,8 +32,8 @@ message CoralogixDashboardAssetOptions {
 
 message CoralogixAssetModel {
   google.protobuf.UInt64Value id = 1;
-  ConnectorType connector_type = 2;
-  ConnectorMetadataModelType type = 3;
+  Source connector_type = 2;
+  SourceModelType type = 3;
   sfixed64 last_updated = 4;
   oneof asset {
     CoralogixDashboardWidgetAssetModel coralogix_dashboard = 5;

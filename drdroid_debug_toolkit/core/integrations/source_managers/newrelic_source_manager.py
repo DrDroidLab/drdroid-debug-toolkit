@@ -9,7 +9,7 @@ from google.protobuf.wrappers_pb2 import DoubleValue, StringValue
 from core.integrations.source_api_processors.new_relic_graph_ql_processor import NewRelicGraphQlConnector
 from core.integrations.source_manager import SourceManager
 from core.protos.base_pb2 import TimeRange, Source, SourceModelType, SourceKeyType
-from core.protos.connectors.connector_pb2 import Connector as ConnectorProto, ConnectorType
+from core.protos.connectors.connector_pb2 import Connector as ConnectorProto
 from core.protos.literal_pb2 import LiteralType, Literal
 from core.protos.playbooks.playbook_commons_pb2 import PlaybookTaskResult, TimeseriesResult, LabelValuePair, \
     PlaybookTaskResultType, TextResult, TableResult
@@ -937,7 +937,7 @@ class NewRelicSourceManager(SourceManager):
             # 1. Get the specific application asset
             client = PrototypeClient()
             assets = client.get_connector_assets(
-                connector_type=ConnectorType.Name(nr_connector.type),
+                connector_type=Source.Name(nr_connector.type),
                 connector_id=str(nr_connector.id.value),
                 asset_type=SourceModelType.NEW_RELIC_ENTITY_APPLICATION,
             )
@@ -1114,7 +1114,7 @@ class NewRelicSourceManager(SourceManager):
                 # Need to get application name for the Span query
                 client = PrototypeClient()
                 assets = client.get_connector_assets(
-                    connector_type=ConnectorType.Name(nr_connector.type),
+                    connector_type=Source.Name(nr_connector.type),
                     connector_id=str(nr_connector.id.value),
                     asset_type=SourceModelType.NEW_RELIC_ENTITY_APPLICATION,
                 )
@@ -1971,7 +1971,7 @@ class NewRelicSourceManager(SourceManager):
         """Finds a dashboard by name and returns its filtered widgets."""
         client = PrototypeClient()
         assets = client.get_connector_assets(
-            connector_type=ConnectorType.Name(nr_connector.type),
+            connector_type=Source.Name(nr_connector.type),
             connector_id=str(nr_connector.id.value),
             asset_type=SourceModelType.NEW_RELIC_ENTITY_DASHBOARD,
         )
@@ -2436,7 +2436,7 @@ class NewRelicSourceManager(SourceManager):
         """Finds V2 dashboards/widgets using the exact filtering logic from V1."""
         client = PrototypeClient()
         assets = client.get_connector_assets(
-            connector_type=ConnectorType.Name(nr_connector.type),
+            connector_type=Source.Name(nr_connector.type),
             connector_id=str(nr_connector.id.value),
             asset_type=SourceModelType.NEW_RELIC_ENTITY_DASHBOARD_V2,
         )
