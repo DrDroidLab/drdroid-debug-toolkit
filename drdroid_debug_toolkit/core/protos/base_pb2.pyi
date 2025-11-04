@@ -195,6 +195,7 @@ class _SourceEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTyp
     CONFLUENCE_SELF_HOSTED: _Source.ValueType  # 55
     GOOGLE_DRIVE: _Source.ValueType  # 56
     NOTION: _Source.ValueType  # 57
+    DRD_PROXY_AGENT: _Source.ValueType  # 58
     MONGODB: _Source.ValueType  # 59
     OPEN_SEARCH: _Source.ValueType  # 60
     LINEAR: _Source.ValueType  # 61
@@ -205,9 +206,14 @@ class _SourceEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTyp
     DRD_ALERT_WEBHOOK: _Source.ValueType  # 66
     ROLLBAR: _Source.ValueType  # 67
     LAMBDA: _Source.ValueType  # 68
+    BROWSER: _Source.ValueType  # 69
     POSTHOG: _Source.ValueType  # 70
+    MIXPANEL: _Source.ValueType  # 71
     SIGNOZ: _Source.ValueType  # 72
+    BITBUCKET: _Source.ValueType  # 73
     CORALOGIX: _Source.ValueType  # 74
+    RENDER: _Source.ValueType  # 75
+    MCP_SERVER: _Source.ValueType  # 76
 
 class Source(_Source, metaclass=_SourceEnumTypeWrapper): ...
 
@@ -269,6 +275,7 @@ CONFLUENCE_CLOUD: Source.ValueType  # 54
 CONFLUENCE_SELF_HOSTED: Source.ValueType  # 55
 GOOGLE_DRIVE: Source.ValueType  # 56
 NOTION: Source.ValueType  # 57
+DRD_PROXY_AGENT: Source.ValueType  # 58
 MONGODB: Source.ValueType  # 59
 OPEN_SEARCH: Source.ValueType  # 60
 LINEAR: Source.ValueType  # 61
@@ -279,9 +286,14 @@ ARGOCD: Source.ValueType  # 65
 DRD_ALERT_WEBHOOK: Source.ValueType  # 66
 ROLLBAR: Source.ValueType  # 67
 LAMBDA: Source.ValueType  # 68
+BROWSER: Source.ValueType  # 69
 POSTHOG: Source.ValueType  # 70
+MIXPANEL: Source.ValueType  # 71
 SIGNOZ: Source.ValueType  # 72
+BITBUCKET: Source.ValueType  # 73
 CORALOGIX: Source.ValueType  # 74
+RENDER: Source.ValueType  # 75
+MCP_SERVER: Source.ValueType  # 76
 global___Source = Source
 
 class _SourceKeyType:
@@ -604,6 +616,7 @@ class _SourceModelTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper
     DATADOG_METRIC: _SourceModelType.ValueType  # 111
     DATADOG_QUERY: _SourceModelType.ValueType  # 112
     DATADOG_APM: _SourceModelType.ValueType  # 113
+    DATADOG_FIELDS: _SourceModelType.ValueType  # 114
     CLOUDWATCH_METRIC: _SourceModelType.ValueType  # 201
     """Cloudwatch Models"""
     CLOUDWATCH_LOG_GROUP: _SourceModelType.ValueType  # 202
@@ -644,6 +657,14 @@ class _SourceModelTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper
     """Mimir Server Models"""
     GKE_CLUSTER: _SourceModelType.ValueType  # 1301
     """GKE Models"""
+    GKE_NAMESPACE: _SourceModelType.ValueType  # 1302
+    GKE_SERVICE: _SourceModelType.ValueType  # 1303
+    GKE_DEPLOYMENT: _SourceModelType.ValueType  # 1304
+    GKE_INGRESS: _SourceModelType.ValueType  # 1305
+    GKE_NETWORK_POLICY: _SourceModelType.ValueType  # 1306
+    GKE_HPA: _SourceModelType.ValueType  # 1307
+    GKE_REPLICASET: _SourceModelType.ValueType  # 1308
+    GKE_STATEFULSET: _SourceModelType.ValueType  # 1309
     MS_TEAMS_CHANNEL: _SourceModelType.ValueType  # 1401
     """MS TEAMS Models"""
     PAGERDUTY_INCIDENT: _SourceModelType.ValueType  # 1501
@@ -652,6 +673,7 @@ class _SourceModelTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper
     """Elastic Search Models"""
     ELASTIC_SEARCH_SERVICES: _SourceModelType.ValueType  # 1602
     ELASTIC_SEARCH_DASHBOARDS: _SourceModelType.ValueType  # 1603
+    ELASTIC_SEARCH_INDEX_PATTERNS: _SourceModelType.ValueType  # 1604
     GCM_METRIC: _SourceModelType.ValueType  # 1701
     """GCM Models"""
     GCM_DASHBOARD: _SourceModelType.ValueType  # 1702
@@ -697,6 +719,8 @@ class _SourceModelTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper
     """SignOz Models"""
     SIGNOZ_ALERT: _SourceModelType.ValueType  # 5002
     SIGNOZ_METRIC: _SourceModelType.ValueType  # 5003
+    SIGNOZ_SERVICE: _SourceModelType.ValueType  # 5004
+    SIGNOZ_LOG_ATTRIBUTES: _SourceModelType.ValueType  # 5005
     KUBERNETES_NAMESPACE: _SourceModelType.ValueType  # 6001
     """Kubernetes Models"""
     KUBERNETES_SERVICE: _SourceModelType.ValueType  # 6002
@@ -707,6 +731,7 @@ class _SourceModelTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper
     KUBERNETES_REPLICASET: _SourceModelType.ValueType  # 6007
     KUBERNETES_STATEFULSET: _SourceModelType.ValueType  # 6008
     KUBERNETES_NETWORK_MAP: _SourceModelType.ValueType  # 6009
+    SENTRY_PROJECT: _SourceModelType.ValueType  # 7001
     CORALOGIX_DASHBOARD: _SourceModelType.ValueType  # 8001
     """Coralogix Models"""
     CORALOGIX_INDEX_MAPPING: _SourceModelType.ValueType  # 8002
@@ -736,6 +761,7 @@ DATADOG_SERVICE: SourceModelType.ValueType  # 110
 DATADOG_METRIC: SourceModelType.ValueType  # 111
 DATADOG_QUERY: SourceModelType.ValueType  # 112
 DATADOG_APM: SourceModelType.ValueType  # 113
+DATADOG_FIELDS: SourceModelType.ValueType  # 114
 CLOUDWATCH_METRIC: SourceModelType.ValueType  # 201
 """Cloudwatch Models"""
 CLOUDWATCH_LOG_GROUP: SourceModelType.ValueType  # 202
@@ -776,6 +802,14 @@ GRAFANA_MIMIR_PROMQL: SourceModelType.ValueType  # 1201
 """Mimir Server Models"""
 GKE_CLUSTER: SourceModelType.ValueType  # 1301
 """GKE Models"""
+GKE_NAMESPACE: SourceModelType.ValueType  # 1302
+GKE_SERVICE: SourceModelType.ValueType  # 1303
+GKE_DEPLOYMENT: SourceModelType.ValueType  # 1304
+GKE_INGRESS: SourceModelType.ValueType  # 1305
+GKE_NETWORK_POLICY: SourceModelType.ValueType  # 1306
+GKE_HPA: SourceModelType.ValueType  # 1307
+GKE_REPLICASET: SourceModelType.ValueType  # 1308
+GKE_STATEFULSET: SourceModelType.ValueType  # 1309
 MS_TEAMS_CHANNEL: SourceModelType.ValueType  # 1401
 """MS TEAMS Models"""
 PAGERDUTY_INCIDENT: SourceModelType.ValueType  # 1501
@@ -784,6 +818,7 @@ ELASTIC_SEARCH_INDEX: SourceModelType.ValueType  # 1601
 """Elastic Search Models"""
 ELASTIC_SEARCH_SERVICES: SourceModelType.ValueType  # 1602
 ELASTIC_SEARCH_DASHBOARDS: SourceModelType.ValueType  # 1603
+ELASTIC_SEARCH_INDEX_PATTERNS: SourceModelType.ValueType  # 1604
 GCM_METRIC: SourceModelType.ValueType  # 1701
 """GCM Models"""
 GCM_DASHBOARD: SourceModelType.ValueType  # 1702
@@ -829,6 +864,8 @@ SIGNOZ_DASHBOARD: SourceModelType.ValueType  # 5001
 """SignOz Models"""
 SIGNOZ_ALERT: SourceModelType.ValueType  # 5002
 SIGNOZ_METRIC: SourceModelType.ValueType  # 5003
+SIGNOZ_SERVICE: SourceModelType.ValueType  # 5004
+SIGNOZ_LOG_ATTRIBUTES: SourceModelType.ValueType  # 5005
 KUBERNETES_NAMESPACE: SourceModelType.ValueType  # 6001
 """Kubernetes Models"""
 KUBERNETES_SERVICE: SourceModelType.ValueType  # 6002
@@ -839,6 +876,7 @@ KUBERNETES_HPA: SourceModelType.ValueType  # 6006
 KUBERNETES_REPLICASET: SourceModelType.ValueType  # 6007
 KUBERNETES_STATEFULSET: SourceModelType.ValueType  # 6008
 KUBERNETES_NETWORK_MAP: SourceModelType.ValueType  # 6009
+SENTRY_PROJECT: SourceModelType.ValueType  # 7001
 CORALOGIX_DASHBOARD: SourceModelType.ValueType  # 8001
 """Coralogix Models"""
 CORALOGIX_INDEX_MAPPING: SourceModelType.ValueType  # 8002
