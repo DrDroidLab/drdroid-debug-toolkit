@@ -707,6 +707,9 @@ class _SourceModelTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper
     KUBERNETES_REPLICASET: _SourceModelType.ValueType  # 6007
     KUBERNETES_STATEFULSET: _SourceModelType.ValueType  # 6008
     KUBERNETES_NETWORK_MAP: _SourceModelType.ValueType  # 6009
+    CORALOGIX_DASHBOARD: _SourceModelType.ValueType  # 8001
+    """Coralogix Models"""
+    CORALOGIX_INDEX_MAPPING: _SourceModelType.ValueType  # 8002
 
 class SourceModelType(_SourceModelType, metaclass=_SourceModelTypeEnumTypeWrapper): ...
 
@@ -836,6 +839,9 @@ KUBERNETES_HPA: SourceModelType.ValueType  # 6006
 KUBERNETES_REPLICASET: SourceModelType.ValueType  # 6007
 KUBERNETES_STATEFULSET: SourceModelType.ValueType  # 6008
 KUBERNETES_NETWORK_MAP: SourceModelType.ValueType  # 6009
+CORALOGIX_DASHBOARD: SourceModelType.ValueType  # 8001
+"""Coralogix Models"""
+CORALOGIX_INDEX_MAPPING: SourceModelType.ValueType  # 8002
 global___SourceModelType = SourceModelType
 
 class _Context:
