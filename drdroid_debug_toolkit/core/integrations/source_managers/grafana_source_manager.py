@@ -2098,7 +2098,7 @@ class GrafanaSourceManager(SourceManager):
             # Handle template_variables from the task
             override_template_vars = {}
             if task.HasField("template_variables") and task.template_variables.value:
-                try:                    
+                try:
                     # Check if it's already a dict (most common case)
                     if isinstance(task.template_variables.value, dict):
                         user_vars = task.template_variables.value

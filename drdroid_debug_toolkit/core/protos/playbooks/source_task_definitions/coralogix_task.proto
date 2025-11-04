@@ -1,0 +1,53 @@
+syntax = "proto3";
+package core.protos.playbooks;
+
+import "google/protobuf/wrappers.proto";
+
+message Coralogix {
+  message FetchLogsTask {
+    google.protobuf.StringValue query = 1;
+    google.protobuf.StringValue from_time = 2;
+    google.protobuf.StringValue to_time = 3;
+    google.protobuf.UInt64Value limit = 4;
+  }
+
+  message FetchDashboardWidgetsTask {
+    google.protobuf.StringValue dashboard_id = 1;
+    google.protobuf.StringValue widget_ids = 2;  // Optional comma-separated widget IDs to filter
+    google.protobuf.UInt64Value step = 3;
+    google.protobuf.StringValue template_variables = 4;  // JSON object with template variable values to override dashboard defaults
+  }
+
+  message FetchDashboardVariablesTask {
+    google.protobuf.StringValue dashboard_id = 1;
+  }
+  
+  message FetchMetricsTask {
+    google.protobuf.StringValue query = 1;
+    google.protobuf.StringValue from_time = 2;
+    google.protobuf.StringValue to_time = 3;
+    google.protobuf.StringValue step = 4;
+  }
+
+  message FetchIndexMappingsTask {
+    google.protobuf.StringValue index_pattern = 1;
+  }
+
+  enum TaskType {
+    UNKNOWN = 0;
+    FETCH_LOGS = 1;
+    FETCH_METRICS = 2;
+    FETCH_DASHBOARD_WIDGETS = 3;
+    FETCH_DASHBOARD_VARIABLES = 4;
+    FETCH_INDEX_MAPPINGS = 5;
+  }
+
+  TaskType type = 1;
+  oneof task {
+    FetchLogsTask fetch_logs = 2;
+    FetchMetricsTask fetch_metrics = 3;
+    FetchDashboardWidgetsTask fetch_dashboard_widgets = 4;
+    FetchDashboardVariablesTask fetch_dashboard_variables = 5;
+    FetchIndexMappingsTask fetch_index_mappings = 6;
+  }
+}
