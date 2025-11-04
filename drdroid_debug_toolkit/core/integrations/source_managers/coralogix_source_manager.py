@@ -11,9 +11,9 @@ from integrations.source_api_processors.coralogix_api_processor import Coralogix
 from core.integrations.source_manager import SourceManager
 from core.protos.assets.coralogix_asset_pb2 import CoralogixAssetModel, CoralogixDashboardAssetOptions
 from drdroid_debug_toolkit.core.protos.base_pb2 import TimeRange
-from drdroid_debug_toolkit.core.protos.connectors.connector_pb2 import ConnectorType as Source, Connector as ConnectorProto, ConnectorMetadataModelType as SourceModelType, ConnectorType
+from drdroid_debug_toolkit.core.protos.connectors.connector_pb2 import Connector as ConnectorProto, ConnectorType
 from core.utils.playbooks_client import PrototypeClient
-from drdroid_debug_toolkit.core.protos.base_pb2 import SourceKeyType
+from drdroid_debug_toolkit.core.protos.base_pb2 import SourceKeyType, Source, SourceModelType
 from drdroid_debug_toolkit.core.protos.literal_pb2 import LiteralType
 from drdroid_debug_toolkit.core.protos.playbooks.playbook_commons_pb2 import PlaybookTaskResult, PlaybookTaskResultType, ApiResponseResult, TextResult, TimeseriesResult, TableResult, LabelValuePair
 from google.protobuf.wrappers_pb2 import DoubleValue, StringValue, BoolValue, UInt64Value
