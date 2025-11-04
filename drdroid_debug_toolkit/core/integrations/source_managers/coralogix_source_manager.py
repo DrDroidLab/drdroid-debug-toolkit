@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from typing import Optional
 
 from core.utils.credentilal_utils import generate_credentials_dict, get_connector_key_type_string, DISPLAY_NAME, CATEGORY, APPLICATION_MONITORING
-from integrations.source_api_processors.coralogix_api_processor import CoralogixApiProcessor
+from core.integrations.source_api_processors.coralogix_api_processor import CoralogixApiProcessor
 from core.integrations.source_manager import SourceManager
 from core.protos.assets.coralogix_asset_pb2 import CoralogixAssetModel, CoralogixDashboardAssetOptions
 from drdroid_debug_toolkit.core.protos.base_pb2 import TimeRange
