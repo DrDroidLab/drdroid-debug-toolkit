@@ -27,6 +27,8 @@ message Sentry {
     google.protobuf.Int64Value max_events_to_analyse = 3;
   }
 
+  message FetchProjects {}
+
   enum TaskType {
     UNKNOWN = 0;
     FETCH_ISSUE_INFO_BY_ID = 1;
@@ -34,6 +36,7 @@ message Sentry {
     FETCH_RECENT_ERRORS = 3;
     FETCH_EVENT_INFO_BY_ID = 4;
     FETCH_LIST_OF_RECENT_EVENTS_WITH_SEARCH_QUERY = 5;
+    FETCH_PROJECTS = 6;
   }
 
   TaskType type = 1;
@@ -43,5 +46,6 @@ message Sentry {
     FetchRecentErrors fetch_recent_errors = 4;
     FetchEventInfoById fetch_event_info_by_id = 5;
     FetchListOfRecentEventsWithSearchQuery fetch_list_of_recent_events_with_search_query = 6;
+    FetchProjects fetch_projects = 7;
   }
 }
