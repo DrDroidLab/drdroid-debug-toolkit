@@ -60,7 +60,7 @@ class SlackSourceManager(SourceManager):
                     SourceKeyType.SLACK_BOT_AUTH_TOKEN: FormField(
                         key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.SLACK_BOT_AUTH_TOKEN)),
                         display_name=StringValue(value="Bot Auth Token"),
-                        description=StringValue(value="e.g. e.g. xoxb-1234567890-..."),
+                        description=StringValue(value="e.g. xoxb-..."),
                         helper_text=StringValue(value="Enter your Slack Bot User OAuth Token (starts with xoxb-)."),
                         data_type=LiteralType.STRING,
                         form_field_type=FormFieldType.TEXT_FT,
@@ -113,7 +113,7 @@ class SlackSourceManager(SourceManager):
                     SourceKeyType.SLACK_BOT_AUTH_TOKEN: FormField(
                         key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.SLACK_BOT_AUTH_TOKEN)),
                         display_name=StringValue(value="Bot Auth Token"),
-                        description=StringValue(value="e.g. xoxb-1234567890-..."),
+                        description=StringValue(value="e.g. xoxb-..."),
                         helper_text=StringValue(value="Enter your Slack Bot User OAuth Token (starts with xoxb-)."),
                         data_type=LiteralType.STRING,
                         form_field_type=FormFieldType.TEXT_FT,
