@@ -1,12 +1,16 @@
 import logging
 
+from google.protobuf.wrappers_pb2 import StringValue
+
 from core.integrations.source_api_processors.rootly_api_processor import RootlyApiProcessor
 from core.integrations.source_manager import SourceManager
-from core.protos.base_pb2 import Source, TimeRange, SourceModelType
+from core.protos.base_pb2 import Source, TimeRange, SourceModelType, SourceKeyType
 from core.protos.connectors.connector_pb2 import Connector as ConnectorProto
 from core.protos.playbooks.playbook_commons_pb2 import PlaybookTaskResult
+from core.protos.literal_pb2 import LiteralType
+from core.protos.ui_definition_pb2 import FormField, FormFieldType
 from core.protos.playbooks.source_task_definitions.rootly_task_pb2 import Rootly
-from core.utils.credentilal_utils import generate_credentials_dict
+from core.utils.credentilal_utils import generate_credentials_dict, get_connector_key_type_string, DISPLAY_NAME, CATEGORY, ALERTING
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +28,29 @@ class RootlySourceManager(SourceManager):
                 'display_name': 'Send a timeline event to a Rootly incident',
                 'category': 'Actions'
             }
+        }
+
+        self.connector_form_configs = [
+            {
+                "name": StringValue(value="Rootly API Key Connection"),
+                "description": StringValue(value="Connect to Rootly using an API Key."),
+                "form_fields": {
+                    SourceKeyType.ROOTLY_API_KEY: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.ROOTLY_API_KEY)),
+                        display_name=StringValue(value="API Key"),
+                        helper_text=StringValue(value="Enter your Rootly API Key."),
+                        description=StringValue(value='e.g. "1234567890abcdefghijklmnopqrstuvwxyz"'),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False,
+                        is_sensitive=True
+                    )
+                }
+            }
+        ]
+        self.connector_type_details = {
+            DISPLAY_NAME: "ROOTLY",
+            CATEGORY: ALERTING,
         }
 
     def get_connector_processor(self, rootly_connector, **kwargs):
