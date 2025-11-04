@@ -287,7 +287,7 @@ class Connector(google.protobuf.message.Message):
     def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     @property
     def account_id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
-    type: core.protos.base_pb2.SourceModelType.ValueType
+    type: core.protos.base_pb2.Source.ValueType
     @property
     def is_active(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
     @property
@@ -333,7 +333,7 @@ class Connector(google.protobuf.message.Message):
         *,
         id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
         account_id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
-        type: core.protos.base_pb2.SourceModelType.ValueType = ...,
+        type: core.protos.base_pb2.Source.ValueType = ...,
         is_active: google.protobuf.wrappers_pb2.BoolValue | None = ...,
         name: google.protobuf.wrappers_pb2.StringValue | None = ...,
         created_by: google.protobuf.wrappers_pb2.StringValue | None = ...,

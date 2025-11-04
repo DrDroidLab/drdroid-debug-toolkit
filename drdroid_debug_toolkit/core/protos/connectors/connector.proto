@@ -66,7 +66,7 @@ message ProxyAgentMetadata {
 message Connector {
   google.protobuf.UInt64Value id = 1;
   google.protobuf.UInt64Value account_id = 2;
-  SourceModelType type = 3;
+  Source type = 3;
   google.protobuf.BoolValue is_active = 4;
   google.protobuf.StringValue name = 5;
   google.protobuf.StringValue created_by = 6;
