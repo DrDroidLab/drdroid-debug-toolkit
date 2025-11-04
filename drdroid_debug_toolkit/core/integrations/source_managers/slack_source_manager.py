@@ -5,13 +5,13 @@ from google.protobuf.wrappers_pb2 import StringValue
 
 from core.integrations.source_api_processors.slack_api_processor import SlackApiProcessor
 from core.integrations.source_manager import SourceManager
-from core.protos.base_pb2 import Source, TimeRange, SourceModelType
+from core.protos.base_pb2 import Source, TimeRange, SourceModelType, SourceKeyType
 from core.protos.connectors.connector_pb2 import Connector as ConnectorProto
 from core.protos.literal_pb2 import LiteralType
 from core.protos.playbooks.playbook_commons_pb2 import PlaybookTaskResult, PlaybookTaskResultType
 from core.protos.playbooks.source_task_definitions.slack_task_pb2 import Slack
 from core.protos.ui_definition_pb2 import FormField, FormFieldType
-from core.utils.credentilal_utils import generate_credentials_dict
+from core.utils.credentilal_utils import generate_credentials_dict, get_connector_key_type_string, DISPLAY_NAME, CATEGORY, ALERTING
 from core.utils.proto_utils import proto_to_dict
 
 logger = logging.getLogger(__name__)
@@ -32,12 +32,14 @@ class SlackSourceManager(SourceManager):
                 'form_fields': [
                     FormField(key_name=StringValue(value="channel"),
                               display_name=StringValue(value="Channel"),
-                              description=StringValue(value="Select Slack Channel"),
+                              description=StringValue(value="e.g. #general, #alerts, #team-dev"),
+                              helper_text=StringValue(value="Select Slack Channel"),
                               data_type=LiteralType.STRING,
                               form_field_type=FormFieldType.TYPING_DROPDOWN_FT),
                     FormField(key_name=StringValue(value="text"),
                               display_name=StringValue(value="Message"),
-                              description=StringValue(value='Enter Message'),
+                              description=StringValue(value='e.g. "Alert: High CPU usage detected", "Deployment completed successfully"'),
+                              helper_text=StringValue(value="Enter Message"),
                               data_type=LiteralType.STRING,
                               form_field_type=FormFieldType.MULTILINE_FT),
                 ]
@@ -50,6 +52,97 @@ class SlackSourceManager(SourceManager):
             #     'category': 'Actions'
             # },
         }
+        self.connector_form_configs = [
+            {
+                "name": StringValue(value="Slack Bot Token Connection"),
+                "description": StringValue(value="Connect to Slack using a Bot User OAuth Token."),
+                "form_fields": {
+                    SourceKeyType.SLACK_BOT_AUTH_TOKEN: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.SLACK_BOT_AUTH_TOKEN)),
+                        display_name=StringValue(value="Bot Auth Token"),
+                        description=StringValue(value="e.g. xoxb-1234567890-1234567890-abcdefghijklmnopqrstuvwx"),
+                        helper_text=StringValue(value="Enter your Slack Bot User OAuth Token (starts with xoxb-)."),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False
+                    )
+                }
+            },
+            {
+                "name": StringValue(value="Slack App Credentials Connection"),
+                "description": StringValue(value="Connect to Slack using App credentials (App ID, Client ID, Client Secret, Signing Secret, Bot Auth Token)."),
+                "form_fields": {
+                    SourceKeyType.SLACK_APP_ID: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.SLACK_APP_ID)),
+                        display_name=StringValue(value="App ID"),
+                        description=StringValue(value="e.g. A1234567890"),
+                        helper_text=StringValue(value="Enter your Slack App ID."),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False
+                    ),
+                    SourceKeyType.SLACK_APP_CLIENT_ID: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.SLACK_APP_CLIENT_ID)),
+                        display_name=StringValue(value="Client ID"),
+                        description=StringValue(value="e.g. 1234567890.1234567890"),
+                        helper_text=StringValue(value="Enter your Slack App Client ID."),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False
+                    ),
+                    SourceKeyType.SLACK_APP_CLIENT_SECRET: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.SLACK_APP_CLIENT_SECRET)),
+                        display_name=StringValue(value="Client Secret"),
+                        description=StringValue(value="e.g. 1234567890abcdef1234567890abcdef"),
+                        helper_text=StringValue(value="Enter your Slack App Client Secret."),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False,
+                        is_sensitive=True
+                    ),
+                    SourceKeyType.SLACK_APP_SIGNING_SECRET: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.SLACK_APP_SIGNING_SECRET)),
+                        display_name=StringValue(value="Signing Secret"),
+                        description=StringValue(value="e.g. 1234567890abcdef1234567890abcdef"),
+                        helper_text=StringValue(value="Enter your Slack App Signing Secret."),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False,
+                        is_sensitive=True
+                    ),
+                    SourceKeyType.SLACK_BOT_AUTH_TOKEN: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.SLACK_BOT_AUTH_TOKEN)),
+                        display_name=StringValue(value="Bot Auth Token"),
+                        description=StringValue(value="e.g. xoxb-1234567890-1234567890-abcdefghijklmnopqrstuvwx"),
+                        helper_text=StringValue(value="Enter your Slack Bot User OAuth Token (starts with xoxb-)."),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False,
+                        is_sensitive=True
+                    )
+                }
+            }
+        ]
+        self.connector_type_details = {
+            DISPLAY_NAME: "SLACK",
+            CATEGORY: ALERTING,
+        }
+
+    @staticmethod
+    def validate_connector(connector: ConnectorProto) -> bool:
+        from core.integrations.source_facade import source_facade as playbook_source_facade
+        if connector.is_proxy_enabled.value:
+            return True
+        keys = connector.keys
+        all_ck_types = [ck.key_type for ck in keys if ck.key.value]
+        all_ck_types = list(set(all_ck_types))
+        required_key_types = playbook_source_facade.get_connector_required_keys(connector.type)
+        all_keys_found = False
+        for rkt in required_key_types:
+            if set(rkt) <= set(all_ck_types):
+                all_keys_found = True
+                break
+        return all_keys_found
 
     def get_connector_processor(self, grafana_connector, **kwargs):
         generated_credentials = generate_credentials_dict(grafana_connector.type, grafana_connector.keys)
@@ -93,7 +186,7 @@ class SlackSourceManager(SourceManager):
                     continue
             return PlaybookTaskResult(source=self.source, type=PlaybookTaskResultType.TEXT)
         except Exception as e:
-            raise Exception(f"Error while executing Postgres task: {e}")
+            raise Exception(f"Error while executing Slack send message task: {e}")
 
     def execute_send_thread_reply(self, time_range: TimeRange, slack_task: Slack,
                                   slack_connector: ConnectorProto):
@@ -135,4 +228,4 @@ class SlackSourceManager(SourceManager):
                     continue
             return PlaybookTaskResult(source=self.source, type=PlaybookTaskResultType.TEXT)
         except Exception as e:
-            raise Exception(f"Error while executing Postgres task: {e}")
+            raise Exception(f"Error while executing Slack send thread reply task: {e}")
