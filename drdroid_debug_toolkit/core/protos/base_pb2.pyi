@@ -207,6 +207,7 @@ class _SourceEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTyp
     LAMBDA: _Source.ValueType  # 68
     POSTHOG: _Source.ValueType  # 70
     SIGNOZ: _Source.ValueType  # 72
+    CORALOGIX: _Source.ValueType  # 74
 
 class Source(_Source, metaclass=_SourceEnumTypeWrapper): ...
 
@@ -280,6 +281,7 @@ ROLLBAR: Source.ValueType  # 67
 LAMBDA: Source.ValueType  # 68
 POSTHOG: Source.ValueType  # 70
 SIGNOZ: Source.ValueType  # 72
+CORALOGIX: Source.ValueType  # 74
 global___Source = Source
 
 class _SourceKeyType:

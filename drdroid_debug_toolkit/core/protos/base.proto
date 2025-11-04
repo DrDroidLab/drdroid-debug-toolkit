@@ -168,6 +168,7 @@ enum Source {
   LAMBDA = 68;
   POSTHOG = 70;
   SIGNOZ = 72;
+  CORALOGIX = 74;
 }
 
 enum SourceKeyType {
