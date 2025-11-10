@@ -1,8 +1,8 @@
 from typing import Dict
 
+from django.http import JsonResponse
 from google.protobuf.json_format import MessageToJson, Parse, MessageToDict, ParseDict
 from google.protobuf.message import Message, Message as ProtoMessage
-from django.http import JsonResponse
 from google.protobuf.wrappers_pb2 import BoolValue, UInt32Value
 
 from core.protos.base_pb2 import TimeRange, Page
@@ -11,6 +11,20 @@ from core.protos.connectors.api_pb2 import Meta
 
 class ProtoException(ValueError):
     pass
+
+class ProtoJsonResponse(JsonResponse):
+    def __init__(
+            self,
+            data,
+            **kwargs,
+    ):
+        if not isinstance(data, ProtoMessage):
+            raise TypeError(
+                f"data must be an instance of google.protobuf.message.Message, not {type(data)}"
+            )
+
+        json_data: Dict = proto_to_dict(data)
+        super().__init__(json_data, **kwargs)
 
 
 class ProtoJsonResponse(JsonResponse):
