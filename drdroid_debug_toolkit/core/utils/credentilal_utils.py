@@ -51,8 +51,8 @@ def generate_credentials_dict(connector_type, connector_keys):
         for conn_key in connector_keys:
             if conn_key.key_type == SourceKeyType.DATADOG_API_KEY:
                 credentials_dict['dd_api_key'] = conn_key.key.value
-            elif conn_key.key_type == SourceKeyType.DATADOG_APP_KEY:
-                credentials_dict['dd_app_key'] = conn_key.key.value
+            elif conn_key.key_type == SourceKeyType.DATADOG_AUTH_TOKEN:
+                credentials_dict['dd_auth_token'] = conn_key.key.value
             elif conn_key.key_type == SourceKeyType.DATADOG_API_DOMAIN:
                 credentials_dict['dd_api_domain'] = conn_key.key.value
     elif connector_type == Source.CLOUDWATCH:
@@ -65,6 +65,8 @@ def generate_credentials_dict(connector_type, connector_keys):
                 credentials_dict['region'] = conn_key.key.value
             elif conn_key.key_type == SourceKeyType.AWS_ASSUMED_ROLE_ARN:
                 credentials_dict['aws_assumed_role_arn'] = conn_key.key.value
+            elif conn_key.key_type == SourceKeyType.AWS_DRD_CLOUD_ROLE_ARN:
+                credentials_dict['aws_drd_cloud_role_arn'] = conn_key.key.value
     elif connector_type == Source.EKS:
         for conn_key in connector_keys:
             if conn_key.key_type == SourceKeyType.AWS_ACCESS_KEY:
@@ -77,6 +79,8 @@ def generate_credentials_dict(connector_type, connector_keys):
                 credentials_dict['k8_role_arn'] = conn_key.key.value
             elif conn_key.key_type == SourceKeyType.AWS_ASSUMED_ROLE_ARN:
                 credentials_dict['aws_assumed_role_arn'] = conn_key.key.value
+            elif conn_key.key_type == SourceKeyType.AWS_DRD_CLOUD_ROLE_ARN:
+                credentials_dict['aws_drd_cloud_role_arn'] = conn_key.key.value
     elif connector_type == Source.GRAFANA:
         for conn_key in connector_keys:
             if conn_key.key_type == SourceKeyType.GRAFANA_API_KEY:
@@ -136,6 +140,14 @@ def generate_credentials_dict(connector_type, connector_keys):
         for conn_key in connector_keys:
             if conn_key.key_type == SourceKeyType.SLACK_BOT_AUTH_TOKEN:
                 credentials_dict['bot_auth_token'] = conn_key.key.value
+            if conn_key.key_type == SourceKeyType.SLACK_APP_CLIENT_ID:
+                credentials_dict['client_id'] = conn_key.key.value
+            if conn_key.key_type == SourceKeyType.SLACK_APP_CLIENT_SECRET:
+                credentials_dict['client_secret'] = conn_key.key.value
+            if conn_key.key_type == SourceKeyType.SLACK_APP_ID:
+                credentials_dict['app_id'] = conn_key.key.value
+            if conn_key.key_type == SourceKeyType.SLACK_APP_SIGNING_SECRET:
+                credentials_dict['signing_secret'] = conn_key.key.value
     elif connector_type == Source.BASH:
         for conn_key in connector_keys:
             if conn_key.key_type == SourceKeyType.REMOTE_SERVER_HOST:
@@ -207,6 +219,24 @@ def generate_credentials_dict(connector_type, connector_keys):
                     credentials_dict['verify_certs'] = False
             if 'port' not in credentials_dict:
                 credentials_dict['port'] = '9200'
+    elif connector_type == Source.OPEN_SEARCH:
+        for conn_key in connector_keys:
+            if conn_key.key_type == SourceKeyType.OPEN_SEARCH_PROTOCOL:
+                credentials_dict['protocol'] = conn_key.key.value
+            elif conn_key.key_type == SourceKeyType.OPEN_SEARCH_HOST:
+                credentials_dict['host'] = conn_key.key.value
+            elif conn_key.key_type == SourceKeyType.OPEN_SEARCH_PORT:
+                credentials_dict['port'] = conn_key.key.value
+            elif conn_key.key_type == SourceKeyType.OPEN_SEARCH_USERNAME:
+                credentials_dict['username'] = conn_key.key.value
+            elif conn_key.key_type == SourceKeyType.OPEN_SEARCH_PASSWORD:
+                credentials_dict['password'] = conn_key.key.value
+            elif conn_key.key_type == SourceKeyType.OPEN_SEARCH_PORT:
+                credentials_dict['port'] = conn_key.key.value
+            elif conn_key.key_type == SourceKeyType.SSL_VERIFY:
+                credentials_dict['verify_certs'] = True
+                if conn_key.key.value.lower() == 'false':
+                    credentials_dict['verify_certs'] = False
     elif connector_type == Source.GRAFANA_LOKI:
         for conn_key in connector_keys:
             if conn_key.key_type == SourceKeyType.GRAFANA_LOKI_HOST:
@@ -221,6 +251,21 @@ def generate_credentials_dict(connector_type, connector_keys):
                 credentials_dict['ssl_verify'] = 'true'
                 if conn_key.key.value.lower() == 'false':
                     credentials_dict['ssl_verify'] = 'false'
+    elif connector_type == Source.VICTORIA_LOGS:
+        for conn_key in connector_keys:
+            if conn_key.key_type == SourceKeyType.VICTORIA_LOGS_PROTOCOL:
+                credentials_dict['VICTORIA_LOGS_PROTOCOL'] = conn_key.key.value
+            elif conn_key.key_type == SourceKeyType.VICTORIA_LOGS_HOST:
+                credentials_dict['VICTORIA_LOGS_HOST'] = conn_key.key.value
+            elif conn_key.key_type == SourceKeyType.VICTORIA_LOGS_PORT:
+                credentials_dict['VICTORIA_LOGS_PORT'] = conn_key.key.value
+            elif conn_key.key_type == SourceKeyType.MCP_SERVER_AUTH_HEADERS:
+                credentials_dict['MCP_SERVER_AUTH_HEADERS'] = conn_key.key.value
+            elif conn_key.key_type == SourceKeyType.SSL_VERIFY:
+                # Normalize to string like other connectors; processor handles str/bool
+                credentials_dict['SSL_VERIFY'] = 'true'
+                if str(conn_key.key.value).lower() == 'false':
+                    credentials_dict['SSL_VERIFY'] = 'false'
     elif connector_type == Source.KUBERNETES:
         for conn_key in connector_keys:
             if conn_key.key_type == SourceKeyType.KUBERNETES_CLUSTER_API_SERVER:
@@ -253,46 +298,32 @@ def generate_credentials_dict(connector_type, connector_keys):
                 credentials_dict['project_id'] = conn_key.key.value
             elif conn_key.key_type == SourceKeyType.BIG_QUERY_SERVICE_ACCOUNT_JSON:
                 credentials_dict['service_account_json'] = conn_key.key.value
+    elif connector_type == Source.OPS_GENIE:
+        for conn_key in connector_keys:
+            if conn_key.key_type == SourceKeyType.OPS_GENIE_API_KEY:
+                credentials_dict['ops_genie_api_key'] = conn_key.key.value
+    elif connector_type == Source.DRD_PROXY_AGENT:
+        for conn_key in connector_keys:
+            if conn_key.key_type == SourceKeyType.DRD_PROXY_AGENT_HOST:
+                credentials_dict['host'] = conn_key.key.value
+            if conn_key.key_type == SourceKeyType.DRD_PROXY_AGENT_API_KEY:
+                credentials_dict['api_key'] = conn_key.key.value
+            if conn_key.key_type == SourceKeyType.DRD_PROXY_AGENT_API_TOKEN:
+                credentials_dict['api_token'] = conn_key.key.value
+    elif connector_type == Source.SENTRY:
+        for conn_key in connector_keys:
+            if conn_key.key_type == SourceKeyType.SENTRY_API_KEY:
+                credentials_dict['api_key'] = conn_key.key.value
+            if conn_key.key_type == SourceKeyType.SENTRY_ORG_SLUG:
+                credentials_dict['org_slug'] = conn_key.key.value
+    elif connector_type == Source.ASANA:
+        for conn_key in connector_keys:
+            if conn_key.key_type == SourceKeyType.ASANA_ACCESS_TOKEN:
+                credentials_dict['access_token'] = conn_key.key.value
     elif connector_type == Source.MONGODB:
         for conn_key in connector_keys:
             if conn_key.key_type == SourceKeyType.MONGODB_CONNECTION_STRING:
                 credentials_dict['connection_string'] = conn_key.key.value
-    elif connector_type == Source.OPEN_SEARCH:
-        for conn_key in connector_keys:
-            if conn_key.key_type == SourceKeyType.OPEN_SEARCH_HOST:
-                credentials_dict['host'] = conn_key.key.value
-            elif conn_key.key_type == SourceKeyType.OPEN_SEARCH_PORT:
-                credentials_dict['port'] = conn_key.key.value
-            elif conn_key.key_type == SourceKeyType.OPEN_SEARCH_PROTOCOL:
-                credentials_dict['protocol'] = conn_key.key.value
-            elif conn_key.key_type == SourceKeyType.OPEN_SEARCH_USERNAME:
-                credentials_dict['username'] = conn_key.key.value
-            elif conn_key.key_type == SourceKeyType.OPEN_SEARCH_PASSWORD:
-                credentials_dict['password'] = conn_key.key.value
-            elif conn_key.key_type == SourceKeyType.SSL_VERIFY:
-                credentials_dict['verify_certs'] = True
-                if conn_key.key.value.lower() == 'false':
-                    credentials_dict['verify_certs'] = False
-    elif connector_type == Source.GITHUB:
-        for conn_key in connector_keys:
-            if conn_key.key_type == SourceKeyType.GITHUB_TOKEN:
-                credentials_dict['api_key'] = conn_key.key.value
-            if conn_key.key_type == SourceKeyType.GITHUB_ORG:
-                credentials_dict['org'] = conn_key.key.value
-    elif connector_type == Source.ARGOCD:
-        for conn_key in connector_keys:
-            if conn_key.key_type == SourceKeyType.ARGOCD_SERVER:
-                credentials_dict['argocd_server'] = conn_key.key.value
-            elif conn_key.key_type == SourceKeyType.ARGOCD_TOKEN:
-                credentials_dict['argocd_token'] = conn_key.key.value
-    elif connector_type == Source.JIRA_CLOUD:
-        for conn_key in connector_keys:
-            if conn_key.key_type == SourceKeyType.JIRA_DOMAIN:
-                credentials_dict['jira_domain'] = conn_key.key.value
-            elif conn_key.key_type == SourceKeyType.JIRA_CLOUD_API_KEY:
-                credentials_dict['jira_cloud_api_key'] = conn_key.key.value
-            elif conn_key.key_type == SourceKeyType.JIRA_EMAIL:
-                credentials_dict['jira_email'] = conn_key.key.value
     elif connector_type == Source.JENKINS:
         for conn_key in connector_keys:
             if conn_key.key_type == SourceKeyType.JENKINS_URL:
@@ -305,6 +336,42 @@ def generate_credentials_dict(connector_type, connector_keys):
                 credentials_dict['crumb'] = False
                 if conn_key.key.value.lower() == 'true':
                     credentials_dict['crumb'] = True
+    elif connector_type == Source.LINEAR:
+        for conn_key in connector_keys:
+            if conn_key.key_type == SourceKeyType.LINEAR_API_KEY:
+                credentials_dict['api_key'] = conn_key.key.value
+    elif connector_type == Source.GITHUB:
+        for conn_key in connector_keys:
+            if conn_key.key_type == SourceKeyType.GITHUB_TOKEN:
+                credentials_dict['api_key'] = conn_key.key.value
+            if conn_key.key_type == SourceKeyType.GITHUB_ORG:
+                credentials_dict['org'] = conn_key.key.value
+    elif connector_type == Source.GITHUB_ACTIONS:
+        for conn_key in connector_keys:
+            if conn_key.key_type == SourceKeyType.GITHUB_ACTIONS_TOKEN:
+                credentials_dict['api_key'] = conn_key.key.value
+    elif connector_type == Source.CUSTOM_STRATEGIES:
+        for conn_key in connector_keys:
+            if conn_key.key_type == SourceKeyType.CUSTOM_STRATEGIES_ACCOUNT_ID:
+                credentials_dict['account_id'] = conn_key.key.value
+    elif connector_type == Source.ARGOCD:
+        for conn_key in connector_keys:
+            if conn_key.key_type == SourceKeyType.ARGOCD_SERVER:
+                credentials_dict['argocd_server'] = conn_key.key.value
+            if conn_key.key_type == SourceKeyType.ARGOCD_TOKEN:
+                credentials_dict['argocd_token'] = conn_key.key.value
+    elif connector_type == Source.JIRA_CLOUD:
+        for conn_key in connector_keys:
+            if conn_key.key_type == SourceKeyType.JIRA_CLOUD_API_KEY:
+                credentials_dict['jira_cloud_api_key'] = conn_key.key.value
+            if conn_key.key_type == SourceKeyType.JIRA_DOMAIN:
+                credentials_dict['jira_domain'] = conn_key.key.value
+            if conn_key.key_type == SourceKeyType.JIRA_EMAIL:
+                credentials_dict['jira_email'] = conn_key.key.value
+    elif connector_type == Source.ROLLBAR:
+        for conn_key in connector_keys:
+            if conn_key.key_type == SourceKeyType.ROLLBAR_ACCESS_TOKEN:
+                credentials_dict['rollbar_access_token'] = conn_key.key.value
     elif connector_type == Source.POSTHOG:
         for conn_key in connector_keys:
             if conn_key.key_type == SourceKeyType.POSTHOG_API_KEY:
@@ -313,26 +380,66 @@ def generate_credentials_dict(connector_type, connector_keys):
                 credentials_dict['posthog_host'] = conn_key.key.value
             if conn_key.key_type == SourceKeyType.POSTHOG_PROJECT_ID:
                 credentials_dict['project_id'] = conn_key.key.value
-
+    elif connector_type == Source.MIXPANEL:
+        for conn_key in connector_keys:
+            if conn_key.key_type == SourceKeyType.MIXPANEL_SERVICE_ACCOUNT_USERNAME:
+                credentials_dict['service_account_username'] = conn_key.key.value
+            if conn_key.key_type == SourceKeyType.MIXPANEL_SERVICE_ACCOUNT_SECRET:
+                credentials_dict['service_account_secret'] = conn_key.key.value
+            if conn_key.key_type == SourceKeyType.MIXPANEL_DOMAIN:
+                credentials_dict['mixpanel_host'] = conn_key.key.value
+            if conn_key.key_type == SourceKeyType.MIXPANEL_PROJECT_ID:
+                credentials_dict['project_id'] = conn_key.key.value
+            if conn_key.key_type == SourceKeyType.MIXPANEL_WORKSPACE_ID:
+                credentials_dict['workspace_id'] = conn_key.key.value
+    elif connector_type == Source.ROLLBAR:
+        for conn_key in connector_keys:
+            if conn_key.key_type == SourceKeyType.ROLLBAR_ACCESS_TOKEN:
+                credentials_dict['rollbar_access_token'] = conn_key.key.value
     elif connector_type == Source.SIGNOZ:
         for conn_key in connector_keys:
             if conn_key.key_type == SourceKeyType.SIGNOZ_API_URL:
                 credentials_dict['signoz_api_url'] = conn_key.key.value
             if conn_key.key_type == SourceKeyType.SIGNOZ_API_TOKEN:
                 credentials_dict['signoz_api_token'] = conn_key.key.value
-    
-    elif connector_type == Source.SENTRY:
+    elif connector_type == Source.CONFLUENCE_CLOUD:
         for conn_key in connector_keys:
-            if conn_key.key_type == SourceKeyType.SENTRY_API_KEY:
-                credentials_dict['api_key'] = conn_key.key.value
-            if conn_key.key_type == SourceKeyType.SENTRY_ORG_SLUG:
-                credentials_dict['org_slug'] = conn_key.key.value
-
-    elif connector_type == Source.GITHUB_ACTIONS:
+            if conn_key.key_type == SourceKeyType.CONFLUENCE_CLOUD_SITE_URL:
+                credentials_dict['confluence_cloud_site_url'] = conn_key.key.value
+            if conn_key.key_type == SourceKeyType.CONFLUENCE_CLOUD_ATLASSIAN_ACCOUNT_EMAIL:
+                credentials_dict['atlassian_account_email'] = conn_key.key.value
+            if conn_key.key_type == SourceKeyType.CONFLUENCE_CLOUD_API_KEY:
+                credentials_dict['confluence_cloud_api_key'] = conn_key.key.value
+    elif connector_type == Source.BITBUCKET:
         for conn_key in connector_keys:
-            if conn_key.key_type == SourceKeyType.GITHUB_ACTIONS_TOKEN:
+            if conn_key.key_type == SourceKeyType.BITBUCKET_API_KEY:
                 credentials_dict['api_key'] = conn_key.key.value
-
+            elif conn_key.key_type == SourceKeyType.BITBUCKET_WORKSPACE:
+                credentials_dict['workspace'] = conn_key.key.value
+            elif conn_key.key_type == SourceKeyType.BITBUCKET_REPO:
+                credentials_dict['repo'] = conn_key.key.value
+    elif connector_type == Source.RENDER:
+        for conn_key in connector_keys:
+            if conn_key.key_type == SourceKeyType.RENDER_API_KEY:
+                credentials_dict['api_key'] = conn_key.key.value
+    elif connector_type == Source.CORALOGIX:
+        for conn_key in connector_keys:
+            if conn_key.key_type == SourceKeyType.CORALOGIX_API_KEY:
+                credentials_dict['api_key'] = conn_key.key.value
+            elif conn_key.key_type == SourceKeyType.CORALOGIX_ENDPOINT:
+                credentials_dict['endpoint'] = conn_key.key.value
+            elif conn_key.key_type == SourceKeyType.CORALOGIX_DOMAIN:
+                credentials_dict['domain'] = conn_key.key.value
+            elif conn_key.key_type == SourceKeyType.SSL_VERIFY:
+                credentials_dict['ssl_verify'] = 'true'
+                if conn_key.key.value.lower() == 'false':
+                    credentials_dict['ssl_verify'] = 'false'
+    elif connector_type == Source.MCP_SERVER:
+        for conn_key in connector_keys:
+            if conn_key.key_type == SourceKeyType.MCP_SERVER_BASE_URL:
+                credentials_dict['mcp_server_base_url'] = conn_key.key.value
+            elif conn_key.key_type == SourceKeyType.MCP_SERVER_AUTH_HEADERS:
+                credentials_dict['mcp_server_auth_headers'] = conn_key.key.value
     else:
         return None
     return credentials_dict
