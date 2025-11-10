@@ -977,48 +977,6 @@ class Page(google.protobuf.message.Message):
 global___Page = Page
 
 @typing_extensions.final
-class Message(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    TITLE_FIELD_NUMBER: builtins.int
-    DESCRIPTION_FIELD_NUMBER: builtins.int
-    TRACEBACK_FIELD_NUMBER: builtins.int
-    title: builtins.str
-    description: builtins.str
-    traceback: builtins.str
-    def __init__(
-        self,
-        *,
-        title: builtins.str = ...,
-        description: builtins.str = ...,
-        traceback: builtins.str = ...,
-    ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["description", b"description", "title", b"title", "traceback", b"traceback"]) -> None: ...
-
-global___Message = Message
-
-@typing_extensions.final
-class ErrorMessage(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    ERROR_FIELD_NUMBER: builtins.int
-    MESSAGE_FIELD_NUMBER: builtins.int
-    @property
-    def error(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
-    @property
-    def message(self) -> global___Message: ...
-    def __init__(
-        self,
-        *,
-        error: google.protobuf.wrappers_pb2.BoolValue | None = ...,
-        message: global___Message | None = ...,
-    ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["error", b"error", "message", b"message"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["error", b"error", "message", b"message"]) -> None: ...
-
-global___ErrorMessage = ErrorMessage
-
-@typing_extensions.final
 class OpDescription(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
