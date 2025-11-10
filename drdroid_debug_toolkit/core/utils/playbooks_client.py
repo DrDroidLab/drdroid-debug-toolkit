@@ -161,7 +161,7 @@ class PrototypeClient:
             "cloudwatch", "grafana", "clickhouse", "slack", "new_relic", "datadog",
             "postgres", "eks", "bash", "azure", "gke", "elastic_search", "gcm",
             "datadog_oauth", "open_search", "asana", "github", "jira_cloud", "argocd",
-            "jenkins", "mongodb", "posthog", "sql", "signoz"
+            "jenkins", "mongodb", "posthog", "sql", "signoz", "coralogix"
         ]
 
         base_field = None

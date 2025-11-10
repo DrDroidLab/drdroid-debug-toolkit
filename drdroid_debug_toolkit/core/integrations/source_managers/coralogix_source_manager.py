@@ -852,7 +852,14 @@ class CoralogixSourceManager(SourceManager):
                 asset_type=SourceModelType.CORALOGIX_DASHBOARD,
             )
 
-            if not assets or not assets.coralogix or not assets.coralogix.assets:
+            # Check if assets has the coralogix field
+            if not assets:
+                logger.warning(f"No assets returned for dashboard ID: {dashboard_id}")
+            elif not hasattr(assets, 'coralogix'):
+                logger.error(f"Assets object does not have 'coralogix' attribute. Available attributes: {dir(assets)}")
+                raise Exception(f"Assets object does not have 'coralogix' field. This may indicate a missing proto field definition.")
+
+            if not assets or not hasattr(assets, 'coralogix') or not assets.coralogix or not assets.coralogix.assets:
                 # Extract endpoint URL and create metadata with Coralogix URL
                 domain = self._extract_domain_from_connector(coralogix_connector)
                 time_params = self._get_coralogix_time_params(time_range)
@@ -1070,16 +1077,34 @@ class CoralogixSourceManager(SourceManager):
             )
 
             # 1. Get dashboard assets to extract variable information
-            client = PrototypeClient()
-            assets = client.get_connector_assets(
-                connector_type=Source.Name(coralogix_connector.type),
-                connector_id=str(coralogix_connector.id.value),
-                asset_type=SourceModelType.CORALOGIX_DASHBOARD,
-            )
+            try:
+                client = PrototypeClient()
+                logger.debug(f"PrototypeClient initialized for dashboard ID: {dashboard_id}")
+            except Exception as client_error:
+                logger.error(f"Failed to initialize PrototypeClient: {client_error}")
+                raise Exception(f"Failed to initialize PrototypeClient: {str(client_error)}") from client_error
+            
+            try:
+                assets = client.get_connector_assets(
+                    connector_type=Source.Name(coralogix_connector.type),
+                    connector_id=str(coralogix_connector.id.value),
+                    asset_type=SourceModelType.CORALOGIX_DASHBOARD,
+                )
+                logger.debug(f"Assets retrieved for dashboard ID: {dashboard_id}, assets type: {type(assets)}")
+            except Exception as assets_error:
+                logger.error(f"Failed to get connector assets: {assets_error}")
+                raise Exception(f"Failed to get connector assets: {str(assets_error)}") from assets_error
             
             logger.info(f"Assets found for dashboard ID: {dashboard_id}")
 
-            if not assets or not assets.coralogix or not assets.coralogix.assets:
+            # Check if assets has the coralogix field
+            if not assets:
+                logger.warning(f"No assets returned for dashboard ID: {dashboard_id}")
+            elif not hasattr(assets, 'coralogix'):
+                logger.error(f"Assets object does not have 'coralogix' attribute. Available attributes: {dir(assets)}")
+                raise Exception(f"Assets object does not have 'coralogix' field. This may indicate a missing proto field definition.")
+
+            if not assets or not hasattr(assets, 'coralogix') or not assets.coralogix or not assets.coralogix.assets:
                 # Extract endpoint URL and create metadata with Coralogix URL
                 domain = self._extract_domain_from_connector(coralogix_connector)
                 time_params = self._get_coralogix_time_params(time_range)

@@ -28,6 +28,7 @@ import "core/protos/assets/signoz_asset.proto";
 import "core/protos/assets/posthog_asset.proto";
 import "core/protos/assets/sql_database_asset.proto";
 import "core/protos/assets/mongodb_asset.proto";
+import "core/protos/assets/coralogix_asset.proto";
 
 message ConnectorModelTypeOptions {
   SourceModelType model_type = 1;
@@ -104,6 +105,7 @@ message AccountConnectorAssets {
     PosthogAssets posthog = 23;
     SqlAssets sql = 24;
     SignozAssets signoz = 25;
+    CoralogixAssets coralogix = 26;
   }
 }
 
