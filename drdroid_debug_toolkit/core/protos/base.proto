@@ -175,6 +175,7 @@ enum Source {
   CORALOGIX = 74;
   RENDER = 75;
   MCP_SERVER = 76;
+  VICTORIA_LOGS=77;
 }
 
 enum SourceKeyType {
@@ -367,6 +368,11 @@ enum SourceKeyType {
   
   MCP_SERVER_BASE_URL = 150;
   MCP_SERVER_AUTH_HEADERS = 151;
+
+  // VictoriaLogs specific keys (used by VictoriaLogs connector forms)
+    VICTORIA_LOGS_PROTOCOL = 154;
+    VICTORIA_LOGS_HOST = 155;
+    VICTORIA_LOGS_PORT = 156;
 }
 
 enum SourceModelType {
@@ -547,6 +553,9 @@ enum SourceModelType {
   // Coralogix Models
   CORALOGIX_DASHBOARD = 8001;
   CORALOGIX_INDEX_MAPPING = 8002;
+
+  // VictoriaLogs Models
+  VICTORIA_LOGS_FIELD = 9001;
 }
 
 message EventKey {

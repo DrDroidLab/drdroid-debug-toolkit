@@ -214,6 +214,7 @@ class _SourceEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTyp
     CORALOGIX: _Source.ValueType  # 74
     RENDER: _Source.ValueType  # 75
     MCP_SERVER: _Source.ValueType  # 76
+    VICTORIA_LOGS: _Source.ValueType  # 77
 
 class Source(_Source, metaclass=_SourceEnumTypeWrapper): ...
 
@@ -294,6 +295,7 @@ BITBUCKET: Source.ValueType  # 73
 CORALOGIX: Source.ValueType  # 74
 RENDER: Source.ValueType  # 75
 MCP_SERVER: Source.ValueType  # 76
+VICTORIA_LOGS: Source.ValueType  # 77
 global___Source = Source
 
 class _SourceKeyType:
@@ -442,6 +444,10 @@ class _SourceKeyTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     CORALOGIX_DOMAIN: _SourceKeyType.ValueType  # 152
     MCP_SERVER_BASE_URL: _SourceKeyType.ValueType  # 150
     MCP_SERVER_AUTH_HEADERS: _SourceKeyType.ValueType  # 151
+    VICTORIA_LOGS_PROTOCOL: _SourceKeyType.ValueType  # 154
+    """VictoriaLogs specific keys (used by VictoriaLogs connector forms)"""
+    VICTORIA_LOGS_HOST: _SourceKeyType.ValueType  # 155
+    VICTORIA_LOGS_PORT: _SourceKeyType.ValueType  # 156
 
 class SourceKeyType(_SourceKeyType, metaclass=_SourceKeyTypeEnumTypeWrapper): ...
 
@@ -585,6 +591,10 @@ CORALOGIX_ENDPOINT: SourceKeyType.ValueType  # 149
 CORALOGIX_DOMAIN: SourceKeyType.ValueType  # 152
 MCP_SERVER_BASE_URL: SourceKeyType.ValueType  # 150
 MCP_SERVER_AUTH_HEADERS: SourceKeyType.ValueType  # 151
+VICTORIA_LOGS_PROTOCOL: SourceKeyType.ValueType  # 154
+"""VictoriaLogs specific keys (used by VictoriaLogs connector forms)"""
+VICTORIA_LOGS_HOST: SourceKeyType.ValueType  # 155
+VICTORIA_LOGS_PORT: SourceKeyType.ValueType  # 156
 global___SourceKeyType = SourceKeyType
 
 class _SourceModelType:
@@ -735,6 +745,8 @@ class _SourceModelTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper
     CORALOGIX_DASHBOARD: _SourceModelType.ValueType  # 8001
     """Coralogix Models"""
     CORALOGIX_INDEX_MAPPING: _SourceModelType.ValueType  # 8002
+    VICTORIA_LOGS_FIELD: _SourceModelType.ValueType  # 9001
+    """VictoriaLogs Models"""
 
 class SourceModelType(_SourceModelType, metaclass=_SourceModelTypeEnumTypeWrapper): ...
 
@@ -880,6 +892,8 @@ SENTRY_PROJECT: SourceModelType.ValueType  # 7001
 CORALOGIX_DASHBOARD: SourceModelType.ValueType  # 8001
 """Coralogix Models"""
 CORALOGIX_INDEX_MAPPING: SourceModelType.ValueType  # 8002
+VICTORIA_LOGS_FIELD: SourceModelType.ValueType  # 9001
+"""VictoriaLogs Models"""
 global___SourceModelType = SourceModelType
 
 class _Context:
