@@ -33,6 +33,7 @@ class _PlaybookExecutionStatusTypeEnumTypeWrapper(google.protobuf.internal.enum_
     RUNNING: _PlaybookExecutionStatusType.ValueType  # 2
     FINISHED: _PlaybookExecutionStatusType.ValueType  # 3
     FAILED: _PlaybookExecutionStatusType.ValueType  # 4
+    APPROVAL_REQUIRED: _PlaybookExecutionStatusType.ValueType  # 5
 
 class PlaybookExecutionStatusType(_PlaybookExecutionStatusType, metaclass=_PlaybookExecutionStatusTypeEnumTypeWrapper): ...
 
@@ -41,6 +42,7 @@ CREATED: PlaybookExecutionStatusType.ValueType  # 1
 RUNNING: PlaybookExecutionStatusType.ValueType  # 2
 FINISHED: PlaybookExecutionStatusType.ValueType  # 3
 FAILED: PlaybookExecutionStatusType.ValueType  # 4
+APPROVAL_REQUIRED: PlaybookExecutionStatusType.ValueType  # 5
 global___PlaybookExecutionStatusType = PlaybookExecutionStatusType
 
 class _VariableType:
