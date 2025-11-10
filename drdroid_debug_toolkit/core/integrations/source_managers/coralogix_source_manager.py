@@ -1115,7 +1115,7 @@ class CoralogixSourceManager(SourceManager):
                     text=TextResult(output=StringValue(value=f"No dashboard asset found for dashboard ID: {dashboard_id}")),
                     metadata=metadata
                 )
-            
+            logger.info(f"Dashboard asset found for dashboard ID: {dashboard_id}")
             # Get the dashboard asset
             dashboard_data = dashboard_asset.coralogix_dashboard
             
@@ -1124,7 +1124,7 @@ class CoralogixSourceManager(SourceManager):
             
             # 2. Get the API processor for executing queries
             processor = self.get_connector_processor(coralogix_connector)
-            
+            logger.info(f"Processor found for dashboard ID: {dashboard_id}")
             # 3. Extract variables from the dashboard and execute queries for query-based variables
             variables_data = self._extract_dashboard_variables(dashboard_dict, dashboard_id, processor)
             
@@ -1147,7 +1147,7 @@ class CoralogixSourceManager(SourceManager):
             # Convert to protobuf struct
             response_struct = dict_to_proto(variables_data, Struct)
             output = ApiResponseResult(response_body=response_struct)
-            
+            logger.info(f"Output found for dashboard ID: {dashboard_id}")
             # Extract endpoint URL and create metadata with Coralogix URL
             domain = self._extract_domain_from_connector(coralogix_connector)
             time_params = self._get_coralogix_time_params(time_range)
