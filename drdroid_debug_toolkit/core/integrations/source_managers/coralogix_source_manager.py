@@ -1076,6 +1076,8 @@ class CoralogixSourceManager(SourceManager):
                 connector_id=str(coralogix_connector.id.value),
                 asset_type=SourceModelType.CORALOGIX_DASHBOARD,
             )
+            
+            logger.info(f"Assets found for dashboard ID: {dashboard_id}")
 
             if not assets or not assets.coralogix or not assets.coralogix.assets:
                 # Extract endpoint URL and create metadata with Coralogix URL
