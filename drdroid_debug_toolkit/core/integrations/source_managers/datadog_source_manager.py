@@ -1625,7 +1625,7 @@ class DatadogSourceManager(SourceManager):
             if next_cursor:
                 metadata_struct = dict_to_proto(
                     {"next_cursor": next_cursor},
-                    Struct()
+                    Struct
                 )
                 metadata_kwargs["metadata"] = metadata_struct
 
