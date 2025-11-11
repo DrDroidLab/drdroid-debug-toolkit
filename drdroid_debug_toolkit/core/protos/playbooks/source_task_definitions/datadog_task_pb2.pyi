@@ -42,6 +42,7 @@ class Datadog(google.protobuf.message.Message):
         GET_DASHBOARD_CONFIG_DETAILS: Datadog._TaskType.ValueType  # 9
         GET_DASHBOARD_VARIABLE_VALUES: Datadog._TaskType.ValueType  # 10
         FETCH_DASHBOARDS: Datadog._TaskType.ValueType  # 11
+        SPAN_AGGREGATE_EXECUTION: Datadog._TaskType.ValueType  # 12
 
     class TaskType(_TaskType, metaclass=_TaskTypeEnumTypeWrapper): ...
     UNKNOWN: Datadog.TaskType.ValueType  # 0
@@ -56,6 +57,7 @@ class Datadog(google.protobuf.message.Message):
     GET_DASHBOARD_CONFIG_DETAILS: Datadog.TaskType.ValueType  # 9
     GET_DASHBOARD_VARIABLE_VALUES: Datadog.TaskType.ValueType  # 10
     FETCH_DASHBOARDS: Datadog.TaskType.ValueType  # 11
+    SPAN_AGGREGATE_EXECUTION: Datadog.TaskType.ValueType  # 12
 
     @typing_extensions.final
     class ServiceMetricExecutionTask(google.protobuf.message.Message):
@@ -312,6 +314,37 @@ class Datadog(google.protobuf.message.Message):
             self,
         ) -> None: ...
 
+    @typing_extensions.final
+    class SpanAggregateExecutionTask(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        QUERY_FIELD_NUMBER: builtins.int
+        AGGREGATION_FIELD_NUMBER: builtins.int
+        COMPUTE_TYPE_FIELD_NUMBER: builtins.int
+        INTERVAL_SECONDS_FIELD_NUMBER: builtins.int
+        GROUP_BY_FIELD_NUMBER: builtins.int
+        @property
+        def query(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def aggregation(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def compute_type(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def interval_seconds(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+        @property
+        def group_by(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[google.protobuf.wrappers_pb2.StringValue]: ...
+        def __init__(
+            self,
+            *,
+            query: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            aggregation: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            compute_type: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            interval_seconds: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+            group_by: collections.abc.Iterable[google.protobuf.wrappers_pb2.StringValue] | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["aggregation", b"aggregation", "compute_type", b"compute_type", "interval_seconds", b"interval_seconds", "query", b"query"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["aggregation", b"aggregation", "compute_type", b"compute_type", "group_by", b"group_by", "interval_seconds", b"interval_seconds", "query", b"query"]) -> None: ...
+
     TYPE_FIELD_NUMBER: builtins.int
     SERVICE_METRIC_EXECUTION_FIELD_NUMBER: builtins.int
     QUERY_METRIC_EXECUTION_FIELD_NUMBER: builtins.int
@@ -324,6 +357,7 @@ class Datadog(google.protobuf.message.Message):
     GET_DASHBOARD_CONFIG_DETAILS_FIELD_NUMBER: builtins.int
     GET_DASHBOARD_VARIABLE_VALUES_FIELD_NUMBER: builtins.int
     FETCH_DASHBOARDS_FIELD_NUMBER: builtins.int
+    SPAN_AGGREGATE_EXECUTION_FIELD_NUMBER: builtins.int
     type: global___Datadog.TaskType.ValueType
     @property
     def service_metric_execution(self) -> global___Datadog.ServiceMetricExecutionTask: ...
@@ -347,6 +381,8 @@ class Datadog(google.protobuf.message.Message):
     def get_dashboard_variable_values(self) -> global___Datadog.GetDashboardVariableValuesTask: ...
     @property
     def fetch_dashboards(self) -> global___Datadog.FetchDashboardsTask: ...
+    @property
+    def span_aggregate_execution(self) -> global___Datadog.SpanAggregateExecutionTask: ...
     def __init__(
         self,
         *,
@@ -362,9 +398,10 @@ class Datadog(google.protobuf.message.Message):
         get_dashboard_config_details: global___Datadog.GetDashboardConfigDetailsTask | None = ...,
         get_dashboard_variable_values: global___Datadog.GetDashboardVariableValuesTask | None = ...,
         fetch_dashboards: global___Datadog.FetchDashboardsTask | None = ...,
+        span_aggregate_execution: global___Datadog.SpanAggregateExecutionTask | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["apm_query", b"apm_query", "dashboard_multiple_widgets", b"dashboard_multiple_widgets", "fetch_dashboards", b"fetch_dashboards", "generic_query", b"generic_query", "get_dashboard_config_details", b"get_dashboard_config_details", "get_dashboard_variable_values", b"get_dashboard_variable_values", "log_count_by_service_execution", b"log_count_by_service_execution", "log_query_execution", b"log_query_execution", "query_dashboard_widget_metric", b"query_dashboard_widget_metric", "query_metric_execution", b"query_metric_execution", "service_metric_execution", b"service_metric_execution", "task", b"task"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["apm_query", b"apm_query", "dashboard_multiple_widgets", b"dashboard_multiple_widgets", "fetch_dashboards", b"fetch_dashboards", "generic_query", b"generic_query", "get_dashboard_config_details", b"get_dashboard_config_details", "get_dashboard_variable_values", b"get_dashboard_variable_values", "log_count_by_service_execution", b"log_count_by_service_execution", "log_query_execution", b"log_query_execution", "query_dashboard_widget_metric", b"query_dashboard_widget_metric", "query_metric_execution", b"query_metric_execution", "service_metric_execution", b"service_metric_execution", "task", b"task", "type", b"type"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing_extensions.Literal["task", b"task"]) -> typing_extensions.Literal["service_metric_execution", "query_metric_execution", "log_query_execution", "query_dashboard_widget_metric", "log_count_by_service_execution", "dashboard_multiple_widgets", "apm_query", "generic_query", "get_dashboard_config_details", "get_dashboard_variable_values", "fetch_dashboards"] | None: ...
+    def HasField(self, field_name: typing_extensions.Literal["apm_query", b"apm_query", "dashboard_multiple_widgets", b"dashboard_multiple_widgets", "fetch_dashboards", b"fetch_dashboards", "generic_query", b"generic_query", "get_dashboard_config_details", b"get_dashboard_config_details", "get_dashboard_variable_values", b"get_dashboard_variable_values", "log_count_by_service_execution", b"log_count_by_service_execution", "log_query_execution", b"log_query_execution", "query_dashboard_widget_metric", b"query_dashboard_widget_metric", "query_metric_execution", b"query_metric_execution", "service_metric_execution", b"service_metric_execution", "span_aggregate_execution", b"span_aggregate_execution", "task", b"task"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["apm_query", b"apm_query", "dashboard_multiple_widgets", b"dashboard_multiple_widgets", "fetch_dashboards", b"fetch_dashboards", "generic_query", b"generic_query", "get_dashboard_config_details", b"get_dashboard_config_details", "get_dashboard_variable_values", b"get_dashboard_variable_values", "log_count_by_service_execution", b"log_count_by_service_execution", "log_query_execution", b"log_query_execution", "query_dashboard_widget_metric", b"query_dashboard_widget_metric", "query_metric_execution", b"query_metric_execution", "service_metric_execution", b"service_metric_execution", "span_aggregate_execution", b"span_aggregate_execution", "task", b"task", "type", b"type"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing_extensions.Literal["task", b"task"]) -> typing_extensions.Literal["service_metric_execution", "query_metric_execution", "log_query_execution", "query_dashboard_widget_metric", "log_count_by_service_execution", "dashboard_multiple_widgets", "apm_query", "generic_query", "get_dashboard_config_details", "get_dashboard_variable_values", "fetch_dashboards", "span_aggregate_execution"] | None: ...
 
 global___Datadog = Datadog
