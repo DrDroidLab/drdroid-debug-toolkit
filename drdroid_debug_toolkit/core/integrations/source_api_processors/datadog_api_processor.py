@@ -584,13 +584,23 @@ class DatadogApiProcessor(Processor):
     def search_spans(self, start, end, query, cursor='', limit=10):
         url = self.__dd_host + "/api/v2/spans/events/search"
 
+        if start:
+            start_iso = datetime.fromtimestamp(start, tz=timezone.utc).isoformat()
+        else:
+            start_iso = datetime.now(tz=timezone.utc).isoformat()
+
+        if end:
+            end_iso = datetime.fromtimestamp(end, tz=timezone.utc).isoformat()
+        else:
+            end_iso = datetime.now(tz=timezone.utc).isoformat()
+
         payload = json.dumps({
             "data": {
                 "attributes": {
                     "filter": {
-                        "from": start,
-                        "query": query,
-                        "to": end
+                        "from": start_iso,
+                        "query": query if query else "*",
+                        "to": end_iso
                     },
                     "options": {
                         "timezone": "GMT"

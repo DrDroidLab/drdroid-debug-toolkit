@@ -74,12 +74,10 @@ message Datadog {
     // No parameters needed - fetches all dashboards
   }
 
-  message SpanAggregateExecutionTask {
+  message SpanSearchExecutionTask {
     google.protobuf.StringValue query = 1;
-    google.protobuf.StringValue aggregation = 2;
-    google.protobuf.StringValue compute_type = 3;
-    google.protobuf.UInt64Value interval_seconds = 4;
-    repeated google.protobuf.StringValue group_by = 5;
+    google.protobuf.UInt64Value limit = 2;
+    google.protobuf.StringValue cursor = 3;
   }
 
   enum TaskType {
@@ -95,7 +93,7 @@ message Datadog {
     GET_DASHBOARD_CONFIG_DETAILS = 9;
     GET_DASHBOARD_VARIABLE_VALUES = 10;
     FETCH_DASHBOARDS = 11;
-    SPAN_AGGREGATE_EXECUTION = 12;
+    SPAN_SEARCH_EXECUTION = 12;
   }
 
   TaskType type = 1;
@@ -111,6 +109,6 @@ message Datadog {
     GetDashboardConfigDetailsTask get_dashboard_config_details = 10;
     GetDashboardVariableValuesTask get_dashboard_variable_values = 11;
     FetchDashboardsTask fetch_dashboards = 12;
-    SpanAggregateExecutionTask span_aggregate_execution = 13;
+    SpanSearchExecutionTask span_search_execution = 13;
   }
 }
