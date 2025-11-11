@@ -41,14 +41,6 @@ message Datadog {
     google.protobuf.StringValue query = 1;
   }
 
-  message SpanAggregateExecutionTask {
-    google.protobuf.StringValue query = 1;
-    google.protobuf.StringValue aggregation = 2;
-    google.protobuf.StringValue compute_type = 3;
-    google.protobuf.UInt64Value interval_seconds = 4;
-    repeated google.protobuf.StringValue group_by = 5;
-  }
-
   message DashboardMultipleWidgetsTask {
     google.protobuf.StringValue dashboard_name = 1;
     google.protobuf.StringValue widget_id = 2;

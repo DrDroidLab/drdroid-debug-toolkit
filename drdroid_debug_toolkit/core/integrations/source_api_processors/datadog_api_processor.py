@@ -624,6 +624,74 @@ class DatadogApiProcessor(Processor):
             logger.error(f"DatadogApiProcessor.search_spans:: Exception occurred searching spans with error: {e}")
             raise e
 
+    def aggregate_spans(self, start, end, query, aggregation="count", compute_type="timeseries",
+                        interval_seconds=None, group_by=None):
+        url = self.__dd_host + "/api/v2/spans/analytics/aggregate"
+
+        aggregation = (aggregation or "count").lower()
+        compute_type = (compute_type or "timeseries").lower()
+
+        compute_entry = {
+            "aggregation": aggregation
+        }
+
+        if compute_type:
+            compute_entry["type"] = compute_type
+
+        if compute_type == "timeseries" and interval_seconds:
+            try:
+                interval_seconds = int(interval_seconds)
+            except (TypeError, ValueError):
+                interval_seconds = None
+            if interval_seconds:
+                if interval_seconds % 3600 == 0:
+                    hours = interval_seconds // 3600
+                    compute_entry["interval"] = f"{hours}h"
+                elif interval_seconds % 60 == 0:
+                    minutes = interval_seconds // 60
+                    compute_entry["interval"] = f"{minutes}m"
+                else:
+                    compute_entry["interval"] = f"{interval_seconds}s"
+
+        filter_from = datetime.fromtimestamp(start, tz=timezone.utc).isoformat()
+        filter_to = datetime.fromtimestamp(end, tz=timezone.utc).isoformat()
+
+        attributes = {
+            "compute": [compute_entry],
+            "filter": {
+                "from": filter_from,
+                "query": query if query else "*",
+                "to": filter_to
+            }
+        }
+
+        if group_by:
+            attributes["group_by"] = [{"facet": facet} for facet in group_by if facet]
+
+        payload = {
+            "data": {
+                "attributes": attributes,
+                "type": "aggregate_request"
+            }
+        }
+
+        response = requests.post(
+            url,
+            headers=self.headers,
+            json=payload,
+            timeout=EXTERNAL_CALL_TIMEOUT
+        )
+
+        if response.status_code == 200:
+            return response.json()
+
+        logger.error(
+            "DatadogApiProcessor.aggregate_spans:: Error %s while aggregating spans. Response: %s",
+            response.status_code,
+            response.text
+        )
+        return None
+
     def get_metric_data_using_api(self, start, end, interval, queries, query_formula):
         url = self.__dd_host + "/api/v2/query/timeseries"
         payload_dict = {"data": {

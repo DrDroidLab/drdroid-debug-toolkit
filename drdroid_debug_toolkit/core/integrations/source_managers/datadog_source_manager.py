@@ -163,6 +163,51 @@ class DatadogSourceManager(SourceManager):
                               is_optional=True),
                 ]
             },
+            Datadog.TaskType.SPAN_AGGREGATE_EXECUTION: {
+                'executor': self.execute_span_aggregate_execution,
+                'model_types': [],
+                'result_type': PlaybookTaskResultType.TIMESERIES,
+                'display_name': 'Aggregate Datadog spans',
+                'category': 'APM',
+                'form_fields': [
+                    FormField(key_name=StringValue(value="query"),
+                              display_name=StringValue(value="Query"),
+                              description=StringValue(value='Datadog span query, e.g. "service:web-api env:prod"'),
+                              helper_text=StringValue(value='Defaults to "*" when left blank'),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT,
+                              default_value=Literal(type=LiteralType.STRING, string=StringValue(value="*")),
+                              is_optional=True),
+                    FormField(key_name=StringValue(value="aggregation"),
+                              display_name=StringValue(value="Aggregation"),
+                              description=StringValue(value='Aggregation name such as count, avg(duration), pct95(duration)'),
+                              helper_text=StringValue(value='Refer to Datadog spans aggregation docs'),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TYPING_DROPDOWN_FT,
+                              default_value=Literal(type=LiteralType.STRING, string=StringValue(value="count"))),
+                    FormField(key_name=StringValue(value="compute_type"),
+                              display_name=StringValue(value="Compute Type"),
+                              description=StringValue(value='timeseries, total, or latest'),
+                              helper_text=StringValue(value='timeseries requires an interval'),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TYPING_DROPDOWN_FT,
+                              default_value=Literal(type=LiteralType.STRING, string=StringValue(value="timeseries"))),
+                    FormField(key_name=StringValue(value="interval_seconds"),
+                              display_name=StringValue(value="Interval (Seconds)"),
+                              description=StringValue(value='Only used for timeseries compute, e.g. 300'),
+                              helper_text=StringValue(value='(Optional) Enter interval in seconds'),
+                              data_type=LiteralType.LONG,
+                              form_field_type=FormFieldType.TEXT_FT,
+                              is_optional=True),
+                    FormField(key_name=StringValue(value="group_by"),
+                              display_name=StringValue(value="Group Facets"),
+                              description=StringValue(value='Comma separated list of facets, e.g. "resource_name,service"'),
+                              helper_text=StringValue(value='Leave blank to aggregate across all spans'),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT,
+                              is_optional=True),
+                ]
+            },
             Datadog.TaskType.GENERIC_QUERY: {
                 'executor': self.execute_generic_query,
                 'model_types': [],
@@ -1492,6 +1537,194 @@ class DatadogSourceManager(SourceManager):
                 )
                 result.append(task_result)
         return result
+
+    def execute_span_aggregate_execution(self, time_range: TimeRange, dd_task: Datadog,
+                                         datadog_connector: ConnectorProto):
+        try:
+            if not datadog_connector:
+                raise Exception("Task execution Failed:: No Datadog source found")
+
+            task = dd_task.span_aggregate_execution
+
+            query = "*"
+            if task.HasField("query") and task.query.value:
+                query = task.query.value
+
+            aggregation = "count"
+            if task.HasField("aggregation") and task.aggregation.value:
+                aggregation = task.aggregation.value
+
+            compute_type = "timeseries"
+            if task.HasField("compute_type") and task.compute_type.value:
+                compute_type = task.compute_type.value
+
+            interval_seconds = None
+            if task.HasField("interval_seconds") and task.interval_seconds.value:
+                interval_seconds = int(task.interval_seconds.value)
+
+            group_by_values = []
+            for entry in task.group_by:
+                if entry.value:
+                    for facet in str(entry.value).split(","):
+                        facet_value = facet.strip()
+                        if facet_value:
+                            group_by_values.append(facet_value)
+
+            dd_api_processor = self.get_connector_processor(datadog_connector)
+
+            response = dd_api_processor.aggregate_spans(
+                start=int(time_range.time_geq),
+                end=int(time_range.time_lt),
+                query=query,
+                aggregation=aggregation,
+                compute_type=compute_type,
+                interval_seconds=interval_seconds,
+                group_by=group_by_values
+            )
+
+            if not response:
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value=f"No data returned from Datadog for query: {query}")),
+                    source=self.source
+                )
+
+            data_attributes = response.get("data", {}).get("attributes", {})
+
+            if compute_type == "timeseries":
+                buckets = data_attributes.get("buckets", [])
+                series_map = {}
+
+                for bucket in buckets:
+                    bucket_time = bucket.get("bucket")
+                    if bucket_time is None:
+                        continue
+
+                    try:
+                        bucket_time = int(bucket_time)
+                    except (ValueError, TypeError):
+                        continue
+
+                    if bucket_time > 1_000_000_000_000:
+                        bucket_time = bucket_time // 1000
+
+                    computes = bucket.get("computes", {})
+                    value = None
+                    for compute_entry in computes.values():
+                        if isinstance(compute_entry, dict) and compute_entry.get("value") is not None:
+                            value = float(compute_entry.get("value"))
+                            break
+
+                    if value is None:
+                        continue
+
+                    group_facets = bucket.get("by", {})
+                    key = tuple(sorted(group_facets.items()))
+
+                    if key not in series_map:
+                        series_map[key] = []
+                    series_map[key].append((bucket_time, value, group_facets))
+
+                if not series_map:
+                    return PlaybookTaskResult(
+                        type=PlaybookTaskResultType.TEXT,
+                        text=TextResult(output=StringValue(value=f"No timeseries data returned for query: {query}")),
+                        source=self.source
+                    )
+
+                labeled_series = []
+                for key, points in series_map.items():
+                    points = sorted(points, key=lambda item: item[0])
+                    datapoints = []
+                    for timestamp, value, _ in points:
+                        datapoints.append(
+                            TimeseriesResult.LabeledMetricTimeseries.Datapoint(
+                                timestamp=int(timestamp),
+                                value=DoubleValue(value=value)
+                            )
+                        )
+
+                    metric_labels = [
+                        LabelValuePair(name=StringValue(value="aggregation"),
+                                       value=StringValue(value=aggregation)),
+                        LabelValuePair(name=StringValue(value="compute_type"),
+                                       value=StringValue(value=compute_type))
+                    ]
+
+                    for facet_name, facet_value in dict(key).items():
+                        metric_labels.append(
+                            LabelValuePair(
+                                name=StringValue(value=str(facet_name)),
+                                value=StringValue(value=str(facet_value))
+                            )
+                        )
+
+                    labeled_series.append(
+                        TimeseriesResult.LabeledMetricTimeseries(
+                            metric_label_values=metric_labels,
+                            datapoints=datapoints
+                        )
+                    )
+
+                timeseries_result = TimeseriesResult(
+                    metric_expression=StringValue(value=query),
+                    metric_name=StringValue(value=f"{aggregation}_{compute_type}"),
+                    labeled_metric_timeseries=labeled_series
+                )
+
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TIMESERIES,
+                    timeseries=timeseries_result,
+                    source=self.source
+                )
+
+            totals = data_attributes.get("totals")
+            if totals:
+                table_rows = []
+                for compute_key, compute_entry in totals.items():
+                    value = compute_entry.get("value")
+                    agg_name = compute_entry.get("aggregation", aggregation)
+
+                    table_rows.append(
+                        TableResult.TableRow(
+                            columns=[
+                                TableResult.TableColumn(
+                                    name=StringValue(value="compute"),
+                                    value=StringValue(value=str(compute_key))
+                                ),
+                                TableResult.TableColumn(
+                                    name=StringValue(value="aggregation"),
+                                    value=StringValue(value=str(agg_name))
+                                ),
+                                TableResult.TableColumn(
+                                    name=StringValue(value="value"),
+                                    value=StringValue(value=str(value) if value is not None else "")
+                                ),
+                            ]
+                        )
+                    )
+
+                table_result = TableResult(
+                    raw_query=StringValue(value=f"Aggregate spans for ```{query}```"),
+                    rows=table_rows,
+                    total_count=UInt64Value(value=len(table_rows))
+                )
+
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TABLE,
+                    table=table_result,
+                    source=self.source
+                )
+
+            # Fallback to raw text output
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.TEXT,
+                text=TextResult(output=StringValue(value=json.dumps(response))),
+                source=self.source
+            )
+        except Exception as e:
+            logger.error(f"Error while executing Datadog span aggregate task: {e}")
+            raise Exception(f"Error while executing Datadog task: {e}")
 
     def execute_generic_query(self, time_range: TimeRange, dd_task: Datadog, datadog_connector: ConnectorProto):
         """
