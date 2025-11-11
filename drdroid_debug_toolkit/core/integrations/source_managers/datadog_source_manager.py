@@ -166,7 +166,7 @@ class DatadogSourceManager(SourceManager):
             Datadog.TaskType.SPAN_SEARCH_EXECUTION: {
                 'executor': self.execute_span_search_execution,
                 'model_types': [],
-                'result_type': PlaybookTaskResultType.LOGS,
+                'result_type': PlaybookTaskResultType.API_RESPONSE,
                 'display_name': 'Fetch Datadog spans',
                 'category': 'APM',
                 'form_fields': [
@@ -1562,64 +1562,8 @@ class DatadogSourceManager(SourceManager):
                     source=self.source
                 )
 
-            spans = response.get("data", [])
-            if not spans:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=f"No spans returned from Datadog for query: {query}")),
-                    source=self.source
-                )
-
-            table_rows: [TableResult.TableRow] = []
-            for span in spans:
-                span_id = span.get("id", "")
-                attributes = span.get("attributes", {})
-                resource = attributes.get("resource", "")
-                service = attributes.get("service", "")
-                name = attributes.get("name", "")
-                duration = attributes.get("duration", 0)
-                span_type = attributes.get("type", "")
-                start = attributes.get("start", "")
-                end = attributes.get("end", "")
-                trace_id = attributes.get("trace_id", "")
-                environment = attributes.get("env", "")
-                status = attributes.get("status", "")
-
-                columns = [
-                    TableResult.TableColumn(name=StringValue(value="span_id"),
-                                            value=StringValue(value=str(span_id))),
-                    TableResult.TableColumn(name=StringValue(value="service"),
-                                            value=StringValue(value=str(service))),
-                    TableResult.TableColumn(name=StringValue(value="resource"),
-                                            value=StringValue(value=str(resource))),
-                    TableResult.TableColumn(name=StringValue(value="name"),
-                                            value=StringValue(value=str(name))),
-                    TableResult.TableColumn(name=StringValue(value="duration_ms"),
-                                            value=StringValue(value=str(duration))),
-                    TableResult.TableColumn(name=StringValue(value="type"),
-                                            value=StringValue(value=str(span_type))),
-                    TableResult.TableColumn(name=StringValue(value="start"),
-                                            value=StringValue(value=str(start))),
-                    TableResult.TableColumn(name=StringValue(value="end"),
-                                            value=StringValue(value=str(end))),
-                    TableResult.TableColumn(name=StringValue(value="trace_id"),
-                                            value=StringValue(value=str(trace_id))),
-                    TableResult.TableColumn(name=StringValue(value="env"),
-                                            value=StringValue(value=str(environment))),
-                    TableResult.TableColumn(name=StringValue(value="status"),
-                                            value=StringValue(value=str(status))),
-                ]
-
-                table_rows.append(TableResult.TableRow(columns=columns))
-
             meta = response.get("meta", {})
             next_cursor = meta.get("page", {}).get("after")
-
-            table_result = TableResult(
-                raw_query=StringValue(value=f"Span query ```{query}```"),
-                rows=table_rows,
-                total_count=UInt64Value(value=len(table_rows))
-            )
 
             metadata_kwargs = {}
             if next_cursor:
@@ -1629,9 +1573,11 @@ class DatadogSourceManager(SourceManager):
                 )
                 metadata_kwargs["metadata"] = metadata_struct
 
+            response_struct = dict_to_proto(response, Struct)
+
             return PlaybookTaskResult(
-                type=PlaybookTaskResultType.LOGS,
-                logs=table_result,
+                type=PlaybookTaskResultType.API_RESPONSE,
+                api_response=ApiResponseResult(payload=response_struct),
                 source=self.source,
                 **metadata_kwargs
             )
