@@ -1574,10 +1574,13 @@ class DatadogSourceManager(SourceManager):
                 metadata_kwargs["metadata"] = metadata_struct
 
             response_struct = dict_to_proto(response, Struct)
+            api_response_result = ApiResponseResult(
+                response_body=response_struct
+            )
 
             return PlaybookTaskResult(
                 type=PlaybookTaskResultType.API_RESPONSE,
-                api_response=ApiResponseResult(payload=response_struct),
+                api_response=api_response_result,
                 source=self.source,
                 **metadata_kwargs
             )
