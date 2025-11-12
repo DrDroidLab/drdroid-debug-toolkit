@@ -24,6 +24,35 @@ from core.utils.playbooks_client import PrototypeClient
 
 logger = logging.getLogger(__name__)
 
+# AWS Regions
+AWS_REGIONS = [
+    "us-east-1",      # US East (N. Virginia)
+    "us-east-2",      # US East (Ohio)
+    "us-west-1",      # US West (N. California)
+    "us-west-2",      # US West (Oregon)
+    "af-south-1",     # Africa (Cape Town)
+    "ap-east-1",      # Asia Pacific (Hong Kong)
+    "ap-south-1",     # Asia Pacific (Mumbai)
+    "ap-northeast-1", # Asia Pacific (Tokyo)
+    "ap-northeast-2", # Asia Pacific (Seoul)
+    "ap-northeast-3", # Asia Pacific (Osaka)
+    "ap-southeast-1", # Asia Pacific (Singapore)
+    "ap-southeast-2", # Asia Pacific (Sydney)
+    "ap-southeast-3", # Asia Pacific (Jakarta)
+    "ca-central-1",   # Canada (Central)
+    "eu-central-1",   # Europe (Frankfurt)
+    "eu-west-1",      # Europe (Ireland)
+    "eu-west-2",      # Europe (London)
+    "eu-west-3",      # Europe (Paris)
+    "eu-north-1",     # Europe (Stockholm)
+    "eu-south-1",     # Europe (Milan)
+    "me-south-1",     # Middle East (Bahrain)
+    "me-central-1",   # Middle East (UAE)
+    "sa-east-1",      # South America (São Paulo)
+    "us-gov-west-1",  # AWS GovCloud (US-West)
+    "us-gov-east-1",  # AWS GovCloud (US-East)
+]
+
 
 def convert_datetime_recursive(data):
     """Recursively convert all datetime objects in a dictionary or list to ISO format strings."""
@@ -118,7 +147,8 @@ class CloudwatchSourceManager(SourceManager):
                               display_name=StringValue(value="Region"),
                               description=StringValue(value='Select Region'),
                               data_type=LiteralType.STRING,
-                              form_field_type=FormFieldType.TYPING_DROPDOWN_FT),
+                              form_field_type=FormFieldType.DROPDOWN_FT,
+                              valid_values=[Literal(type=LiteralType.STRING, string=StringValue(value=region)) for region in AWS_REGIONS]),
                     FormField(key_name=StringValue(value="dimensions"),
                               display_name=StringValue(value="Dimensions"),
                               description=StringValue(value='Select Dimension Name'),
@@ -176,7 +206,8 @@ class CloudwatchSourceManager(SourceManager):
                               display_name=StringValue(value="Region"),
                               description=StringValue(value='Select Region'),
                               data_type=LiteralType.STRING,
-                              form_field_type=FormFieldType.TYPING_DROPDOWN_FT),
+                              form_field_type=FormFieldType.DROPDOWN_FT,
+                              valid_values=[Literal(type=LiteralType.STRING, string=StringValue(value=region)) for region in AWS_REGIONS]),
                     FormField(key_name=StringValue(value="log_group_name"),
                               display_name=StringValue(value="Log Group"),
                               description=StringValue(value='Select Log Group'),
@@ -286,9 +317,10 @@ class CloudwatchSourceManager(SourceManager):
                     SourceKeyType.AWS_REGION: FormField(
                         key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.AWS_REGION)),
                         display_name=StringValue(value="AWS Region"),
-                        description=StringValue(value="Enter the AWS region (e.g., us-east-1)."),
+                        description=StringValue(value="Select the AWS region."),
                         data_type=LiteralType.STRING,
-                        form_field_type=FormFieldType.TEXT_FT,
+                        form_field_type=FormFieldType.DROPDOWN_FT,
+                        valid_values=[Literal(type=LiteralType.STRING, string=StringValue(value=region)) for region in AWS_REGIONS],
                         is_optional=False
                     )
                 }
@@ -316,9 +348,10 @@ class CloudwatchSourceManager(SourceManager):
                     SourceKeyType.AWS_REGION: FormField( # This AWS_REGION key is duplicated from the first config, ensure its FormField definition is consistent or handled.
                         key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.AWS_REGION)),
                         display_name=StringValue(value="AWS Region"),
-                        description=StringValue(value="Enter the AWS region (e.g., us-east-1)."),
+                        description=StringValue(value="Select the AWS region."),
                         data_type=LiteralType.STRING,
-                        form_field_type=FormFieldType.TEXT_FT,
+                        form_field_type=FormFieldType.DROPDOWN_FT,
+                        valid_values=[Literal(type=LiteralType.STRING, string=StringValue(value=region)) for region in AWS_REGIONS],
                         is_optional=False
                     )
                 }
