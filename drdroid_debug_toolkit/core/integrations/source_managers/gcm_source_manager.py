@@ -23,6 +23,41 @@ from core.utils.time_utils import calculate_timeseries_bucket_size
 
 logger = logging.getLogger(__name__)
 
+# GCM Regions
+GCM_REGIONS = [
+    "us-central1",    # US Central (Iowa)
+    "us-east1",       # US East (South Carolina)
+    "us-east4",       # US East (Northern Virginia)
+    "us-west1",       # US West (Oregon)
+    "us-west2",       # US West (Los Angeles)
+    "us-west3",       # US West (Salt Lake City)
+    "us-west4",       # US West (Las Vegas)
+    "europe-west1",  # Europe West (Belgium)
+    "europe-west2",  # Europe West (London)
+    "europe-west3",  # Europe West (Frankfurt)
+    "europe-west4",  # Europe West (Netherlands)
+    "europe-west6",  # Europe West (Zurich)
+    "europe-west8",  # Europe West (Milan)
+    "europe-west9",  # Europe West (Paris)
+    "europe-west10", # Europe West (Berlin)
+    "europe-west12", # Europe West (Turin)
+    "europe-central2", # Europe Central (Warsaw)
+    "asia-east1",    # Asia East (Taiwan)
+    "asia-east2",    # Asia East (Hong Kong)
+    "asia-northeast1", # Asia Northeast (Tokyo)
+    "asia-northeast2", # Asia Northeast (Osaka)
+    "asia-northeast3", # Asia Northeast (Seoul)
+    "asia-south1",   # Asia South (Mumbai)
+    "asia-south2",   # Asia South (Delhi)
+    "asia-southeast1", # Asia Southeast (Singapore)
+    "asia-southeast2", # Asia Southeast (Jakarta)
+    "australia-southeast1", # Australia Southeast (Sydney)
+    "australia-southeast2", # Australia Southeast (Melbourne)
+    "southamerica-east1", # South America East (São Paulo)
+    "southamerica-west1", # South America West (Santiago)
+    "northamerica-northeast1", # North America Northeast (Montreal)
+    "northamerica-northeast2", # North America Northeast (Toronto)
+]
 
 
 def get_project_id(gcm_connector: ConnectorProto) -> str:
@@ -156,8 +191,10 @@ class GcmSourceManager(SourceManager):
                               form_field_type=FormFieldType.TYPING_DROPDOWN_FT),
                     FormField(key_name=StringValue(value="region"),
                               display_name=StringValue(value="Region"),
+                              description=StringValue(value='Select Region'),
                               data_type=LiteralType.STRING,
-                              form_field_type=FormFieldType.TYPING_DROPDOWN_FT),
+                              form_field_type=FormFieldType.DROPDOWN_FT,
+                              valid_values=[Literal(type=LiteralType.STRING, string=StringValue(value=region)) for region in GCM_REGIONS]),
                     FormField(key_name=StringValue(value="widget_name"),
                               display_name=StringValue(value="Metric Type"),
                               description=StringValue(value="Select a metric to view"),
