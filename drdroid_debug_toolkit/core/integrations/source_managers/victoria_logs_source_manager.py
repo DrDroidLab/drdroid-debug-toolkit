@@ -37,7 +37,7 @@ class VictoriaLogsSourceManager(SourceManager):
                     FormField(key_name=StringValue(value="limit"),
                               display_name=StringValue(value="Limit"),
                               data_type=LiteralType.LONG,
-                              default_value=Literal(literal_type=LiteralType.LONG, long=Int64Value(value=100)),
+                              default_value=Literal(type=LiteralType.LONG, long=Int64Value(value=100)),
                               form_field_type=FormFieldType.TEXT_FT)
                 ]
             }
@@ -54,9 +54,9 @@ class VictoriaLogsSourceManager(SourceManager):
                         display_name=StringValue(value="Protocol"),
                         data_type=LiteralType.STRING,
                         form_field_type=FormFieldType.DROPDOWN_FT,
-                        valid_values=[Literal(literal_type=LiteralType.STRING, string=StringValue(value='http')),
-                                      Literal(literal_type=LiteralType.STRING, string=StringValue(value='https'))],
-                        default_value=Literal(literal_type=LiteralType.STRING, string=StringValue(value='http')),
+                        valid_values=[Literal(type=LiteralType.STRING, string=StringValue(value='http')),
+                                      Literal(type=LiteralType.STRING, string=StringValue(value='https'))],
+                        default_value=Literal(type=LiteralType.STRING, string=StringValue(value='http')),
                         is_optional=False
                     ),
                     SourceKeyType.VICTORIA_LOGS_HOST: FormField(
@@ -73,7 +73,7 @@ class VictoriaLogsSourceManager(SourceManager):
                         description=StringValue(value='Default 9428 for VictoriaLogs'),
                         data_type=LiteralType.LONG,
                         form_field_type=FormFieldType.TEXT_FT,
-                        default_value=Literal(literal_type=LiteralType.LONG, long=Int64Value(value=9428)),
+                        default_value=Literal(type=LiteralType.LONG, long=Int64Value(value=9428)),
                         is_optional=True
                     ),
                     SourceKeyType.MCP_SERVER_AUTH_HEADERS: FormField(
@@ -89,7 +89,7 @@ class VictoriaLogsSourceManager(SourceManager):
                         display_name=StringValue(value="SSL Verify"),
                         data_type=LiteralType.BOOLEAN,
                         form_field_type=FormFieldType.CHECKBOX_FT,
-                        default_value=Literal(literal_type=LiteralType.BOOLEAN, boolean=BoolValue(value=True)),
+                        default_value=Literal(type=LiteralType.BOOLEAN, boolean=BoolValue(value=True)),
                         is_optional=True
                     )
                 }
