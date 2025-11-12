@@ -43,6 +43,7 @@ import "core/protos/playbooks/source_task_definitions/signoz_task.proto";
 import "core/protos/playbooks/source_task_definitions/posthog_task.proto";
 import "core/protos/playbooks/source_task_definitions/coralogix_task.proto";
 import "core/protos/playbooks/source_task_definitions/opsgenie_task.proto";
+import "core/protos/playbooks/source_task_definitions/victoria_logs_task.proto";
 
 
 message Variable {
@@ -148,6 +149,7 @@ message PlaybookTask {
     Signoz signoz = 137;
     Coralogix coralogix = 141;
     OpsGenie ops_genie = 143;
+    VictoriaLogs victoria_logs = 144;
   }
 }
 
