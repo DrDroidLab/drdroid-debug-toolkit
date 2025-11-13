@@ -54,6 +54,7 @@ message Datadog {
     google.protobuf.StringValue service_name = 1;
     google.protobuf.UInt64Value interval = 2;
     google.protobuf.StringValue metric_families = 3;
+    google.protobuf.StringValue environments = 4;
   }
 
   message GenericQueryTask {
