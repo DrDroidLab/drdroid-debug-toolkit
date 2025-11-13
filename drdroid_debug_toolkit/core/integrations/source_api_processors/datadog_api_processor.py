@@ -435,13 +435,25 @@ class DatadogApiProcessor(Processor):
         try:
             configuration = self.get_connection()
             with ApiClient(configuration) as api_client:
+                # Validate API Key
                 api_instance = AuthenticationApi(api_client)
                 response: AuthenticationValidationResponse = api_instance.validate()
                 if not response.get('valid', False):
                     raise Exception("Datadog API connection is not valid. Check API Key")
+                
+                # Validate Application Key by making a call that requires it
+                monitors_api_instance = MonitorsApi(api_client)
+                monitors_api_instance.list_monitors(page_size=1)
+                
                 return True
         except ApiException as e:
-            logger.error("Exception when calling AuthenticationApi->validate: %s\n" % e)
+            logger.error("Exception when calling Datadog API: %s\n" % e)
+            if "AuthenticationApi" in str(e) or "validate" in str(e):
+                raise Exception("Datadog API Key is not valid. Check API Key")
+            else:
+                raise Exception("Datadog Application Key is not valid. Check Application Key")
+        except Exception as e:
+            logger.error("Exception when testing Datadog connection: %s\n" % e)
             raise e
 
     def fetch_metric_timeseries(self, tr: TimeRange, specific_metric, interval=300000):
