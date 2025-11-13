@@ -380,9 +380,21 @@ class CloudwatchSourceManager(SourceManager):
         Returns:
             Tuple[bool, str or dict]: Success status and either a formatted message or task permission mapping.
         """
-        # Define CloudWatch specific defaults if not provided in kwargs
+        # Extract region from connector if not provided in kwargs
         if 'region' not in kwargs:
-            kwargs['region'] = 'us-west-2'  # Default region for CloudWatch checks
+            # Extract region from connector keys
+            region = None
+            for conn_key in connector.keys:
+                if conn_key.key_type == SourceKeyType.AWS_REGION:
+                    region = conn_key.key.value
+                    break
+            
+            if region:
+                kwargs['region'] = region
+            else:
+                # Fallback to default if region not found in connector
+                kwargs['region'] = 'us-west-2'
+                logger.warning("Region not found in connector keys, using default: us-west-2")
 
         # Delegate the detailed permission checking to the base class implementation
         return self.test_connector_permissions(connector, **kwargs)
