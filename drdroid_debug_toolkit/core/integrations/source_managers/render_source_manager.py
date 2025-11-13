@@ -367,8 +367,24 @@ class RenderSourceManager(SourceManager):
             end_time = task_data.end_time.value if task_data.end_time else None
             limit = task_data.limit.value if task_data.limit else None
             
+            # Extract filter parameters (repeated string fields)
+            instance = list(task_data.instance) if task_data.instance else None
+            host = list(task_data.host) if task_data.host else None
+            status_code = list(task_data.status_code) if task_data.status_code else None
+            method = list(task_data.method) if task_data.method else None
+            task = list(task_data.task) if task_data.task else None
+            task_run = list(task_data.task_run) if task_data.task_run else None
+            level = list(task_data.level) if task_data.level else None
+            type = list(task_data.type) if task_data.type else None
+            text = list(task_data.text) if task_data.text else None
+            path = list(task_data.path) if task_data.path else None
+            
             api_processor = self._get_api_processor(connector_proto)
-            result = api_processor.fetch_logs(service_id, start_time, end_time, limit)
+            result = api_processor.fetch_logs(
+                service_id, start_time, end_time, limit,
+                instance=instance, host=host, status_code=status_code, method=method,
+                task=task, task_run=task_run, level=level, type=type, text=text, path=path
+            )
             
             # Convert result to protobuf struct
             result_struct = Struct()

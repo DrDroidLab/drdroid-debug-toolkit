@@ -66,7 +66,9 @@ class RenderAPIProcessor(Processor):
             logger.error(f"Error getting service {service_id}: {e}")
             raise Exception(f"Failed to get service: {e}")
 
-    def fetch_logs(self, service_id, start_time=None, end_time=None, limit=None):
+    def fetch_logs(self, service_id, start_time=None, end_time=None, limit=None,
+                   instance=None, host=None, status_code=None, method=None,
+                   task=None, task_run=None, level=None, type=None, text=None, path=None):
         """Fetch logs for a specific service."""
         try:
             # First, get the service details to extract the ownerId
@@ -109,6 +111,28 @@ class RenderAPIProcessor(Processor):
             
             if limit:
                 params['limit'] = limit
+            
+            # Add filter parameters (arrays are passed as lists, requests handles them correctly)
+            if instance:
+                params['instance'] = instance if isinstance(instance, list) else [instance]
+            if host:
+                params['host'] = host if isinstance(host, list) else [host]
+            if status_code:
+                params['statusCode'] = status_code if isinstance(status_code, list) else [status_code]
+            if method:
+                params['method'] = method if isinstance(method, list) else [method]
+            if task:
+                params['task'] = task if isinstance(task, list) else [task]
+            if task_run:
+                params['taskRun'] = task_run if isinstance(task_run, list) else [task_run]
+            if level:
+                params['level'] = level if isinstance(level, list) else [level]
+            if type:
+                params['type'] = type if isinstance(type, list) else [type]
+            if text:
+                params['text'] = text if isinstance(text, list) else [text]
+            if path:
+                params['path'] = path if isinstance(path, list) else [path]
             
             response = requests.get(url, headers=self.headers, params=params)
             response.raise_for_status()
