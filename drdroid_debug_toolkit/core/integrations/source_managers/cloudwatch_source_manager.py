@@ -365,7 +365,7 @@ class CloudwatchSourceManager(SourceManager):
     def get_connector_processor(self, cloudwatch_connector, **kwargs):
         generated_credentials = generate_credentials_dict(cloudwatch_connector.type, cloudwatch_connector.keys)
         generated_credentials['client_type'] = kwargs.get('client_type', 'cloudwatch')
-        if 'region' in kwargs:
+        if 'region' in kwargs and kwargs.get('region'):
             generated_credentials['region'] = kwargs.get('region')
         return AWSBoto3ApiProcessor(**generated_credentials)
 
@@ -380,22 +380,6 @@ class CloudwatchSourceManager(SourceManager):
         Returns:
             Tuple[bool, str or dict]: Success status and either a formatted message or task permission mapping.
         """
-        # Extract region from connector if not provided in kwargs
-        if 'region' not in kwargs:
-            # Extract region from connector keys
-            region = None
-            for conn_key in connector.keys:
-                if conn_key.key_type == SourceKeyType.AWS_REGION:
-                    region = conn_key.key.value
-                    break
-            
-            if region:
-                kwargs['region'] = region
-            else:
-                # Fallback to default if region not found in connector
-                kwargs['region'] = 'us-west-2'
-                logger.warning("Region not found in connector keys, using default: us-west-2")
-
         # Delegate the detailed permission checking to the base class implementation
         return self.test_connector_permissions(connector, **kwargs)
 
