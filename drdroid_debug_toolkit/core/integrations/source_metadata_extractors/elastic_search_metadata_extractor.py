@@ -1,5 +1,6 @@
 import logging
 import re
+import json
 
 from core.integrations.source_metadata_extractor import SourceMetadataExtractor
 from core.integrations.source_api_processors.elastic_search_api_processor import ElasticSearchApiProcessor
@@ -150,6 +151,62 @@ class ElasticSearchSourceMetadataExtractor(SourceMetadataExtractor):
                 self.create_or_update_model_metadata(model_type, model_data)
         except Exception as e:
             logger.error(f'Error extracting ElasticSearch services: {e}')
+        return model_data
+
+    @log_function_call
+    def extract_index_patterns(self):
+        """Extract all index patterns from Kibana"""
+        model_type = SourceModelType.ELASTIC_SEARCH_INDEX_PATTERNS
+        model_data = {}
+        try:
+            # Get list of all index patterns
+            index_patterns = self.__es_api_processor.list_all_index_patterns()
+            
+            for index_pattern in index_patterns:
+                index_pattern_id = index_pattern['id']
+                index_pattern_title = index_pattern.get('title', '')
+                
+                # Fetch mapping for this index pattern
+                mapping_data = {}
+                mappings_json = '{}'
+                if index_pattern_title:
+                    try:
+                        mapping_data = self.__es_api_processor.get_index_pattern_mapping(index_pattern_title)
+                        logger.info(f"Mapping data: {mapping_data} for index pattern: {index_pattern_title}")
+                        if mapping_data:
+                            # Convert to JSON string and check size
+                            mappings_json = json.dumps(mapping_data, separators=(',', ':'))  # Compact JSON
+                            
+                            # Limit mapping size to prevent database issues (e.g., 1MB limit)
+                            max_size = 1024 * 1024  # 1MB
+                            if len(mappings_json) > max_size:
+                                logger.warning(f"Mapping for '{index_pattern_title}' is too large ({len(mappings_json)} bytes), truncating")
+                                # Keep only the first part and add truncation indicator
+                                mappings_json = mappings_json[:max_size-50] + '... [TRUNCATED]'
+                            
+                            logger.info(f"Fetched mapping for index pattern '{index_pattern_title}': {len(mapping_data)} indices, {len(mappings_json)} bytes")
+                        else:
+                            mappings_json = '{}'
+                    except Exception as e:
+                        logger.warning(f"Failed to fetch mapping for index pattern '{index_pattern_title}': {e}")
+                        mappings_json = '{}'
+                
+                # Create comprehensive index pattern metadata
+                index_pattern_metadata = {
+                    'id': index_pattern_id,
+                    'title': index_pattern_title,
+                    'time_field_name': index_pattern.get('time_field_name', ''),
+                    'name': index_pattern.get('name', ''),
+                    'mappings': mappings_json
+                }
+                
+                model_data[index_pattern_id] = index_pattern_metadata
+                
+                self.create_or_update_model_metadata(model_type, model_data)
+                    
+        except Exception as e:
+            logger.error(f'Error extracting ElasticSearch index patterns: {e}')
+            
         return model_data
 
     @log_function_call

@@ -51,6 +51,7 @@ class Interpretation(google.protobuf.message.Message):
         TEXT: Interpretation._Type.ValueType  # 2
         CSV_FILE: Interpretation._Type.ValueType  # 3
         JSON: Interpretation._Type.ValueType  # 4
+        APPROVAL_REQUIRED: Interpretation._Type.ValueType  # 5
 
     class Type(_Type, metaclass=_TypeEnumTypeWrapper): ...
     UNKNOWN: Interpretation.Type.ValueType  # 0
@@ -58,6 +59,7 @@ class Interpretation(google.protobuf.message.Message):
     TEXT: Interpretation.Type.ValueType  # 2
     CSV_FILE: Interpretation.Type.ValueType  # 3
     JSON: Interpretation.Type.ValueType  # 4
+    APPROVAL_REQUIRED: Interpretation.Type.ValueType  # 5
 
     class _ModelType:
         ValueType = typing.NewType("ValueType", builtins.int)

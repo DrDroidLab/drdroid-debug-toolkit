@@ -26,19 +26,19 @@ from google.protobuf import wrappers_pb2 as google_dot_protobuf_dot_wrappers__pb
 from core.protos import base_pb2 as core_dot_protos_dot_base__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n:core/protos/playbooks/intelligence_layer/interpreter.proto\x12\x15\x63ore.protos.playbooks\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x16\x63ore/protos/base.proto\"\xde\x05\n\x0eInterpretation\x12\x38\n\x04type\x18\x01 \x01(\x0e\x32*.core.protos.playbooks.Interpretation.Type\x12@\n\x10interpreter_type\x18\x02 \x01(\x0e\x32&.core.protos.playbooks.InterpreterType\x12+\n\x05title\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x31\n\x0b\x64\x65scription\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12-\n\x07summary\x18\x05 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12/\n\timage_url\x18\x06 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12/\n\tfile_path\x18\x07 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x30\n\nobject_url\x18\x08 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x43\n\nmodel_type\x18\t \x01(\x0e\x32/.core.protos.playbooks.Interpretation.ModelType\x12\x30\n\nobject_uid\x18\n \x01(\x0b\x32\x1c.google.protobuf.StringValue\"@\n\x04Type\x12\x0b\n\x07UNKNOWN\x10\x00\x12\t\n\x05IMAGE\x10\x01\x12\x08\n\x04TEXT\x10\x02\x12\x0c\n\x08\x43SV_FILE\x10\x03\x12\x08\n\x04JSON\x10\x04\"t\n\tModelType\x12\r\n\tUNKNOWN_M\x10\x00\x12\x11\n\rPLAYBOOK_TASK\x10\x01\x12\x11\n\rPLAYBOOK_STEP\x10\x02\x12\x1a\n\x16PLAYBOOK_STEP_RELATION\x10\x03\x12\x16\n\x12WORKFLOW_EXECUTION\x10\x04*[\n\x0fInterpreterType\x12\r\n\tUNKNOWN_I\x10\x00\x12\x0b\n\x07\x42\x41SIC_I\x10\x01\x12\x11\n\rSTATISTICAL_I\x10\x02\x12\x19\n\x15LLM_CHAT_GPT_VISION_I\x10\x03\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n:core/protos/playbooks/intelligence_layer/interpreter.proto\x12\x15\x63ore.protos.playbooks\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x16\x63ore/protos/base.proto\"\xf5\x05\n\x0eInterpretation\x12\x38\n\x04type\x18\x01 \x01(\x0e\x32*.core.protos.playbooks.Interpretation.Type\x12@\n\x10interpreter_type\x18\x02 \x01(\x0e\x32&.core.protos.playbooks.InterpreterType\x12+\n\x05title\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x31\n\x0b\x64\x65scription\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12-\n\x07summary\x18\x05 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12/\n\timage_url\x18\x06 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12/\n\tfile_path\x18\x07 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x30\n\nobject_url\x18\x08 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x43\n\nmodel_type\x18\t \x01(\x0e\x32/.core.protos.playbooks.Interpretation.ModelType\x12\x30\n\nobject_uid\x18\n \x01(\x0b\x32\x1c.google.protobuf.StringValue\"W\n\x04Type\x12\x0b\n\x07UNKNOWN\x10\x00\x12\t\n\x05IMAGE\x10\x01\x12\x08\n\x04TEXT\x10\x02\x12\x0c\n\x08\x43SV_FILE\x10\x03\x12\x08\n\x04JSON\x10\x04\x12\x15\n\x11\x41PPROVAL_REQUIRED\x10\x05\"t\n\tModelType\x12\r\n\tUNKNOWN_M\x10\x00\x12\x11\n\rPLAYBOOK_TASK\x10\x01\x12\x11\n\rPLAYBOOK_STEP\x10\x02\x12\x1a\n\x16PLAYBOOK_STEP_RELATION\x10\x03\x12\x16\n\x12WORKFLOW_EXECUTION\x10\x04*[\n\x0fInterpreterType\x12\r\n\tUNKNOWN_I\x10\x00\x12\x0b\n\x07\x42\x41SIC_I\x10\x01\x12\x11\n\rSTATISTICAL_I\x10\x02\x12\x19\n\x15LLM_CHAT_GPT_VISION_I\x10\x03\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'core.protos.playbooks.intelligence_layer.interpreter_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_INTERPRETERTYPE']._serialized_start=878
-  _globals['_INTERPRETERTYPE']._serialized_end=969
+  _globals['_INTERPRETERTYPE']._serialized_start=901
+  _globals['_INTERPRETERTYPE']._serialized_end=992
   _globals['_INTERPRETATION']._serialized_start=142
-  _globals['_INTERPRETATION']._serialized_end=876
+  _globals['_INTERPRETATION']._serialized_end=899
   _globals['_INTERPRETATION_TYPE']._serialized_start=694
-  _globals['_INTERPRETATION_TYPE']._serialized_end=758
-  _globals['_INTERPRETATION_MODELTYPE']._serialized_start=760
-  _globals['_INTERPRETATION_MODELTYPE']._serialized_end=876
+  _globals['_INTERPRETATION_TYPE']._serialized_end=781
+  _globals['_INTERPRETATION_MODELTYPE']._serialized_start=783
+  _globals['_INTERPRETATION_MODELTYPE']._serialized_end=899
 # @@protoc_insertion_point(module_scope)

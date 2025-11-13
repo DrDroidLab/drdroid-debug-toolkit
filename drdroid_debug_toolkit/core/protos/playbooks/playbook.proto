@@ -43,6 +43,8 @@ import "core/protos/playbooks/source_task_definitions/signoz_task.proto";
 import "core/protos/playbooks/source_task_definitions/posthog_task.proto";
 import "core/protos/playbooks/source_task_definitions/coralogix_task.proto";
 import "core/protos/playbooks/source_task_definitions/opsgenie_task.proto";
+import "core/protos/playbooks/source_task_definitions/victoria_logs_task.proto";
+import "core/protos/playbooks/source_task_definitions/render_task.proto";
 
 
 message Variable {
@@ -146,8 +148,10 @@ message PlaybookTask {
     DrdProxyAgent drd_proxy_agent = 133;
     PostHog posthog = 136;
     Signoz signoz = 137;
+    Render render = 139;
     Coralogix coralogix = 141;
     OpsGenie ops_genie = 143;
+    VictoriaLogs victoria_logs = 144;
   }
 }
 

@@ -3,7 +3,7 @@ from datetime import datetime
 
 from google.protobuf.wrappers_pb2 import StringValue, UInt64Value, Int64Value, BoolValue
 
-from integrations.source_api_processors.victoria_logs_api_processor import VictoriaLogsApiProcessor
+from drdroid_debug_toolkit.core.integrations.source_api_processors.victoria_logs_api_processor import VictoriaLogsApiProcessor
 from core.integrations.source_manager import SourceManager
 from core.protos.base_pb2 import TimeRange, Source, SourceKeyType, SourceModelType
 from core.protos.connectors.connector_pb2 import Connector as ConnectorProto

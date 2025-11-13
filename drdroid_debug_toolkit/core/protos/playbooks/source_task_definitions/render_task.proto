@@ -1,0 +1,48 @@
+syntax = "proto3";
+package core.protos.playbooks;
+
+import "google/protobuf/wrappers.proto";
+
+message Render {
+  message ListDeploys {
+    google.protobuf.StringValue service_id = 1;
+  }
+
+  message GetDeploy {
+    google.protobuf.StringValue service_id = 1;
+    google.protobuf.StringValue deploy_id = 2;
+  }
+
+  message ListServices {
+    google.protobuf.BoolValue include_previews = 1;
+  }
+
+  message GetService {
+    google.protobuf.StringValue service_id = 1;
+  }
+
+  message FetchLogs {
+    google.protobuf.StringValue service_id = 1;
+    google.protobuf.StringValue start_time = 2;
+    google.protobuf.StringValue end_time = 3;
+    google.protobuf.Int64Value limit = 4;
+  }
+
+  enum TaskType {
+    UNKNOWN = 0;
+    LIST_DEPLOYS = 1;
+    GET_DEPLOY = 2;
+    LIST_SERVICES = 3;
+    GET_SERVICE = 4;
+    FETCH_LOGS = 5;
+  }
+
+  TaskType type = 1;
+  oneof task {
+    ListDeploys list_deploys = 2;
+    GetDeploy get_deploy = 3;
+    ListServices list_services = 4;
+    GetService get_service = 5;
+    FetchLogs fetch_logs = 6;
+  }
+}

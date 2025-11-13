@@ -38,10 +38,12 @@ import core.protos.playbooks.source_task_definitions.open_search_task_pb2
 import core.protos.playbooks.source_task_definitions.opsgenie_task_pb2
 import core.protos.playbooks.source_task_definitions.posthog_task_pb2
 import core.protos.playbooks.source_task_definitions.promql_task_pb2
+import core.protos.playbooks.source_task_definitions.render_task_pb2
 import core.protos.playbooks.source_task_definitions.sentry_task_pb2
 import core.protos.playbooks.source_task_definitions.signoz_task_pb2
 import core.protos.playbooks.source_task_definitions.slack_task_pb2
 import core.protos.playbooks.source_task_definitions.sql_data_fetch_task_pb2
+import core.protos.playbooks.source_task_definitions.victoria_logs_task_pb2
 import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.internal.enum_type_wrapper
@@ -294,8 +296,10 @@ class PlaybookTask(google.protobuf.message.Message):
     DRD_PROXY_AGENT_FIELD_NUMBER: builtins.int
     POSTHOG_FIELD_NUMBER: builtins.int
     SIGNOZ_FIELD_NUMBER: builtins.int
+    RENDER_FIELD_NUMBER: builtins.int
     CORALOGIX_FIELD_NUMBER: builtins.int
     OPS_GENIE_FIELD_NUMBER: builtins.int
+    VICTORIA_LOGS_FIELD_NUMBER: builtins.int
     @property
     def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     source: core.protos.base_pb2.Source.ValueType
@@ -381,9 +385,13 @@ class PlaybookTask(google.protobuf.message.Message):
     @property
     def signoz(self) -> core.protos.playbooks.source_task_definitions.signoz_task_pb2.Signoz: ...
     @property
+    def render(self) -> core.protos.playbooks.source_task_definitions.render_task_pb2.Render: ...
+    @property
     def coralogix(self) -> core.protos.playbooks.source_task_definitions.coralogix_task_pb2.Coralogix: ...
     @property
     def ops_genie(self) -> core.protos.playbooks.source_task_definitions.opsgenie_task_pb2.OpsGenie: ...
+    @property
+    def victoria_logs(self) -> core.protos.playbooks.source_task_definitions.victoria_logs_task_pb2.VictoriaLogs: ...
     def __init__(
         self,
         *,
@@ -430,12 +438,14 @@ class PlaybookTask(google.protobuf.message.Message):
         drd_proxy_agent: core.protos.playbooks.source_task_definitions.drd_proxy_agent_task_pb2.DrdProxyAgent | None = ...,
         posthog: core.protos.playbooks.source_task_definitions.posthog_task_pb2.PostHog | None = ...,
         signoz: core.protos.playbooks.source_task_definitions.signoz_task_pb2.Signoz | None = ...,
+        render: core.protos.playbooks.source_task_definitions.render_task_pb2.Render | None = ...,
         coralogix: core.protos.playbooks.source_task_definitions.coralogix_task_pb2.Coralogix | None = ...,
         ops_genie: core.protos.playbooks.source_task_definitions.opsgenie_task_pb2.OpsGenie | None = ...,
+        victoria_logs: core.protos.playbooks.source_task_definitions.victoria_logs_task_pb2.VictoriaLogs | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["api", b"api", "argocd", b"argocd", "azure", b"azure", "bash", b"bash", "big_query", b"big_query", "clickhouse", b"clickhouse", "cloudwatch", b"cloudwatch", "coralogix", b"coralogix", "created_by", b"created_by", "datadog", b"datadog", "description", b"description", "documentation", b"documentation", "drd_proxy_agent", b"drd_proxy_agent", "eks", b"eks", "elastic_search", b"elastic_search", "execution_configuration", b"execution_configuration", "gcm", b"gcm", "github", b"github", "github_actions", b"github_actions", "gke", b"gke", "global_variable_set", b"global_variable_set", "grafana", b"grafana", "grafana_loki", b"grafana_loki", "grafana_mimir", b"grafana_mimir", "id", b"id", "jenkins", b"jenkins", "jira_cloud", b"jira_cloud", "kubernetes", b"kubernetes", "lambda", b"lambda", "mongodb", b"mongodb", "name", b"name", "new_relic", b"new_relic", "notes", b"notes", "open_search", b"open_search", "ops_genie", b"ops_genie", "postgres", b"postgres", "posthog", b"posthog", "reference_id", b"reference_id", "sentry", b"sentry", "signoz", b"signoz", "slack", b"slack", "smtp", b"smtp", "sql_database_connection", b"sql_database_connection", "task", b"task"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["api", b"api", "argocd", b"argocd", "azure", b"azure", "bash", b"bash", "big_query", b"big_query", "clickhouse", b"clickhouse", "cloudwatch", b"cloudwatch", "coralogix", b"coralogix", "created_by", b"created_by", "datadog", b"datadog", "description", b"description", "documentation", b"documentation", "drd_proxy_agent", b"drd_proxy_agent", "eks", b"eks", "elastic_search", b"elastic_search", "execution_configuration", b"execution_configuration", "gcm", b"gcm", "github", b"github", "github_actions", b"github_actions", "gke", b"gke", "global_variable_set", b"global_variable_set", "grafana", b"grafana", "grafana_loki", b"grafana_loki", "grafana_mimir", b"grafana_mimir", "id", b"id", "interpreter_type", b"interpreter_type", "jenkins", b"jenkins", "jira_cloud", b"jira_cloud", "kubernetes", b"kubernetes", "lambda", b"lambda", "mongodb", b"mongodb", "name", b"name", "new_relic", b"new_relic", "notes", b"notes", "open_search", b"open_search", "ops_genie", b"ops_genie", "postgres", b"postgres", "posthog", b"posthog", "reference_id", b"reference_id", "sentry", b"sentry", "signoz", b"signoz", "slack", b"slack", "smtp", b"smtp", "source", b"source", "sql_database_connection", b"sql_database_connection", "task", b"task", "task_connector_sources", b"task_connector_sources"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing_extensions.Literal["task", b"task"]) -> typing_extensions.Literal["documentation", "cloudwatch", "grafana", "new_relic", "datadog", "clickhouse", "postgres", "eks", "sql_database_connection", "api", "bash", "grafana_mimir", "azure", "gke", "elastic_search", "grafana_loki", "kubernetes", "gcm", "smtp", "slack", "big_query", "mongodb", "open_search", "jenkins", "github", "sentry", "github_actions", "argocd", "jira_cloud", "lambda", "drd_proxy_agent", "posthog", "signoz", "coralogix", "ops_genie"] | None: ...
+    def HasField(self, field_name: typing_extensions.Literal["api", b"api", "argocd", b"argocd", "azure", b"azure", "bash", b"bash", "big_query", b"big_query", "clickhouse", b"clickhouse", "cloudwatch", b"cloudwatch", "coralogix", b"coralogix", "created_by", b"created_by", "datadog", b"datadog", "description", b"description", "documentation", b"documentation", "drd_proxy_agent", b"drd_proxy_agent", "eks", b"eks", "elastic_search", b"elastic_search", "execution_configuration", b"execution_configuration", "gcm", b"gcm", "github", b"github", "github_actions", b"github_actions", "gke", b"gke", "global_variable_set", b"global_variable_set", "grafana", b"grafana", "grafana_loki", b"grafana_loki", "grafana_mimir", b"grafana_mimir", "id", b"id", "jenkins", b"jenkins", "jira_cloud", b"jira_cloud", "kubernetes", b"kubernetes", "lambda", b"lambda", "mongodb", b"mongodb", "name", b"name", "new_relic", b"new_relic", "notes", b"notes", "open_search", b"open_search", "ops_genie", b"ops_genie", "postgres", b"postgres", "posthog", b"posthog", "reference_id", b"reference_id", "render", b"render", "sentry", b"sentry", "signoz", b"signoz", "slack", b"slack", "smtp", b"smtp", "sql_database_connection", b"sql_database_connection", "task", b"task", "victoria_logs", b"victoria_logs"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["api", b"api", "argocd", b"argocd", "azure", b"azure", "bash", b"bash", "big_query", b"big_query", "clickhouse", b"clickhouse", "cloudwatch", b"cloudwatch", "coralogix", b"coralogix", "created_by", b"created_by", "datadog", b"datadog", "description", b"description", "documentation", b"documentation", "drd_proxy_agent", b"drd_proxy_agent", "eks", b"eks", "elastic_search", b"elastic_search", "execution_configuration", b"execution_configuration", "gcm", b"gcm", "github", b"github", "github_actions", b"github_actions", "gke", b"gke", "global_variable_set", b"global_variable_set", "grafana", b"grafana", "grafana_loki", b"grafana_loki", "grafana_mimir", b"grafana_mimir", "id", b"id", "interpreter_type", b"interpreter_type", "jenkins", b"jenkins", "jira_cloud", b"jira_cloud", "kubernetes", b"kubernetes", "lambda", b"lambda", "mongodb", b"mongodb", "name", b"name", "new_relic", b"new_relic", "notes", b"notes", "open_search", b"open_search", "ops_genie", b"ops_genie", "postgres", b"postgres", "posthog", b"posthog", "reference_id", b"reference_id", "render", b"render", "sentry", b"sentry", "signoz", b"signoz", "slack", b"slack", "smtp", b"smtp", "source", b"source", "sql_database_connection", b"sql_database_connection", "task", b"task", "task_connector_sources", b"task_connector_sources", "victoria_logs", b"victoria_logs"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing_extensions.Literal["task", b"task"]) -> typing_extensions.Literal["documentation", "cloudwatch", "grafana", "new_relic", "datadog", "clickhouse", "postgres", "eks", "sql_database_connection", "api", "bash", "grafana_mimir", "azure", "gke", "elastic_search", "grafana_loki", "kubernetes", "gcm", "smtp", "slack", "big_query", "mongodb", "open_search", "jenkins", "github", "sentry", "github_actions", "argocd", "jira_cloud", "lambda", "drd_proxy_agent", "posthog", "signoz", "render", "coralogix", "ops_genie", "victoria_logs"] | None: ...
 
 global___PlaybookTask = PlaybookTask
 
