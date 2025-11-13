@@ -499,7 +499,7 @@ class ElasticSearchSourceManager(SourceManager):
         }
 
     def _get_account_index(self, account_id: int) -> str:
-        return ACCOUNT_INDEX_MAPPING.get(account_id, "traces-apm-*")
+        return ACCOUNT_INDEX_MAPPING.get(account_id, "*apm*")
 
     def get_connector_processor(self, es_connector, **kwargs):
         generated_credentials = generate_credentials_dict(es_connector.type, es_connector.keys)
