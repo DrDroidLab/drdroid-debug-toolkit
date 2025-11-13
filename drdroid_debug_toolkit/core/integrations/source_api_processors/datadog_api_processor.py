@@ -436,39 +436,75 @@ class DatadogApiProcessor(Processor):
             configuration = self.get_connection()
             with ApiClient(configuration) as api_client:
                 # Validate API Key (this endpoint only requires API key)
-                api_instance = AuthenticationApi(api_client)
-                response: AuthenticationValidationResponse = api_instance.validate()
-                if not response.get('valid', False):
+                try:
+                    api_instance = AuthenticationApi(api_client)
+                    response: AuthenticationValidationResponse = api_instance.validate()
+                    if not response.get('valid', False):
+                        raise Exception("Datadog API Key is not valid. Check API Key")
+                except ApiException as e:
+                    logger.error("Exception when validating API Key: %s\n" % e)
                     raise Exception("Datadog API Key is not valid. Check API Key")
                 
                 # Validate Application Key by making a call that requires both keys
-                # Since API key is already validated, if this fails it's likely the Application Key
-                monitors_api_instance = MonitorsApi(api_client)
-                monitors_api_instance.list_monitors(page_size=1)
+                # Since API key is already validated, check error body for specific Application Key errors
+                try:
+                    monitors_api_instance = MonitorsApi(api_client)
+                    monitors_api_instance.list_monitors(page_size=1)
+                except ApiException as e:
+                    logger.error("Exception when validating Application Key: %s\n" % e)
+                    # Check the error body for specific messages about Application Key
+                    error_body = e.body if hasattr(e, 'body') else None
+                    error_str = str(e).lower()
+                    
+                    # Check if error explicitly mentions Application Key
+                    app_key_indicators = [
+                        "application key",
+                        "app key",
+                        "appkeyauth",
+                        "dd-application-key",
+                        "invalid application key",
+                        "missing application key"
+                    ]
+                    
+                    # Check if error explicitly mentions API Key
+                    api_key_indicators = [
+                        "api key",
+                        "apikeyauth",
+                        "dd-api-key",
+                        "invalid api key",
+                        "missing api key"
+                    ]
+                    
+                    # Check error body (could be dict or string)
+                    body_str = ""
+                    if isinstance(error_body, dict):
+                        body_str = str(error_body).lower()
+                    elif isinstance(error_body, str):
+                        body_str = error_body.lower()
+                    
+                    # Check if error message specifically mentions Application Key
+                    if any(indicator in error_str or indicator in body_str for indicator in app_key_indicators):
+                        raise Exception("Datadog Application Key is not valid. Check Application Key")
+                    # Check if error message specifically mentions API Key
+                    elif any(indicator in error_str or indicator in body_str for indicator in api_key_indicators):
+                        raise Exception("Datadog API Key is not valid. Check API Key")
+                    # If status is 403 and we got past API key validation, it's likely Application Key
+                    elif hasattr(e, 'status') and e.status == 403:
+                        raise Exception("Datadog Application Key is not valid. Check Application Key")
+                    # Otherwise, provide a generic error message
+                    else:
+                        error_details = f"Status: {e.status if hasattr(e, 'status') else 'Unknown'}"
+                        if error_body:
+                            error_details += f", Error: {error_body}"
+                        raise Exception(f"Datadog connection failed. {error_details}. Please check both API Key and Application Key")
                 
                 return True
-        except ApiException as e:
-            logger.error("Exception when calling Datadog API: %s\n" % e)
-            # Check if this is from the validate() call (API key validation)
-            if hasattr(e, 'status') and e.status == 403:
-                # 403 Forbidden typically means Application Key is invalid
-                # (since we already validated API key above)
-                raise Exception("Datadog Application Key is not valid. Check Application Key")
-            elif hasattr(e, 'status') and e.status == 401:
-                # 401 Unauthorized could be either, but if we got past validate(), it's likely App Key
-                error_msg = str(e).lower()
-                if "application" in error_msg or "app" in error_msg:
-                    raise Exception("Datadog Application Key is not valid. Check Application Key")
-                else:
-                    raise Exception("Datadog API Key is not valid. Check API Key")
-            elif "AuthenticationApi" in str(e) or "validate" in str(e):
-                raise Exception("Datadog API Key is not valid. Check API Key")
-            else:
-                # Default: assume Application Key issue since API key was already validated
-                raise Exception("Datadog Application Key is not valid. Check Application Key")
         except Exception as e:
+            # Re-raise if it's already our custom exception
+            if "Datadog" in str(e) and ("API Key" in str(e) or "Application Key" in str(e) or "connection failed" in str(e)):
+                raise e
             logger.error("Exception when testing Datadog connection: %s\n" % e)
-            raise e
+            raise Exception(f"Datadog connection failed: {str(e)}. Please check both API Key and Application Key")
 
     def fetch_metric_timeseries(self, tr: TimeRange, specific_metric, interval=300000):
         metric_queries = specific_metric.get('queries', None)
