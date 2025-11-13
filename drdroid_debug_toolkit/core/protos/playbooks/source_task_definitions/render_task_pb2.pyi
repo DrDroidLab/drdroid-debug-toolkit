@@ -3,7 +3,9 @@
 isort:skip_file
 """
 import builtins
+import collections.abc
 import google.protobuf.descriptor
+import google.protobuf.internal.containers
 import google.protobuf.internal.enum_type_wrapper
 import google.protobuf.message
 import google.protobuf.wrappers_pb2
@@ -114,6 +116,16 @@ class Render(google.protobuf.message.Message):
         START_TIME_FIELD_NUMBER: builtins.int
         END_TIME_FIELD_NUMBER: builtins.int
         LIMIT_FIELD_NUMBER: builtins.int
+        INSTANCE_FIELD_NUMBER: builtins.int
+        HOST_FIELD_NUMBER: builtins.int
+        STATUS_CODE_FIELD_NUMBER: builtins.int
+        METHOD_FIELD_NUMBER: builtins.int
+        TASK_FIELD_NUMBER: builtins.int
+        TASK_RUN_FIELD_NUMBER: builtins.int
+        LEVEL_FIELD_NUMBER: builtins.int
+        TYPE_FIELD_NUMBER: builtins.int
+        TEXT_FIELD_NUMBER: builtins.int
+        PATH_FIELD_NUMBER: builtins.int
         @property
         def service_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
         @property
@@ -122,6 +134,26 @@ class Render(google.protobuf.message.Message):
         def end_time(self) -> google.protobuf.wrappers_pb2.StringValue: ...
         @property
         def limit(self) -> google.protobuf.wrappers_pb2.Int64Value: ...
+        @property
+        def instance(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+        @property
+        def host(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+        @property
+        def status_code(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+        @property
+        def method(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+        @property
+        def task(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+        @property
+        def task_run(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+        @property
+        def level(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+        @property
+        def type(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+        @property
+        def text(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+        @property
+        def path(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
         def __init__(
             self,
             *,
@@ -129,9 +161,19 @@ class Render(google.protobuf.message.Message):
             start_time: google.protobuf.wrappers_pb2.StringValue | None = ...,
             end_time: google.protobuf.wrappers_pb2.StringValue | None = ...,
             limit: google.protobuf.wrappers_pb2.Int64Value | None = ...,
+            instance: collections.abc.Iterable[builtins.str] | None = ...,
+            host: collections.abc.Iterable[builtins.str] | None = ...,
+            status_code: collections.abc.Iterable[builtins.str] | None = ...,
+            method: collections.abc.Iterable[builtins.str] | None = ...,
+            task: collections.abc.Iterable[builtins.str] | None = ...,
+            task_run: collections.abc.Iterable[builtins.str] | None = ...,
+            level: collections.abc.Iterable[builtins.str] | None = ...,
+            type: collections.abc.Iterable[builtins.str] | None = ...,
+            text: collections.abc.Iterable[builtins.str] | None = ...,
+            path: collections.abc.Iterable[builtins.str] | None = ...,
         ) -> None: ...
         def HasField(self, field_name: typing_extensions.Literal["end_time", b"end_time", "limit", b"limit", "service_id", b"service_id", "start_time", b"start_time"]) -> builtins.bool: ...
-        def ClearField(self, field_name: typing_extensions.Literal["end_time", b"end_time", "limit", b"limit", "service_id", b"service_id", "start_time", b"start_time"]) -> None: ...
+        def ClearField(self, field_name: typing_extensions.Literal["end_time", b"end_time", "host", b"host", "instance", b"instance", "level", b"level", "limit", b"limit", "method", b"method", "path", b"path", "service_id", b"service_id", "start_time", b"start_time", "status_code", b"status_code", "task", b"task", "task_run", b"task_run", "text", b"text", "type", b"type"]) -> None: ...
 
     TYPE_FIELD_NUMBER: builtins.int
     LIST_DEPLOYS_FIELD_NUMBER: builtins.int
