@@ -830,18 +830,19 @@ class DatadogApiProcessor(Processor):
                 api_instance = DashboardsApi(api_client)
                 response = api_instance.list_dashboards()
                 dashboard_dict = response.to_dict()
-                
-                # Convert to JSON string with datetime handling
-                import json
+
                 from datetime import datetime
-                
-                def json_serializer(obj):
-                    """JSON serializer for objects not serializable by default json code"""
-                    if isinstance(obj, datetime):
-                        return obj.isoformat()
-                    raise TypeError(f"Type {type(obj)} not serializable")
-                
-                return json.dumps(dashboard_dict, indent=2, default=json_serializer)
+
+                def convert_datetime(value):
+                    if isinstance(value, dict):
+                        return {k: convert_datetime(v) for k, v in value.items()}
+                    if isinstance(value, list):
+                        return [convert_datetime(item) for item in value]
+                    if isinstance(value, datetime):
+                        return value.isoformat()
+                    return value
+
+                return convert_datetime(dashboard_dict)
         except Exception as e:
             logger.error(f"Exception occurred while fetching dashboards with error: {e}")
             raise e
