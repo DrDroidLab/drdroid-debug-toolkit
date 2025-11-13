@@ -204,21 +204,6 @@ class ElasticSearch(google.protobuf.message.Message):
         def ClearField(self, field_name: typing_extensions.Literal["interval", b"interval", "service_name", b"service_name"]) -> None: ...
 
     @typing_extensions.final
-    class GetTransactionNamesByService(google.protobuf.message.Message):
-        DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-        SERVICE_NAME_FIELD_NUMBER: builtins.int
-        @property
-        def service_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-        def __init__(
-            self,
-            *,
-            service_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        ) -> None: ...
-        def HasField(self, field_name: typing_extensions.Literal["service_name", b"service_name"]) -> builtins.bool: ...
-        def ClearField(self, field_name: typing_extensions.Literal["service_name", b"service_name"]) -> None: ...
-
-    @typing_extensions.final
     class GetTracesForService(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -287,6 +272,21 @@ class ElasticSearch(google.protobuf.message.Message):
         ) -> None: ...
         def HasField(self, field_name: typing_extensions.Literal["error_only", b"error_only", "max_count", b"max_count", "service_name", b"service_name", "sort_by", b"sort_by", "sort_order", b"sort_order", "transaction_name", b"transaction_name"]) -> builtins.bool: ...
         def ClearField(self, field_name: typing_extensions.Literal["error_only", b"error_only", "max_count", b"max_count", "service_name", b"service_name", "sort_by", b"sort_by", "sort_order", b"sort_order", "transaction_name", b"transaction_name"]) -> None: ...
+
+    @typing_extensions.final
+    class GetTransactionNamesByService(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        SERVICE_NAME_FIELD_NUMBER: builtins.int
+        @property
+        def service_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        def __init__(
+            self,
+            *,
+            service_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["service_name", b"service_name"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["service_name", b"service_name"]) -> None: ...
 
     TYPE_FIELD_NUMBER: builtins.int
     QUERY_LOGS_FIELD_NUMBER: builtins.int
