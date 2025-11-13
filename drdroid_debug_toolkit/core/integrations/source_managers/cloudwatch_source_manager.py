@@ -365,7 +365,7 @@ class CloudwatchSourceManager(SourceManager):
     def get_connector_processor(self, cloudwatch_connector, **kwargs):
         generated_credentials = generate_credentials_dict(cloudwatch_connector.type, cloudwatch_connector.keys)
         generated_credentials['client_type'] = kwargs.get('client_type', 'cloudwatch')
-        if 'region' in kwargs and kwargs.get('region'):
+        if 'region' in kwargs:
             generated_credentials['region'] = kwargs.get('region')
         return AWSBoto3ApiProcessor(**generated_credentials)
 
@@ -380,6 +380,10 @@ class CloudwatchSourceManager(SourceManager):
         Returns:
             Tuple[bool, str or dict]: Success status and either a formatted message or task permission mapping.
         """
+        # Define CloudWatch specific defaults if not provided in kwargs
+        if 'region' not in kwargs:
+            kwargs['region'] = 'us-west-2'  # Default region for CloudWatch checks
+
         # Delegate the detailed permission checking to the base class implementation
         return self.test_connector_permissions(connector, **kwargs)
 
