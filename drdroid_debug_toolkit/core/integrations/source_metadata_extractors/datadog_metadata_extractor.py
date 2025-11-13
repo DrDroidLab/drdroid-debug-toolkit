@@ -1,3 +1,4 @@
+import json
 import logging
 
 from core.integrations.source_metadata_extractor import SourceMetadataExtractor
@@ -114,6 +115,12 @@ class DatadogSourceMetadataExtractor(SourceMetadataExtractor):
         model_data = {}
         try:
             response = self.__dd_api_processor.fetch_dashboards()
+            if isinstance(response, str):
+                try:
+                    response = json.loads(response)
+                except json.JSONDecodeError as decode_error:
+                    logger.error(f'Error parsing datadog dashboards response: {decode_error}')
+                    return model_data
             if not response or 'dashboards' not in response:
                 return model_data
             dashboards = response['dashboards']

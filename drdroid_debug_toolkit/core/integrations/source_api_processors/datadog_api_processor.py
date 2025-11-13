@@ -769,7 +769,7 @@ class DatadogApiProcessor(Processor):
                 response = api_instance.list_dashboards()
                 dashboard_dict = response.to_dict()
 
-                from datetime import datetime
+                import json
 
                 def convert_datetime(value):
                     if isinstance(value, dict):
@@ -780,7 +780,8 @@ class DatadogApiProcessor(Processor):
                         return value.isoformat()
                     return value
 
-                return convert_datetime(dashboard_dict)
+                cleaned_response = convert_datetime(dashboard_dict)
+                return json.dumps(cleaned_response, indent=2)
         except Exception as e:
             logger.error(f"Exception occurred while fetching dashboards with error: {e}")
             raise e
