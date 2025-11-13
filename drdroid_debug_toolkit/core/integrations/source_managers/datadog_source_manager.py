@@ -163,6 +163,38 @@ class DatadogSourceManager(SourceManager):
                               is_optional=True),
                 ]
             },
+            Datadog.TaskType.SPAN_SEARCH_EXECUTION: {
+                'executor': self.execute_span_search_execution,
+                'model_types': [],
+                'result_type': PlaybookTaskResultType.API_RESPONSE,
+                'display_name': 'Fetch Datadog spans',
+                'category': 'APM',
+                'form_fields': [
+                    FormField(key_name=StringValue(value="query"),
+                              display_name=StringValue(value="Query"),
+                              description=StringValue(value='Datadog span query, e.g. "service:web-api env:prod"'),
+                              helper_text=StringValue(value='Defaults to "*" when left blank'),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT,
+                              default_value=Literal(type=LiteralType.STRING, string=StringValue(value="*")),
+                              is_optional=True),
+                    FormField(key_name=StringValue(value="limit"),
+                              display_name=StringValue(value="Limit"),
+                              description=StringValue(value='Number of spans to fetch (max 1000)'),
+                              helper_text=StringValue(value='Defaults to 100'),
+                              default_value=Literal(type=LiteralType.LONG, long=Int64Value(value=100)),
+                              data_type=LiteralType.LONG,
+                              form_field_type=FormFieldType.TEXT_FT,
+                              is_optional=True),
+                    FormField(key_name=StringValue(value="cursor"),
+                              display_name=StringValue(value="Cursor"),
+                              description=StringValue(value='Pagination cursor from previous response'),
+                              helper_text=StringValue(value='Use to paginate through large result sets'),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT,
+                              is_optional=True),
+                ]
+            },
             Datadog.TaskType.GENERIC_QUERY: {
                 'executor': self.execute_generic_query,
                 'model_types': [],
@@ -1492,6 +1524,74 @@ class DatadogSourceManager(SourceManager):
                 )
                 result.append(task_result)
         return result
+
+    def execute_span_search_execution(self, time_range: TimeRange, dd_task: Datadog,
+                                      datadog_connector: ConnectorProto):
+        try:
+            if not datadog_connector:
+                raise Exception("Task execution Failed:: No Datadog source found")
+
+            task = dd_task.span_search_execution
+
+            query = "*"
+            if task.HasField("query") and task.query.value:
+                query = task.query.value
+
+            limit = 100
+            if task.HasField("limit") and task.limit.value:
+                limit = int(task.limit.value)
+
+            cursor = None
+            if task.HasField("cursor") and task.cursor.value:
+                cursor = task.cursor.value
+
+            dd_api_processor = self.get_connector_processor(datadog_connector)
+
+            response = dd_api_processor.search_spans(
+                start=time_range.time_geq,
+                end=time_range.time_lt,
+                query=query,
+                cursor=cursor or '',
+                limit=limit
+            )
+
+            if not response or not isinstance(response, dict):
+                logger.warning(f"Datadog span search returned invalid response: {response}")
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value=f"No spans returned from Datadog for query: {query}")),
+                    source=self.source
+                )
+
+            meta = response.get("meta", {}) if isinstance(response, dict) else {}
+            next_cursor = None
+            if isinstance(meta, dict):
+                page = meta.get("page", {})
+                if isinstance(page, dict):
+                    next_cursor = page.get("after")
+
+            metadata_kwargs = {}
+            if next_cursor:
+                metadata_struct = dict_to_proto(
+                    {"next_cursor": next_cursor},
+                    Struct
+                )
+                metadata_kwargs["metadata"] = metadata_struct
+
+            response_struct = dict_to_proto(response, Struct)
+            api_response_result = ApiResponseResult(
+                response_body=response_struct
+            )
+
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                api_response=api_response_result,
+                source=self.source,
+                **metadata_kwargs
+            )
+        except Exception as e:
+            logger.error(f"Error while executing Datadog span search task: {e}")
+            raise Exception(f"Error while executing Datadog task: {e}")
 
     def execute_generic_query(self, time_range: TimeRange, dd_task: Datadog, datadog_connector: ConnectorProto):
         """
