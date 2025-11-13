@@ -1,18 +1,18 @@
 from datetime import datetime, timedelta
 
-from google.protobuf.wrappers_pb2 import DoubleValue, StringValue
+from google.protobuf.wrappers_pb2 import DoubleValue, StringValue, BoolValue
 
 from core.integrations.source_api_processors.mimir_api_processor import MimirApiProcessor
 from core.integrations.source_manager import SourceManager
 from core.protos.base_pb2 import TimeRange
-from core.protos.base_pb2 import Source
+from core.protos.base_pb2 import Source, SourceKeyType
 from core.protos.connectors.connector_pb2 import Connector as ConnectorProto
-from core.protos.literal_pb2 import LiteralType
+from core.protos.literal_pb2 import LiteralType, Literal
 from core.protos.playbooks.playbook_commons_pb2 import PlaybookTaskResult, TimeseriesResult, LabelValuePair, \
-    PlaybookTaskResultType
+    PlaybookTaskResultType, TextResult
 from core.protos.playbooks.source_task_definitions.promql_task_pb2 import PromQl
 from core.protos.ui_definition_pb2 import FormField, FormFieldType
-from core.utils.credentilal_utils import generate_credentials_dict
+from core.utils.credentilal_utils import generate_credentials_dict, get_connector_key_type_string, DISPLAY_NAME, CATEGORY, APPLICATION_MONITORING
 
 
 class MimirSourceManager(SourceManager):
@@ -34,6 +34,71 @@ class MimirSourceManager(SourceManager):
                               form_field_type=FormFieldType.MULTILINE_FT),
                 ]
             },
+        }
+
+        self.connector_form_configs = [
+            {
+                "name": StringValue(value="Mimir Basic Configuration"),
+                "description": StringValue(value="Connect to Grafana Mimir using Host, OrgID, and optional SSL verification."),
+                "form_fields": {
+                    SourceKeyType.MIMIR_HOST: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.MIMIR_HOST)),
+                        display_name=StringValue(value="Mimir Host"),
+                        helper_text=StringValue(value="Enter the Mimir host URL"),
+                        description=StringValue(value='e.g. "https://mimir.example.com"'),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False
+                    ),
+                    SourceKeyType.X_SCOPE_ORG_ID: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.X_SCOPE_ORG_ID)),
+                        display_name=StringValue(value="X-Scope-OrgID"),
+                        helper_text=StringValue(value="Enter the X-Scope-OrgID for Mimir."),
+                        description=StringValue(value='e.g. "1234567890"'),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False
+                    ),
+                    SourceKeyType.SSL_VERIFY: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.SSL_VERIFY)),
+                        display_name=StringValue(value="SSL Verify"),
+                        description=StringValue(value='true or false'),
+                        helper_text=StringValue(value="Enable or disable SSL certificate verification. Defaults to true."),
+                        data_type=LiteralType.BOOLEAN,
+                        form_field_type=FormFieldType.CHECKBOX_FT,
+                        is_optional=True,
+                        default_value=Literal(type=LiteralType.BOOLEAN, boolean=BoolValue(value=True))
+                    )
+                }
+            },
+            {
+                "name": StringValue(value="Mimir Configuration (No SSL Verify)"),
+                "description": StringValue(value="Connect to Grafana Mimir using Host and OrgID (SSL verification defaults to enabled if not specified, this config implies you might manage it elsewhere or not need it)."),
+                "form_fields": {
+                    SourceKeyType.MIMIR_HOST: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.MIMIR_HOST)),
+                        display_name=StringValue(value="Mimir Host"),
+                        helper_text=StringValue(value="Enter the Mimir host URL"),
+                        description=StringValue(value='e.g. "https://mimir.example.com"'),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False
+                    ),
+                    SourceKeyType.X_SCOPE_ORG_ID: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.X_SCOPE_ORG_ID)),
+                        display_name=StringValue(value="X-Scope-OrgID"),
+                        helper_text=StringValue(value="Enter the X-Scope-OrgID for Mimir."),
+                        description=StringValue(value='e.g. "1234567890"'),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False
+                    )
+                }
+            }
+        ]
+        self.connector_type_details = {
+            DISPLAY_NAME: "GRAFANA MIMIR",
+            CATEGORY: APPLICATION_MONITORING,
         }
 
     def get_connector_processor(self, grafana_connector, **kwargs):
@@ -69,7 +134,8 @@ class MimirSourceManager(SourceManager):
             response = mimir_api_processor.fetch_promql_metric_timeseries(promql_metric_query,
                                                                           start_time, end_time, period)
             if not response:
-                raise Exception("No data returned from Mimir")
+                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT, text=TextResult(output=StringValue(
+                    value=f"No data returned from Mimir for metric query: {promql_metric_query}")), source=self.source)
 
             labeled_metric_timeseries_list = []
 

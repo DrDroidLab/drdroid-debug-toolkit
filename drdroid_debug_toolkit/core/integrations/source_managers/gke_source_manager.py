@@ -8,14 +8,14 @@ from kubernetes.client import V1PodList, V1DeploymentList, CoreV1EventList, V1Se
 from core.integrations.source_api_processors.gke_api_processor import GkeApiProcessor
 from core.integrations.source_api_processors.kubectl_api_processor import KubectlApiProcessor
 from core.integrations.source_manager import SourceManager
-from core.protos.base_pb2 import Source, TimeRange, SourceModelType
+from core.protos.base_pb2 import Source, TimeRange, SourceModelType, SourceKeyType
 from core.protos.connectors.connector_pb2 import Connector as ConnectorProto
 from core.protos.literal_pb2 import LiteralType
 from core.protos.playbooks.playbook_commons_pb2 import PlaybookTaskResult, TableResult, PlaybookTaskResultType, \
     BashCommandOutputResult
 from core.protos.playbooks.source_task_definitions.gke_task_pb2 import Gke
 from core.protos.ui_definition_pb2 import FormField, FormFieldType
-from core.utils.credentilal_utils import generate_credentials_dict
+from core.utils.credentilal_utils import generate_credentials_dict, get_connector_key_type_string, DISPLAY_NAME, CATEGORY, KUBERNETES
 
 
 class GkeSourceManager(SourceManager):
@@ -24,102 +24,6 @@ class GkeSourceManager(SourceManager):
         self.source = Source.GKE
         self.task_proto = Gke
         self.task_type_callable_map = {
-            Gke.TaskType.GET_PODS: {
-                'executor': self.get_pods,
-                'model_types': [SourceModelType.GKE_CLUSTER],
-                'result_type': PlaybookTaskResultType.TABLE,
-                'display_name': 'Get Pods from GKE Cluster',
-                'category': 'Deployment',
-                'form_fields': [
-                    FormField(key_name=StringValue(value="zone"),
-                              display_name=StringValue(value="Zone"),
-                              description=StringValue(value='Select GKE Zone'),
-                              data_type=LiteralType.STRING,
-                              form_field_type=FormFieldType.TYPING_DROPDOWN_FT),
-                    FormField(key_name=StringValue(value="cluster"),
-                              display_name=StringValue(value="Cluster"),
-                              description=StringValue(value='Select GKE Cluster'),
-                              data_type=LiteralType.STRING,
-                              form_field_type=FormFieldType.TYPING_DROPDOWN_FT),
-                    FormField(key_name=StringValue(value="namespace"),
-                              display_name=StringValue(value="Namespace"),
-                              description=StringValue(value='Select Namespace'),
-                              data_type=LiteralType.STRING,
-                              form_field_type=FormFieldType.TYPING_DROPDOWN_FT),
-                ]
-            },
-            Gke.TaskType.GET_DEPLOYMENTS: {
-                'executor': self.get_deployments,
-                'model_types': [SourceModelType.GKE_CLUSTER],
-                'result_type': PlaybookTaskResultType.TABLE,
-                'display_name': 'Get Deployments from GKE Cluster',
-                'category': 'Deployment',
-                'form_fields': [
-                    FormField(key_name=StringValue(value="zone"),
-                              display_name=StringValue(value="Zone"),
-                              description=StringValue(value='Select GKE Zone'),
-                              data_type=LiteralType.STRING,
-                              form_field_type=FormFieldType.TYPING_DROPDOWN_FT),
-                    FormField(key_name=StringValue(value="cluster"),
-                              display_name=StringValue(value="Cluster"),
-                              description=StringValue(value='Select GKE Cluster'),
-                              data_type=LiteralType.STRING,
-                              form_field_type=FormFieldType.TYPING_DROPDOWN_FT),
-                    FormField(key_name=StringValue(value="namespace"),
-                              display_name=StringValue(value="Namespace"),
-                              description=StringValue(value='Select Namespace'),
-                              data_type=LiteralType.STRING,
-                              form_field_type=FormFieldType.TYPING_DROPDOWN_FT),
-                ]
-            },
-            Gke.TaskType.GET_EVENTS: {
-                'executor': self.get_events,
-                'model_types': [SourceModelType.GKE_CLUSTER],
-                'result_type': PlaybookTaskResultType.TABLE,
-                'display_name': 'Get Events from GKE Cluster',
-                'category': 'Deployment',
-                'form_fields': [
-                    FormField(key_name=StringValue(value="zone"),
-                              display_name=StringValue(value="Zone"),
-                              description=StringValue(value='Select GKE Zone'),
-                              data_type=LiteralType.STRING,
-                              form_field_type=FormFieldType.TYPING_DROPDOWN_FT),
-                    FormField(key_name=StringValue(value="cluster"),
-                              display_name=StringValue(value="Cluster"),
-                              description=StringValue(value='Select GKE Cluster'),
-                              data_type=LiteralType.STRING,
-                              form_field_type=FormFieldType.TYPING_DROPDOWN_FT),
-                    FormField(key_name=StringValue(value="namespace"),
-                              display_name=StringValue(value="Namespace"),
-                              description=StringValue(value='Select Namespace'),
-                              data_type=LiteralType.STRING,
-                              form_field_type=FormFieldType.TYPING_DROPDOWN_FT),
-                ]
-            },
-            Gke.TaskType.GET_SERVICES: {
-                'executor': self.get_services,
-                'model_types': [SourceModelType.GKE_CLUSTER],
-                'result_type': PlaybookTaskResultType.TABLE,
-                'display_name': 'Get Services from GKE Cluster',
-                'category': 'Deployment',
-                'form_fields': [
-                    FormField(key_name=StringValue(value="zone"),
-                              display_name=StringValue(value="Zone"),
-                              description=StringValue(value='Select GKE Zone'),
-                              data_type=LiteralType.STRING,
-                              form_field_type=FormFieldType.TYPING_DROPDOWN_FT),
-                    FormField(key_name=StringValue(value="cluster"),
-                              display_name=StringValue(value="Cluster"),
-                              description=StringValue(value='Select GKE Cluster'),
-                              data_type=LiteralType.STRING,
-                              form_field_type=FormFieldType.TYPING_DROPDOWN_FT),
-                    FormField(key_name=StringValue(value="namespace"),
-                              display_name=StringValue(value="Namespace"),
-                              description=StringValue(value='Select Namespace'),
-                              data_type=LiteralType.STRING,
-                              form_field_type=FormFieldType.TYPING_DROPDOWN_FT),
-                ]
-            },
             Gke.TaskType.KUBECTL_COMMAND: {
                 'executor': self.execute_kubectl_command,
                 'model_types': [SourceModelType.GKE_CLUSTER],
@@ -143,6 +47,37 @@ class GkeSourceManager(SourceManager):
                               form_field_type=FormFieldType.MULTILINE_FT),
                 ]
             },
+        }
+        self.connector_form_configs = [
+            {
+                "name": StringValue(value="Google Kubernetes Engine (GKE) Authentication"),
+                "description": StringValue(value="Connect to GKE using a Project ID and Service Account JSON. Ensure the Service Account has the 'Kubernetes Engine Admin' or equivalent role for the specified project."),
+                "form_fields": {
+                    SourceKeyType.GKE_PROJECT_ID: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.GKE_PROJECT_ID)),
+                        display_name=StringValue(value="Project ID"),
+                        description=StringValue(value='e.g. "my-gke-project-123", "production-cluster-456"'),
+                        helper_text=StringValue(value="Enter your Google Cloud Project ID from the project settings"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False
+                    ),
+                    SourceKeyType.GKE_SERVICE_ACCOUNT_JSON: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.GKE_SERVICE_ACCOUNT_JSON)),
+                        display_name=StringValue(value="Service Account JSON"),
+                        description=StringValue(value='e.g. {"type": "service_account", "project_id": "my-project", "private_key_id": "abc123..."}'),
+                        helper_text=StringValue(value="Paste the entire JSON content of your service account key file from IAM & Admin > Service Accounts (requires Kubernetes Engine Admin role)"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.MULTILINE_FT,
+                        is_optional=False,
+                        is_sensitive=True
+                    )
+                }
+            }
+        ]
+        self.connector_type_details = {
+            DISPLAY_NAME: "GKE KUBERNETES",
+            CATEGORY: KUBERNETES,
         }
 
     def _safe_sort_by_age(self, table_rows, age_column_index):

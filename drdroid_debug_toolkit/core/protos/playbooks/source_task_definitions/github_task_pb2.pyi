@@ -36,6 +36,7 @@ class Github(google.protobuf.message.Message):
         FETCH_RECENT_COMMITS: Github._TaskType.ValueType  # 4
         FETCH_RECENT_MERGES: Github._TaskType.ValueType  # 5
         CREATE_PULL_REQUEST: Github._TaskType.ValueType  # 6
+        ANALYZE_SENTRY_CREATE_PR: Github._TaskType.ValueType  # 7
 
     class TaskType(_TaskType, metaclass=_TaskTypeEnumTypeWrapper): ...
     UNKNOWN: Github.TaskType.ValueType  # 0
@@ -45,6 +46,7 @@ class Github(google.protobuf.message.Message):
     FETCH_RECENT_COMMITS: Github.TaskType.ValueType  # 4
     FETCH_RECENT_MERGES: Github.TaskType.ValueType  # 5
     CREATE_PULL_REQUEST: Github.TaskType.ValueType  # 6
+    ANALYZE_SENTRY_CREATE_PR: Github.TaskType.ValueType  # 7
 
     @typing_extensions.final
     class FetchRelatedCommits(google.protobuf.message.Message):
@@ -84,21 +86,25 @@ class Github(google.protobuf.message.Message):
         OWNER_FIELD_NUMBER: builtins.int
         REPO_FIELD_NUMBER: builtins.int
         FILE_PATH_FIELD_NUMBER: builtins.int
+        TIMESTAMP_FIELD_NUMBER: builtins.int
         @property
         def owner(self) -> google.protobuf.wrappers_pb2.StringValue: ...
         @property
         def repo(self) -> google.protobuf.wrappers_pb2.StringValue: ...
         @property
         def file_path(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        timestamp: builtins.int
+        """getting this timestamp from sentry(or other services), will use it fetch file version from that timestamp"""
         def __init__(
             self,
             *,
             owner: google.protobuf.wrappers_pb2.StringValue | None = ...,
             repo: google.protobuf.wrappers_pb2.StringValue | None = ...,
             file_path: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            timestamp: builtins.int = ...,
         ) -> None: ...
         def HasField(self, field_name: typing_extensions.Literal["file_path", b"file_path", "owner", b"owner", "repo", b"repo"]) -> builtins.bool: ...
-        def ClearField(self, field_name: typing_extensions.Literal["file_path", b"file_path", "owner", b"owner", "repo", b"repo"]) -> None: ...
+        def ClearField(self, field_name: typing_extensions.Literal["file_path", b"file_path", "owner", b"owner", "repo", b"repo", "timestamp", b"timestamp"]) -> None: ...
 
     @typing_extensions.final
     class UpdateFile(google.protobuf.message.Message):

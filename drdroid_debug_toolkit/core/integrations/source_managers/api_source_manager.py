@@ -12,6 +12,8 @@ from core.protos.literal_pb2 import LiteralType, Literal
 from core.protos.playbooks.playbook_commons_pb2 import PlaybookTaskResult, ApiResponseResult, PlaybookTaskResultType
 from core.protos.playbooks.source_task_definitions.api_task_pb2 import Api
 from core.protos.ui_definition_pb2 import FormField, FormFieldType
+from core.utils.credentilal_utils import DISPLAY_NAME, CATEGORY, WEB
+from core.utils.proto_utils import proto_to_dict
 
 method_proto_string_mapping = {
     Api.HttpRequest.Method.GET: "GET",
@@ -78,6 +80,11 @@ class ApiSourceManager(SourceManager):
                 ]
             },
         }
+        self.connector_form_configs = []
+        self.connector_type_details = {
+            DISPLAY_NAME: "API",
+            CATEGORY: WEB,
+        }
 
     def execute_http_request(self, time_range: TimeRange, api_task: Api,
                              api_connector_proto: ConnectorProto):
@@ -93,6 +100,18 @@ class ApiSourceManager(SourceManager):
             timeout = http_request.timeout.value if http_request.timeout else 120
             cookies = http_request.cookies.value
             cookies = json.loads(cookies) if cookies else None
+
+            payload_json = proto_to_dict(http_request.payload_json) if http_request.payload_json.items() else {}
+            headers_json = proto_to_dict(http_request.headers_json) if http_request.headers_json.items() else {}
+
+            try:
+                payload_dict = json.loads(payload) if payload else {}
+            except json.JSONDecodeError:
+                payload_dict = {}
+            payload_dict.update(payload_json)
+            payload = json.dumps(payload_dict) if payload_dict else payload
+
+            headers.update(headers_json)
 
             ssl_verify = False
             if http_request.ssl_verify and http_request.ssl_verify.value:
@@ -132,8 +151,13 @@ class ApiSourceManager(SourceManager):
                     response_data = {'response_text': response.text}
                 else:
                     response_data = {'raw_response': response.text}
+
                 response_struct = Struct()
-                response_struct.update(response_data)
+                if isinstance(response_data, list):
+                    response_struct.update({"data": response_data})
+                else:
+                    response_struct = Struct()
+                    response_struct.update(response_data)
 
                 api_response = ApiResponseResult(
                     request_method=StringValue(value=request_method),

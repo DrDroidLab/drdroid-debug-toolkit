@@ -36,6 +36,8 @@ class NewRelic(google.protobuf.message.Message):
         DASHBOARD_MULTIPLE_WIDGETS: NewRelic._TaskType.ValueType  # 4
         ENTITY_APPLICATION_APM_METRIC_EXECUTION: NewRelic._TaskType.ValueType  # 5
         FETCH_DASHBOARD_WIDGETS: NewRelic._TaskType.ValueType  # 6
+        ENTITY_APPLICATION_APM_DATABASE_SUMMARY: NewRelic._TaskType.ValueType  # 7
+        ENTITY_APPLICATION_APM_TRANSACTION_SUMMARY: NewRelic._TaskType.ValueType  # 8
 
     class TaskType(_TaskType, metaclass=_TaskTypeEnumTypeWrapper): ...
     UNKNOWN: NewRelic.TaskType.ValueType  # 0
@@ -45,6 +47,8 @@ class NewRelic(google.protobuf.message.Message):
     DASHBOARD_MULTIPLE_WIDGETS: NewRelic.TaskType.ValueType  # 4
     ENTITY_APPLICATION_APM_METRIC_EXECUTION: NewRelic.TaskType.ValueType  # 5
     FETCH_DASHBOARD_WIDGETS: NewRelic.TaskType.ValueType  # 6
+    ENTITY_APPLICATION_APM_DATABASE_SUMMARY: NewRelic.TaskType.ValueType  # 7
+    ENTITY_APPLICATION_APM_TRANSACTION_SUMMARY: NewRelic.TaskType.ValueType  # 8
 
     @typing_extensions.final
     class EntityApplicationGoldenMetricExecutionTask(google.protobuf.message.Message):
@@ -119,6 +123,60 @@ class NewRelic(google.protobuf.message.Message):
         ) -> None: ...
         def HasField(self, field_name: typing_extensions.Literal["apm_metric_name", b"apm_metric_name", "apm_metric_names", b"apm_metric_names", "apm_metric_nrql_expression", b"apm_metric_nrql_expression", "apm_metric_unit", b"apm_metric_unit", "application_entity_guid", b"application_entity_guid", "application_entity_name", b"application_entity_name"]) -> builtins.bool: ...
         def ClearField(self, field_name: typing_extensions.Literal["apm_metric_name", b"apm_metric_name", "apm_metric_names", b"apm_metric_names", "apm_metric_nrql_expression", b"apm_metric_nrql_expression", "apm_metric_unit", b"apm_metric_unit", "application_entity_guid", b"application_entity_guid", "application_entity_name", b"application_entity_name", "timeseries_offsets", b"timeseries_offsets"]) -> None: ...
+
+    @typing_extensions.final
+    class EntityApplicationAPMDatabaseSummaryTask(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        APPLICATION_ENTITY_GUID_FIELD_NUMBER: builtins.int
+        APPLICATION_ENTITY_NAME_FIELD_NUMBER: builtins.int
+        SORT_BY_FIELD_NUMBER: builtins.int
+        TIMESERIES_OFFSETS_FIELD_NUMBER: builtins.int
+        @property
+        def application_entity_guid(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def application_entity_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def sort_by(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def timeseries_offsets(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]: ...
+        def __init__(
+            self,
+            *,
+            application_entity_guid: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            application_entity_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            sort_by: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            timeseries_offsets: collections.abc.Iterable[builtins.int] | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["application_entity_guid", b"application_entity_guid", "application_entity_name", b"application_entity_name", "sort_by", b"sort_by"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["application_entity_guid", b"application_entity_guid", "application_entity_name", b"application_entity_name", "sort_by", b"sort_by", "timeseries_offsets", b"timeseries_offsets"]) -> None: ...
+
+    @typing_extensions.final
+    class EntityApplicationAPMTransactionSummaryTask(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        APPLICATION_ENTITY_GUID_FIELD_NUMBER: builtins.int
+        APPLICATION_ENTITY_NAME_FIELD_NUMBER: builtins.int
+        SORT_BY_FIELD_NUMBER: builtins.int
+        TIMESERIES_OFFSETS_FIELD_NUMBER: builtins.int
+        @property
+        def application_entity_guid(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def application_entity_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def sort_by(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def timeseries_offsets(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]: ...
+        def __init__(
+            self,
+            *,
+            application_entity_guid: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            application_entity_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            sort_by: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            timeseries_offsets: collections.abc.Iterable[builtins.int] | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["application_entity_guid", b"application_entity_guid", "application_entity_name", b"application_entity_name", "sort_by", b"sort_by"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["application_entity_guid", b"application_entity_guid", "application_entity_name", b"application_entity_name", "sort_by", b"sort_by", "timeseries_offsets", b"timeseries_offsets"]) -> None: ...
 
     @typing_extensions.final
     class EntityDashboardWidgetNRQLMetricExecutionTask(google.protobuf.message.Message):
@@ -263,6 +321,8 @@ class NewRelic(google.protobuf.message.Message):
     DASHBOARD_MULTIPLE_WIDGETS_FIELD_NUMBER: builtins.int
     ENTITY_APPLICATION_APM_METRIC_EXECUTION_FIELD_NUMBER: builtins.int
     FETCH_DASHBOARD_WIDGETS_FIELD_NUMBER: builtins.int
+    ENTITY_APPLICATION_APM_DATABASE_SUMMARY_FIELD_NUMBER: builtins.int
+    ENTITY_APPLICATION_APM_TRANSACTION_SUMMARY_FIELD_NUMBER: builtins.int
     type: global___NewRelic.TaskType.ValueType
     @property
     def entity_application_golden_metric_execution(self) -> global___NewRelic.EntityApplicationGoldenMetricExecutionTask: ...
@@ -276,6 +336,10 @@ class NewRelic(google.protobuf.message.Message):
     def entity_application_apm_metric_execution(self) -> global___NewRelic.EntityApplicationAPMMetricExecutionTask: ...
     @property
     def fetch_dashboard_widgets(self) -> global___NewRelic.FetchDashboardWidgetsTask: ...
+    @property
+    def entity_application_apm_database_summary(self) -> global___NewRelic.EntityApplicationAPMDatabaseSummaryTask: ...
+    @property
+    def entity_application_apm_transaction_summary(self) -> global___NewRelic.EntityApplicationAPMTransactionSummaryTask: ...
     def __init__(
         self,
         *,
@@ -286,9 +350,11 @@ class NewRelic(google.protobuf.message.Message):
         dashboard_multiple_widgets: global___NewRelic.DashboardWidgetByIdTask | None = ...,
         entity_application_apm_metric_execution: global___NewRelic.EntityApplicationAPMMetricExecutionTask | None = ...,
         fetch_dashboard_widgets: global___NewRelic.FetchDashboardWidgetsTask | None = ...,
+        entity_application_apm_database_summary: global___NewRelic.EntityApplicationAPMDatabaseSummaryTask | None = ...,
+        entity_application_apm_transaction_summary: global___NewRelic.EntityApplicationAPMTransactionSummaryTask | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["dashboard_multiple_widgets", b"dashboard_multiple_widgets", "entity_application_apm_metric_execution", b"entity_application_apm_metric_execution", "entity_application_golden_metric_execution", b"entity_application_golden_metric_execution", "entity_dashboard_widget_nrql_metric_execution", b"entity_dashboard_widget_nrql_metric_execution", "fetch_dashboard_widgets", b"fetch_dashboard_widgets", "nrql_metric_execution", b"nrql_metric_execution", "task", b"task"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["dashboard_multiple_widgets", b"dashboard_multiple_widgets", "entity_application_apm_metric_execution", b"entity_application_apm_metric_execution", "entity_application_golden_metric_execution", b"entity_application_golden_metric_execution", "entity_dashboard_widget_nrql_metric_execution", b"entity_dashboard_widget_nrql_metric_execution", "fetch_dashboard_widgets", b"fetch_dashboard_widgets", "nrql_metric_execution", b"nrql_metric_execution", "task", b"task", "type", b"type"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing_extensions.Literal["task", b"task"]) -> typing_extensions.Literal["entity_application_golden_metric_execution", "entity_dashboard_widget_nrql_metric_execution", "nrql_metric_execution", "dashboard_multiple_widgets", "entity_application_apm_metric_execution", "fetch_dashboard_widgets"] | None: ...
+    def HasField(self, field_name: typing_extensions.Literal["dashboard_multiple_widgets", b"dashboard_multiple_widgets", "entity_application_apm_database_summary", b"entity_application_apm_database_summary", "entity_application_apm_metric_execution", b"entity_application_apm_metric_execution", "entity_application_apm_transaction_summary", b"entity_application_apm_transaction_summary", "entity_application_golden_metric_execution", b"entity_application_golden_metric_execution", "entity_dashboard_widget_nrql_metric_execution", b"entity_dashboard_widget_nrql_metric_execution", "fetch_dashboard_widgets", b"fetch_dashboard_widgets", "nrql_metric_execution", b"nrql_metric_execution", "task", b"task"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["dashboard_multiple_widgets", b"dashboard_multiple_widgets", "entity_application_apm_database_summary", b"entity_application_apm_database_summary", "entity_application_apm_metric_execution", b"entity_application_apm_metric_execution", "entity_application_apm_transaction_summary", b"entity_application_apm_transaction_summary", "entity_application_golden_metric_execution", b"entity_application_golden_metric_execution", "entity_dashboard_widget_nrql_metric_execution", b"entity_dashboard_widget_nrql_metric_execution", "fetch_dashboard_widgets", b"fetch_dashboard_widgets", "nrql_metric_execution", b"nrql_metric_execution", "task", b"task", "type", b"type"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing_extensions.Literal["task", b"task"]) -> typing_extensions.Literal["entity_application_golden_metric_execution", "entity_dashboard_widget_nrql_metric_execution", "nrql_metric_execution", "dashboard_multiple_widgets", "entity_application_apm_metric_execution", "fetch_dashboard_widgets", "entity_application_apm_database_summary", "entity_application_apm_transaction_summary"] | None: ...
 
 global___NewRelic = NewRelic

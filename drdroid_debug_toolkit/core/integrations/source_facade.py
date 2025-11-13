@@ -37,6 +37,9 @@ from core.integrations.source_managers.posthog_source_manager import PosthogSour
 from core.integrations.source_managers.signoz_source_manager import SignozSourceManager
 from core.integrations.source_managers.sentry_source_manager import SentrySourceManager
 from core.integrations.source_managers.github_actions_source_manager import GithubActionsSourceManager
+from core.integrations.source_managers.coralogix_source_manager import CoralogixSourceManager
+from core.integrations.source_managers.render_source_manager import RenderSourceManager
+from core.integrations.source_managers.victoria_logs_source_manager import VictoriaLogsSourceManager
 from core.protos.base_pb2 import Source
 from core.protos.connectors.connector_pb2 import Connector as ConnectorProto
 from core.protos.playbooks.playbook_commons_pb2 import PlaybookTaskResult
@@ -81,6 +84,38 @@ class SourceFacade:
             logger.error(f'Error while testing source connection: {str(e)}')
             return False, str(e)
 
+    def get_task_types(self, connector_type: Source):
+        playbook_source_manager = self.get_source_manager(connector_type)
+        task_protos = playbook_source_manager.task_proto
+        return task_protos
+
+    def check_required_connector_keys(self, connector: ConnectorProto):
+        playbook_source_manager = self.get_source_manager(connector.type)
+        return playbook_source_manager.check_required_connector_keys(connector)
+
+    def get_required_connector_key_types(self, connector_type: Source):
+        playbook_source_manager = self.get_source_manager(connector_type)
+        return playbook_source_manager.get_required_connector_key_types()
+
+    def get_connector_keys_display_name_map(self, connector_type: Source):
+        playbook_source_manager = self.get_source_manager(connector_type)
+        return playbook_source_manager.get_connector_keys_display_name_map()
+
+    def get_connector_type_details(self, connector_type: Source):
+        playbook_source_manager = self.get_source_manager(connector_type)
+        return playbook_source_manager.get_connector_type_details()
+
+    def get_connector_required_keys(self, connector_type: Source):
+        playbook_source_manager = self.get_source_manager(connector_type)
+        return playbook_source_manager.get_connector_required_keys()
+
+    def get_all_available_connector_integrations(self):
+        return self._map.keys()
+
+    def get_connector_masked_keys(self, connector_type: Source):
+        playbook_source_manager = self.get_source_manager(connector_type)
+        return playbook_source_manager.get_connector_masked_keys()
+
 
 source_facade = SourceFacade()
 source_facade.register(Source.CLOUDWATCH, CloudwatchSourceManager())
@@ -122,3 +157,6 @@ source_facade.register(Source.POSTHOG, PosthogSourceManager())
 source_facade.register(Source.SIGNOZ, SignozSourceManager())
 source_facade.register(Source.SENTRY, SentrySourceManager())
 source_facade.register(Source.GITHUB_ACTIONS, GithubActionsSourceManager())
+source_facade.register(Source.CORALOGIX, CoralogixSourceManager())
+source_facade.register(Source.RENDER, RenderSourceManager())
+source_facade.register(Source.VICTORIA_LOGS, VictoriaLogsSourceManager())

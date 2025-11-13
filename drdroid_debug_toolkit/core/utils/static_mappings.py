@@ -594,3 +594,130 @@ NEWRELIC_APM_QUERIES = {
     "Non-Web Transactions": "SELECT sum(apm.service.overview.other * 1000) FROM Metric WHERE (entity.guid = {}) FACET `segmentName` LIMIT MAX TIMESERIES",
     "Average APM service transaction time (Non-Web)": "SELECT average(convert(apm.service.transaction.duration, unit, 'ms')) AS 'Response time' FROM Metric WHERE (entity.guid = {}) AND (transactionType = 'Other') LIMIT MAX TIMESERIES"
 }
+
+NEWRELIC_APM_DATABASE_QUERIES = {
+    # Base queries that are always executed regardless of sort_by option
+    "base_queries": {
+        "Top Databases by Query Time": "SELECT sum(convert(apm.service.datastore.operation.duration, unit, 'ms')) FROM Metric WHERE (entity.guid = {}) FACET `db.system`, `db.sql.table` LIMIT 5",
+        "Top Databases by Throughput": "SELECT rate(count(apm.service.datastore.operation.duration), 1 minute) FROM Metric WHERE (entity.guid = {}) LIMIT 5 facet concat(db.system, ' ', db.sql.table, ' ', db.operation)",
+        "Top 5 Database Operations by Throughput": "SELECT count(convert(apm.service.datastore.operation.duration, unit, 'ms')) FROM Metric WHERE (entity.guid = {}) FACET `db.system`, `db.sql.table`, `db.operation` LIMIT 5",
+        "Top 5 Database Operations by Time Consumed": "SELECT sum(convert(apm.service.datastore.operation.duration, unit, 'ms')) FROM Metric WHERE (entity.guid = {}) FACET `db.system`, `db.sql.table`, `db.operation` LIMIT 5"
+    },
+    # Variable queries based on sort_by option
+    "sort_by_queries": {
+        "Most Time Consuming": {
+            "Top 20 Database Operations": "SELECT sum(duration) FROM Span WHERE category = 'datastore' AND appName = {} FACET name LIMIT 20"
+        },
+        "Slowest Query Time": {
+            "Top 20 Database Operations": "SELECT average(convert(apm.service.datastore.operation.duration, unit, 'ms')) FROM Metric WHERE (entity.guid = {}) FACET `db.system`, `db.sql.table`, `db.operation` LIMIT 20"
+        },
+        "Throughput (Calls per minute)": {
+            "Top 20 Database Operations": "SELECT rate(count(apm.service.datastore.operation.duration), 1 minute) FROM Metric WHERE (entity.guid = {}) FACET `db.system`, `db.sql.table`, `db.operation` LIMIT 20"
+        }
+    },
+    # Chart type configuration - defines which metrics should be rendered as bar charts vs timeseries
+    "chart_types": {
+        "bar_chart": {
+            "metrics": [
+                "Top 20 Database Operations"  # These show aggregate data, not time-based trends
+            ],
+            "result_type": "TABLE"  # Use TABLE for bar chart data
+        },
+        "timeseries": {
+            "metrics": [
+                "Top Databases by Query Time",
+                "Top Databases by Throughput", 
+                "Top 5 Database Operations by Throughput",
+                "Top 5 Database Operations by Time Consumed"
+            ],
+            "result_type": "TIMESERIES"  # Use TIMESERIES for time-based data
+        }
+    }
+}
+
+NEWRELIC_APM_TRANSACTION_QUERIES = {
+    # Base queries that are always executed regardless of sort_by option (timeseries)
+    "base_queries": {
+        "Throughput": "SELECT rate(count(apm.service.transaction.duration), 1 minute) as 'All' FROM Metric WHERE (entity.guid = {}) LIMIT 5 facet concat(transactionType)",
+        "Per-Host CPU Usage": "SELECT average(apm.service.cpu.usertime.utilization) * 100 as cpuUsage FROM Metric WHERE (entity.guid = {}) FACET `host` LIMIT 20",
+        "Per-Host Memory Usage": "SELECT (average(apm.service.memory.physical) * rate(count(apm.service.instance.count), 1 minute)) / 1000 as memoryUsage FROM Metric WHERE (entity.guid = {}) FACET `host` LIMIT 20",
+    },
+    # Variable queries based on sort_by option (table format)
+    "sort_by_queries": {
+        "Most Time Consuming": {
+            "Time Consumed by Top Transactions (Most Time Consuming)": "SELECT rate(sum(convert(apm.service.transaction.duration, unit OR 's', 's')), 1 second) FROM Metric WHERE entity.guid = {} FACET transactionName LIMIT 4",
+            "Top 20 Transactions": "SELECT sum(convert(apm.service.transaction.duration, unit OR 's', 's')) as 'Total Time (s)' FROM Metric WHERE (entity.guid = {}) FACET transactionName LIMIT 20"
+        },
+        "Slowest Average Response Time": {
+            "Time Consumed by Top Transactions (Slowest Average Response Time)": "SELECT average(apm.service.transaction.duration) * 1000 as 'Avg Response Time' FROM Metric WHERE (entity.guid = {}) FACET transactionName ORDER BY average(apm.service.transaction.duration) LIMIT 20",
+            "Top 20 Transactions": "SELECT average(apm.service.transaction.duration) * 1000 as 'Avg Response Time' FROM Metric WHERE (entity.guid = {}) FACET transactionName ORDER BY average(apm.service.transaction.duration) LIMIT 20"
+        },
+        "Throughput (Calls per minute)": {
+            "Time Consumed by Top Transactions (Throughput)": "SELECT rate(sum(convert(apm.service.transaction.duration, unit OR 's', 's')), 1 second) FROM Metric WHERE entity.guid = {} FACET transactionName LIMIT 4",
+            "Top 20 Transactions": "SELECT rate(count(apm.service.transaction.duration), 1 minute) as 'Throughput (calls per minute)' FROM Metric WHERE (entity.guid = {}) FACET transactionName ORDER BY rate(count(apm.service.transaction.duration), 1 minute) LIMIT 20"
+        }
+    },
+    # Chart type configuration - defines which metrics should be rendered as bar charts vs timeseries
+    "chart_types": {
+        "bar_chart": {
+            "metrics": [
+                "Top 20 Transactions"  # These show aggregate data, not time-based trends
+            ],
+            "result_type": "TABLE"  # Use TABLE for bar chart data
+        },
+        "timeseries": {
+            "metrics": [
+                "Time Consumed by Top Transactions (Most Time Consuming)",
+                "Time Consumed by Top Transactions (Slowest Average Response Time)",
+                "Time Consumed by Top Transactions (Throughput)",
+                "Throughput",
+                "Per-Host CPU Usage",
+                "Per-Host Memory Usage"
+            ],
+            "result_type": "TIMESERIES"  # Use TIMESERIES for time-based data
+        }
+    }
+}
+
+GCM_SERVICE_DASHBOARD_QUERIES = {
+        "Billable container instance time": {
+            "sum": "fetch cloud_run_revision | metric 'run.googleapis.com/container/billable_instance_time' | align rate(1m) | every 1m | group_by [resource.service_name], [value_billable_instance_time_sum: sum(value.billable_instance_time)]",
+        },
+        "Container startup latency": {
+            "50": "fetch cloud_run_revision | metric 'run.googleapis.com/container/startup_latencies' | align delta(1m) | every 1m | group_by [resource.service_name], [value_startup_latencies_percentile: percentile(value.startup_latencies, 50)]",
+            "95": "fetch cloud_run_revision | metric 'run.googleapis.com/container/startup_latencies' | align delta(1m) | every 1m | group_by [resource.service_name], [value_startup_latencies_percentile: percentile(value.startup_latencies, 95)]",
+            "99": "fetch cloud_run_revision | metric 'run.googleapis.com/container/startup_latencies' | align delta(1m) | every 1m | group_by [resource.service_name], [value_startup_latencies_percentile: percentile(value.startup_latencies, 99)]",
+        },
+        "Container CPU utilisation": {
+            "50": "fetch cloud_run_revision | metric 'run.googleapis.com/container/cpu/utilizations' | group_by 1m, [value_cpu_utilizations_aggregate: aggregate(value.utilizations)] | every 1m | group_by [resource.service_name], [value_cpu_utilizations_aggregate_percentile: percentile(value_cpu_utilizations_aggregate, 50)]",
+            "95": "fetch cloud_run_revision | metric 'run.googleapis.com/container/cpu/utilizations' | group_by 1m, [value_cpu_utilizations_aggregate: aggregate(value.utilizations)] | every 1m | group_by [resource.service_name], [value_cpu_utilizations_aggregate_percentile: percentile(value_cpu_utilizations_aggregate, 95)]",
+            "99": "fetch cloud_run_revision | metric 'run.googleapis.com/container/cpu/utilizations' | group_by 1m, [value_cpu_utilizations_aggregate: aggregate(value.utilizations)] | every 1m | group_by [resource.service_name], [value_cpu_utilizations_aggregate_percentile: percentile(value_cpu_utilizations_aggregate, 99)]",
+        },
+        "Container memory utilisation": {
+            "50": "fetch cloud_run_revision | metric 'run.googleapis.com/container/memory/utilizations' | group_by 1m, [value_memory_utilizations_aggregate: aggregate(value.utilizations)] | every 1m | group_by [resource.service_name], [value_memory_utilizations_aggregate_percentile: percentile(value_memory_utilizations_aggregate, 50)]",
+            "95": "fetch cloud_run_revision | metric 'run.googleapis.com/container/memory/utilizations' | group_by 1m, [value_memory_utilizations_aggregate: aggregate(value.utilizations)] | every 1m | group_by [resource.service_name], [value_memory_utilizations_aggregate_percentile: percentile(value_memory_utilizations_aggregate, 95)]",
+            "99": "fetch cloud_run_revision | metric 'run.googleapis.com/container/memory/utilizations' | group_by 1m, [value_memory_utilizations_aggregate: aggregate(value.utilizations)] | every 1m | group_by [resource.service_name], [value_memory_utilizations_aggregate_percentile: percentile(value_memory_utilizations_aggregate, 99)]",
+        },
+        "Sent bytes": {
+            "sum": "fetch cloud_run_revision | metric 'run.googleapis.com/container/network/sent_bytes_count'| align rate(1m) | every 1m",
+        },
+        "Received bytes": {
+            "sum": "fetch cloud_run_revision | metric 'run.googleapis.com/container/network/received_bytes_count' | align rate(1m) | every 1m",
+        },
+        "Request count": {
+            "sum": "fetch cloud_run_revision | metric 'run.googleapis.com/request_count' | align rate(1m) | every 1m | group_by [metric.response_code_class], [value_request_count_aggregate: aggregate(value.request_count)]",
+        },
+        "Request latencies": {
+            "50": "fetch cloud_run_revision | metric 'run.googleapis.com/request_latencies' | align delta(1m) | every 1m | group_by [resource.service_name], [value_request_latencies_percentile: percentile(value.request_latencies, 50)]",
+            "95": "fetch cloud_run_revision | metric 'run.googleapis.com/request_latencies' | align delta(1m) | every 1m | group_by [resource.service_name], [value_request_latencies_percentile: percentile(value.request_latencies, 95)]",
+            "99": "fetch cloud_run_revision | metric 'run.googleapis.com/request_latencies' | align delta(1m) | every 1m | group_by [resource.service_name], [value_request_latencies_percentile: percentile(value.request_latencies, 99)]",
+        },
+        "Container instance count": {
+            "max": "fetch cloud_run_revision | metric 'run.googleapis.com/container/instance_count' | group_by 1m, [value_instance_count_max: max(value.instance_count)] | every 1m | group_by [resource.service_name, metric.state], [value_instance_count_max_aggregate: aggregate(value_instance_count_max)]",
+        },
+        "Maximum concurrent requests": {
+            "50": "fetch cloud_run_revision | metric 'run.googleapis.com/container/max_request_concurrencies' | align delta(1m) | every 1m | group_by [resource.service_name], [value_max_request_concurrencies_percentile: percentile(value.max_request_concurrencies, 50)]",
+            "95": "fetch cloud_run_revision | metric 'run.googleapis.com/container/max_request_concurrencies' | align delta(1m) | every 1m | group_by [resource.service_name], [value_max_request_concurrencies_percentile: percentile(value.max_request_concurrencies, 95)]",
+            "99": "fetch cloud_run_revision | metric 'run.googleapis.com/container/max_request_concurrencies' | align delta(1m) | every 1m | group_by [resource.service_name], [value_max_request_concurrencies_percentile: percentile(value.max_request_concurrencies, 99)]",
+        },
+    }

@@ -3,14 +3,19 @@ package core.protos.connectors;
 
 import "google/protobuf/wrappers.proto";
 import "core/protos/base.proto";
+import "core/protos/connectors/api.proto";
 
 message SlackChannelAssetModel {
   message ChannelMetadata {
-    google.protobuf.BoolValue is_auto_rca_enabled = 1;
+    google.protobuf.StringValue workspace_id = 1;
+    google.protobuf.StringValue workspace_name = 2;
+    google.protobuf.StringValue inviter_id = 3;
+    google.protobuf.BoolValue is_dm = 4;
   }
   google.protobuf.StringValue channel_id = 1;
   google.protobuf.StringValue channel_name = 2;
   ChannelMetadata metadata = 3;
+  SlackAlertOpsConfiguration alert_ops_configuration = 4;
 }
 
 message SlackChannelAssetOptions {

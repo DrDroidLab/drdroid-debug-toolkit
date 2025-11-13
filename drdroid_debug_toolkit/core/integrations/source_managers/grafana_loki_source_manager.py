@@ -1,16 +1,16 @@
 from datetime import datetime, timedelta
 
-from google.protobuf.wrappers_pb2 import StringValue, UInt64Value, Int64Value
+from google.protobuf.wrappers_pb2 import StringValue, UInt64Value, Int64Value, BoolValue
 
 from core.integrations.source_api_processors.grafana_loki_api_processor import GrafanaLokiApiProcessor
 from core.integrations.source_manager import SourceManager
-from core.protos.base_pb2 import TimeRange, Source
+from core.protos.base_pb2 import TimeRange, Source, SourceKeyType
 from core.protos.connectors.connector_pb2 import Connector as ConnectorProto
 from core.protos.literal_pb2 import LiteralType, Literal
-from core.protos.playbooks.playbook_commons_pb2 import PlaybookTaskResult, PlaybookTaskResultType, TableResult
+from core.protos.playbooks.playbook_commons_pb2 import PlaybookTaskResult, PlaybookTaskResultType, TableResult, TextResult
 from core.protos.playbooks.source_task_definitions.grafana_loki_task_pb2 import GrafanaLoki
 from core.protos.ui_definition_pb2 import FormField, FormFieldType
-from core.utils.credentilal_utils import generate_credentials_dict
+from core.utils.credentilal_utils import generate_credentials_dict, get_connector_key_type_string, CATEGORY, DISPLAY_NAME, APPLICATION_MONITORING
 
 
 class GrafanaLokiSourceManager(SourceManager):
@@ -53,6 +53,115 @@ class GrafanaLokiSourceManager(SourceManager):
             }
         }
 
+        self.connector_form_configs = [
+            {
+                "name": StringValue(value="Grafana Loki Connection (Full)"),
+                "description": StringValue(value="Connect to Grafana Loki specifying Protocol, Host, Port, X-Scope-OrgID, and SSL verification."),
+                "form_fields": {
+                    SourceKeyType.GRAFANA_LOKI_PROTOCOL: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.GRAFANA_LOKI_PROTOCOL)),
+                        display_name=StringValue(value="Protocol"),
+                        description=StringValue(value='Choose "http" for local/development or "https" for production environments'),
+                        helper_text=StringValue(value="Select the protocol used to connect to your Grafana Loki instance"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.DROPDOWN_FT,
+                        valid_values=[Literal(type=LiteralType.STRING, string=StringValue(value='http')),
+                                      Literal(type=LiteralType.STRING, string=StringValue(value='https'))],
+                        default_value=Literal(type=LiteralType.STRING, string=StringValue(value='http')),
+                        is_optional=False
+                    ),
+                    SourceKeyType.GRAFANA_LOKI_HOST: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.GRAFANA_LOKI_HOST)),
+                        display_name=StringValue(value="Host"),
+                        description=StringValue(value='e.g. "loki.example.com", "localhost", "10.0.0.10"'),
+                        helper_text=StringValue(value="Enter your Grafana Loki host address (domain name or IP, without protocol or port)"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False
+                    ),
+                    SourceKeyType.GRAFANA_LOKI_PORT: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.GRAFANA_LOKI_PORT)),
+                        display_name=StringValue(value="Port"),
+                        description=StringValue(value='e.g. 3100 (default), 9096 (with proxy), 443 (HTTPS)'),
+                        helper_text=StringValue(value="Enter the port number where Grafana Loki is listening (defaults to 3100 if empty)"),
+                        data_type=LiteralType.LONG,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        default_value=Literal(type=LiteralType.LONG, long=Int64Value(value=3100)),
+                        is_optional=True
+                    ),
+                    SourceKeyType.X_SCOPE_ORG_ID: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.X_SCOPE_ORG_ID)),
+                        display_name=StringValue(value="X-Scope-OrgID"),
+                        description=StringValue(value='e.g. "tenant1", "org123", "team-prod"'),
+                        helper_text=StringValue(value="Enter your organization ID for multi-tenant Loki setups (defaults to 'anonymous' if empty)"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=True
+                    ),
+                    SourceKeyType.SSL_VERIFY: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.SSL_VERIFY)),
+                        display_name=StringValue(value="SSL Verify"),
+                        description=StringValue(value="Enable for production environments, disable for self-signed certificates"),
+                        helper_text=StringValue(value="Toggle SSL certificate verification (recommended to keep enabled unless using self-signed certificates)"),
+                        data_type=LiteralType.BOOLEAN,
+                        form_field_type=FormFieldType.CHECKBOX_FT,
+                        default_value=Literal(type=LiteralType.BOOLEAN, boolean=BoolValue(value=True)),
+                        is_optional=True
+                    )
+                }
+            },
+            {
+                "name": StringValue(value="Grafana Loki Connection (No SSL Verify)"),
+                "description": StringValue(value="Connect to Grafana Loki specifying Protocol, Host, Port, and X-Scope-OrgID."),
+                "form_fields": {
+                    SourceKeyType.GRAFANA_LOKI_PROTOCOL: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.GRAFANA_LOKI_PROTOCOL)),
+                        display_name=StringValue(value="Protocol"),
+                        description=StringValue(value='Choose "http" for local/development or "https" for production environments'),
+                        helper_text=StringValue(value="Select the protocol used to connect to your Grafana Loki instance"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.DROPDOWN_FT,
+                        valid_values=[Literal(type=LiteralType.STRING, string=StringValue(value='http')),
+                                      Literal(type=LiteralType.STRING, string=StringValue(value='https'))],
+                        default_value=Literal(type=LiteralType.STRING, string=StringValue(value='http')),
+                        is_optional=False
+                    ),
+                    SourceKeyType.GRAFANA_LOKI_HOST: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.GRAFANA_LOKI_HOST)),
+                        display_name=StringValue(value="Host"),
+                        description=StringValue(value='e.g. "loki.example.com", "localhost", "10.0.0.10"'),
+                        helper_text=StringValue(value="Enter your Grafana Loki host address (domain name or IP, without protocol or port)"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False
+                    ),
+                    SourceKeyType.GRAFANA_LOKI_PORT: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.GRAFANA_LOKI_PORT)),
+                        display_name=StringValue(value="Port"),
+                        description=StringValue(value='e.g. 3100 (default), 9096 (with proxy), 443 (HTTPS)'),
+                        helper_text=StringValue(value="Enter the port number where Grafana Loki is listening (defaults to 3100 if empty)"),
+                        data_type=LiteralType.LONG,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        default_value=Literal(type=LiteralType.LONG, long=Int64Value(value=3100)),
+                        is_optional=True
+                    ),
+                    SourceKeyType.X_SCOPE_ORG_ID: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.X_SCOPE_ORG_ID)),
+                        display_name=StringValue(value="X-Scope-OrgID"),
+                        description=StringValue(value='e.g. "tenant1", "org123", "team-prod"'),
+                        helper_text=StringValue(value="Enter your organization ID for multi-tenant Loki setups (defaults to 'anonymous' if empty)"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=True
+                    )
+                }
+            }
+        ]
+        self.connector_type_details = {
+            DISPLAY_NAME: "GRAFANA LOKI",
+            CATEGORY: APPLICATION_MONITORING,
+        }
+
     def get_connector_processor(self, grafana_loki_connector, **kwargs):
         generated_credentials = generate_credentials_dict(grafana_loki_connector.type, grafana_loki_connector.keys)
         return GrafanaLokiApiProcessor(**generated_credentials)
@@ -91,7 +200,8 @@ class GrafanaLokiSourceManager(SourceManager):
 
             response = grafana_loki_api_processor.query(query, start_time, end_time, limit)
             if not response:
-                raise Exception("No data returned from Grafana Loki")
+                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT, text=TextResult(output=StringValue(
+                    value=f"No data returned from Grafana Loki for query: {query}")), source=self.source)
 
             result = response.get('data', {}).get('result', [])
             table_rows: [TableResult.TableRow] = []

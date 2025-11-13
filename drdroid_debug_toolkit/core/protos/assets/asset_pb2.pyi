@@ -9,6 +9,7 @@ import core.protos.assets.azure_asset_pb2
 import core.protos.assets.bash_asset_pb2
 import core.protos.assets.clickhouse_asset_pb2
 import core.protos.assets.cloudwatch_asset_pb2
+import core.protos.assets.coralogix_asset_pb2
 import core.protos.assets.datadog_asset_pb2
 import core.protos.assets.eks_asset_pb2
 import core.protos.assets.elastic_search_asset_pb2
@@ -26,6 +27,7 @@ import core.protos.assets.posthog_asset_pb2
 import core.protos.assets.signoz_asset_pb2
 import core.protos.assets.slack_asset_pb2
 import core.protos.assets.sql_database_asset_pb2
+import core.protos.base_pb2
 import core.protos.connectors.connector_pb2
 import google.protobuf.descriptor
 import google.protobuf.message
@@ -88,7 +90,7 @@ class ConnectorModelTypeOptions(google.protobuf.message.Message):
     ELASTIC_SEARCH_INDEX_PATTERN_MODEL_OPTIONS_FIELD_NUMBER: builtins.int
     ELASTIC_SEARCH_SERVICE_MODEL_OPTIONS_FIELD_NUMBER: builtins.int
     GRAFANA_LOKI_DATASOURCE_MODEL_OPTIONS_FIELD_NUMBER: builtins.int
-    model_type: core.protos.connectors.connector_pb2.ConnectorMetadataModelType.ValueType
+    model_type: core.protos.base_pb2.SourceModelType.ValueType
     @property
     def cloudwatch_log_group_model_options(self) -> core.protos.assets.cloudwatch_asset_pb2.CloudwatchLogGroupAssetOptions: ...
     @property
@@ -182,7 +184,7 @@ class ConnectorModelTypeOptions(google.protobuf.message.Message):
     def __init__(
         self,
         *,
-        model_type: core.protos.connectors.connector_pb2.ConnectorMetadataModelType.ValueType = ...,
+        model_type: core.protos.base_pb2.SourceModelType.ValueType = ...,
         cloudwatch_log_group_model_options: core.protos.assets.cloudwatch_asset_pb2.CloudwatchLogGroupAssetOptions | None = ...,
         cloudwatch_metric_model_options: core.protos.assets.cloudwatch_asset_pb2.CloudwatchMetricAssetOptions | None = ...,
         grafana_target_metric_promql_model_options: core.protos.assets.grafana_asset_pb2.GrafanaTargetMetricPromQlAssetOptions | None = ...,
@@ -264,6 +266,7 @@ class AccountConnectorAssets(google.protobuf.message.Message):
     POSTHOG_FIELD_NUMBER: builtins.int
     SQL_FIELD_NUMBER: builtins.int
     SIGNOZ_FIELD_NUMBER: builtins.int
+    CORALOGIX_FIELD_NUMBER: builtins.int
     @property
     def connector(self) -> core.protos.connectors.connector_pb2.Connector: ...
     @property
@@ -314,6 +317,8 @@ class AccountConnectorAssets(google.protobuf.message.Message):
     def sql(self) -> core.protos.assets.sql_database_asset_pb2.SqlAssets: ...
     @property
     def signoz(self) -> core.protos.assets.signoz_asset_pb2.SignozAssets: ...
+    @property
+    def coralogix(self) -> core.protos.assets.coralogix_asset_pb2.CoralogixAssets: ...
     def __init__(
         self,
         *,
@@ -342,10 +347,11 @@ class AccountConnectorAssets(google.protobuf.message.Message):
         posthog: core.protos.assets.posthog_asset_pb2.PosthogAssets | None = ...,
         sql: core.protos.assets.sql_database_asset_pb2.SqlAssets | None = ...,
         signoz: core.protos.assets.signoz_asset_pb2.SignozAssets | None = ...,
+        coralogix: core.protos.assets.coralogix_asset_pb2.CoralogixAssets | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["argocd", b"argocd", "asana", b"asana", "assets", b"assets", "azure", b"azure", "bash", b"bash", "clickhouse", b"clickhouse", "cloudwatch", b"cloudwatch", "connector", b"connector", "datadog", b"datadog", "datadog_oauth", b"datadog_oauth", "eks", b"eks", "elastic_search", b"elastic_search", "gcm", b"gcm", "github", b"github", "gke", b"gke", "grafana", b"grafana", "jenkins", b"jenkins", "jira_cloud", b"jira_cloud", "mongodb", b"mongodb", "new_relic", b"new_relic", "open_search", b"open_search", "postgres", b"postgres", "posthog", b"posthog", "signoz", b"signoz", "slack", b"slack", "sql", b"sql"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["argocd", b"argocd", "asana", b"asana", "assets", b"assets", "azure", b"azure", "bash", b"bash", "clickhouse", b"clickhouse", "cloudwatch", b"cloudwatch", "connector", b"connector", "datadog", b"datadog", "datadog_oauth", b"datadog_oauth", "eks", b"eks", "elastic_search", b"elastic_search", "gcm", b"gcm", "github", b"github", "gke", b"gke", "grafana", b"grafana", "jenkins", b"jenkins", "jira_cloud", b"jira_cloud", "mongodb", b"mongodb", "new_relic", b"new_relic", "open_search", b"open_search", "postgres", b"postgres", "posthog", b"posthog", "signoz", b"signoz", "slack", b"slack", "sql", b"sql"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing_extensions.Literal["assets", b"assets"]) -> typing_extensions.Literal["cloudwatch", "grafana", "clickhouse", "slack", "new_relic", "datadog", "postgres", "eks", "bash", "azure", "gke", "elastic_search", "gcm", "datadog_oauth", "open_search", "asana", "github", "jira_cloud", "argocd", "jenkins", "mongodb", "posthog", "sql", "signoz"] | None: ...
+    def HasField(self, field_name: typing_extensions.Literal["argocd", b"argocd", "asana", b"asana", "assets", b"assets", "azure", b"azure", "bash", b"bash", "clickhouse", b"clickhouse", "cloudwatch", b"cloudwatch", "connector", b"connector", "coralogix", b"coralogix", "datadog", b"datadog", "datadog_oauth", b"datadog_oauth", "eks", b"eks", "elastic_search", b"elastic_search", "gcm", b"gcm", "github", b"github", "gke", b"gke", "grafana", b"grafana", "jenkins", b"jenkins", "jira_cloud", b"jira_cloud", "mongodb", b"mongodb", "new_relic", b"new_relic", "open_search", b"open_search", "postgres", b"postgres", "posthog", b"posthog", "signoz", b"signoz", "slack", b"slack", "sql", b"sql"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["argocd", b"argocd", "asana", b"asana", "assets", b"assets", "azure", b"azure", "bash", b"bash", "clickhouse", b"clickhouse", "cloudwatch", b"cloudwatch", "connector", b"connector", "coralogix", b"coralogix", "datadog", b"datadog", "datadog_oauth", b"datadog_oauth", "eks", b"eks", "elastic_search", b"elastic_search", "gcm", b"gcm", "github", b"github", "gke", b"gke", "grafana", b"grafana", "jenkins", b"jenkins", "jira_cloud", b"jira_cloud", "mongodb", b"mongodb", "new_relic", b"new_relic", "open_search", b"open_search", "postgres", b"postgres", "posthog", b"posthog", "signoz", b"signoz", "slack", b"slack", "sql", b"sql"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing_extensions.Literal["assets", b"assets"]) -> typing_extensions.Literal["cloudwatch", "grafana", "clickhouse", "slack", "new_relic", "datadog", "postgres", "eks", "bash", "azure", "gke", "elastic_search", "gcm", "datadog_oauth", "open_search", "asana", "github", "jira_cloud", "argocd", "jenkins", "mongodb", "posthog", "sql", "signoz", "coralogix"] | None: ...
 
 global___AccountConnectorAssets = AccountConnectorAssets
 

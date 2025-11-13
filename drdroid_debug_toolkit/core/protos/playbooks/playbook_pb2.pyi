@@ -15,6 +15,7 @@ import core.protos.playbooks.source_task_definitions.azure_task_pb2
 import core.protos.playbooks.source_task_definitions.bash_task_pb2
 import core.protos.playbooks.source_task_definitions.big_query_task_pb2
 import core.protos.playbooks.source_task_definitions.cloudwatch_task_pb2
+import core.protos.playbooks.source_task_definitions.coralogix_task_pb2
 import core.protos.playbooks.source_task_definitions.datadog_task_pb2
 import core.protos.playbooks.source_task_definitions.documentation_task_pb2
 import core.protos.playbooks.source_task_definitions.drd_proxy_agent_task_pb2
@@ -34,12 +35,15 @@ import core.protos.playbooks.source_task_definitions.lambda_function_task_pb2
 import core.protos.playbooks.source_task_definitions.mongodb_task_pb2
 import core.protos.playbooks.source_task_definitions.new_relic_task_pb2
 import core.protos.playbooks.source_task_definitions.open_search_task_pb2
+import core.protos.playbooks.source_task_definitions.opsgenie_task_pb2
 import core.protos.playbooks.source_task_definitions.posthog_task_pb2
 import core.protos.playbooks.source_task_definitions.promql_task_pb2
+import core.protos.playbooks.source_task_definitions.render_task_pb2
 import core.protos.playbooks.source_task_definitions.sentry_task_pb2
 import core.protos.playbooks.source_task_definitions.signoz_task_pb2
 import core.protos.playbooks.source_task_definitions.slack_task_pb2
 import core.protos.playbooks.source_task_definitions.sql_data_fetch_task_pb2
+import core.protos.playbooks.source_task_definitions.victoria_logs_task_pb2
 import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.internal.enum_type_wrapper
@@ -57,6 +61,119 @@ else:
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
 @typing_extensions.final
+class Variable(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    NAME_FIELD_NUMBER: builtins.int
+    DESCRIPTION_FIELD_NUMBER: builtins.int
+    TYPE_FIELD_NUMBER: builtins.int
+    OPTIONS_FIELD_NUMBER: builtins.int
+    IS_ACTIVE_FIELD_NUMBER: builtins.int
+    CREATED_BY_FIELD_NUMBER: builtins.int
+    CREATED_AT_FIELD_NUMBER: builtins.int
+    ID_FIELD_NUMBER: builtins.int
+    @property
+    def name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    @property
+    def description(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    type: core.protos.playbooks.playbook_commons_pb2.VariableType.ValueType
+    @property
+    def options(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+    @property
+    def is_active(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def created_by(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    created_at: builtins.int
+    @property
+    def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+    def __init__(
+        self,
+        *,
+        name: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        description: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        type: core.protos.playbooks.playbook_commons_pb2.VariableType.ValueType = ...,
+        options: collections.abc.Iterable[builtins.str] | None = ...,
+        is_active: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        created_by: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        created_at: builtins.int = ...,
+        id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["created_by", b"created_by", "description", b"description", "id", b"id", "is_active", b"is_active", "name", b"name"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["created_at", b"created_at", "created_by", b"created_by", "description", b"description", "id", b"id", "is_active", b"is_active", "name", b"name", "options", b"options", "type", b"type"]) -> None: ...
+
+global___Variable = Variable
+
+@typing_extensions.final
+class UpdateVariableOp(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    class _Op:
+        ValueType = typing.NewType("ValueType", builtins.int)
+        V: typing_extensions.TypeAlias = ValueType
+
+    class _OpEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[UpdateVariableOp._Op.ValueType], builtins.type):  # noqa: F821
+        DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+        UNKNOWN: UpdateVariableOp._Op.ValueType  # 0
+        UPDATE_STATUS: UpdateVariableOp._Op.ValueType  # 2
+        UPDATE_VARIABLE: UpdateVariableOp._Op.ValueType  # 3
+
+    class Op(_Op, metaclass=_OpEnumTypeWrapper): ...
+    UNKNOWN: UpdateVariableOp.Op.ValueType  # 0
+    UPDATE_STATUS: UpdateVariableOp.Op.ValueType  # 2
+    UPDATE_VARIABLE: UpdateVariableOp.Op.ValueType  # 3
+
+    @typing_extensions.final
+    class UpdateVariable(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        VARIABLE_FIELD_NUMBER: builtins.int
+        @property
+        def variable(self) -> global___Variable: ...
+        def __init__(
+            self,
+            *,
+            variable: global___Variable | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["variable", b"variable"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["variable", b"variable"]) -> None: ...
+
+    @typing_extensions.final
+    class UpdateStatus(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        IS_ACTIVE_FIELD_NUMBER: builtins.int
+        @property
+        def is_active(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+        def __init__(
+            self,
+            *,
+            is_active: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["is_active", b"is_active"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["is_active", b"is_active"]) -> None: ...
+
+    OP_FIELD_NUMBER: builtins.int
+    UPDATE_VARIABLE_FIELD_NUMBER: builtins.int
+    UPDATE_STATUS_FIELD_NUMBER: builtins.int
+    op: global___UpdateVariableOp.Op.ValueType
+    @property
+    def update_variable(self) -> global___UpdateVariableOp.UpdateVariable: ...
+    @property
+    def update_status(self) -> global___UpdateVariableOp.UpdateStatus: ...
+    def __init__(
+        self,
+        *,
+        op: global___UpdateVariableOp.Op.ValueType = ...,
+        update_variable: global___UpdateVariableOp.UpdateVariable | None = ...,
+        update_status: global___UpdateVariableOp.UpdateStatus | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["update", b"update", "update_status", b"update_status", "update_variable", b"update_variable"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["op", b"op", "update", b"update", "update_status", b"update_status", "update_variable", b"update_variable"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing_extensions.Literal["update", b"update"]) -> typing_extensions.Literal["update_variable", "update_status"] | None: ...
+
+global___UpdateVariableOp = UpdateVariableOp
+
+@typing_extensions.final
 class PlaybookTask(google.protobuf.message.Message):
     """Playbook Task Protos"""
 
@@ -69,20 +186,28 @@ class PlaybookTask(google.protobuf.message.Message):
         ID_FIELD_NUMBER: builtins.int
         SOURCE_FIELD_NUMBER: builtins.int
         NAME_FIELD_NUMBER: builtins.int
+        IS_PROXY_ENABLED_FIELD_NUMBER: builtins.int
+        PROXY_AGENT_ID_FIELD_NUMBER: builtins.int
         @property
         def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
         source: core.protos.base_pb2.Source.ValueType
         @property
         def name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def is_proxy_enabled(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+        @property
+        def proxy_agent_id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
         def __init__(
             self,
             *,
             id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
             source: core.protos.base_pb2.Source.ValueType = ...,
             name: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            is_proxy_enabled: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+            proxy_agent_id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
         ) -> None: ...
-        def HasField(self, field_name: typing_extensions.Literal["id", b"id", "name", b"name"]) -> builtins.bool: ...
-        def ClearField(self, field_name: typing_extensions.Literal["id", b"id", "name", b"name", "source", b"source"]) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["id", b"id", "is_proxy_enabled", b"is_proxy_enabled", "name", b"name", "proxy_agent_id", b"proxy_agent_id"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["id", b"id", "is_proxy_enabled", b"is_proxy_enabled", "name", b"name", "proxy_agent_id", b"proxy_agent_id", "source", b"source"]) -> None: ...
 
     @typing_extensions.final
     class ExecutionConfiguration(google.protobuf.message.Message):
@@ -93,6 +218,9 @@ class PlaybookTask(google.protobuf.message.Message):
         TIMESERIES_OFFSETS_FIELD_NUMBER: builtins.int
         IS_RESULT_TRANSFORMER_ENABLED_FIELD_NUMBER: builtins.int
         RESULT_TRANSFORMER_LAMBDA_FUNCTION_FIELD_NUMBER: builtins.int
+        IS_APPROVAL_REQUIRED_FIELD_NUMBER: builtins.int
+        RESULT_TRANSFORMER_PROMPT_FIELD_NUMBER: builtins.int
+        IS_RESULT_TRANSFORMER_PROMPT_ENABLED_FIELD_NUMBER: builtins.int
         @property
         def is_bulk_execution(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
         @property
@@ -103,6 +231,12 @@ class PlaybookTask(google.protobuf.message.Message):
         def is_result_transformer_enabled(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
         @property
         def result_transformer_lambda_function(self) -> core.protos.playbooks.source_task_definitions.lambda_function_task_pb2.Lambda.Function: ...
+        @property
+        def is_approval_required(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+        @property
+        def result_transformer_prompt(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def is_result_transformer_prompt_enabled(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
         def __init__(
             self,
             *,
@@ -111,9 +245,12 @@ class PlaybookTask(google.protobuf.message.Message):
             timeseries_offsets: collections.abc.Iterable[builtins.int] | None = ...,
             is_result_transformer_enabled: google.protobuf.wrappers_pb2.BoolValue | None = ...,
             result_transformer_lambda_function: core.protos.playbooks.source_task_definitions.lambda_function_task_pb2.Lambda.Function | None = ...,
+            is_approval_required: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+            result_transformer_prompt: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            is_result_transformer_prompt_enabled: google.protobuf.wrappers_pb2.BoolValue | None = ...,
         ) -> None: ...
-        def HasField(self, field_name: typing_extensions.Literal["bulk_execution_var_field", b"bulk_execution_var_field", "is_bulk_execution", b"is_bulk_execution", "is_result_transformer_enabled", b"is_result_transformer_enabled", "result_transformer_lambda_function", b"result_transformer_lambda_function"]) -> builtins.bool: ...
-        def ClearField(self, field_name: typing_extensions.Literal["bulk_execution_var_field", b"bulk_execution_var_field", "is_bulk_execution", b"is_bulk_execution", "is_result_transformer_enabled", b"is_result_transformer_enabled", "result_transformer_lambda_function", b"result_transformer_lambda_function", "timeseries_offsets", b"timeseries_offsets"]) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["bulk_execution_var_field", b"bulk_execution_var_field", "is_approval_required", b"is_approval_required", "is_bulk_execution", b"is_bulk_execution", "is_result_transformer_enabled", b"is_result_transformer_enabled", "is_result_transformer_prompt_enabled", b"is_result_transformer_prompt_enabled", "result_transformer_lambda_function", b"result_transformer_lambda_function", "result_transformer_prompt", b"result_transformer_prompt"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["bulk_execution_var_field", b"bulk_execution_var_field", "is_approval_required", b"is_approval_required", "is_bulk_execution", b"is_bulk_execution", "is_result_transformer_enabled", b"is_result_transformer_enabled", "is_result_transformer_prompt_enabled", b"is_result_transformer_prompt_enabled", "result_transformer_lambda_function", b"result_transformer_lambda_function", "result_transformer_prompt", b"result_transformer_prompt", "timeseries_offsets", b"timeseries_offsets"]) -> None: ...
 
     ID_FIELD_NUMBER: builtins.int
     SOURCE_FIELD_NUMBER: builtins.int
@@ -159,6 +296,10 @@ class PlaybookTask(google.protobuf.message.Message):
     DRD_PROXY_AGENT_FIELD_NUMBER: builtins.int
     POSTHOG_FIELD_NUMBER: builtins.int
     SIGNOZ_FIELD_NUMBER: builtins.int
+    RENDER_FIELD_NUMBER: builtins.int
+    CORALOGIX_FIELD_NUMBER: builtins.int
+    OPS_GENIE_FIELD_NUMBER: builtins.int
+    VICTORIA_LOGS_FIELD_NUMBER: builtins.int
     @property
     def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     source: core.protos.base_pb2.Source.ValueType
@@ -243,6 +384,14 @@ class PlaybookTask(google.protobuf.message.Message):
     def posthog(self) -> core.protos.playbooks.source_task_definitions.posthog_task_pb2.PostHog: ...
     @property
     def signoz(self) -> core.protos.playbooks.source_task_definitions.signoz_task_pb2.Signoz: ...
+    @property
+    def render(self) -> core.protos.playbooks.source_task_definitions.render_task_pb2.Render: ...
+    @property
+    def coralogix(self) -> core.protos.playbooks.source_task_definitions.coralogix_task_pb2.Coralogix: ...
+    @property
+    def ops_genie(self) -> core.protos.playbooks.source_task_definitions.opsgenie_task_pb2.OpsGenie: ...
+    @property
+    def victoria_logs(self) -> core.protos.playbooks.source_task_definitions.victoria_logs_task_pb2.VictoriaLogs: ...
     def __init__(
         self,
         *,
@@ -289,10 +438,14 @@ class PlaybookTask(google.protobuf.message.Message):
         drd_proxy_agent: core.protos.playbooks.source_task_definitions.drd_proxy_agent_task_pb2.DrdProxyAgent | None = ...,
         posthog: core.protos.playbooks.source_task_definitions.posthog_task_pb2.PostHog | None = ...,
         signoz: core.protos.playbooks.source_task_definitions.signoz_task_pb2.Signoz | None = ...,
+        render: core.protos.playbooks.source_task_definitions.render_task_pb2.Render | None = ...,
+        coralogix: core.protos.playbooks.source_task_definitions.coralogix_task_pb2.Coralogix | None = ...,
+        ops_genie: core.protos.playbooks.source_task_definitions.opsgenie_task_pb2.OpsGenie | None = ...,
+        victoria_logs: core.protos.playbooks.source_task_definitions.victoria_logs_task_pb2.VictoriaLogs | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["api", b"api", "argocd", b"argocd", "azure", b"azure", "bash", b"bash", "big_query", b"big_query", "clickhouse", b"clickhouse", "cloudwatch", b"cloudwatch", "created_by", b"created_by", "datadog", b"datadog", "description", b"description", "documentation", b"documentation", "drd_proxy_agent", b"drd_proxy_agent", "eks", b"eks", "elastic_search", b"elastic_search", "execution_configuration", b"execution_configuration", "gcm", b"gcm", "github", b"github", "github_actions", b"github_actions", "gke", b"gke", "global_variable_set", b"global_variable_set", "grafana", b"grafana", "grafana_loki", b"grafana_loki", "grafana_mimir", b"grafana_mimir", "id", b"id", "jenkins", b"jenkins", "jira_cloud", b"jira_cloud", "kubernetes", b"kubernetes", "lambda", b"lambda", "mongodb", b"mongodb", "name", b"name", "new_relic", b"new_relic", "notes", b"notes", "open_search", b"open_search", "postgres", b"postgres", "posthog", b"posthog", "reference_id", b"reference_id", "sentry", b"sentry", "signoz", b"signoz", "slack", b"slack", "smtp", b"smtp", "sql_database_connection", b"sql_database_connection", "task", b"task"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["api", b"api", "argocd", b"argocd", "azure", b"azure", "bash", b"bash", "big_query", b"big_query", "clickhouse", b"clickhouse", "cloudwatch", b"cloudwatch", "created_by", b"created_by", "datadog", b"datadog", "description", b"description", "documentation", b"documentation", "drd_proxy_agent", b"drd_proxy_agent", "eks", b"eks", "elastic_search", b"elastic_search", "execution_configuration", b"execution_configuration", "gcm", b"gcm", "github", b"github", "github_actions", b"github_actions", "gke", b"gke", "global_variable_set", b"global_variable_set", "grafana", b"grafana", "grafana_loki", b"grafana_loki", "grafana_mimir", b"grafana_mimir", "id", b"id", "interpreter_type", b"interpreter_type", "jenkins", b"jenkins", "jira_cloud", b"jira_cloud", "kubernetes", b"kubernetes", "lambda", b"lambda", "mongodb", b"mongodb", "name", b"name", "new_relic", b"new_relic", "notes", b"notes", "open_search", b"open_search", "postgres", b"postgres", "posthog", b"posthog", "reference_id", b"reference_id", "sentry", b"sentry", "signoz", b"signoz", "slack", b"slack", "smtp", b"smtp", "source", b"source", "sql_database_connection", b"sql_database_connection", "task", b"task", "task_connector_sources", b"task_connector_sources"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing_extensions.Literal["task", b"task"]) -> typing_extensions.Literal["documentation", "cloudwatch", "grafana", "new_relic", "datadog", "clickhouse", "postgres", "eks", "sql_database_connection", "api", "bash", "grafana_mimir", "azure", "gke", "elastic_search", "grafana_loki", "kubernetes", "gcm", "smtp", "slack", "big_query", "mongodb", "open_search", "jenkins", "github", "sentry", "github_actions", "argocd", "jira_cloud", "lambda", "drd_proxy_agent", "posthog", "signoz"] | None: ...
+    def HasField(self, field_name: typing_extensions.Literal["api", b"api", "argocd", b"argocd", "azure", b"azure", "bash", b"bash", "big_query", b"big_query", "clickhouse", b"clickhouse", "cloudwatch", b"cloudwatch", "coralogix", b"coralogix", "created_by", b"created_by", "datadog", b"datadog", "description", b"description", "documentation", b"documentation", "drd_proxy_agent", b"drd_proxy_agent", "eks", b"eks", "elastic_search", b"elastic_search", "execution_configuration", b"execution_configuration", "gcm", b"gcm", "github", b"github", "github_actions", b"github_actions", "gke", b"gke", "global_variable_set", b"global_variable_set", "grafana", b"grafana", "grafana_loki", b"grafana_loki", "grafana_mimir", b"grafana_mimir", "id", b"id", "jenkins", b"jenkins", "jira_cloud", b"jira_cloud", "kubernetes", b"kubernetes", "lambda", b"lambda", "mongodb", b"mongodb", "name", b"name", "new_relic", b"new_relic", "notes", b"notes", "open_search", b"open_search", "ops_genie", b"ops_genie", "postgres", b"postgres", "posthog", b"posthog", "reference_id", b"reference_id", "render", b"render", "sentry", b"sentry", "signoz", b"signoz", "slack", b"slack", "smtp", b"smtp", "sql_database_connection", b"sql_database_connection", "task", b"task", "victoria_logs", b"victoria_logs"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["api", b"api", "argocd", b"argocd", "azure", b"azure", "bash", b"bash", "big_query", b"big_query", "clickhouse", b"clickhouse", "cloudwatch", b"cloudwatch", "coralogix", b"coralogix", "created_by", b"created_by", "datadog", b"datadog", "description", b"description", "documentation", b"documentation", "drd_proxy_agent", b"drd_proxy_agent", "eks", b"eks", "elastic_search", b"elastic_search", "execution_configuration", b"execution_configuration", "gcm", b"gcm", "github", b"github", "github_actions", b"github_actions", "gke", b"gke", "global_variable_set", b"global_variable_set", "grafana", b"grafana", "grafana_loki", b"grafana_loki", "grafana_mimir", b"grafana_mimir", "id", b"id", "interpreter_type", b"interpreter_type", "jenkins", b"jenkins", "jira_cloud", b"jira_cloud", "kubernetes", b"kubernetes", "lambda", b"lambda", "mongodb", b"mongodb", "name", b"name", "new_relic", b"new_relic", "notes", b"notes", "open_search", b"open_search", "ops_genie", b"ops_genie", "postgres", b"postgres", "posthog", b"posthog", "reference_id", b"reference_id", "render", b"render", "sentry", b"sentry", "signoz", b"signoz", "slack", b"slack", "smtp", b"smtp", "source", b"source", "sql_database_connection", b"sql_database_connection", "task", b"task", "task_connector_sources", b"task_connector_sources", "victoria_logs", b"victoria_logs"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing_extensions.Literal["task", b"task"]) -> typing_extensions.Literal["documentation", "cloudwatch", "grafana", "new_relic", "datadog", "clickhouse", "postgres", "eks", "sql_database_connection", "api", "bash", "grafana_mimir", "azure", "gke", "elastic_search", "grafana_loki", "kubernetes", "gcm", "smtp", "slack", "big_query", "mongodb", "open_search", "jenkins", "github", "sentry", "github_actions", "argocd", "jira_cloud", "lambda", "drd_proxy_agent", "posthog", "signoz", "render", "coralogix", "ops_genie", "victoria_logs"] | None: ...
 
 global___PlaybookTask = PlaybookTask
 
@@ -337,6 +490,32 @@ global___PlaybookTaskResultRule = PlaybookTaskResultRule
 class PlaybookTaskExecutionLog(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
+    @typing_extensions.final
+    class ApprovalContext(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        IS_APPROVED_FIELD_NUMBER: builtins.int
+        APPROVED_AT_FIELD_NUMBER: builtins.int
+        APPROVED_BY_FIELD_NUMBER: builtins.int
+        APPROVAL_REQUEST_ID_FIELD_NUMBER: builtins.int
+        @property
+        def is_approved(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+        approved_at: builtins.int
+        @property
+        def approved_by(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def approval_request_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        def __init__(
+            self,
+            *,
+            is_approved: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+            approved_at: builtins.int = ...,
+            approved_by: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            approval_request_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["approval_request_id", b"approval_request_id", "approved_by", b"approved_by", "is_approved", b"is_approved"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["approval_request_id", b"approval_request_id", "approved_at", b"approved_at", "approved_by", b"approved_by", "is_approved", b"is_approved"]) -> None: ...
+
     ID_FIELD_NUMBER: builtins.int
     TIMESTAMP_FIELD_NUMBER: builtins.int
     TASK_FIELD_NUMBER: builtins.int
@@ -347,6 +526,7 @@ class PlaybookTaskExecutionLog(google.protobuf.message.Message):
     EXECUTION_GLOBAL_VARIABLE_SET_FIELD_NUMBER: builtins.int
     PROXY_EXECUTION_REQUEST_ID_FIELD_NUMBER: builtins.int
     STATUS_FIELD_NUMBER: builtins.int
+    APPROVAL_CONTEXT_FIELD_NUMBER: builtins.int
     @property
     def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     timestamp: builtins.int
@@ -365,6 +545,8 @@ class PlaybookTaskExecutionLog(google.protobuf.message.Message):
     @property
     def proxy_execution_request_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     status: core.protos.playbooks.playbook_commons_pb2.PlaybookExecutionStatusType.ValueType
+    @property
+    def approval_context(self) -> global___PlaybookTaskExecutionLog.ApprovalContext: ...
     def __init__(
         self,
         *,
@@ -378,9 +560,10 @@ class PlaybookTaskExecutionLog(google.protobuf.message.Message):
         execution_global_variable_set: google.protobuf.struct_pb2.Struct | None = ...,
         proxy_execution_request_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
         status: core.protos.playbooks.playbook_commons_pb2.PlaybookExecutionStatusType.ValueType = ...,
+        approval_context: global___PlaybookTaskExecutionLog.ApprovalContext | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["created_by", b"created_by", "execution_global_variable_set", b"execution_global_variable_set", "id", b"id", "interpretation", b"interpretation", "proxy_execution_request_id", b"proxy_execution_request_id", "result", b"result", "task", b"task", "time_range", b"time_range"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["created_by", b"created_by", "execution_global_variable_set", b"execution_global_variable_set", "id", b"id", "interpretation", b"interpretation", "proxy_execution_request_id", b"proxy_execution_request_id", "result", b"result", "status", b"status", "task", b"task", "time_range", b"time_range", "timestamp", b"timestamp"]) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["approval_context", b"approval_context", "created_by", b"created_by", "execution_global_variable_set", b"execution_global_variable_set", "id", b"id", "interpretation", b"interpretation", "proxy_execution_request_id", b"proxy_execution_request_id", "result", b"result", "task", b"task", "time_range", b"time_range"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["approval_context", b"approval_context", "created_by", b"created_by", "execution_global_variable_set", b"execution_global_variable_set", "id", b"id", "interpretation", b"interpretation", "proxy_execution_request_id", b"proxy_execution_request_id", "result", b"result", "status", b"status", "task", b"task", "time_range", b"time_range", "timestamp", b"timestamp"]) -> None: ...
 
 global___PlaybookTaskExecutionLog = PlaybookTaskExecutionLog
 

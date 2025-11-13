@@ -5,6 +5,7 @@ isort:skip_file
 import builtins
 import collections.abc
 import core.protos.base_pb2
+import core.protos.connectors.api_pb2
 import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.message
@@ -26,35 +27,51 @@ class SlackChannelAssetModel(google.protobuf.message.Message):
     class ChannelMetadata(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
-        IS_AUTO_RCA_ENABLED_FIELD_NUMBER: builtins.int
+        WORKSPACE_ID_FIELD_NUMBER: builtins.int
+        WORKSPACE_NAME_FIELD_NUMBER: builtins.int
+        INVITER_ID_FIELD_NUMBER: builtins.int
+        IS_DM_FIELD_NUMBER: builtins.int
         @property
-        def is_auto_rca_enabled(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+        def workspace_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def workspace_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def inviter_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def is_dm(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
         def __init__(
             self,
             *,
-            is_auto_rca_enabled: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+            workspace_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            workspace_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            inviter_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            is_dm: google.protobuf.wrappers_pb2.BoolValue | None = ...,
         ) -> None: ...
-        def HasField(self, field_name: typing_extensions.Literal["is_auto_rca_enabled", b"is_auto_rca_enabled"]) -> builtins.bool: ...
-        def ClearField(self, field_name: typing_extensions.Literal["is_auto_rca_enabled", b"is_auto_rca_enabled"]) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["inviter_id", b"inviter_id", "is_dm", b"is_dm", "workspace_id", b"workspace_id", "workspace_name", b"workspace_name"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["inviter_id", b"inviter_id", "is_dm", b"is_dm", "workspace_id", b"workspace_id", "workspace_name", b"workspace_name"]) -> None: ...
 
     CHANNEL_ID_FIELD_NUMBER: builtins.int
     CHANNEL_NAME_FIELD_NUMBER: builtins.int
     METADATA_FIELD_NUMBER: builtins.int
+    ALERT_OPS_CONFIGURATION_FIELD_NUMBER: builtins.int
     @property
     def channel_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
     def channel_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
     def metadata(self) -> global___SlackChannelAssetModel.ChannelMetadata: ...
+    @property
+    def alert_ops_configuration(self) -> core.protos.connectors.api_pb2.SlackAlertOpsConfiguration: ...
     def __init__(
         self,
         *,
         channel_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
         channel_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
         metadata: global___SlackChannelAssetModel.ChannelMetadata | None = ...,
+        alert_ops_configuration: core.protos.connectors.api_pb2.SlackAlertOpsConfiguration | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["channel_id", b"channel_id", "channel_name", b"channel_name", "metadata", b"metadata"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["channel_id", b"channel_id", "channel_name", b"channel_name", "metadata", b"metadata"]) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["alert_ops_configuration", b"alert_ops_configuration", "channel_id", b"channel_id", "channel_name", b"channel_name", "metadata", b"metadata"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["alert_ops_configuration", b"alert_ops_configuration", "channel_id", b"channel_id", "channel_name", b"channel_name", "metadata", b"metadata"]) -> None: ...
 
 global___SlackChannelAssetModel = SlackChannelAssetModel
 

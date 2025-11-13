@@ -38,6 +38,8 @@ class ElasticSearch(google.protobuf.message.Message):
         GET_DASHBOARD: ElasticSearch._TaskType.ValueType  # 8
         GET_METRIC_FOR_APPLICATION_TRANSACTIONS: ElasticSearch._TaskType.ValueType  # 9
         GET_TRANSACTION_NAMES_BY_SERVICE: ElasticSearch._TaskType.ValueType  # 10
+        GET_TRACES_FOR_SERVICE: ElasticSearch._TaskType.ValueType  # 11
+        GET_TRACES_FOR_TRANSACTION: ElasticSearch._TaskType.ValueType  # 12
 
     class TaskType(_TaskType, metaclass=_TaskTypeEnumTypeWrapper): ...
     UNKNOWN: ElasticSearch.TaskType.ValueType  # 0
@@ -51,6 +53,8 @@ class ElasticSearch(google.protobuf.message.Message):
     GET_DASHBOARD: ElasticSearch.TaskType.ValueType  # 8
     GET_METRIC_FOR_APPLICATION_TRANSACTIONS: ElasticSearch.TaskType.ValueType  # 9
     GET_TRANSACTION_NAMES_BY_SERVICE: ElasticSearch.TaskType.ValueType  # 10
+    GET_TRACES_FOR_SERVICE: ElasticSearch.TaskType.ValueType  # 11
+    GET_TRACES_FOR_TRANSACTION: ElasticSearch.TaskType.ValueType  # 12
 
     @typing_extensions.final
     class QueryLogs(google.protobuf.message.Message):
@@ -96,25 +100,6 @@ class ElasticSearch(google.protobuf.message.Message):
         def __init__(
             self,
         ) -> None: ...
-
-    @typing_extensions.final
-    class GetMetricForApplicationTransactions(google.protobuf.message.Message):
-        DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-        SERVICE_NAME_FIELD_NUMBER: builtins.int
-        INTERVAL_FIELD_NUMBER: builtins.int
-        @property
-        def service_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-        @property
-        def interval(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-        def __init__(
-            self,
-            *,
-            service_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
-            interval: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        ) -> None: ...
-        def HasField(self, field_name: typing_extensions.Literal["interval", b"interval", "service_name", b"service_name"]) -> builtins.bool: ...
-        def ClearField(self, field_name: typing_extensions.Literal["interval", b"interval", "service_name", b"service_name"]) -> None: ...
 
     @typing_extensions.final
     class NodeStats(google.protobuf.message.Message):
@@ -200,6 +185,95 @@ class ElasticSearch(google.protobuf.message.Message):
         def ClearField(self, field_name: typing_extensions.Literal["dashboard_name", b"dashboard_name"]) -> None: ...
 
     @typing_extensions.final
+    class GetMetricForApplicationTransactions(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        SERVICE_NAME_FIELD_NUMBER: builtins.int
+        INTERVAL_FIELD_NUMBER: builtins.int
+        @property
+        def service_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def interval(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        def __init__(
+            self,
+            *,
+            service_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            interval: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["interval", b"interval", "service_name", b"service_name"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["interval", b"interval", "service_name", b"service_name"]) -> None: ...
+
+    @typing_extensions.final
+    class GetTracesForService(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        SERVICE_NAME_FIELD_NUMBER: builtins.int
+        MAX_COUNT_FIELD_NUMBER: builtins.int
+        TRANSACTION_NAME_FIELD_NUMBER: builtins.int
+        ERROR_ONLY_FIELD_NUMBER: builtins.int
+        SORT_BY_FIELD_NUMBER: builtins.int
+        SORT_ORDER_FIELD_NUMBER: builtins.int
+        @property
+        def service_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def max_count(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+        @property
+        def transaction_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def error_only(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+        @property
+        def sort_by(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def sort_order(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        def __init__(
+            self,
+            *,
+            service_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            max_count: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+            transaction_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            error_only: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+            sort_by: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            sort_order: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["error_only", b"error_only", "max_count", b"max_count", "service_name", b"service_name", "sort_by", b"sort_by", "sort_order", b"sort_order", "transaction_name", b"transaction_name"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["error_only", b"error_only", "max_count", b"max_count", "service_name", b"service_name", "sort_by", b"sort_by", "sort_order", b"sort_order", "transaction_name", b"transaction_name"]) -> None: ...
+
+    @typing_extensions.final
+    class GetTracesForTransaction(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        TRANSACTION_NAME_FIELD_NUMBER: builtins.int
+        MAX_COUNT_FIELD_NUMBER: builtins.int
+        SERVICE_NAME_FIELD_NUMBER: builtins.int
+        ERROR_ONLY_FIELD_NUMBER: builtins.int
+        SORT_BY_FIELD_NUMBER: builtins.int
+        SORT_ORDER_FIELD_NUMBER: builtins.int
+        @property
+        def transaction_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def max_count(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+        @property
+        def service_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def error_only(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+        @property
+        def sort_by(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def sort_order(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        def __init__(
+            self,
+            *,
+            transaction_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            max_count: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+            service_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            error_only: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+            sort_by: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            sort_order: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["error_only", b"error_only", "max_count", b"max_count", "service_name", b"service_name", "sort_by", b"sort_by", "sort_order", b"sort_order", "transaction_name", b"transaction_name"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["error_only", b"error_only", "max_count", b"max_count", "service_name", b"service_name", "sort_by", b"sort_by", "sort_order", b"sort_order", "transaction_name", b"transaction_name"]) -> None: ...
+
+    @typing_extensions.final
     class GetTransactionNamesByService(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -225,6 +299,8 @@ class ElasticSearch(google.protobuf.message.Message):
     GET_DASHBOARD_FIELD_NUMBER: builtins.int
     GET_METRIC_FOR_APPLICATION_TRANSACTIONS_FIELD_NUMBER: builtins.int
     GET_TRANSACTION_NAMES_BY_SERVICE_FIELD_NUMBER: builtins.int
+    GET_TRACES_FOR_SERVICE_FIELD_NUMBER: builtins.int
+    GET_TRACES_FOR_TRANSACTION_FIELD_NUMBER: builtins.int
     type: global___ElasticSearch.TaskType.ValueType
     @property
     def query_logs(self) -> global___ElasticSearch.QueryLogs: ...
@@ -246,6 +322,10 @@ class ElasticSearch(google.protobuf.message.Message):
     def get_metric_for_application_transactions(self) -> global___ElasticSearch.GetMetricForApplicationTransactions: ...
     @property
     def get_transaction_names_by_service(self) -> global___ElasticSearch.GetTransactionNamesByService: ...
+    @property
+    def get_traces_for_service(self) -> global___ElasticSearch.GetTracesForService: ...
+    @property
+    def get_traces_for_transaction(self) -> global___ElasticSearch.GetTracesForTransaction: ...
     def __init__(
         self,
         *,
@@ -260,9 +340,11 @@ class ElasticSearch(google.protobuf.message.Message):
         get_dashboard: global___ElasticSearch.GetDashboard | None = ...,
         get_metric_for_application_transactions: global___ElasticSearch.GetMetricForApplicationTransactions | None = ...,
         get_transaction_names_by_service: global___ElasticSearch.GetTransactionNamesByService | None = ...,
+        get_traces_for_service: global___ElasticSearch.GetTracesForService | None = ...,
+        get_traces_for_transaction: global___ElasticSearch.GetTracesForTransaction | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["cat_indices", b"cat_indices", "cat_thread_pool_search", b"cat_thread_pool_search", "check_cluster_health", b"check_cluster_health", "get_dashboard", b"get_dashboard", "get_metric_for_application_transactions", b"get_metric_for_application_transactions", "get_metric_for_service", b"get_metric_for_service", "get_transaction_names_by_service", b"get_transaction_names_by_service", "monitoring_cluster_stats", b"monitoring_cluster_stats", "node_stats", b"node_stats", "query_logs", b"query_logs", "task", b"task"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["cat_indices", b"cat_indices", "cat_thread_pool_search", b"cat_thread_pool_search", "check_cluster_health", b"check_cluster_health", "get_dashboard", b"get_dashboard", "get_metric_for_application_transactions", b"get_metric_for_application_transactions", "get_metric_for_service", b"get_metric_for_service", "get_transaction_names_by_service", b"get_transaction_names_by_service", "monitoring_cluster_stats", b"monitoring_cluster_stats", "node_stats", b"node_stats", "query_logs", b"query_logs", "task", b"task", "type", b"type"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing_extensions.Literal["task", b"task"]) -> typing_extensions.Literal["query_logs", "check_cluster_health", "node_stats", "cat_indices", "cat_thread_pool_search", "monitoring_cluster_stats", "get_metric_for_service", "get_dashboard", "get_metric_for_application_transactions", "get_transaction_names_by_service"] | None: ...
+    def HasField(self, field_name: typing_extensions.Literal["cat_indices", b"cat_indices", "cat_thread_pool_search", b"cat_thread_pool_search", "check_cluster_health", b"check_cluster_health", "get_dashboard", b"get_dashboard", "get_metric_for_application_transactions", b"get_metric_for_application_transactions", "get_metric_for_service", b"get_metric_for_service", "get_traces_for_service", b"get_traces_for_service", "get_traces_for_transaction", b"get_traces_for_transaction", "get_transaction_names_by_service", b"get_transaction_names_by_service", "monitoring_cluster_stats", b"monitoring_cluster_stats", "node_stats", b"node_stats", "query_logs", b"query_logs", "task", b"task"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["cat_indices", b"cat_indices", "cat_thread_pool_search", b"cat_thread_pool_search", "check_cluster_health", b"check_cluster_health", "get_dashboard", b"get_dashboard", "get_metric_for_application_transactions", b"get_metric_for_application_transactions", "get_metric_for_service", b"get_metric_for_service", "get_traces_for_service", b"get_traces_for_service", "get_traces_for_transaction", b"get_traces_for_transaction", "get_transaction_names_by_service", b"get_transaction_names_by_service", "monitoring_cluster_stats", b"monitoring_cluster_stats", "node_stats", b"node_stats", "query_logs", b"query_logs", "task", b"task", "type", b"type"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing_extensions.Literal["task", b"task"]) -> typing_extensions.Literal["query_logs", "check_cluster_health", "node_stats", "cat_indices", "cat_thread_pool_search", "monitoring_cluster_stats", "get_metric_for_service", "get_dashboard", "get_metric_for_application_transactions", "get_transaction_names_by_service", "get_traces_for_service", "get_traces_for_transaction"] | None: ...
 
 global___ElasticSearch = ElasticSearch

@@ -21,6 +21,8 @@ message Jira {
     optional google.protobuf.StringValue issue_type = 4;
     optional google.protobuf.StringValue priority = 5;
     optional google.protobuf.StringValue labels = 6;
+    optional google.protobuf.StringValue assignee = 7;
+    repeated google.protobuf.StringValue image_urls = 8;
   }
 
   message AssignTicket {

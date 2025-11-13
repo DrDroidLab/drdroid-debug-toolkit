@@ -6,13 +6,13 @@ from google.protobuf.wrappers_pb2 import StringValue, UInt64Value, DoubleValue
 
 from core.integrations.source_api_processors.azure_api_processor import AzureApiProcessor
 from core.integrations.source_manager import SourceManager
-from core.protos.base_pb2 import TimeRange, Source, SourceModelType
+from core.protos.base_pb2 import TimeRange, Source, SourceModelType, SourceKeyType
 from core.protos.connectors.connector_pb2 import Connector as ConnectorProto
 from core.protos.literal_pb2 import LiteralType, Literal
 from core.protos.playbooks.playbook_commons_pb2 import PlaybookTaskResult, PlaybookTaskResultType, TableResult, TimeseriesResult, TextResult
 from core.protos.playbooks.source_task_definitions.azure_task_pb2 import Azure
 from core.protos.ui_definition_pb2 import FormField, FormFieldType
-from core.utils.credentilal_utils import generate_credentials_dict
+from core.utils.credentilal_utils import generate_credentials_dict, get_connector_key_type_string, DISPLAY_NAME, CATEGORY, CLOUD_MANAGED_SERVICES
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +38,7 @@ class AzureSourceManager(SourceManager):
                     FormField(key_name=StringValue(value="filter_query"),
                               display_name=StringValue(value="Log Filter Query"),
                               data_type=LiteralType.STRING,
-                              form_field_type=FormFieldType.TEXT_FT),
+                              form_field_type=FormFieldType.MULTILINE_FT),
                     FormField(key_name=StringValue(value="timespan"),
                               display_name=StringValue(value="Timespan (hours)"),
                               description=StringValue(value='Enter Timespan (hours)'),
@@ -87,6 +87,55 @@ class AzureSourceManager(SourceManager):
                 ]
             }
         }
+        self.connector_form_configs = [
+            {
+                "name": StringValue(value="Azure Client Credentials Authentication"),
+                "description": StringValue(value="Connect to Azure using Client ID, Client Secret, Tenant ID, and Subscription ID."),
+                "form_fields": {
+                    SourceKeyType.AZURE_CLIENT_ID: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.AZURE_CLIENT_ID)),
+                        display_name=StringValue(value="Client ID"),
+                        description=StringValue(value='e.g. "11111111-2222-3333-4444-555555555555"'),
+                        helper_text=StringValue(value="Enter your Azure Client ID (Application ID)"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False
+                    ),
+                    SourceKeyType.AZURE_CLIENT_SECRET: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.AZURE_CLIENT_SECRET)),
+                        display_name=StringValue(value="Client Secret"),
+                        description=StringValue(value='e.g. "Abc12345DefGHIjk~LMNopqRSTUvwxYZ"'),
+                        helper_text=StringValue(value="Enter your Azure Client Secret (Application Secret)"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False,
+                        is_sensitive=True
+                    ),
+                    SourceKeyType.AZURE_TENANT_ID: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.AZURE_TENANT_ID)),
+                        display_name=StringValue(value="Tenant ID"),
+                        description=StringValue(value='e.g. "66666666-7777-8888-9999-000000000000"'),
+                        helper_text=StringValue(value="Enter your Azure Tenant ID (Directory ID)"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False
+                    ),
+                    SourceKeyType.AZURE_SUBSCRIPTION_ID: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.AZURE_SUBSCRIPTION_ID)),
+                        display_name=StringValue(value="Subscription ID"),
+                        description=StringValue(value='e.g. "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"'),
+                        helper_text=StringValue(value="Enter your Azure Subscription ID"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False
+                    )
+                }
+            }
+        ]
+        self.connector_type_details = {
+            DISPLAY_NAME: "AZURE",
+            CATEGORY: CLOUD_MANAGED_SERVICES,
+        }
 
     def get_connector_processor(self, azure_connector, **kwargs):
         generated_credentials = generate_credentials_dict(azure_connector.type, azure_connector.keys)
@@ -113,9 +162,9 @@ class AzureSourceManager(SourceManager):
 
             response = azure_api_processor.query_log_analytics(workspace_id, query_pattern, timespan=timespan)
             if not response:
-                raise Exception("No data returned from Azure Analytics workspace Logs")
-
-            print(f"Response: {response}")
+                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT, text=TextResult(output=StringValue(
+                    value=f"No data returned from Azure for workspace_id: {workspace_id} and query patter: {query_pattern}")),
+                                          source=self.source)
             table_rows: [TableResult.TableRow] = []
             for table, rows in response.items():
                 for i in rows:

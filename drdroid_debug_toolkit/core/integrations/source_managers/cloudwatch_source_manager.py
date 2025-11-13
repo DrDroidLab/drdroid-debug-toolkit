@@ -7,8 +7,9 @@ from google.protobuf.wrappers_pb2 import StringValue, DoubleValue, UInt64Value, 
 from google.protobuf.struct_pb2 import Struct
 
 from core.integrations.source_api_processors.aws_boto_3_api_processor import AWSBoto3ApiProcessor
-from core.integrations.source_metadata_extractors.cloudwatch_metadata_extractor import CloudwatchSourceMetadataExtractor
-from core.protos.base_pb2 import TimeRange, Source, SourceModelType
+from core.protos.base_pb2 import TimeRange, Source, SourceModelType, SourceKeyType
+from core.protos.assets.asset_pb2 import AccountConnectorAssets
+from core.protos.assets.cloudwatch_asset_pb2 import CloudwatchDashboardAssetModel, CloudwatchAssetModel
 from core.protos.connectors.connector_pb2 import Connector as ConnectorProto
 from core.protos.literal_pb2 import LiteralType, Literal
 from core.protos.playbooks.playbook_commons_pb2 import TimeseriesResult, LabelValuePair, PlaybookTaskResult, \
@@ -16,11 +17,41 @@ from core.protos.playbooks.playbook_commons_pb2 import TimeseriesResult, LabelVa
 from core.protos.playbooks.source_task_definitions.cloudwatch_task_pb2 import Cloudwatch
 from core.protos.ui_definition_pb2 import FormField, FormFieldType
 from core.integrations.source_manager import SourceManager
-from core.utils.credentilal_utils import generate_credentials_dict
-from core.utils.proto_utils import dict_to_proto
+from core.utils.credentilal_utils import generate_credentials_dict, get_connector_key_type_string, DISPLAY_NAME, CATEGORY, CLOUD_MANAGED_SERVICES
+from core.utils.proto_utils import dict_to_proto, proto_to_dict
 from core.utils.time_utils import calculate_timeseries_bucket_size
+from core.utils.playbooks_client import PrototypeClient
 
 logger = logging.getLogger(__name__)
+
+# AWS Regions
+AWS_REGIONS = [
+    "us-east-1",      # US East (N. Virginia)
+    "us-east-2",      # US East (Ohio)
+    "us-west-1",      # US West (N. California)
+    "us-west-2",      # US West (Oregon)
+    "af-south-1",     # Africa (Cape Town)
+    "ap-east-1",      # Asia Pacific (Hong Kong)
+    "ap-south-1",     # Asia Pacific (Mumbai)
+    "ap-northeast-1", # Asia Pacific (Tokyo)
+    "ap-northeast-2", # Asia Pacific (Seoul)
+    "ap-northeast-3", # Asia Pacific (Osaka)
+    "ap-southeast-1", # Asia Pacific (Singapore)
+    "ap-southeast-2", # Asia Pacific (Sydney)
+    "ap-southeast-3", # Asia Pacific (Jakarta)
+    "ca-central-1",   # Canada (Central)
+    "eu-central-1",   # Europe (Frankfurt)
+    "eu-west-1",      # Europe (Ireland)
+    "eu-west-2",      # Europe (London)
+    "eu-west-3",      # Europe (Paris)
+    "eu-north-1",     # Europe (Stockholm)
+    "eu-south-1",     # Europe (Milan)
+    "me-south-1",     # Middle East (Bahrain)
+    "me-central-1",   # Middle East (UAE)
+    "sa-east-1",      # South America (São Paulo)
+    "us-gov-west-1",  # AWS GovCloud (US-West)
+    "us-gov-east-1",  # AWS GovCloud (US-East)
+]
 
 
 def convert_datetime_recursive(data):
@@ -38,6 +69,7 @@ def convert_datetime_recursive(data):
             elif isinstance(item, dict) or isinstance(item, list):
                 data[i] = convert_datetime_recursive(item)
     return data
+
 
 class CloudwatchSourceManager(SourceManager):
 
@@ -115,7 +147,8 @@ class CloudwatchSourceManager(SourceManager):
                               display_name=StringValue(value="Region"),
                               description=StringValue(value='Select Region'),
                               data_type=LiteralType.STRING,
-                              form_field_type=FormFieldType.TYPING_DROPDOWN_FT),
+                              form_field_type=FormFieldType.DROPDOWN_FT,
+                              valid_values=[Literal(type=LiteralType.STRING, string=StringValue(value=region)) for region in AWS_REGIONS]),
                     FormField(key_name=StringValue(value="dimensions"),
                               display_name=StringValue(value="Dimensions"),
                               description=StringValue(value='Select Dimension Name'),
@@ -157,7 +190,10 @@ class CloudwatchSourceManager(SourceManager):
                                   Literal(type=LiteralType.STRING, string=StringValue(value="Maximum")),
                                   Literal(type=LiteralType.STRING, string=StringValue(value="Minimum"))],
                               form_field_type=FormFieldType.DROPDOWN_FT),
-                ]
+                ],
+                'permission_checks': {
+                    'test_cloudwatch_list_metrics_permission': [{'client_type': 'cloudwatch'}]
+                }
             },
             Cloudwatch.TaskType.FILTER_LOG_EVENTS: {
                 'executor': self.execute_filter_log_events,
@@ -170,7 +206,8 @@ class CloudwatchSourceManager(SourceManager):
                               display_name=StringValue(value="Region"),
                               description=StringValue(value='Select Region'),
                               data_type=LiteralType.STRING,
-                              form_field_type=FormFieldType.TYPING_DROPDOWN_FT),
+                              form_field_type=FormFieldType.DROPDOWN_FT,
+                              valid_values=[Literal(type=LiteralType.STRING, string=StringValue(value=region)) for region in AWS_REGIONS]),
                     FormField(key_name=StringValue(value="log_group_name"),
                               display_name=StringValue(value="Log Group"),
                               description=StringValue(value='Select Log Group'),
@@ -180,7 +217,10 @@ class CloudwatchSourceManager(SourceManager):
                               display_name=StringValue(value="Filter Query"),
                               data_type=LiteralType.STRING,
                               form_field_type=FormFieldType.MULTILINE_FT)
-                ]
+                ],
+                'permission_checks': {
+                    'test_logs_describe_log_groups_permission': [{'client_type': 'logs'}]
+                }
             },
             Cloudwatch.TaskType.RDS_GET_SQL_QUERY_PERFORMANCE_STATS: {
                 'executor': self.execute_rds_get_sql_query_performance_stats,
@@ -223,11 +263,15 @@ class CloudwatchSourceManager(SourceManager):
                               data_type=LiteralType.LONG,
                               form_field_type=FormFieldType.TEXT_FT,
                               is_optional=True),
-                ]
+                ],
+                'permission_checks': {
+                    'test_cloudwatch_list_dashboards_permission': [{'client_type': 'cloudwatch'}],
+                    'test_cloudwatch_list_metrics_permission': [{'client_type': 'cloudwatch'}]
+                }
             },
             Cloudwatch.TaskType.FETCH_S3_FILE: {
                 'executor': self.execute_fetch_s3_file,
-                'model_types': [],
+                'model_types': [], 
                 'result_type': PlaybookTaskResultType.TEXT,
                 'display_name': 'Fetch S3 File',
                 'category': 'Files',
@@ -248,6 +292,75 @@ class CloudwatchSourceManager(SourceManager):
                 }
             },
         }
+        self.connector_form_configs = [
+            {
+                "name": StringValue(value="AWS Access/Secret Key Authentication"),
+                "description": StringValue(value="Connect to AWS CloudWatch using your AWS Access Key ID and Secret Access Key."),
+                "form_fields": {
+                    SourceKeyType.AWS_ACCESS_KEY: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.AWS_ACCESS_KEY)),
+                        display_name=StringValue(value="AWS Access Key ID"),
+                        description=StringValue(value="Enter your AWS Access Key ID."),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False
+                    ),
+                    SourceKeyType.AWS_SECRET_KEY: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.AWS_SECRET_KEY)),
+                        display_name=StringValue(value="AWS Secret Access Key"),
+                        description=StringValue(value="Enter your AWS Secret Access Key."),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False,
+                        is_sensitive=True
+                    ),
+                    SourceKeyType.AWS_REGION: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.AWS_REGION)),
+                        display_name=StringValue(value="AWS Region"),
+                        description=StringValue(value="Select the AWS region."),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.DROPDOWN_FT,
+                        valid_values=[Literal(type=LiteralType.STRING, string=StringValue(value=region)) for region in AWS_REGIONS],
+                        is_optional=False
+                    )
+                }
+            },
+            {
+                "name": StringValue(value="AWS Assumed Role ARN Authentication"),
+                "description": StringValue(value="Connect to AWS CloudWatch by assuming an IAM Role."),
+                "form_fields": {
+                    SourceKeyType.AWS_ASSUMED_ROLE_ARN: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.AWS_ASSUMED_ROLE_ARN)),
+                        display_name=StringValue(value="AWS Assumed Role ARN"),
+                        description=StringValue(value="Enter the ARN of the IAM role to assume."),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False
+                    ),
+                    SourceKeyType.AWS_DRD_CLOUD_ROLE_ARN: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.AWS_DRD_CLOUD_ROLE_ARN)),
+                        display_name=StringValue(value="AWS DrDroid Cloud Role ARN"),
+                        description=StringValue(value="Enter the DrDroid Cloud Role ARN if applicable (usually for cross-account access)."),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=True # Making this optional as it might not always be needed
+                    ),
+                    SourceKeyType.AWS_REGION: FormField( # This AWS_REGION key is duplicated from the first config, ensure its FormField definition is consistent or handled.
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.AWS_REGION)),
+                        display_name=StringValue(value="AWS Region"),
+                        description=StringValue(value="Select the AWS region."),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.DROPDOWN_FT,
+                        valid_values=[Literal(type=LiteralType.STRING, string=StringValue(value=region)) for region in AWS_REGIONS],
+                        is_optional=False
+                    )
+                }
+            }
+        ]
+        self.connector_type_details = {
+            DISPLAY_NAME: "CLOUDWATCH",
+            CATEGORY: CLOUD_MANAGED_SERVICES,
+        }
 
     def get_connector_processor(self, cloudwatch_connector, **kwargs):
         generated_credentials = generate_credentials_dict(cloudwatch_connector.type, cloudwatch_connector.keys)
@@ -257,12 +370,22 @@ class CloudwatchSourceManager(SourceManager):
         return AWSBoto3ApiProcessor(**generated_credentials)
 
     def test_connector_processor(self, connector: ConnectorProto, **kwargs):
-        cw_processor = self.get_connector_processor(connector, client_type='cloudwatch')
-        cw_logs_processor = self.get_connector_processor(connector, client_type='logs')
-        try:
-            return cw_processor.test_connection() and cw_logs_processor.test_connection()
-        except Exception as e:
-            raise e
+        """
+        Tests the connection by verifying AWS permissions for all task types using the base class method.
+
+        Args:
+            connector: The CloudWatch connector proto.
+            **kwargs: Additional arguments (may include region preference or other options).
+
+        Returns:
+            Tuple[bool, str or dict]: Success status and either a formatted message or task permission mapping.
+        """
+        # Define CloudWatch specific defaults if not provided in kwargs
+        if 'region' not in kwargs:
+            kwargs['region'] = 'us-west-2'  # Default region for CloudWatch checks
+
+        # Delegate the detailed permission checking to the base class implementation
+        return self.test_connector_permissions(connector, **kwargs)
 
     ########################################## CW Metric Execution Functions ####################################
     def _fetch_single_metric_timeseries(self, cloudwatch_boto3_processor, namespace: str, metric_name: str,
@@ -704,36 +827,40 @@ class CloudwatchSourceManager(SourceManager):
             if not dashboard_name:
                  raise ValueError("Dashboard name is required for FETCH_DASHBOARD task")
 
-            # Get connector credentials
-            generated_credentials = generate_credentials_dict(cloudwatch_connector.type, cloudwatch_connector.keys)
-            
-            # Create metadata extractor instance
-            cloudwatch_metadata_extractor = CloudwatchSourceMetadataExtractor(
-                request_id="dashboard_fetch_request",
-                connector_name=cloudwatch_connector.name.value,
-                region=generated_credentials.get('region'),
-                aws_access_key=generated_credentials.get('aws_access_key'),
-                aws_secret_key=generated_credentials.get('aws_secret_key'),
-                aws_assumed_role_arn=generated_credentials.get('aws_assumed_role_arn'),
-                aws_drd_cloud_role_arn=generated_credentials.get('aws_drd_cloud_role_arn')
+            # 1. Fetch the Dashboard Asset from the database/cache
+            client = PrototypeClient()
+            assets = client.get_connector_assets(
+                connector_type=Source.Name(cloudwatch_connector.type),
+                connector_id=str(cloudwatch_connector.id.value),
+                asset_type=SourceModelType.CLOUDWATCH_DASHBOARD,
             )
 
-            # Use metadata extractor to get dashboard data directly
-            dashboard_data = cloudwatch_metadata_extractor.extract_dashboard_by_name(dashboard_name)
+            if not assets or not assets.HasField('cloudwatch') or not assets.cloudwatch.assets:
+                logger.error(f"Dashboard asset not found or empty for name: {dashboard_name}")
+                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT, text=TextResult(output=StringValue(
+                    value=f"Could not find dashboard asset information for '{dashboard_name}'. Please ensure metadata extraction ran successfully.")))
 
-            if dashboard_data.get('error'):
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=dashboard_data['error'])),
-                    source=self.source,
-                )
+            # Find the dashboard matching the name
+            dashboard_asset_model = None
+            for cloudwatch_asset in assets.cloudwatch.assets:
+                if cloudwatch_asset.type == SourceModelType.CLOUDWATCH_DASHBOARD and \
+                   cloudwatch_asset.HasField('cloudwatch_dashboard'):
+                    dashboard_asset = cloudwatch_asset.cloudwatch_dashboard
+                    # Check if dashboard name matches
+                    asset_dashboard_name = dashboard_asset.dashboard_name.value if dashboard_asset.dashboard_name.value else None
+                    
+                    # Try to match dashboard name - exact match or case-insensitive match
+                    if asset_dashboard_name and (asset_dashboard_name == dashboard_name or asset_dashboard_name.lower() == dashboard_name.lower()):
+                        dashboard_asset_model = cloudwatch_asset
+                        break
 
-            if not dashboard_data.get('widgets'):
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=f"No widgets found in dashboard '{dashboard_name}'")),
-                    source=self.source,
-                )
+            if not dashboard_asset_model:
+                logger.error(f"Dashboard asset not found for name: {dashboard_name}")
+                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT, text=TextResult(output=StringValue(
+                    value=f"Could not find dashboard asset information for '{dashboard_name}'. Please ensure metadata extraction ran successfully.")))
+
+            dashboard_data: CloudwatchDashboardAssetModel = dashboard_asset_model.cloudwatch_dashboard
+            widget_title = proto_to_dict(dashboard_asset_model).get('metadata', {}).get('title', dashboard_name) # Use title from metadata if available
 
             # 2. Iterate through widgets and fetch metrics, creating individual results
             task_results = []
@@ -745,13 +872,24 @@ class CloudwatchSourceManager(SourceManager):
             # Keep track of unique boto processors per region needed
             boto_processors = {}
 
-            for widget in dashboard_data['widgets']:
-                namespace = widget.get('namespace')
-                metric_name = widget.get('metric_name')
-                dimensions = widget.get('dimensions', [])
-                statistic = widget.get('statistic', 'Average')
-                region = widget.get('region', generated_credentials.get('region'))
-                widget_title = widget.get('widget_title', '')
+            for widget in dashboard_data.widgets:
+                namespace = widget.namespace.value
+                metric_name = widget.metric_name.value
+                # Convert Struct dimensions back to list of dicts {Name: ..., Value: ...}
+                dimensions = []
+                for dim_struct in widget.dimensions:
+                    dim_dict = proto_to_dict(dim_struct)
+                    # Ensure the structure is as expected
+                    if 'Name' in dim_dict and 'Value' in dim_dict:
+                         dimensions.append({'Name': dim_dict['Name'], 'Value': dim_dict['Value']})
+                    else:
+                        logger.warning(f"Skipping invalid dimension structure in widget for dashboard {dashboard_name}: {dim_dict}")
+                        continue # Skip this dimension if structure is wrong
+
+                statistic = widget.statistic.value if widget.HasField('statistic') else 'Average'
+
+                # Use widget region if specified, otherwise fallback to connector default
+                region = widget.region.value if widget.HasField('region') and widget.region.value else cloudwatch_connector.region # Fallback to connector region
 
                 if not namespace or not metric_name:
                     logger.warning(f"Skipping widget in dashboard {dashboard_name} due to missing namespace or metric name.")
@@ -770,7 +908,7 @@ class CloudwatchSourceManager(SourceManager):
                     continue # Skip if processor creation failed for this region
 
                 # Construct the desired display name using the widget title
-                display_name_for_legend = widget_title if widget_title else f"{namespace}.{metric_name}"
+                display_name_for_legend = widget.widget_title.value if widget.HasField('widget_title') and widget.widget_title.value else f"{namespace}.{metric_name}"
 
                 labeled_timeseries = self._fetch_single_metric_timeseries(
                     boto_processors[region], namespace, metric_name, start_time_dt, end_time_dt,
@@ -801,28 +939,8 @@ class CloudwatchSourceManager(SourceManager):
                 return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT, text=TextResult(output=StringValue(
                     value=f"No metric data could be fetched for any widget in dashboard '{dashboard_name}'.")))
 
-            # Combine all timeseries into a single result
-            all_labeled_timeseries = []
-            for task_result in task_results:
-                if task_result.type == PlaybookTaskResultType.TIMESERIES and task_result.timeseries:
-                    all_labeled_timeseries.extend(task_result.timeseries.labeled_metric_timeseries)
-
-            if not all_labeled_timeseries:
-                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT, text=TextResult(output=StringValue(
-                    value=f"No valid timeseries data could be extracted from dashboard '{dashboard_name}'.")))
-
-            # Create a single combined timeseries result
-            combined_timeseries_result = TimeseriesResult(
-                metric_expression=StringValue(value=f"Dashboard: {dashboard_name}"),
-                metric_name=StringValue(value=f"CloudWatch Dashboard: {dashboard_name}"),
-                labeled_metric_timeseries=all_labeled_timeseries
-            )
-
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TIMESERIES,
-                timeseries=combined_timeseries_result,
-                source=self.source
-            )
+            # Return the list of individual PlaybookTaskResults
+            return task_results
 
         except ValueError as ve:
              logger.error(f"Configuration error executing FETCH_DASHBOARD for '{cloudwatch_task.fetch_dashboard.dashboard_name.value}': {ve}")

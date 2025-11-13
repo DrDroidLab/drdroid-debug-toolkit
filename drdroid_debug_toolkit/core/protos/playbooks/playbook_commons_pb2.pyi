@@ -33,6 +33,7 @@ class _PlaybookExecutionStatusTypeEnumTypeWrapper(google.protobuf.internal.enum_
     RUNNING: _PlaybookExecutionStatusType.ValueType  # 2
     FINISHED: _PlaybookExecutionStatusType.ValueType  # 3
     FAILED: _PlaybookExecutionStatusType.ValueType  # 4
+    APPROVAL_REQUIRED: _PlaybookExecutionStatusType.ValueType  # 5
 
 class PlaybookExecutionStatusType(_PlaybookExecutionStatusType, metaclass=_PlaybookExecutionStatusTypeEnumTypeWrapper): ...
 
@@ -41,7 +42,23 @@ CREATED: PlaybookExecutionStatusType.ValueType  # 1
 RUNNING: PlaybookExecutionStatusType.ValueType  # 2
 FINISHED: PlaybookExecutionStatusType.ValueType  # 3
 FAILED: PlaybookExecutionStatusType.ValueType  # 4
+APPROVAL_REQUIRED: PlaybookExecutionStatusType.ValueType  # 5
 global___PlaybookExecutionStatusType = PlaybookExecutionStatusType
+
+class _VariableType:
+    ValueType = typing.NewType("ValueType", builtins.int)
+    V: typing_extensions.TypeAlias = ValueType
+
+class _VariableTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_VariableType.ValueType], builtins.type):
+    DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+    UNKNOWN_TYPE: _VariableType.ValueType  # 0
+    DROPDOWN: _VariableType.ValueType  # 1
+
+class VariableType(_VariableType, metaclass=_VariableTypeEnumTypeWrapper): ...
+
+UNKNOWN_TYPE: VariableType.ValueType  # 0
+DROPDOWN: VariableType.ValueType  # 1
+global___VariableType = VariableType
 
 class _PlaybookTaskResultType:
     ValueType = typing.NewType("ValueType", builtins.int)
@@ -433,19 +450,36 @@ class PlaybookSourceOptions(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
         CONNECTOR_ID_FIELD_NUMBER: builtins.int
+        CONNECTOR_NAME_FIELD_NUMBER: builtins.int
+        CONNECTOR_TYPE_FIELD_NUMBER: builtins.int
         DISPLAY_NAME_FIELD_NUMBER: builtins.int
+        IS_PROXY_ENABLED_FIELD_NUMBER: builtins.int
+        PROXY_AGENT_ID_FIELD_NUMBER: builtins.int
         @property
         def connector_id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
         @property
+        def connector_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def connector_type(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
         def display_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def is_proxy_enabled(self) -> google.protobuf.wrappers_pb2.BoolValue:
+            """proxy agent metadata"""
+        @property
+        def proxy_agent_id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
         def __init__(
             self,
             *,
             connector_id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+            connector_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            connector_type: google.protobuf.wrappers_pb2.StringValue | None = ...,
             display_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            is_proxy_enabled: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+            proxy_agent_id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
         ) -> None: ...
-        def HasField(self, field_name: typing_extensions.Literal["connector_id", b"connector_id", "display_name", b"display_name"]) -> builtins.bool: ...
-        def ClearField(self, field_name: typing_extensions.Literal["connector_id", b"connector_id", "display_name", b"display_name"]) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["connector_id", b"connector_id", "connector_name", b"connector_name", "connector_type", b"connector_type", "display_name", b"display_name", "is_proxy_enabled", b"is_proxy_enabled", "proxy_agent_id", b"proxy_agent_id"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["connector_id", b"connector_id", "connector_name", b"connector_name", "connector_type", b"connector_type", "display_name", b"display_name", "is_proxy_enabled", b"is_proxy_enabled", "proxy_agent_id", b"proxy_agent_id"]) -> None: ...
 
     @typing_extensions.final
     class TaskTypeOption(google.protobuf.message.Message):

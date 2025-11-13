@@ -1,0 +1,32 @@
+syntax = "proto3";
+package core.protos.playbooks;
+
+import "google/protobuf/wrappers.proto";
+
+
+message VictoriaLogs {
+  message QueryLogs {
+    google.protobuf.StringValue query = 1;              // LogsQL query, e.g. `_time:5m {app="nginx"} error`
+    google.protobuf.UInt64Value limit = 2;              // Optional limit; implementation may append `| limit <n>`
+  }
+
+  message FetchFieldValues {
+    google.protobuf.StringValue field_name = 1;         // Field name for `field_values <field>`
+    google.protobuf.StringValue time_filter = 2;        // Optional time filter, e.g. `_time:1h`
+    google.protobuf.UInt64Value limit = 3;              // Optional limit of distinct values
+  }
+
+  enum TaskType {
+    UNKNOWN = 0;
+    QUERY_LOGS = 1;
+    FETCH_FIELD_VALUES = 2;
+  }
+
+  TaskType type = 1;
+  oneof task {
+    QueryLogs query_logs = 101;
+    FetchFieldValues fetch_field_values = 102;
+  }
+}
+
+

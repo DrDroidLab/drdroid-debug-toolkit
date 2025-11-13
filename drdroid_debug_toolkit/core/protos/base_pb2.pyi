@@ -3,7 +3,9 @@
 isort:skip_file
 """
 import builtins
+import collections.abc
 import google.protobuf.descriptor
+import google.protobuf.internal.containers
 import google.protobuf.internal.enum_type_wrapper
 import google.protobuf.message
 import google.protobuf.wrappers_pb2
@@ -129,27 +131,6 @@ OR: Op.ValueType  # 21
 NOT: Op.ValueType  # 22
 global___Op = Op
 
-class _Context:
-    ValueType = typing.NewType("ValueType", builtins.int)
-    V: typing_extensions.TypeAlias = ValueType
-
-class _ContextEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_Context.ValueType], builtins.type):
-    DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
-    UNKNOWN_C: _Context.ValueType  # 0
-    PLAYBOOK: _Context.ValueType  # 1
-    PLAYBOOK_EXECUTION: _Context.ValueType  # 2
-    WORKFLOW: _Context.ValueType  # 3
-    WORKFLOW_EXECUTION: _Context.ValueType  # 4
-
-class Context(_Context, metaclass=_ContextEnumTypeWrapper): ...
-
-UNKNOWN_C: Context.ValueType  # 0
-PLAYBOOK: Context.ValueType  # 1
-PLAYBOOK_EXECUTION: Context.ValueType  # 2
-WORKFLOW: Context.ValueType  # 3
-WORKFLOW_EXECUTION: Context.ValueType  # 4
-global___Context = Context
-
 class _Source:
     ValueType = typing.NewType("ValueType", builtins.int)
     V: typing_extensions.TypeAlias = ValueType
@@ -214,6 +195,7 @@ class _SourceEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTyp
     CONFLUENCE_SELF_HOSTED: _Source.ValueType  # 55
     GOOGLE_DRIVE: _Source.ValueType  # 56
     NOTION: _Source.ValueType  # 57
+    DRD_PROXY_AGENT: _Source.ValueType  # 58
     MONGODB: _Source.ValueType  # 59
     OPEN_SEARCH: _Source.ValueType  # 60
     LINEAR: _Source.ValueType  # 61
@@ -224,8 +206,15 @@ class _SourceEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTyp
     DRD_ALERT_WEBHOOK: _Source.ValueType  # 66
     ROLLBAR: _Source.ValueType  # 67
     LAMBDA: _Source.ValueType  # 68
+    BROWSER: _Source.ValueType  # 69
     POSTHOG: _Source.ValueType  # 70
+    MIXPANEL: _Source.ValueType  # 71
     SIGNOZ: _Source.ValueType  # 72
+    BITBUCKET: _Source.ValueType  # 73
+    CORALOGIX: _Source.ValueType  # 74
+    RENDER: _Source.ValueType  # 75
+    MCP_SERVER: _Source.ValueType  # 76
+    VICTORIA_LOGS: _Source.ValueType  # 77
 
 class Source(_Source, metaclass=_SourceEnumTypeWrapper): ...
 
@@ -287,6 +276,7 @@ CONFLUENCE_CLOUD: Source.ValueType  # 54
 CONFLUENCE_SELF_HOSTED: Source.ValueType  # 55
 GOOGLE_DRIVE: Source.ValueType  # 56
 NOTION: Source.ValueType  # 57
+DRD_PROXY_AGENT: Source.ValueType  # 58
 MONGODB: Source.ValueType  # 59
 OPEN_SEARCH: Source.ValueType  # 60
 LINEAR: Source.ValueType  # 61
@@ -297,8 +287,15 @@ ARGOCD: Source.ValueType  # 65
 DRD_ALERT_WEBHOOK: Source.ValueType  # 66
 ROLLBAR: Source.ValueType  # 67
 LAMBDA: Source.ValueType  # 68
+BROWSER: Source.ValueType  # 69
 POSTHOG: Source.ValueType  # 70
+MIXPANEL: Source.ValueType  # 71
 SIGNOZ: Source.ValueType  # 72
+BITBUCKET: Source.ValueType  # 73
+CORALOGIX: Source.ValueType  # 74
+RENDER: Source.ValueType  # 75
+MCP_SERVER: Source.ValueType  # 76
+VICTORIA_LOGS: Source.ValueType  # 77
 global___Source = Source
 
 class _SourceKeyType:
@@ -319,8 +316,11 @@ class _SourceKeyTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     NEWRELIC_QUERY_KEY: _SourceKeyType.ValueType  # 7
     NEWRELIC_API_DOMAIN: _SourceKeyType.ValueType  # 19
     SLACK_BOT_AUTH_TOKEN: _SourceKeyType.ValueType  # 8
-    SLACK_CHANNEL_ID: _SourceKeyType.ValueType  # 9
+    SLACK_CHANNEL_SKT: _SourceKeyType.ValueType  # 9
     SLACK_APP_ID: _SourceKeyType.ValueType  # 46
+    SLACK_APP_CLIENT_ID: _SourceKeyType.ValueType  # 141
+    SLACK_APP_CLIENT_SECRET: _SourceKeyType.ValueType  # 142
+    SLACK_APP_SIGNING_SECRET: _SourceKeyType.ValueType  # 143
     HONEYBADGER_USERNAME: _SourceKeyType.ValueType  # 10
     HONEYBADGER_PASSWORD: _SourceKeyType.ValueType  # 11
     HONEYBADGER_PROJECT_ID: _SourceKeyType.ValueType  # 12
@@ -334,6 +334,7 @@ class _SourceKeyTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     GOOGLE_CHAT_BOT_SPACES: _SourceKeyType.ValueType  # 17
     GRAFANA_HOST: _SourceKeyType.ValueType  # 21
     GRAFANA_API_KEY: _SourceKeyType.ValueType  # 22
+    GRAFANA_TEAM_HOST: _SourceKeyType.ValueType  # 153
     CLICKHOUSE_INTERFACE: _SourceKeyType.ValueType  # 24
     CLICKHOUSE_HOST: _SourceKeyType.ValueType  # 25
     CLICKHOUSE_PORT: _SourceKeyType.ValueType  # 26
@@ -379,7 +380,6 @@ class _SourceKeyTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     ELASTIC_SEARCH_PORT: _SourceKeyType.ValueType  # 66
     ELASTIC_SEARCH_API_KEY_ID: _SourceKeyType.ValueType  # 67
     ELASTIC_SEARCH_API_KEY: _SourceKeyType.ValueType  # 68
-    KIBANA_HOST: _SourceKeyType.ValueType  # 114
     GRAFANA_LOKI_PROTOCOL: _SourceKeyType.ValueType  # 69
     GRAFANA_LOKI_HOST: _SourceKeyType.ValueType  # 70
     GRAFANA_LOKI_PORT: _SourceKeyType.ValueType  # 71
@@ -401,7 +401,12 @@ class _SourceKeyTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     JIRA_EMAIL: _SourceKeyType.ValueType  # 110
     ASANA_ACCESS_TOKEN: _SourceKeyType.ValueType  # 86
     CONFLUENCE_CLOUD_API_KEY: _SourceKeyType.ValueType  # 87
+    CONFLUENCE_CLOUD_SITE_URL: _SourceKeyType.ValueType  # 139
+    CONFLUENCE_CLOUD_ATLASSIAN_ACCOUNT_EMAIL: _SourceKeyType.ValueType  # 140
     NOTION_API_KEY: _SourceKeyType.ValueType  # 88
+    DRD_PROXY_AGENT_HOST: _SourceKeyType.ValueType  # 89
+    DRD_PROXY_AGENT_API_TOKEN: _SourceKeyType.ValueType  # 90
+    DRD_PROXY_AGENT_API_KEY: _SourceKeyType.ValueType  # 91
     MONGODB_CONNECTION_STRING: _SourceKeyType.ValueType  # 92
     OPEN_SEARCH_PROTOCOL: _SourceKeyType.ValueType  # 94
     OPEN_SEARCH_HOST: _SourceKeyType.ValueType  # 95
@@ -421,8 +426,28 @@ class _SourceKeyTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     POSTHOG_API_KEY: _SourceKeyType.ValueType  # 121
     POSTHOG_APP_HOST: _SourceKeyType.ValueType  # 122
     POSTHOG_PROJECT_ID: _SourceKeyType.ValueType  # 123
+    MIXPANEL_SERVICE_ACCOUNT_USERNAME: _SourceKeyType.ValueType  # 131
+    MIXPANEL_SERVICE_ACCOUNT_SECRET: _SourceKeyType.ValueType  # 132
+    MIXPANEL_DOMAIN: _SourceKeyType.ValueType  # 133
+    MIXPANEL_PROJECT_ID: _SourceKeyType.ValueType  # 134
+    MIXPANEL_WORKSPACE_ID: _SourceKeyType.ValueType  # 135
     SIGNOZ_API_URL: _SourceKeyType.ValueType  # 136
     SIGNOZ_API_TOKEN: _SourceKeyType.ValueType  # 137
+    KIBANA_HOST: _SourceKeyType.ValueType  # 138
+    BITBUCKET_WORKSPACE: _SourceKeyType.ValueType  # 144
+    """139, 140 is used"""
+    BITBUCKET_API_KEY: _SourceKeyType.ValueType  # 145
+    BITBUCKET_REPO: _SourceKeyType.ValueType  # 146
+    RENDER_API_KEY: _SourceKeyType.ValueType  # 147
+    CORALOGIX_API_KEY: _SourceKeyType.ValueType  # 148
+    CORALOGIX_ENDPOINT: _SourceKeyType.ValueType  # 149
+    CORALOGIX_DOMAIN: _SourceKeyType.ValueType  # 152
+    MCP_SERVER_BASE_URL: _SourceKeyType.ValueType  # 150
+    MCP_SERVER_AUTH_HEADERS: _SourceKeyType.ValueType  # 151
+    VICTORIA_LOGS_PROTOCOL: _SourceKeyType.ValueType  # 154
+    """VictoriaLogs specific keys (used by VictoriaLogs connector forms)"""
+    VICTORIA_LOGS_HOST: _SourceKeyType.ValueType  # 155
+    VICTORIA_LOGS_PORT: _SourceKeyType.ValueType  # 156
 
 class SourceKeyType(_SourceKeyType, metaclass=_SourceKeyTypeEnumTypeWrapper): ...
 
@@ -438,8 +463,11 @@ NEWRELIC_APP_ID: SourceKeyType.ValueType  # 5
 NEWRELIC_QUERY_KEY: SourceKeyType.ValueType  # 7
 NEWRELIC_API_DOMAIN: SourceKeyType.ValueType  # 19
 SLACK_BOT_AUTH_TOKEN: SourceKeyType.ValueType  # 8
-SLACK_CHANNEL_ID: SourceKeyType.ValueType  # 9
+SLACK_CHANNEL_SKT: SourceKeyType.ValueType  # 9
 SLACK_APP_ID: SourceKeyType.ValueType  # 46
+SLACK_APP_CLIENT_ID: SourceKeyType.ValueType  # 141
+SLACK_APP_CLIENT_SECRET: SourceKeyType.ValueType  # 142
+SLACK_APP_SIGNING_SECRET: SourceKeyType.ValueType  # 143
 HONEYBADGER_USERNAME: SourceKeyType.ValueType  # 10
 HONEYBADGER_PASSWORD: SourceKeyType.ValueType  # 11
 HONEYBADGER_PROJECT_ID: SourceKeyType.ValueType  # 12
@@ -453,6 +481,7 @@ GOOGLE_CHAT_BOT_OAUTH_TOKEN: SourceKeyType.ValueType  # 16
 GOOGLE_CHAT_BOT_SPACES: SourceKeyType.ValueType  # 17
 GRAFANA_HOST: SourceKeyType.ValueType  # 21
 GRAFANA_API_KEY: SourceKeyType.ValueType  # 22
+GRAFANA_TEAM_HOST: SourceKeyType.ValueType  # 153
 CLICKHOUSE_INTERFACE: SourceKeyType.ValueType  # 24
 CLICKHOUSE_HOST: SourceKeyType.ValueType  # 25
 CLICKHOUSE_PORT: SourceKeyType.ValueType  # 26
@@ -498,7 +527,6 @@ ELASTIC_SEARCH_HOST: SourceKeyType.ValueType  # 65
 ELASTIC_SEARCH_PORT: SourceKeyType.ValueType  # 66
 ELASTIC_SEARCH_API_KEY_ID: SourceKeyType.ValueType  # 67
 ELASTIC_SEARCH_API_KEY: SourceKeyType.ValueType  # 68
-KIBANA_HOST: SourceKeyType.ValueType  # 114
 GRAFANA_LOKI_PROTOCOL: SourceKeyType.ValueType  # 69
 GRAFANA_LOKI_HOST: SourceKeyType.ValueType  # 70
 GRAFANA_LOKI_PORT: SourceKeyType.ValueType  # 71
@@ -520,7 +548,12 @@ JIRA_DOMAIN: SourceKeyType.ValueType  # 109
 JIRA_EMAIL: SourceKeyType.ValueType  # 110
 ASANA_ACCESS_TOKEN: SourceKeyType.ValueType  # 86
 CONFLUENCE_CLOUD_API_KEY: SourceKeyType.ValueType  # 87
+CONFLUENCE_CLOUD_SITE_URL: SourceKeyType.ValueType  # 139
+CONFLUENCE_CLOUD_ATLASSIAN_ACCOUNT_EMAIL: SourceKeyType.ValueType  # 140
 NOTION_API_KEY: SourceKeyType.ValueType  # 88
+DRD_PROXY_AGENT_HOST: SourceKeyType.ValueType  # 89
+DRD_PROXY_AGENT_API_TOKEN: SourceKeyType.ValueType  # 90
+DRD_PROXY_AGENT_API_KEY: SourceKeyType.ValueType  # 91
 MONGODB_CONNECTION_STRING: SourceKeyType.ValueType  # 92
 OPEN_SEARCH_PROTOCOL: SourceKeyType.ValueType  # 94
 OPEN_SEARCH_HOST: SourceKeyType.ValueType  # 95
@@ -540,8 +573,28 @@ ROLLBAR_ACCESS_TOKEN: SourceKeyType.ValueType  # 108
 POSTHOG_API_KEY: SourceKeyType.ValueType  # 121
 POSTHOG_APP_HOST: SourceKeyType.ValueType  # 122
 POSTHOG_PROJECT_ID: SourceKeyType.ValueType  # 123
+MIXPANEL_SERVICE_ACCOUNT_USERNAME: SourceKeyType.ValueType  # 131
+MIXPANEL_SERVICE_ACCOUNT_SECRET: SourceKeyType.ValueType  # 132
+MIXPANEL_DOMAIN: SourceKeyType.ValueType  # 133
+MIXPANEL_PROJECT_ID: SourceKeyType.ValueType  # 134
+MIXPANEL_WORKSPACE_ID: SourceKeyType.ValueType  # 135
 SIGNOZ_API_URL: SourceKeyType.ValueType  # 136
 SIGNOZ_API_TOKEN: SourceKeyType.ValueType  # 137
+KIBANA_HOST: SourceKeyType.ValueType  # 138
+BITBUCKET_WORKSPACE: SourceKeyType.ValueType  # 144
+"""139, 140 is used"""
+BITBUCKET_API_KEY: SourceKeyType.ValueType  # 145
+BITBUCKET_REPO: SourceKeyType.ValueType  # 146
+RENDER_API_KEY: SourceKeyType.ValueType  # 147
+CORALOGIX_API_KEY: SourceKeyType.ValueType  # 148
+CORALOGIX_ENDPOINT: SourceKeyType.ValueType  # 149
+CORALOGIX_DOMAIN: SourceKeyType.ValueType  # 152
+MCP_SERVER_BASE_URL: SourceKeyType.ValueType  # 150
+MCP_SERVER_AUTH_HEADERS: SourceKeyType.ValueType  # 151
+VICTORIA_LOGS_PROTOCOL: SourceKeyType.ValueType  # 154
+"""VictoriaLogs specific keys (used by VictoriaLogs connector forms)"""
+VICTORIA_LOGS_HOST: SourceKeyType.ValueType  # 155
+VICTORIA_LOGS_PORT: SourceKeyType.ValueType  # 156
 global___SourceKeyType = SourceKeyType
 
 class _SourceModelType:
@@ -573,6 +626,7 @@ class _SourceModelTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper
     DATADOG_METRIC: _SourceModelType.ValueType  # 111
     DATADOG_QUERY: _SourceModelType.ValueType  # 112
     DATADOG_APM: _SourceModelType.ValueType  # 113
+    DATADOG_FIELDS: _SourceModelType.ValueType  # 114
     CLOUDWATCH_METRIC: _SourceModelType.ValueType  # 201
     """Cloudwatch Models"""
     CLOUDWATCH_LOG_GROUP: _SourceModelType.ValueType  # 202
@@ -613,6 +667,14 @@ class _SourceModelTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper
     """Mimir Server Models"""
     GKE_CLUSTER: _SourceModelType.ValueType  # 1301
     """GKE Models"""
+    GKE_NAMESPACE: _SourceModelType.ValueType  # 1302
+    GKE_SERVICE: _SourceModelType.ValueType  # 1303
+    GKE_DEPLOYMENT: _SourceModelType.ValueType  # 1304
+    GKE_INGRESS: _SourceModelType.ValueType  # 1305
+    GKE_NETWORK_POLICY: _SourceModelType.ValueType  # 1306
+    GKE_HPA: _SourceModelType.ValueType  # 1307
+    GKE_REPLICASET: _SourceModelType.ValueType  # 1308
+    GKE_STATEFULSET: _SourceModelType.ValueType  # 1309
     MS_TEAMS_CHANNEL: _SourceModelType.ValueType  # 1401
     """MS TEAMS Models"""
     PAGERDUTY_INCIDENT: _SourceModelType.ValueType  # 1501
@@ -667,6 +729,8 @@ class _SourceModelTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper
     """SignOz Models"""
     SIGNOZ_ALERT: _SourceModelType.ValueType  # 5002
     SIGNOZ_METRIC: _SourceModelType.ValueType  # 5003
+    SIGNOZ_SERVICE: _SourceModelType.ValueType  # 5004
+    SIGNOZ_LOG_ATTRIBUTES: _SourceModelType.ValueType  # 5005
     KUBERNETES_NAMESPACE: _SourceModelType.ValueType  # 6001
     """Kubernetes Models"""
     KUBERNETES_SERVICE: _SourceModelType.ValueType  # 6002
@@ -677,6 +741,12 @@ class _SourceModelTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper
     KUBERNETES_REPLICASET: _SourceModelType.ValueType  # 6007
     KUBERNETES_STATEFULSET: _SourceModelType.ValueType  # 6008
     KUBERNETES_NETWORK_MAP: _SourceModelType.ValueType  # 6009
+    SENTRY_PROJECT: _SourceModelType.ValueType  # 7001
+    CORALOGIX_DASHBOARD: _SourceModelType.ValueType  # 8001
+    """Coralogix Models"""
+    CORALOGIX_INDEX_MAPPING: _SourceModelType.ValueType  # 8002
+    VICTORIA_LOGS_FIELD: _SourceModelType.ValueType  # 9001
+    """VictoriaLogs Models"""
 
 class SourceModelType(_SourceModelType, metaclass=_SourceModelTypeEnumTypeWrapper): ...
 
@@ -703,6 +773,7 @@ DATADOG_SERVICE: SourceModelType.ValueType  # 110
 DATADOG_METRIC: SourceModelType.ValueType  # 111
 DATADOG_QUERY: SourceModelType.ValueType  # 112
 DATADOG_APM: SourceModelType.ValueType  # 113
+DATADOG_FIELDS: SourceModelType.ValueType  # 114
 CLOUDWATCH_METRIC: SourceModelType.ValueType  # 201
 """Cloudwatch Models"""
 CLOUDWATCH_LOG_GROUP: SourceModelType.ValueType  # 202
@@ -743,6 +814,14 @@ GRAFANA_MIMIR_PROMQL: SourceModelType.ValueType  # 1201
 """Mimir Server Models"""
 GKE_CLUSTER: SourceModelType.ValueType  # 1301
 """GKE Models"""
+GKE_NAMESPACE: SourceModelType.ValueType  # 1302
+GKE_SERVICE: SourceModelType.ValueType  # 1303
+GKE_DEPLOYMENT: SourceModelType.ValueType  # 1304
+GKE_INGRESS: SourceModelType.ValueType  # 1305
+GKE_NETWORK_POLICY: SourceModelType.ValueType  # 1306
+GKE_HPA: SourceModelType.ValueType  # 1307
+GKE_REPLICASET: SourceModelType.ValueType  # 1308
+GKE_STATEFULSET: SourceModelType.ValueType  # 1309
 MS_TEAMS_CHANNEL: SourceModelType.ValueType  # 1401
 """MS TEAMS Models"""
 PAGERDUTY_INCIDENT: SourceModelType.ValueType  # 1501
@@ -797,6 +876,8 @@ SIGNOZ_DASHBOARD: SourceModelType.ValueType  # 5001
 """SignOz Models"""
 SIGNOZ_ALERT: SourceModelType.ValueType  # 5002
 SIGNOZ_METRIC: SourceModelType.ValueType  # 5003
+SIGNOZ_SERVICE: SourceModelType.ValueType  # 5004
+SIGNOZ_LOG_ATTRIBUTES: SourceModelType.ValueType  # 5005
 KUBERNETES_NAMESPACE: SourceModelType.ValueType  # 6001
 """Kubernetes Models"""
 KUBERNETES_SERVICE: SourceModelType.ValueType  # 6002
@@ -807,7 +888,54 @@ KUBERNETES_HPA: SourceModelType.ValueType  # 6006
 KUBERNETES_REPLICASET: SourceModelType.ValueType  # 6007
 KUBERNETES_STATEFULSET: SourceModelType.ValueType  # 6008
 KUBERNETES_NETWORK_MAP: SourceModelType.ValueType  # 6009
+SENTRY_PROJECT: SourceModelType.ValueType  # 7001
+CORALOGIX_DASHBOARD: SourceModelType.ValueType  # 8001
+"""Coralogix Models"""
+CORALOGIX_INDEX_MAPPING: SourceModelType.ValueType  # 8002
+VICTORIA_LOGS_FIELD: SourceModelType.ValueType  # 9001
+"""VictoriaLogs Models"""
 global___SourceModelType = SourceModelType
+
+class _Context:
+    ValueType = typing.NewType("ValueType", builtins.int)
+    V: typing_extensions.TypeAlias = ValueType
+
+class _ContextEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_Context.ValueType], builtins.type):
+    DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+    UNKNOWN_C: _Context.ValueType  # 0
+    EVENT: _Context.ValueType  # 1
+    MONITOR_TRANSACTION: _Context.ValueType  # 2
+    ENTITY_INSTANCE: _Context.ValueType  # 3
+    EVENT_TYPE: _Context.ValueType  # 4
+    MONITOR: _Context.ValueType  # 5
+    ENTITY: _Context.ValueType  # 6
+    EVENTS_CLICKHOUSE: _Context.ValueType  # 7
+    PANEL_NAME: _Context.ValueType  # 8
+    DASHBOARD_NAME: _Context.ValueType  # 9
+    EVENTS_ALERT_OPS_CLICKHOUSE: _Context.ValueType  # 10
+    SLACK_ALERT: _Context.ValueType  # 11
+    EVENTS_PRODIGAL_CLICKHOUSE: _Context.ValueType  # 12
+    ALERT_OPS: _Context.ValueType  # 13
+    ALERT_MIDDLEWARE: _Context.ValueType  # 14
+
+class Context(_Context, metaclass=_ContextEnumTypeWrapper): ...
+
+UNKNOWN_C: Context.ValueType  # 0
+EVENT: Context.ValueType  # 1
+MONITOR_TRANSACTION: Context.ValueType  # 2
+ENTITY_INSTANCE: Context.ValueType  # 3
+EVENT_TYPE: Context.ValueType  # 4
+MONITOR: Context.ValueType  # 5
+ENTITY: Context.ValueType  # 6
+EVENTS_CLICKHOUSE: Context.ValueType  # 7
+PANEL_NAME: Context.ValueType  # 8
+DASHBOARD_NAME: Context.ValueType  # 9
+EVENTS_ALERT_OPS_CLICKHOUSE: Context.ValueType  # 10
+SLACK_ALERT: Context.ValueType  # 11
+EVENTS_PRODIGAL_CLICKHOUSE: Context.ValueType  # 12
+ALERT_OPS: Context.ValueType  # 13
+ALERT_MIDDLEWARE: Context.ValueType  # 14
+global___Context = Context
 
 @typing_extensions.final
 class TimeRange(google.protobuf.message.Message):
@@ -847,77 +975,6 @@ class Page(google.protobuf.message.Message):
     def ClearField(self, field_name: typing_extensions.Literal["limit", b"limit", "offset", b"offset"]) -> None: ...
 
 global___Page = Page
-
-@typing_extensions.final
-class Meta(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    TIME_RANGE_FIELD_NUMBER: builtins.int
-    PAGE_FIELD_NUMBER: builtins.int
-    TOTAL_COUNT_FIELD_NUMBER: builtins.int
-    SHOW_INACTIVE_FIELD_NUMBER: builtins.int
-    @property
-    def time_range(self) -> global___TimeRange: ...
-    @property
-    def page(self) -> global___Page: ...
-    @property
-    def total_count(self) -> google.protobuf.wrappers_pb2.UInt32Value: ...
-    @property
-    def show_inactive(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
-    def __init__(
-        self,
-        *,
-        time_range: global___TimeRange | None = ...,
-        page: global___Page | None = ...,
-        total_count: google.protobuf.wrappers_pb2.UInt32Value | None = ...,
-        show_inactive: google.protobuf.wrappers_pb2.BoolValue | None = ...,
-    ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["page", b"page", "show_inactive", b"show_inactive", "time_range", b"time_range", "total_count", b"total_count"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["page", b"page", "show_inactive", b"show_inactive", "time_range", b"time_range", "total_count", b"total_count"]) -> None: ...
-
-global___Meta = Meta
-
-@typing_extensions.final
-class Message(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    TITLE_FIELD_NUMBER: builtins.int
-    DESCRIPTION_FIELD_NUMBER: builtins.int
-    TRACEBACK_FIELD_NUMBER: builtins.int
-    title: builtins.str
-    description: builtins.str
-    traceback: builtins.str
-    def __init__(
-        self,
-        *,
-        title: builtins.str = ...,
-        description: builtins.str = ...,
-        traceback: builtins.str = ...,
-    ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["description", b"description", "title", b"title", "traceback", b"traceback"]) -> None: ...
-
-global___Message = Message
-
-@typing_extensions.final
-class ErrorMessage(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    ERROR_FIELD_NUMBER: builtins.int
-    MESSAGE_FIELD_NUMBER: builtins.int
-    @property
-    def error(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
-    @property
-    def message(self) -> global___Message: ...
-    def __init__(
-        self,
-        *,
-        error: google.protobuf.wrappers_pb2.BoolValue | None = ...,
-        message: global___Message | None = ...,
-    ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["error", b"error", "message", b"message"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["error", b"error", "message", b"message"]) -> None: ...
-
-global___ErrorMessage = ErrorMessage
 
 @typing_extensions.final
 class OpDescription(google.protobuf.message.Message):
@@ -1017,3 +1074,323 @@ class TaskCronRule(google.protobuf.message.Message):
     def ClearField(self, field_name: typing_extensions.Literal["rule", b"rule", "timezone", b"timezone"]) -> None: ...
 
 global___TaskCronRule = TaskCronRule
+
+@typing_extensions.final
+class EventKey(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    class _KeyType:
+        ValueType = typing.NewType("ValueType", builtins.int)
+        V: typing_extensions.TypeAlias = ValueType
+
+    class _KeyTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[EventKey._KeyType.ValueType], builtins.type):  # noqa: F821
+        DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+        UNKNOWN: EventKey._KeyType.ValueType  # 0
+        STRING: EventKey._KeyType.ValueType  # 1
+        LONG: EventKey._KeyType.ValueType  # 2
+        DOUBLE: EventKey._KeyType.ValueType  # 3
+        BOOLEAN: EventKey._KeyType.ValueType  # 4
+        BYTE: EventKey._KeyType.ValueType  # 5
+        ARRAY: EventKey._KeyType.ValueType  # 6
+        OBJECT: EventKey._KeyType.ValueType  # 7
+
+    class KeyType(_KeyType, metaclass=_KeyTypeEnumTypeWrapper): ...
+    UNKNOWN: EventKey.KeyType.ValueType  # 0
+    STRING: EventKey.KeyType.ValueType  # 1
+    LONG: EventKey.KeyType.ValueType  # 2
+    DOUBLE: EventKey.KeyType.ValueType  # 3
+    BOOLEAN: EventKey.KeyType.ValueType  # 4
+    BYTE: EventKey.KeyType.ValueType  # 5
+    ARRAY: EventKey.KeyType.ValueType  # 6
+    OBJECT: EventKey.KeyType.ValueType  # 7
+
+    ID_FIELD_NUMBER: builtins.int
+    KEY_FIELD_NUMBER: builtins.int
+    KEY_TYPE_FIELD_NUMBER: builtins.int
+    EVENT_TYPE_FIELD_NUMBER: builtins.int
+    id: builtins.int
+    key: builtins.str
+    key_type: global___EventKey.KeyType.ValueType
+    @property
+    def event_type(self) -> global___EventTypePartial: ...
+    def __init__(
+        self,
+        *,
+        id: builtins.int = ...,
+        key: builtins.str = ...,
+        key_type: global___EventKey.KeyType.ValueType = ...,
+        event_type: global___EventTypePartial | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["event_type", b"event_type"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["event_type", b"event_type", "id", b"id", "key", b"key", "key_type", b"key_type"]) -> None: ...
+
+global___EventKey = EventKey
+
+@typing_extensions.final
+class EventType(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    ID_FIELD_NUMBER: builtins.int
+    NAME_FIELD_NUMBER: builtins.int
+    KEYS_FIELD_NUMBER: builtins.int
+    EVENT_SOURCES_FIELD_NUMBER: builtins.int
+    id: builtins.int
+    name: builtins.str
+    @property
+    def keys(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___EventKey]: ...
+    @property
+    def event_sources(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[global___Event.EventSource.ValueType]: ...
+    def __init__(
+        self,
+        *,
+        id: builtins.int = ...,
+        name: builtins.str = ...,
+        keys: collections.abc.Iterable[global___EventKey] | None = ...,
+        event_sources: collections.abc.Iterable[global___Event.EventSource.ValueType] | None = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["event_sources", b"event_sources", "id", b"id", "keys", b"keys", "name", b"name"]) -> None: ...
+
+global___EventType = EventType
+
+@typing_extensions.final
+class EventTypeStats(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    KEYS_COUNT_FIELD_NUMBER: builtins.int
+    EVENT_COUNT_FIELD_NUMBER: builtins.int
+    MONITOR_COUNT_FIELD_NUMBER: builtins.int
+    @property
+    def keys_count(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+    @property
+    def event_count(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+    @property
+    def monitor_count(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+    def __init__(
+        self,
+        *,
+        keys_count: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+        event_count: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+        monitor_count: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["event_count", b"event_count", "keys_count", b"keys_count", "monitor_count", b"monitor_count"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["event_count", b"event_count", "keys_count", b"keys_count", "monitor_count", b"monitor_count"]) -> None: ...
+
+global___EventTypeStats = EventTypeStats
+
+@typing_extensions.final
+class EventTypePartial(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    ID_FIELD_NUMBER: builtins.int
+    NAME_FIELD_NUMBER: builtins.int
+    id: builtins.int
+    name: builtins.str
+    def __init__(
+        self,
+        *,
+        id: builtins.int = ...,
+        name: builtins.str = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["id", b"id", "name", b"name"]) -> None: ...
+
+global___EventTypePartial = EventTypePartial
+
+@typing_extensions.final
+class EventTypeSummary(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    EVENT_TYPE_FIELD_NUMBER: builtins.int
+    STATS_FIELD_NUMBER: builtins.int
+    @property
+    def event_type(self) -> global___EventTypePartial: ...
+    @property
+    def stats(self) -> global___EventTypeStats: ...
+    def __init__(
+        self,
+        *,
+        event_type: global___EventTypePartial | None = ...,
+        stats: global___EventTypeStats | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["event_type", b"event_type", "stats", b"stats"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["event_type", b"event_type", "stats", b"stats"]) -> None: ...
+
+global___EventTypeSummary = EventTypeSummary
+
+@typing_extensions.final
+class EventTypeDefinition(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    EVENT_TYPE_FIELD_NUMBER: builtins.int
+    STATS_FIELD_NUMBER: builtins.int
+    @property
+    def event_type(self) -> global___EventType: ...
+    @property
+    def stats(self) -> global___EventTypeStats: ...
+    def __init__(
+        self,
+        *,
+        event_type: global___EventType | None = ...,
+        stats: global___EventTypeStats | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["event_type", b"event_type", "stats", b"stats"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["event_type", b"event_type", "stats", b"stats"]) -> None: ...
+
+global___EventTypeDefinition = EventTypeDefinition
+
+@typing_extensions.final
+class Event(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    class _EventSource:
+        ValueType = typing.NewType("ValueType", builtins.int)
+        V: typing_extensions.TypeAlias = ValueType
+
+    class _EventSourceEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[Event._EventSource.ValueType], builtins.type):  # noqa: F821
+        DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+        UNKNOWN: Event._EventSource.ValueType  # 0
+        SAMPLE: Event._EventSource.ValueType  # 1
+        API: Event._EventSource.ValueType  # 2
+        SDK: Event._EventSource.ValueType  # 3
+        SEGMENT: Event._EventSource.ValueType  # 4
+        AMPLITUDE: Event._EventSource.ValueType  # 5
+        SNS: Event._EventSource.ValueType  # 6
+        CLOUDWATCH: Event._EventSource.ValueType  # 7
+        COLLECTOR: Event._EventSource.ValueType  # 8
+        AWS_KINESIS: Event._EventSource.ValueType  # 9
+        SLACK: Event._EventSource.ValueType  # 10
+        OPS_GENIE: Event._EventSource.ValueType  # 11
+
+    class EventSource(_EventSource, metaclass=_EventSourceEnumTypeWrapper): ...
+    UNKNOWN: Event.EventSource.ValueType  # 0
+    SAMPLE: Event.EventSource.ValueType  # 1
+    API: Event.EventSource.ValueType  # 2
+    SDK: Event.EventSource.ValueType  # 3
+    SEGMENT: Event.EventSource.ValueType  # 4
+    AMPLITUDE: Event.EventSource.ValueType  # 5
+    SNS: Event.EventSource.ValueType  # 6
+    CLOUDWATCH: Event.EventSource.ValueType  # 7
+    COLLECTOR: Event.EventSource.ValueType  # 8
+    AWS_KINESIS: Event.EventSource.ValueType  # 9
+    SLACK: Event.EventSource.ValueType  # 10
+    OPS_GENIE: Event.EventSource.ValueType  # 11
+
+    ID_FIELD_NUMBER: builtins.int
+    EVENT_TYPE_FIELD_NUMBER: builtins.int
+    KVS_FIELD_NUMBER: builtins.int
+    TIMESTAMP_FIELD_NUMBER: builtins.int
+    EVENT_SOURCE_FIELD_NUMBER: builtins.int
+    id: builtins.int
+    @property
+    def event_type(self) -> global___EventTypePartial: ...
+    @property
+    def kvs(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___KeyValue]: ...
+    timestamp: builtins.int
+    event_source: global___Event.EventSource.ValueType
+    def __init__(
+        self,
+        *,
+        id: builtins.int = ...,
+        event_type: global___EventTypePartial | None = ...,
+        kvs: collections.abc.Iterable[global___KeyValue] | None = ...,
+        timestamp: builtins.int = ...,
+        event_source: global___Event.EventSource.ValueType = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["event_type", b"event_type"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["event_source", b"event_source", "event_type", b"event_type", "id", b"id", "kvs", b"kvs", "timestamp", b"timestamp"]) -> None: ...
+
+global___Event = Event
+
+@typing_extensions.final
+class Value(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    STRING_VALUE_FIELD_NUMBER: builtins.int
+    BOOL_VALUE_FIELD_NUMBER: builtins.int
+    INT_VALUE_FIELD_NUMBER: builtins.int
+    DOUBLE_VALUE_FIELD_NUMBER: builtins.int
+    ARRAY_VALUE_FIELD_NUMBER: builtins.int
+    KVLIST_VALUE_FIELD_NUMBER: builtins.int
+    BYTES_VALUE_FIELD_NUMBER: builtins.int
+    string_value: builtins.str
+    bool_value: builtins.bool
+    int_value: builtins.int
+    double_value: builtins.float
+    @property
+    def array_value(self) -> global___ArrayValue: ...
+    @property
+    def kvlist_value(self) -> global___KeyValueList: ...
+    bytes_value: builtins.bytes
+    def __init__(
+        self,
+        *,
+        string_value: builtins.str = ...,
+        bool_value: builtins.bool = ...,
+        int_value: builtins.int = ...,
+        double_value: builtins.float = ...,
+        array_value: global___ArrayValue | None = ...,
+        kvlist_value: global___KeyValueList | None = ...,
+        bytes_value: builtins.bytes = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["array_value", b"array_value", "bool_value", b"bool_value", "bytes_value", b"bytes_value", "double_value", b"double_value", "int_value", b"int_value", "kvlist_value", b"kvlist_value", "string_value", b"string_value", "value", b"value"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["array_value", b"array_value", "bool_value", b"bool_value", "bytes_value", b"bytes_value", "double_value", b"double_value", "int_value", b"int_value", "kvlist_value", b"kvlist_value", "string_value", b"string_value", "value", b"value"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing_extensions.Literal["value", b"value"]) -> typing_extensions.Literal["string_value", "bool_value", "int_value", "double_value", "array_value", "kvlist_value", "bytes_value"] | None: ...
+
+global___Value = Value
+
+@typing_extensions.final
+class ArrayValue(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    VALUES_FIELD_NUMBER: builtins.int
+    @property
+    def values(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___Value]:
+        """Array of values. The array may be empty (contain 0 elements)."""
+    def __init__(
+        self,
+        *,
+        values: collections.abc.Iterable[global___Value] | None = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["values", b"values"]) -> None: ...
+
+global___ArrayValue = ArrayValue
+
+@typing_extensions.final
+class KeyValueList(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    VALUES_FIELD_NUMBER: builtins.int
+    @property
+    def values(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___KeyValue]:
+        """A collection of key/value pairs. The list may be empty (may
+        contain 0 elements).
+        The keys MUST be unique (it is not allowed to have more than one
+        value with the same key).
+        """
+    def __init__(
+        self,
+        *,
+        values: collections.abc.Iterable[global___KeyValue] | None = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["values", b"values"]) -> None: ...
+
+global___KeyValueList = KeyValueList
+
+@typing_extensions.final
+class KeyValue(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    KEY_FIELD_NUMBER: builtins.int
+    VALUE_FIELD_NUMBER: builtins.int
+    key: builtins.str
+    @property
+    def value(self) -> global___Value: ...
+    def __init__(
+        self,
+        *,
+        key: builtins.str = ...,
+        value: global___Value | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["value", b"value"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["key", b"key", "value", b"value"]) -> None: ...
+
+global___KeyValue = KeyValue

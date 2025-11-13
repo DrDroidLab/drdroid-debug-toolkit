@@ -24,23 +24,24 @@ _sym_db = _symbol_database.Default()
 
 from google.protobuf import wrappers_pb2 as google_dot_protobuf_dot_wrappers__pb2
 from core.protos import base_pb2 as core_dot_protos_dot_base__pb2
+from core.protos.connectors import api_pb2 as core_dot_protos_dot_connectors_dot_api__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n$core/protos/assets/slack_asset.proto\x12\x16\x63ore.protos.connectors\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x16\x63ore/protos/base.proto\"\x9c\x02\n\x16SlackChannelAssetModel\x12\x30\n\nchannel_id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x32\n\x0c\x63hannel_name\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12P\n\x08metadata\x18\x03 \x01(\x0b\x32>.core.protos.connectors.SlackChannelAssetModel.ChannelMetadata\x1aJ\n\x0f\x43hannelMetadata\x12\x37\n\x13is_auto_rca_enabled\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.BoolValue\"/\n\x18SlackChannelAssetOptions\x12\x13\n\x0b\x63hannel_ids\x18\x01 \x03(\t\"\xfc\x01\n\x0fSlackAssetModel\x12(\n\x02id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.UInt64Value\x12+\n\x0e\x63onnector_type\x18\x02 \x01(\x0e\x32\x13.core.protos.Source\x12*\n\x04type\x18\x03 \x01(\x0e\x32\x1c.core.protos.SourceModelType\x12\x14\n\x0clast_updated\x18\x04 \x01(\x10\x12G\n\rslack_channel\x18\x05 \x01(\x0b\x32..core.protos.connectors.SlackChannelAssetModelH\x00\x42\x07\n\x05\x61sset\"F\n\x0bSlackAssets\x12\x37\n\x06\x61ssets\x18\x01 \x03(\x0b\x32\'.core.protos.connectors.SlackAssetModelb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n$core/protos/assets/slack_asset.proto\x12\x16\x63ore.protos.connectors\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x16\x63ore/protos/base.proto\x1a core/protos/connectors/api.proto\"\x80\x04\n\x16SlackChannelAssetModel\x12\x30\n\nchannel_id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x32\n\x0c\x63hannel_name\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12P\n\x08metadata\x18\x03 \x01(\x0b\x32>.core.protos.connectors.SlackChannelAssetModel.ChannelMetadata\x12S\n\x17\x61lert_ops_configuration\x18\x04 \x01(\x0b\x32\x32.core.protos.connectors.SlackAlertOpsConfiguration\x1a\xd8\x01\n\x0f\x43hannelMetadata\x12\x32\n\x0cworkspace_id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x34\n\x0eworkspace_name\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x30\n\ninviter_id\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12)\n\x05is_dm\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.BoolValue\"/\n\x18SlackChannelAssetOptions\x12\x13\n\x0b\x63hannel_ids\x18\x01 \x03(\t\"\xfc\x01\n\x0fSlackAssetModel\x12(\n\x02id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.UInt64Value\x12+\n\x0e\x63onnector_type\x18\x02 \x01(\x0e\x32\x13.core.protos.Source\x12*\n\x04type\x18\x03 \x01(\x0e\x32\x1c.core.protos.SourceModelType\x12\x14\n\x0clast_updated\x18\x04 \x01(\x10\x12G\n\rslack_channel\x18\x05 \x01(\x0b\x32..core.protos.connectors.SlackChannelAssetModelH\x00\x42\x07\n\x05\x61sset\"F\n\x0bSlackAssets\x12\x37\n\x06\x61ssets\x18\x01 \x03(\x0b\x32\'.core.protos.connectors.SlackAssetModelb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'core.protos.assets.slack_asset_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_SLACKCHANNELASSETMODEL']._serialized_start=121
-  _globals['_SLACKCHANNELASSETMODEL']._serialized_end=405
-  _globals['_SLACKCHANNELASSETMODEL_CHANNELMETADATA']._serialized_start=331
-  _globals['_SLACKCHANNELASSETMODEL_CHANNELMETADATA']._serialized_end=405
-  _globals['_SLACKCHANNELASSETOPTIONS']._serialized_start=407
-  _globals['_SLACKCHANNELASSETOPTIONS']._serialized_end=454
-  _globals['_SLACKASSETMODEL']._serialized_start=457
-  _globals['_SLACKASSETMODEL']._serialized_end=709
-  _globals['_SLACKASSETS']._serialized_start=711
-  _globals['_SLACKASSETS']._serialized_end=781
+  _globals['_SLACKCHANNELASSETMODEL']._serialized_start=155
+  _globals['_SLACKCHANNELASSETMODEL']._serialized_end=667
+  _globals['_SLACKCHANNELASSETMODEL_CHANNELMETADATA']._serialized_start=451
+  _globals['_SLACKCHANNELASSETMODEL_CHANNELMETADATA']._serialized_end=667
+  _globals['_SLACKCHANNELASSETOPTIONS']._serialized_start=669
+  _globals['_SLACKCHANNELASSETOPTIONS']._serialized_end=716
+  _globals['_SLACKASSETMODEL']._serialized_start=719
+  _globals['_SLACKASSETMODEL']._serialized_end=971
+  _globals['_SLACKASSETS']._serialized_start=973
+  _globals['_SLACKASSETS']._serialized_end=1043
 # @@protoc_insertion_point(module_scope)

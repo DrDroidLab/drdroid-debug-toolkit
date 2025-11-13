@@ -8,9 +8,9 @@ from core.protos.literal_pb2 import LiteralType, Literal
 from core.protos.playbooks.source_task_definitions.jira_task_pb2 import Jira
 
 from google.protobuf.wrappers_pb2 import StringValue
-from core.protos.base_pb2 import Source, SourceModelType
+from core.protos.base_pb2 import Source, SourceModelType, SourceKeyType
 
-from core.utils.credentilal_utils import generate_credentials_dict
+from core.utils.credentilal_utils import generate_credentials_dict, get_connector_key_type_string, DISPLAY_NAME, CATEGORY, TICKETING
 from core.protos.playbooks.playbook_commons_pb2 import PlaybookTaskResult, PlaybookTaskResultType, ApiResponseResult, \
     TextResult
 from core.protos.base_pb2 import TimeRange
@@ -36,38 +36,40 @@ class JiraSourceManager(SourceManager):
                     FormField(
                         key_name=StringValue(value="project_key"),
                         display_name=StringValue(value="Project Key"),
-                        description=StringValue(value='Enter JIRA Project Key (e.g., PROJ)'),
+                        description=StringValue(value='e.g. PROJECT X'),
+                        helper_text=StringValue(value='Enter JIRA Project Key'),
                         data_type=LiteralType.STRING,
                         form_field_type=FormFieldType.DROPDOWN_FT
                     ),
                     FormField(
                         key_name=StringValue(value="summary"),
                         display_name=StringValue(value="Summary"),
-                        description=StringValue(value='Enter ticket summary/title'),
+                        description=StringValue(value='e.g. "High CPU Usage Alert", "Deploy Failed: Production Server"'),
+                        helper_text=StringValue(value='Enter ticket summary/title'),
                         data_type=LiteralType.STRING,
                         form_field_type=FormFieldType.TEXT_FT
                     ),
                     FormField(
                         key_name=StringValue(value="description"),
                         display_name=StringValue(value="Description"),
-                        description=StringValue(value='Enter ticket description'),
+                        description=StringValue(value='e.g. "Server CPU usage exceeded 90% for 5 minutes", "Detailed error logs and steps to reproduce"'),
+                        helper_text=StringValue(value='Enter ticket description'),
                         data_type=LiteralType.STRING,
                         form_field_type=FormFieldType.MULTILINE_FT
                     ),
                     FormField(
                         key_name=StringValue(value="issue_type"),
                         display_name=StringValue(value="Issue Type"),
-                        description=StringValue(value='Select issue type'),
+                        description=StringValue(value='e.g. Task, Bug, Story, Epic'),
+                        helper_text=StringValue(value='Enter issue type'),
                         data_type=LiteralType.STRING,
-                        valid_values=[
-                            Literal(type=LiteralType.STRING, string=StringValue(value="Task"))
-                        ],
-                        form_field_type=FormFieldType.DROPDOWN_FT
+                        form_field_type=FormFieldType.TEXT_FT
                     ),
                     FormField(
                         key_name=StringValue(value="priority"),
                         display_name=StringValue(value="Priority"),
-                        description=StringValue(value='Select priority'),
+                        description=StringValue(value='e.g. Highest, High, Medium, Low, Lowest'),
+                        helper_text=StringValue(value='Select priority'),
                         data_type=LiteralType.STRING,
                         valid_values=[
                             Literal(type=LiteralType.STRING, string=StringValue(value="Lowest")),
@@ -82,9 +84,28 @@ class JiraSourceManager(SourceManager):
                     FormField(
                         key_name=StringValue(value="labels"),
                         display_name=StringValue(value="Labels"),
-                        description=StringValue(value='Enter comma-separated labels (no spaces)'),
+                        description=StringValue(value='e.g. urgent,production,backend'),
+                        helper_text=StringValue(value='Enter comma-separated labels (no spaces)'),
                         data_type=LiteralType.STRING,
                         form_field_type=FormFieldType.TEXT_FT,
+                    ),
+                    FormField(
+                        key_name=StringValue(value="assignee"),
+                        display_name=StringValue(value="Assignee"),
+                        description=StringValue(value='e.g. john.doe, sarah.smith'),
+                        helper_text=StringValue(value='Select user to assign ticket to'),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=True,
+                    ),
+                    FormField(
+                        key_name=StringValue(value="image_urls"),
+                        display_name=StringValue(value="Image URLs"),
+                        description=StringValue(value='e.g. ["https://example.com/error.png", "https://example.com/logs.png"]'),
+                        helper_text=StringValue(value="Add URLs for images to include in the ticket"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.STRING_ARRAY_FT,
+                        is_optional=True,
                     )
                 ]
             },
@@ -98,14 +119,16 @@ class JiraSourceManager(SourceManager):
                     FormField(
                         key_name=StringValue(value="ticket_key"),
                         display_name=StringValue(value="Ticket Key"),
-                        description=StringValue(value='Enter JIRA ticket key (e.g., PROJ-123)'),
+                        description=StringValue(value='e.g. PROJ-123, DEV-456'),
+                        helper_text=StringValue(value='Enter JIRA ticket key'),
                         data_type=LiteralType.STRING,
                         form_field_type=FormFieldType.TEXT_FT
                     ),
                     FormField(
                         key_name=StringValue(value="assignee"),
                         display_name=StringValue(value="Assignee"),
-                        description=StringValue(value='Enter assignee username'),
+                        description=StringValue(value='e.g. john.doe, sarah.smith'),
+                        helper_text=StringValue(value='Enter assignee username'),
                         data_type=LiteralType.STRING,
                         form_field_type=FormFieldType.DROPDOWN_FT
                     )
@@ -121,7 +144,8 @@ class JiraSourceManager(SourceManager):
                     FormField(
                         key_name=StringValue(value="query"),
                         display_name=StringValue(value="Query"),
-                        description=StringValue(value='Enter query to find users (e.g., John)'),
+                        description=StringValue(value='e.g. "John", "Sarah", "dev team"'),
+                        helper_text=StringValue(value='Enter query to find users'),
                         data_type=LiteralType.STRING,
                         form_field_type=FormFieldType.TYPING_DROPDOWN_FT
                     ),
@@ -137,7 +161,8 @@ class JiraSourceManager(SourceManager):
                     FormField(
                         key_name=StringValue(value="ticket_key"),
                         display_name=StringValue(value="Ticket Key"),
-                        description=StringValue(value='Enter JIRA ticket key (e.g., PROJ-123)'),
+                        description=StringValue(value='e.g. PROJ-123, DEV-456'),
+                        helper_text=StringValue(value='Enter JIRA ticket key'),
                         data_type=LiteralType.STRING,
                         form_field_type=FormFieldType.TEXT_FT
                     )
@@ -153,7 +178,8 @@ class JiraSourceManager(SourceManager):
                     FormField(
                         key_name=StringValue(value="query"),
                         display_name=StringValue(value="Query (jql)"),
-                        description=StringValue(value='Enter query (jql) to search tickets'),
+                        description=StringValue(value='e.g. "project = PROJ AND status = Open", "assignee = currentUser() AND priority = High"'),
+                        helper_text=StringValue(value='Enter query (jql) to search tickets'),
                         data_type=LiteralType.STRING,
                         form_field_type=FormFieldType.TEXT_FT
                     )
@@ -169,21 +195,24 @@ class JiraSourceManager(SourceManager):
                     FormField(
                         key_name=StringValue(value="ticket_key"),
                         display_name=StringValue(value="Ticket Key"),
-                        description=StringValue(value='Enter JIRA ticket key (e.g., PROJ-123)'),
+                        description=StringValue(value='e.g. PROJ-123, DEV-456'),
+                        helper_text=StringValue(value='Enter JIRA ticket key'),
                         data_type=LiteralType.STRING,
                         form_field_type=FormFieldType.TEXT_FT
                     ),
                     FormField(
                         key_name=StringValue(value="comment_text"),
                         display_name=StringValue(value="Comment"),
-                        description=StringValue(value='Enter comment text'),
+                        description=StringValue(value='e.g. "Issue resolved - CPU usage back to normal", "Additional logs attached"'),
+                        helper_text=StringValue(value='Enter comment text'),
                         data_type=LiteralType.STRING,
                         form_field_type=FormFieldType.MULTILINE_FT
                     ),
                     FormField(
                         key_name=StringValue(value="image_urls"),
                         display_name=StringValue(value="Image URLs"),
-                        description=StringValue(value='Enter URLs for images to include in the comment'),
+                        description=StringValue(value='e.g. ["https://example.com/error.png", "https://example.com/logs.png"]'),
+                        helper_text=StringValue(value="Add URLs for images to include in the comment"),
                         data_type=LiteralType.STRING,
                         form_field_type=FormFieldType.STRING_ARRAY_FT,
                         is_optional=True,
@@ -191,18 +220,62 @@ class JiraSourceManager(SourceManager):
                 ]
             }
         }
+        self.connector_form_configs = [
+            {
+                "name": StringValue(value="Jira Cloud Connection"),
+                "description": StringValue(value="Connect to Jira Cloud using your API Key, Email, and Domain."),
+                "form_fields": {
+                    SourceKeyType.JIRA_CLOUD_API_KEY: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.JIRA_CLOUD_API_KEY)),
+                        display_name=StringValue(value="API Key"),
+                        description=StringValue(value="Enter your Jira Cloud API Key."),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False,
+                        is_sensitive=True
+                    ),
+                    SourceKeyType.JIRA_EMAIL: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.JIRA_EMAIL)),
+                        display_name=StringValue(value="Email"),
+                        description=StringValue(value="Enter the email address associated with your Jira account."),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False
+                    ),
+                    SourceKeyType.JIRA_DOMAIN: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.JIRA_DOMAIN)),
+                        display_name=StringValue(value="Domain"),
+                        description=StringValue(value="Enter your Jira domain (e.g., yourcompany.atlassian.net)."),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False
+                    )
+                }
+            }
+        ]
+        self.connector_type_details = {
+            DISPLAY_NAME: "JIRA",
+            CATEGORY: TICKETING,
+        }
 
     def get_connector_processor(self, jira_connector, **kwargs):
 
         try:
             if not jira_connector or not jira_connector.keys:
-                raise Exception("Invalid JIRA connector: Missing required credentials")
+                raise Exception("JiraSourceManager.get_connector_processor:: Invalid JIRA connector: "
+                                "Missing required credentials")
+
             credentials = generate_credentials_dict(jira_connector.type, jira_connector.keys)
+
             required_keys = ['jira_cloud_api_key', 'jira_domain', 'jira_email']
             missing_keys = [key for key in required_keys if key not in credentials]
+
             if missing_keys:
-                raise Exception(f"Missing required JIRA credentials: {', '.join(missing_keys)}")
+                raise Exception(f"JiraSourceManager.get_connector_processor:: Missing required JIRA "
+                                f"credentials: {', '.join(missing_keys)}")
+
             return JiraApiProcessor(**credentials)
+
         except Exception as e:
             logger.error(f"Error creating JIRA processor: {str(e)}")
             raise
@@ -348,81 +421,88 @@ class JiraSourceManager(SourceManager):
                       jira_connector: ConnectorProto):
         try:
             if not jira_connector:
-                logger.error("Task execution Failed: No JIRA source found")
+                logger.error("JiraSourceManager.create_ticket:: Task execution Failed: No JIRA source found.")
                 raise ValueError("No JIRA source found")
-
             task = jira_task.create_ticket
-
-            # Extract and validate fields
             project_key = task.project_key.value
             summary = task.summary.value
             description = task.description.value
             issue_type = task.issue_type.value
             priority = task.priority.value
             labels = task.labels.value.split(',') if task.HasField('labels') else None
+            assignee = task.assignee.value if task.HasField('assignee') else None
+            image_urls = [url.value for url in task.image_urls] if hasattr(task, 'image_urls') else []
 
-            # Validate required fields
             if not project_key or not summary or not issue_type:
                 missing_fields = []
                 if not project_key: missing_fields.append("project_key")
                 if not summary: missing_fields.append("summary")
                 if not issue_type: missing_fields.append("issue_type")
                 error_msg = f"Missing required fields: {', '.join(missing_fields)}"
-                logger.error(error_msg)
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=error_msg)),
-                    source=self.source
-                )
+                logger.error(f'JiraSourceManager.create_ticket:: {error_msg} for account id: '
+                             f'{jira_connector.account_id.value}')
+                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
+                                          text=TextResult(output=StringValue(value=error_msg)), source=self.source)
 
-            # Get JIRA processor
             jira_processor = self.get_connector_processor(jira_connector)
+            available_issue_types = jira_processor.get_issue_types_for_project(project_key)
 
-            # Log attempt to create ticket
-            logger.info(f"Attempting to create JIRA ticket in project {project_key}")
+            # Find a match for the user-provided issue type
+            if available_issue_types:
+                # Extract just the names
+                type_names = [t['name'] for t in available_issue_types]
 
-            # Create the ticket
-            result = jira_processor.create_ticket(
-                project_key=project_key,
-                summary=summary,
-                description=description,
-                issue_type=issue_type,
-                priority=priority,
-                labels=labels
-            )
+                # Check for exact match first
+                if issue_type in type_names:
+                    # Use it as-is
+                    pass
+                else:
+                    # Find the closest match
+                    closest_match = None
+                    for t in type_names:
+                        if t.lower() == issue_type.lower():
+                            # Case-insensitive match
+                            closest_match = t
+                            break
+                        elif issue_type.lower() in t.lower() or t.lower() in issue_type.lower():
+                            # Partial match
+                            closest_match = t
+
+                    if closest_match:
+                        logger.info(f"JiraSourceManager.create_ticket:: Using issue type '{closest_match}' "
+                                    f"instead of '{issue_type}' for account id: {jira_connector.account_id.value}")
+                        issue_type = closest_match
+                    else:
+                        default_type = "Task" if "Task" in type_names else type_names[0]
+                        logger.info(f"JiraSourceManager.create_ticket:: Issue type '{issue_type}' not found. Using "
+                                    f"'{default_type}' for account id: {jira_connector.account_id.value}")
+                        issue_type = default_type
+            assignment_info = f" and assign to {assignee}" if assignee else ""
+            logger.info(f"JiraSourceManager.create_ticket:: Attempting to create JIRA ticket in account id: "
+                        f"{jira_connector.account_id.value} and project {project_key}{assignment_info}")
+
+            result = jira_processor.create_ticket(project_key=project_key, summary=summary, description=description,
+                                                  issue_type=issue_type, priority=priority, labels=labels,
+                                                  assignee=assignee, image_urls=image_urls)
 
             if not result:
                 error_msg = "JIRA API returned no result when creating ticket"
-                logger.error(error_msg)
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=error_msg)),
-                    source=self.source
-                )
-
-            # Convert result to Struct for API response
+                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
+                                          text=TextResult(output=StringValue(value=error_msg)), source=self.source)
             ticket_url = f"https://{jira_processor.domain}.atlassian.net/browse/{result['key']}"
-            response_dict = {
-                'ticket_key': result['key'],
-                'ticket_id': result['id'],
-                'ticket_url': ticket_url,
-                'status': 'Created'
-            }
-
-            logger.info(f"Successfully created JIRA ticket {result['key']}")
-
+            response_dict = {'ticket_key': result['key'], 'ticket_id': result['id'], 'ticket_url': ticket_url,
+                             'status': 'Created'}
+            if assignee:
+                response_dict['assignee'] = assignee
+            logger.info(f"JiraSourceManager.create_ticket:: Successfully created JIRA ticket "
+                        f"{result['key']}{assignment_info} for account id: {jira_connector.account_id.value}")
             response_struct = dict_to_proto(response_dict, Struct)
             jira_output = ApiResponseResult(response_body=response_struct)
-
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.API_RESPONSE,
-                source=self.source,
-                api_response=jira_output
-            )
-
+            return PlaybookTaskResult(type=PlaybookTaskResultType.API_RESPONSE, source=self.source,
+                                      api_response=jira_output)
         except Exception as e:
             error_msg = f"Exception occurred while creating JIRA ticket: {str(e)}"
-            logger.error(error_msg, exc_info=True)  # Include full stack trace
+            logger.error(f'JiraSourceManager.create_ticket:: {error_msg}', exc_info=True)
             return PlaybookTaskResult(
                 type=PlaybookTaskResultType.TEXT,
                 text=TextResult(output=StringValue(value=error_msg)),
@@ -435,40 +515,66 @@ class JiraSourceManager(SourceManager):
             if not jira_connector:
                 logger.error("Task execution Failed: No JIRA source found")
                 raise ValueError("No JIRA source found")
+
             task = jira_task.get_ticket
+
             # Extract and validate fields
             ticket_key = task.ticket_key.value
+
             # Validate required fields
             if not ticket_key:
                 missing_fields = []
                 if not ticket_key: missing_fields.append("ticket_key")
                 error_msg = f"Missing required fields: {', '.join(missing_fields)}"
                 logger.error(error_msg)
-                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
-                                          text=TextResult(output=StringValue(value=error_msg)), source=self.source)
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value=error_msg)),
+                    source=self.source
+                )
+
             # Get JIRA processor
             jira_processor = self.get_connector_processor(jira_connector)
+
             # Log attempt to get ticket
             logger.info(f"Attempting to get JIRA ticket {ticket_key}")
+
             # Get the ticket
             result = jira_processor.get_ticket(ticket_key)
+
             if not result:
                 error_msg = "JIRA API returned no result when fetching ticket"
                 logger.error(error_msg)
-                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
-                                          text=TextResult(output=StringValue(value=error_msg)), source=self.source)
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value=error_msg)),
+                    source=self.source
+                )
+
             # Convert result to Struct for API response
-            response_dict = {'ticket': result}
+            response_dict = {
+                'ticket': result
+            }
+
             logger.info(f"Successfully fetched JIRA ticket {ticket_key}")
+
             response_struct = dict_to_proto(response_dict, Struct)
             jira_output = ApiResponseResult(response_body=response_struct)
-            return PlaybookTaskResult(type=PlaybookTaskResultType.API_RESPONSE, source=self.source,
-                                      api_response=jira_output)
+
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                source=self.source,
+                api_response=jira_output
+            )
         except Exception as e:
             error_msg = f"Exception occurred while fetching JIRA ticket: {str(e)}"
             logger.error(error_msg, exc_info=True)
-            return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
-                                      text=TextResult(output=StringValue(value=error_msg)), source=self.source)
+
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.TEXT,
+                text=TextResult(output=StringValue(value=error_msg)),
+                source=self.source
+            )
 
     def search_tickets(self, time_range: TimeRange, jira_task: Jira,
                        jira_connector: ConnectorProto):
@@ -476,23 +582,33 @@ class JiraSourceManager(SourceManager):
             if not jira_connector:
                 logger.error("Task execution Failed: No JIRA source found")
                 raise ValueError("No JIRA source found")
+
             task = jira_task.search_tickets
+
             # Extract and validate fields
             query = task.query.value
+
             # Validate required fields
             if not query:
                 missing_fields = []
                 if not query: missing_fields.append("query")
                 error_msg = f"Missing required fields: {', '.join(missing_fields)}"
                 logger.error(error_msg)
-                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
-                                          text=TextResult(output=StringValue(value=error_msg)), source=self.source)
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value=error_msg)),
+                    source=self.source
+                )
+
             # Get JIRA processor
             jira_processor = self.get_connector_processor(jira_connector)
+
             # Log attempt to search tickets
             logger.info(f"Attempting to search JIRA tickets with query: {query}")
+
             # Search for tickets
             result = jira_processor.search_tickets(query)
+
             if not result:
                 error_msg = "JIRA API returned no result when searching tickets"
                 logger.error(error_msg)
@@ -501,16 +617,31 @@ class JiraSourceManager(SourceManager):
                     text=TextResult(output=StringValue(value=error_msg)),
                     source=self.source
                 )
-            response_dict = {'tickets': result}
+
+            # Convert result to Struct for API response
+            response_dict = {
+                'tickets': result
+            }
+
+            logger.info(f"Successfully searched JIRA tickets")
+
             response_struct = dict_to_proto(response_dict, Struct)
             jira_output = ApiResponseResult(response_body=response_struct)
-            return PlaybookTaskResult(type=PlaybookTaskResultType.API_RESPONSE, source=self.source,
-                                      api_response=jira_output)
+
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                source=self.source,
+                api_response=jira_output
+            )
         except Exception as e:
             error_msg = f"Exception occurred while searching JIRA tickets: {str(e)}"
             logger.error(error_msg, exc_info=True)
-            return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
-                                      text=TextResult(output=StringValue(value=error_msg)), source=self.source)
+
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.TEXT,
+                text=TextResult(output=StringValue(value=error_msg)),
+                source=self.source
+            )
 
     def add_comment(self, time_range: TimeRange, jira_task: Jira,
                     jira_connector: ConnectorProto):

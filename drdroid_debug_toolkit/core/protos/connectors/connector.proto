@@ -1,185 +1,162 @@
 syntax = "proto3";
 import "google/protobuf/wrappers.proto";
 import "core/protos/base.proto";
+import "core/protos/ui_definition.proto";
+import "google/protobuf/struct.proto";
+import "core/protos/alert_metadata_details.proto";
 
 package core.protos.connectors;
 
-message Connector {
-  google.protobuf.UInt64Value account_id = 1;
-  Source type = 2;
+message ConnectorContextMemory {
+  google.protobuf.UInt64Value id = 1;
+  google.protobuf.StringValue comment = 2;
+  google.protobuf.StringValue created_by = 3;
+  sfixed64 created_at = 4;
+}
+
+message ConnectorFormConfig {
+  google.protobuf.StringValue description = 1;
+  repeated FormField form_fields = 2;
   google.protobuf.StringValue name = 3;
-  repeated ConnectorKey keys = 4;
-  google.protobuf.UInt64Value id = 5;
-
+  google.protobuf.StringValue prerequisites = 4;
 }
 
-enum ConnectorMetadataModelType {
-  UNKNOWN_MT = 0;
-  //New Relic Models
-  NEW_RELIC_POLICY = 1;
-  NEW_RELIC_CONDITION = 2;
-  NEW_RELIC_ENTITY = 3;
-  NEW_RELIC_ENTITY_DASHBOARD = 4;
-  NEW_RELIC_ENTITY_APPLICATION = 5;
-  NEW_RELIC_NRQL = 6;
-  NEW_RELIC_ENTITY_DASHBOARD_V2 = 7;
-
-  //Datadog Models
-  DATADOG_MONITOR = 101;
-  DATADOG_DASHBOARD = 102;
-  DATADOG_LIVE_INTEGRATION_AWS = 103;
-  DATADOG_LIVE_INTEGRATION_AWS_LOG = 104;
-  DATADOG_LIVE_INTEGRATION_AZURE = 105;
-  DATADOG_LIVE_INTEGRATION_CLOUDFLARE = 106;
-  DATADOG_LIVE_INTEGRATION_FASTLY = 107;
-  DATADOG_LIVE_INTEGRATION_GCP = 108;
-  DATADOG_LIVE_INTEGRATION_CONFLUENT = 109;
-  DATADOG_SERVICE = 110;
-  DATADOG_METRIC = 111;
-  DATADOG_QUERY = 112;
-  DATADOG_APM = 113;
-
-  //Cloudwatch Models
-  CLOUDWATCH_METRIC = 201;
-  CLOUDWATCH_LOG_GROUP = 202;
-  CLOUDWATCH_LOG_GROUP_QUERY = 203;
-  CLOUDWATCH_ALARMS = 204;
-  RDS_INSTANCES = 205;
-  CLOUDWATCH_DASHBOARD = 206;
-
-  //Grafana Models
-  GRAFANA_DATASOURCE = 301;
-  GRAFANA_DASHBOARD = 302;
-  GRAFANA_TARGET_METRIC_PROMQL = 303;
-  GRAFANA_PROMETHEUS_DATASOURCE = 304;
-  GRAFANA_ALERT_RULE = 305;
-  GRAFANA_LOKI_DATASOURCE = 306;
-
-  //Clickhouse Models
-  CLICKHOUSE_DATABASE = 401;
-  CLICKHOUSE_TABLE = 402;
-
-  //Slack Models
-  SLACK_CHANNEL = 501;
-
-  //Documentation Models
-  MARKDOWN = 601;
-  IFRAME = 602;
-
-  //Postgres Models
-  POSTGRES_QUERY = 701;
-  POSTGRES_TABLE = 702;
-
-  //EKS Models
-  EKS_CLUSTER = 801;
-
-  //Sql Database Connection Models
-  SQL_DATABASE_CONNECTION_RAW_QUERY = 901;
-  SQL_DATABASE_TABLE = 902;
-
-  //Azure Models
-  AZURE_WORKSPACE = 1001;
-  AZURE_RESOURCE = 1002;
-
-  //Remote Server Models
-  SSH_SERVER = 1100;
-  SSH_USER = 1101;
-
-  //Mimir Server Models
-  GRAFANA_MIMIR_PROMQL = 1201;
-
-  //GKE Models
-  GKE_CLUSTER = 1301;
-
-  //MS TEAMS Models
-  MS_TEAMS_CHANNEL = 1401;
-
-  //Pagerduty Models
-  PAGERDUTY_INCIDENT = 1501;
-
-  //Elastic Search Models
-  ELASTIC_SEARCH_INDEX = 1601;
-  ELASTIC_SEARCH_SERVICES = 1602;
-  ELASTIC_SEARCH_DASHBOARDS = 1603;
-  ELASTIC_SEARCH_INDEX_PATTERNS = 1604;
-
-  //GCM Models
-  GCM_METRIC = 1701;
-  GCM_DASHBOARD = 1702;
-  GCM_CLOUD_RUN_SERVICE_DASHBOARD = 1703;
-
-  //Zen Duty Models
-  ZENDUTY_INCIDENT = 1801;
-
-  //ROOTLY Models
-  ROOTLY_INCIDENT = 1901;
-
-  //OPS GENIE Models
-  OPS_GENIE_ESCALATION = 2001;
-  OPS_GENIE_TEAM = 2002;
-
-  //Google Chat Models
-  GOOGLE_CHAT_SPACE = 2101;
-
-  // MongoDB Models
-  MONGODB_DATABASE = 2201;
-  MONGODB_COLLECTION = 2202;
-
-  //Open Search Models
-  OPEN_SEARCH_INDEX = 2301;
-
-  // Asana Models
-  ASANA_PROJECT = 2401;
-
-  // Custom Strategies
-  MODELS_ACTIVE = 2501;
-
-  //Github Models
-  GITHUB_REPOSITORY = 2601;
-  GITHUB_MEMBER = 2602;
-
-  // Jira Models
-  JIRA_PROJECT = 2701;
-  JIRA_USER = 2702;
-
-  // ArgoCd Models
-  ARGOCD_APPS = 2801;
-
-  // jenkins Models
-  JENKINS_JOBS = 2901;
-
-  // PostHog Models
-  POSTHOG_PERSON = 3001;
-  POSTHOG_GROUP = 3002;
-  POSTHOG_COHORT = 3003;
-  POSTHOG_PROPERTY = 3004;
-
-  // ECS Models
-  ECS_CLUSTER = 4001;
-  ECS_TASK = 4002;
-  ECS_SERVICE = 4003;
-  
-  // SignOz Models
-  SIGNOZ_DASHBOARD = 5001;
-  SIGNOZ_ALERT = 5002;
-  SIGNOZ_METRIC = 5003;
-
-  // Kubernetes Models
-  KUBERNETES_NAMESPACE = 6001;
-  KUBERNETES_SERVICE = 6002;
-  KUBERNETES_DEPLOYMENT = 6003;
-  KUBERNETES_INGRESS = 6004;
-  KUBERNETES_NETWORK_POLICY = 6005;
-  KUBERNETES_HPA = 6006;
-  KUBERNETES_REPLICASET = 6007;
-  KUBERNETES_STATEFULSET = 6008;
-
-  SENTRY_PROJECT = 7001;
-
+message PlaybookConnector {
+  google.protobuf.UInt64Value playbook_id = 1;
+  google.protobuf.StringValue playbook_name = 2;
 }
+
+message PeriodicRunStatus {
+  enum StatusType {
+    UNKNOWN = 0;
+    STARTED = 1;
+    FINISHED = 2;
+    ERROR = 3;
+  }
+}
+
+
+message ProxyAgentConnectorMetadata {
+  google.protobuf.UInt64Value proxy_agent_connector_id = 1;
+  google.protobuf.BoolValue is_alive = 2;
+  google.protobuf.BoolValue is_backup = 3;
+  google.protobuf.UInt64Value primary_proxy_agent_connector_id = 4;
+}
+
+message SlackConnectorMetadata {
+  google.protobuf.StringValue workspace_id = 1;
+  google.protobuf.StringValue workspace_name = 2;
+  google.protobuf.StringValue authed_user_id = 3;
+  google.protobuf.StringValue bot_auth_token = 4;
+  google.protobuf.StringValue bot_user_id = 5;
+  google.protobuf.BoolValue is_debugger_mode_only = 6;
+}
+
+message AsanaConnectorMetadata {
+  google.protobuf.StringValue access_token = 1;
+}
+
+message ProxyAgentMetadata {
+  google.protobuf.BoolValue is_alive = 1;
+  sfixed64 last_ping_at = 2;
+  google.protobuf.BoolValue is_backup = 3;
+  google.protobuf.UInt64Value primary_proxy_agent_id = 4;
+}
+
+message Connector {
+  google.protobuf.UInt64Value id = 1;
+  google.protobuf.UInt64Value account_id = 2;
+  Source type = 3;
+  google.protobuf.BoolValue is_active = 4;
+  google.protobuf.StringValue name = 5;
+  google.protobuf.StringValue created_by = 6;
+  sfixed64 created_at = 7;
+  sfixed64 updated_at = 8;
+  google.protobuf.StringValue display_name = 9;
+  google.protobuf.StringValue category = 10;
+  repeated ConnectorKey keys = 11;
+  google.protobuf.BoolValue is_proxy_enabled = 12;
+  repeated ConnectorContextMemory context_memory = 13;
+  google.protobuf.BoolValue is_agent_task_enabled = 14;
+  repeated string tags = 15;
+  google.protobuf.BoolValue user_enabled = 16;
+  repeated ConnectorFormConfig form_configs = 17;
+  repeated PlaybookConnector connected_playbooks = 18;
+  google.protobuf.StringValue notes = 19;
+  google.protobuf.Struct additional_state = 20;
+
+  oneof metadata {
+    ProxyAgentConnectorMetadata proxy_agent_connector_metadata = 101;
+    SlackConnectorMetadata slack_connector_metadata = 102;
+    AsanaConnectorMetadata asana_connector_metadata = 103;
+    ProxyAgentMetadata proxy_agent_metadata = 104;
+  }
+}
+
+message UpdateConnectorOp {
+  enum Op {
+    UNKNOWN = 0;
+    UPDATE_CONNECTOR_NAME = 1;
+    UPDATE_CONNECTOR_STATUS = 2;
+    UPDATE_CONNECTOR_KEYS = 3;
+    UPDATE_CONNECTOR_TAGS = 4;
+    UPDATE_BASIC_DETAILS = 5;
+    UPDATE_DEFAULT_DESTINATION = 6;
+  }
+
+  message UpdateConnectorName {
+    google.protobuf.StringValue name = 1;
+  }
+
+  message UpdateConnectorStatus {
+    google.protobuf.BoolValue is_active = 1;
+  }
+
+  message UpdateConnectorKeys {
+    repeated ConnectorKey connector_keys = 1;
+  }
+
+  message UpdateConnectorTags {
+    repeated string tags = 1;
+  }
+
+  message UpdateBasicDetails {
+    google.protobuf.StringValue display_name = 1;
+    repeated string tags = 2;
+    google.protobuf.StringValue notes = 3;
+    google.protobuf.Struct additional_state = 4;
+  }
+
+  message UpdateDefaultDestination {
+    google.protobuf.StringValue default_destination = 1;
+  }
+
+  Op op = 1;
+  oneof update {
+    UpdateConnectorName update_connector_name = 2;
+    UpdateConnectorStatus update_connector_status = 3;
+    UpdateConnectorKeys update_connector_keys = 4;
+    UpdateConnectorTags update_connector_tags = 5;
+    UpdateBasicDetails update_basic_details = 6;
+    UpdateDefaultDestination update_default_destination = 7;
+  }
+}
+
+enum ReportType {
+  UNKNOWN_RT = 0;
+  INITIAL = 1;
+  FINAL = 2;
+}
+
 
 message ConnectorKey {
-  SourceKeyType key_type = 1;
-  google.protobuf.StringValue key = 2;
-  google.protobuf.StringValue connector_name = 3;
+  google.protobuf.UInt64Value id = 1;
+  SourceKeyType key_type = 2;
+  google.protobuf.StringValue key = 3;
+  google.protobuf.BoolValue is_active = 4;
+  google.protobuf.UInt64Value connector_id = 5;
+  sfixed64 created_at = 6;
+  sfixed64 updated_at = 7;
+  google.protobuf.StringValue display_name = 8;
+  google.protobuf.StringValue connector_name = 9;
 }

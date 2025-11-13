@@ -8,16 +8,66 @@ from core.utils.static_mappings import integrations_connector_type_connector_key
 from core.integrations.processor import Processor
 from core.integrations.source_api_processors.no_op_processor import NoOpProcessor
 from core.protos.base_pb2 import TimeRange, Source
-from core.protos.connectors.connector_pb2 import Connector as ConnectorProto
+from core.protos.connectors.connector_pb2 import Connector as ConnectorProto, ConnectorKey
 from core.protos.playbooks.playbook_commons_pb2 import PlaybookTaskResult, PlaybookTaskResultType, \
     PlaybookExecutionStatusType
 from core.protos.playbooks.playbook_pb2 import PlaybookTask
 from core.utils.proto_utils import proto_to_dict, dict_to_proto
 from core.integrations.utils.executor_utils import check_multiple_task_results
+from typing import Dict
+from core.protos.ui_definition_pb2 import FormField
+
 logger = logging.getLogger(__name__)
 
 
-class SourceManager:
+# Ensure this module is the single instance under both possible import paths
+try:
+    import sys as _sys
+    _aliases = [
+        "core.integrations.source_manager",
+        "drdroid_debug_toolkit.core.integrations.source_manager",
+    ]
+    for _alias in _aliases:
+        if _alias not in _sys.modules:
+            _sys.modules[_alias] = _sys.modules[__name__]
+except Exception:
+    pass
+
+
+# Dependency Injection registry for SourceManager base
+_active_source_manager_base_class = None
+
+
+def set_source_manager_base_class(cls):
+    """
+    Allows overriding the base class used for SourceManager.
+    Must be called before importing modules that subclass SourceManager.
+    """
+    global _active_source_manager_base_class
+    _active_source_manager_base_class = cls
+    # If the dynamic class is already defined, update its base class to the new one
+    try:
+        if 'SourceManager' in globals():
+            SourceManager.__bases__ = (cls,)
+    except Exception:
+        print(f"Error updating SourceManager base class to: {cls}")
+        # Best-effort: ignore if MRO update is not safe
+        pass
+
+
+def get_source_manager_base_class():
+    """
+    Returns the active base class for SourceManager. Falls back to the default
+    implementation defined in this module when no override is provided.
+    """
+    if _active_source_manager_base_class is None:
+        print("No active SourceManager base class found, returning default")
+        return _DefaultSourceManager
+    print(f"Returning active SourceManager base class: {_active_source_manager_base_class}")
+    return _active_source_manager_base_class
+
+
+class _DefaultSourceManager:
     source: Source = Source.UNKNOWN
     task_proto = None
     task_type_callable_map = {}
@@ -164,3 +214,73 @@ class SourceManager:
         # Apply result transformer
         playbook_task_result = self.apply_task_result_transformer(resolved_task, playbook_task_result)
         return playbook_task_result
+
+    def get_required_connector_key_types(self, **kwargs):
+        """
+        Gets all possible required keys for a connector.
+        """
+        key_types = []
+        for form_config in self.connector_form_configs:
+            key_types.append(form_config.get('form_fields', {}).keys())
+
+        return key_types
+
+    def check_required_connector_keys(self, connector: ConnectorProto, **kwargs):
+        """
+        Checks if all required keys are present in the connector.
+        """
+        all_ck_types = [ck.key_type for ck in connector.keys if ck.key.value]
+        required_key_types = self.get_required_connector_key_types(**kwargs)
+        for rkt in required_key_types:
+            if set(rkt) <= set(all_ck_types):
+                return True
+        return False
+
+    def get_connector_keys_display_name_map(self):
+        """
+        Returns a map of connector key types to their display names.
+        """
+        display_name_map = {}
+        for form_config in self.connector_form_configs:
+            form_fields: Dict[ConnectorKey.KeyType, FormField] = form_config.get('form_fields', {})
+            for key_type, field in form_fields.items():
+                display_name_map[key_type] = field.display_name.value
+        return display_name_map
+
+    def get_connector_type_details(self):
+        """
+        Returns a map of connector types to their details.
+        """
+        return self.connector_type_details
+
+    def get_connector_required_keys(self):
+        """
+        Returns a list of lists, where each inner list contains the required keys
+        for a connector form config. Only includes fields where is_optional=False or is_optional key doesn't exist.
+        """
+        required_keys_lists = []
+        for form_config in self.connector_form_configs:
+            form_fields = form_config.get('form_fields', {})
+            required_keys = []
+            for key_type, field in form_fields.items():
+                # Only include fields that are required (is_optional=False or is_optional key doesn't exist)
+                if not getattr(field, 'is_optional', False):
+                    required_keys.append(key_type)
+            required_keys_lists.append(required_keys)
+        return required_keys_lists
+
+    def get_connector_masked_keys(self):
+        """
+        Returns a list of masked keys for a connector.
+        """
+        masked_keys = []
+        for form_config in self.connector_form_configs:
+            for key_type, field in form_config.get('form_fields', {}).items():
+                if field.is_sensitive:
+                    masked_keys.append(key_type)
+        return masked_keys
+
+
+# Exposed dynamic base for external subclasses
+class SourceManager(get_source_manager_base_class()):
+    pass

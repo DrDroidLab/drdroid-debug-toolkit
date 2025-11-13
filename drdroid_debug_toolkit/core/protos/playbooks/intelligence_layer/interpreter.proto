@@ -20,6 +20,7 @@ message Interpretation {
     TEXT = 2;
     CSV_FILE = 3;
     JSON = 4;
+    APPROVAL_REQUIRED = 5;
   }
 
   enum ModelType {

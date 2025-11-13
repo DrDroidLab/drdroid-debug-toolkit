@@ -5,6 +5,7 @@ isort:skip_file
 import builtins
 import collections.abc
 import core.protos.base_pb2
+import core.protos.connectors.api_pb2
 import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.message
@@ -17,23 +18,6 @@ else:
     import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
-
-@typing_extensions.final
-class AsanaAlertOpsConfiguration(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    IS_ENABLED_FIELD_NUMBER: builtins.int
-    @property
-    def is_enabled(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
-    def __init__(
-        self,
-        *,
-        is_enabled: google.protobuf.wrappers_pb2.BoolValue | None = ...,
-    ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["is_enabled", b"is_enabled"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["is_enabled", b"is_enabled"]) -> None: ...
-
-global___AsanaAlertOpsConfiguration = AsanaAlertOpsConfiguration
 
 @typing_extensions.final
 class AsanaProjectAssetModel(google.protobuf.message.Message):
@@ -69,14 +53,14 @@ class AsanaProjectAssetModel(google.protobuf.message.Message):
     @property
     def workspace(self) -> global___AsanaProjectAssetModel.Workspace: ...
     @property
-    def alert_ops_configuration(self) -> global___AsanaAlertOpsConfiguration: ...
+    def alert_ops_configuration(self) -> core.protos.connectors.api_pb2.AsanaAlertOpsConfiguration: ...
     def __init__(
         self,
         *,
         project_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
         project_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
         workspace: global___AsanaProjectAssetModel.Workspace | None = ...,
-        alert_ops_configuration: global___AsanaAlertOpsConfiguration | None = ...,
+        alert_ops_configuration: core.protos.connectors.api_pb2.AsanaAlertOpsConfiguration | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing_extensions.Literal["alert_ops_configuration", b"alert_ops_configuration", "project_id", b"project_id", "project_name", b"project_name", "workspace", b"workspace"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing_extensions.Literal["alert_ops_configuration", b"alert_ops_configuration", "project_id", b"project_id", "project_name", b"project_name", "workspace", b"workspace"]) -> None: ...

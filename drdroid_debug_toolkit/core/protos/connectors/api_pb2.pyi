@@ -3,36 +3,1951 @@
 isort:skip_file
 """
 import builtins
+import collections.abc
+import core.protos.account_catalogs_pb2
+import core.protos.account_pb2
+import core.protos.alert_metadata_details_pb2
+import core.protos.alert_ops_pb2
 import core.protos.base_pb2
 import core.protos.connectors.connector_pb2
+import core.protos.engine_options_pb2
+import core.protos.google_chat_bot_handler_pb2
+import core.protos.search_pb2
 import google.protobuf.descriptor
+import google.protobuf.internal.containers
+import google.protobuf.internal.enum_type_wrapper
 import google.protobuf.message
+import google.protobuf.struct_pb2
+import google.protobuf.timestamp_pb2
 import google.protobuf.wrappers_pb2
 import sys
+import typing
 
-if sys.version_info >= (3, 8):
+if sys.version_info >= (3, 10):
     import typing as typing_extensions
 else:
     import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
+class _AlertInclusionPrefType:
+    ValueType = typing.NewType("ValueType", builtins.int)
+    V: typing_extensions.TypeAlias = ValueType
+
+class _AlertInclusionPrefTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_AlertInclusionPrefType.ValueType], builtins.type):
+    DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+    UNKNOWN_PREF: _AlertInclusionPrefType.ValueType  # 0
+    SHOW_ALL: _AlertInclusionPrefType.ValueType  # 1
+    SHOW_HIDDEN_ONLY: _AlertInclusionPrefType.ValueType  # 2
+    HIDE_HIDDEN: _AlertInclusionPrefType.ValueType  # 3
+
+class AlertInclusionPrefType(_AlertInclusionPrefType, metaclass=_AlertInclusionPrefTypeEnumTypeWrapper):
+    """////////////////////////////////////// Alert Insights Page APIs ////////////////////////////////////////"""
+
+UNKNOWN_PREF: AlertInclusionPrefType.ValueType  # 0
+SHOW_ALL: AlertInclusionPrefType.ValueType  # 1
+SHOW_HIDDEN_ONLY: AlertInclusionPrefType.ValueType  # 2
+HIDE_HIDDEN: AlertInclusionPrefType.ValueType  # 3
+global___AlertInclusionPrefType = AlertInclusionPrefType
+
 @typing_extensions.final
-class TestConnectorRequest(google.protobuf.message.Message):
+class Meta(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    TIME_RANGE_FIELD_NUMBER: builtins.int
+    PAGE_FIELD_NUMBER: builtins.int
+    TOTAL_COUNT_FIELD_NUMBER: builtins.int
+    SHOW_INACTIVE_FIELD_NUMBER: builtins.int
+    @property
+    def time_range(self) -> core.protos.base_pb2.TimeRange: ...
+    @property
+    def page(self) -> core.protos.base_pb2.Page: ...
+    @property
+    def total_count(self) -> google.protobuf.wrappers_pb2.UInt32Value: ...
+    @property
+    def show_inactive(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    def __init__(
+        self,
+        *,
+        time_range: core.protos.base_pb2.TimeRange | None = ...,
+        page: core.protos.base_pb2.Page | None = ...,
+        total_count: google.protobuf.wrappers_pb2.UInt32Value | None = ...,
+        show_inactive: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["page", b"page", "show_inactive", b"show_inactive", "time_range", b"time_range", "total_count", b"total_count"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["page", b"page", "show_inactive", b"show_inactive", "time_range", b"time_range", "total_count", b"total_count"]) -> None: ...
+
+global___Meta = Meta
+
+@typing_extensions.final
+class Message(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    TITLE_FIELD_NUMBER: builtins.int
+    DESCRIPTION_FIELD_NUMBER: builtins.int
+    TRACEBACK_FIELD_NUMBER: builtins.int
+    title: builtins.str
+    description: builtins.str
+    traceback: builtins.str
+    def __init__(
+        self,
+        *,
+        title: builtins.str = ...,
+        description: builtins.str = ...,
+        traceback: builtins.str = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["description", b"description", "title", b"title", "traceback", b"traceback"]) -> None: ...
+
+global___Message = Message
+
+@typing_extensions.final
+class ErrorMessage(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    ERROR_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    @property
+    def error(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    def __init__(
+        self,
+        *,
+        error: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["error", b"error", "message", b"message"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["error", b"error", "message", b"message"]) -> None: ...
+
+global___ErrorMessage = ErrorMessage
+
+@typing_extensions.final
+class GetOptInPreferencesRequest(google.protobuf.message.Message):
+    """/////////////////////////////////////////////// User Api Schema  ////////////////////////////////////////////////////"""
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    TYPE_FIELD_NUMBER: builtins.int
+    type: core.protos.account_pb2.OptInType.ValueType
+    def __init__(
+        self,
+        *,
+        type: core.protos.account_pb2.OptInType.ValueType = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["type", b"type"]) -> None: ...
+
+global___GetOptInPreferencesRequest = GetOptInPreferencesRequest
+
+@typing_extensions.final
+class GetOptInPreferencesResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    PREFERENCES_FIELD_NUMBER: builtins.int
+    @property
+    def preferences(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[core.protos.account_pb2.OptInPreference]: ...
+    def __init__(
+        self,
+        *,
+        preferences: collections.abc.Iterable[core.protos.account_pb2.OptInPreference] | None = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["preferences", b"preferences"]) -> None: ...
+
+global___GetOptInPreferencesResponse = GetOptInPreferencesResponse
+
+@typing_extensions.final
+class SaveOptInPreferencesRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    PREFERENCE_FIELD_NUMBER: builtins.int
+    @property
+    def preference(self) -> core.protos.account_pb2.OptInPreference: ...
+    def __init__(
+        self,
+        *,
+        preference: core.protos.account_pb2.OptInPreference | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["preference", b"preference"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["preference", b"preference"]) -> None: ...
+
+global___SaveOptInPreferencesRequest = SaveOptInPreferencesRequest
+
+@typing_extensions.final
+class SaveOptInPreferencesResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    def __init__(
+        self,
+        *,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["message", b"message", "success", b"success"]) -> None: ...
+
+global___SaveOptInPreferencesResponse = SaveOptInPreferencesResponse
+
+@typing_extensions.final
+class GetAlertOpsIssuesRequest(google.protobuf.message.Message):
+    """/////////////////////////////////////  Alerts Ops Slack Alert Search api schema  ////////////////////////////////////"""
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    ISSUE_CHANNEL_ID_FIELD_NUMBER: builtins.int
+    ISSUE_TYPE_FIELD_NUMBER: builtins.int
+    FUZZY_SEARCH_REQUEST_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def issue_channel_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    @property
+    def issue_type(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    @property
+    def fuzzy_search_request(self) -> core.protos.search_pb2.FuzzySearchRequest: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        issue_channel_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        issue_type: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        fuzzy_search_request: core.protos.search_pb2.FuzzySearchRequest | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["fuzzy_search_request", b"fuzzy_search_request", "issue_channel_id", b"issue_channel_id", "issue_type", b"issue_type", "meta", b"meta"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["fuzzy_search_request", b"fuzzy_search_request", "issue_channel_id", b"issue_channel_id", "issue_type", b"issue_type", "meta", b"meta"]) -> None: ...
+
+global___GetAlertOpsIssuesRequest = GetAlertOpsIssuesRequest
+
+@typing_extensions.final
+class GetAlertOpsIssuesResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    ISSUES_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def issues(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[core.protos.alert_ops_pb2.Issue]: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        issues: collections.abc.Iterable[core.protos.alert_ops_pb2.Issue] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["issues", b"issues", "message", b"message", "meta", b"meta", "success", b"success"]) -> None: ...
+
+global___GetAlertOpsIssuesResponse = GetAlertOpsIssuesResponse
+
+@typing_extensions.final
+class GetAlertOpsAlertsSearchRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    ALERT_SOURCE_FIELD_NUMBER: builtins.int
+    ALERT_CHANNEL_UID_FIELD_NUMBER: builtins.int
+    ALERT_TYPE_FIELD_NUMBER: builtins.int
+    FUZZY_SEARCH_REQUEST_FIELD_NUMBER: builtins.int
+    ALERT_IDS_FIELD_NUMBER: builtins.int
+    ALERT_TITLE_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    alert_source: core.protos.base_pb2.Source.ValueType
+    @property
+    def alert_channel_uid(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    @property
+    def alert_type(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    @property
+    def fuzzy_search_request(self) -> core.protos.search_pb2.FuzzySearchRequest: ...
+    @property
+    def alert_ids(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+    @property
+    def alert_title(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        alert_source: core.protos.base_pb2.Source.ValueType = ...,
+        alert_channel_uid: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        alert_type: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        fuzzy_search_request: core.protos.search_pb2.FuzzySearchRequest | None = ...,
+        alert_ids: collections.abc.Iterable[builtins.str] | None = ...,
+        alert_title: google.protobuf.wrappers_pb2.StringValue | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["alert_channel_uid", b"alert_channel_uid", "alert_title", b"alert_title", "alert_type", b"alert_type", "fuzzy_search_request", b"fuzzy_search_request", "meta", b"meta"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["alert_channel_uid", b"alert_channel_uid", "alert_ids", b"alert_ids", "alert_source", b"alert_source", "alert_title", b"alert_title", "alert_type", b"alert_type", "fuzzy_search_request", b"fuzzy_search_request", "meta", b"meta"]) -> None: ...
+
+global___GetAlertOpsAlertsSearchRequest = GetAlertOpsAlertsSearchRequest
+
+@typing_extensions.final
+class GetAlertOpsSlackAlertsResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    SLACK_ALERTS_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def slack_alerts(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[core.protos.alert_ops_pb2.SlackAlert]: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        slack_alerts: collections.abc.Iterable[core.protos.alert_ops_pb2.SlackAlert] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "slack_alerts", b"slack_alerts", "success", b"success"]) -> None: ...
+
+global___GetAlertOpsSlackAlertsResponse = GetAlertOpsSlackAlertsResponse
+
+@typing_extensions.final
+class CreateInvestigationRequest(google.protobuf.message.Message):
+    """////////////////////////////////////////  Alert Ops Investigation api schemas  //////////////////////////////////////"""
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    ALERT_IDS_FIELD_NUMBER: builtins.int
+    USER_INPUT_PROMPT_FIELD_NUMBER: builtins.int
+    ISSUE_IDS_FIELD_NUMBER: builtins.int
+    @property
+    def alert_ids(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+    user_input_prompt: builtins.str
+    @property
+    def issue_ids(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+    def __init__(
+        self,
+        *,
+        alert_ids: collections.abc.Iterable[builtins.str] | None = ...,
+        user_input_prompt: builtins.str = ...,
+        issue_ids: collections.abc.Iterable[builtins.str] | None = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["alert_ids", b"alert_ids", "issue_ids", b"issue_ids", "user_input_prompt", b"user_input_prompt"]) -> None: ...
+
+global___CreateInvestigationRequest = CreateInvestigationRequest
+
+@typing_extensions.final
+class CreateInvestigationResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    SESSION_FIELD_NUMBER: builtins.int
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def session(self) -> core.protos.alert_ops_pb2.InvestigationSession: ...
+    def __init__(
+        self,
+        *,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        session: core.protos.alert_ops_pb2.InvestigationSession | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "session", b"session", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["message", b"message", "session", b"session", "success", b"success"]) -> None: ...
+
+global___CreateInvestigationResponse = CreateInvestigationResponse
+
+@typing_extensions.final
+class StartInvestigationRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    ALERT_IDS_FIELD_NUMBER: builtins.int
+    USER_INPUT_PROMPT_FIELD_NUMBER: builtins.int
+    SESSION_ID_FIELD_NUMBER: builtins.int
+    ISSUE_IDS_FIELD_NUMBER: builtins.int
+    @property
+    def alert_ids(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+    user_input_prompt: builtins.str
+    session_id: builtins.str
+    @property
+    def issue_ids(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+    def __init__(
+        self,
+        *,
+        alert_ids: collections.abc.Iterable[builtins.str] | None = ...,
+        user_input_prompt: builtins.str = ...,
+        session_id: builtins.str = ...,
+        issue_ids: collections.abc.Iterable[builtins.str] | None = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["alert_ids", b"alert_ids", "issue_ids", b"issue_ids", "session_id", b"session_id", "user_input_prompt", b"user_input_prompt"]) -> None: ...
+
+global___StartInvestigationRequest = StartInvestigationRequest
+
+@typing_extensions.final
+class StartInvestigationResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    SESSION_FIELD_NUMBER: builtins.int
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def session(self) -> core.protos.alert_ops_pb2.InvestigationSession: ...
+    def __init__(
+        self,
+        *,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        session: core.protos.alert_ops_pb2.InvestigationSession | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "session", b"session", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["message", b"message", "session", b"session", "success", b"success"]) -> None: ...
+
+global___StartInvestigationResponse = StartInvestigationResponse
+
+@typing_extensions.final
+class ContinueInvestigationRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SESSION_ID_FIELD_NUMBER: builtins.int
+    USER_INPUT_PROMPT_FIELD_NUMBER: builtins.int
+    IS_RESUME_INVESTIGATION_FIELD_NUMBER: builtins.int
+    session_id: builtins.str
+    user_input_prompt: builtins.str
+    @property
+    def is_resume_investigation(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    def __init__(
+        self,
+        *,
+        session_id: builtins.str = ...,
+        user_input_prompt: builtins.str = ...,
+        is_resume_investigation: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["is_resume_investigation", b"is_resume_investigation"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["is_resume_investigation", b"is_resume_investigation", "session_id", b"session_id", "user_input_prompt", b"user_input_prompt"]) -> None: ...
+
+global___ContinueInvestigationRequest = ContinueInvestigationRequest
+
+@typing_extensions.final
+class ContinueInvestigationResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    NEW_MESSAGE_FIELD_NUMBER: builtins.int
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def new_message(self) -> core.protos.alert_ops_pb2.InvestigationMessage: ...
+    def __init__(
+        self,
+        *,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        new_message: core.protos.alert_ops_pb2.InvestigationMessage | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "new_message", b"new_message", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["message", b"message", "new_message", b"new_message", "success", b"success"]) -> None: ...
+
+global___ContinueInvestigationResponse = ContinueInvestigationResponse
+
+@typing_extensions.final
+class StopInvestigationRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SESSION_ID_FIELD_NUMBER: builtins.int
+    session_id: builtins.str
+    def __init__(
+        self,
+        *,
+        session_id: builtins.str = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["session_id", b"session_id"]) -> None: ...
+
+global___StopInvestigationRequest = StopInvestigationRequest
+
+@typing_extensions.final
+class StopInvestigationResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    SESSION_FIELD_NUMBER: builtins.int
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def session(self) -> core.protos.alert_ops_pb2.InvestigationSession: ...
+    def __init__(
+        self,
+        *,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        session: core.protos.alert_ops_pb2.InvestigationSession | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "session", b"session", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["message", b"message", "session", b"session", "success", b"success"]) -> None: ...
+
+global___StopInvestigationResponse = StopInvestigationResponse
+
+@typing_extensions.final
+class ApiContinueInvestigationRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    INVESTIGATION_SESSION_ID_FIELD_NUMBER: builtins.int
+    USER_INPUT_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def investigation_session_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    @property
+    def user_input(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        investigation_session_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        user_input: google.protobuf.wrappers_pb2.StringValue | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["investigation_session_id", b"investigation_session_id", "meta", b"meta", "user_input", b"user_input"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["investigation_session_id", b"investigation_session_id", "meta", b"meta", "user_input", b"user_input"]) -> None: ...
+
+global___ApiContinueInvestigationRequest = ApiContinueInvestigationRequest
+
+@typing_extensions.final
+class ApiContinueInvestigationResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    NEW_MESSAGE_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def new_message(self) -> core.protos.alert_ops_pb2.InvestigationMessage: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        new_message: core.protos.alert_ops_pb2.InvestigationMessage | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "new_message", b"new_message", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "new_message", b"new_message", "success", b"success"]) -> None: ...
+
+global___ApiContinueInvestigationResponse = ApiContinueInvestigationResponse
+
+@typing_extensions.final
+class ToggleMarkAsImportantRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    INVESTIGATION_SESSION_ID_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def investigation_session_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        investigation_session_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["investigation_session_id", b"investigation_session_id", "meta", b"meta"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["investigation_session_id", b"investigation_session_id", "meta", b"meta"]) -> None: ...
+
+global___ToggleMarkAsImportantRequest = ToggleMarkAsImportantRequest
+
+@typing_extensions.final
+class ToggleMarkAsImportantResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> None: ...
+
+global___ToggleMarkAsImportantResponse = ToggleMarkAsImportantResponse
+
+@typing_extensions.final
+class GetAIOpsExperimentFlagsRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["meta", b"meta"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["meta", b"meta"]) -> None: ...
+
+global___GetAIOpsExperimentFlagsRequest = GetAIOpsExperimentFlagsRequest
+
+@typing_extensions.final
+class GetAIOpsExperimentFlagsResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> None: ...
+
+global___GetAIOpsExperimentFlagsResponse = GetAIOpsExperimentFlagsResponse
+
+@typing_extensions.final
+class GetInvestigationRelatedAlertsRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    SESSION_ID_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def session_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        session_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["meta", b"meta", "session_id", b"session_id"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["meta", b"meta", "session_id", b"session_id"]) -> None: ...
+
+global___GetInvestigationRelatedAlertsRequest = GetInvestigationRelatedAlertsRequest
+
+@typing_extensions.final
+class GetSessionsByAlertRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    ALERT_IDS_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def alert_ids(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        alert_ids: collections.abc.Iterable[builtins.str] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["meta", b"meta"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["alert_ids", b"alert_ids", "meta", b"meta"]) -> None: ...
+
+global___GetSessionsByAlertRequest = GetSessionsByAlertRequest
+
+@typing_extensions.final
+class GetSessionsByAlertResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    SESSIONS_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def sessions(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[core.protos.alert_ops_pb2.InvestigationSession]: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        sessions: collections.abc.Iterable[core.protos.alert_ops_pb2.InvestigationSession] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "sessions", b"sessions", "success", b"success"]) -> None: ...
+
+global___GetSessionsByAlertResponse = GetSessionsByAlertResponse
+
+@typing_extensions.final
+class GetTaskExecutionsBySessionIdRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    SESSION_ID_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def session_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        session_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["meta", b"meta", "session_id", b"session_id"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["meta", b"meta", "session_id", b"session_id"]) -> None: ...
+
+global___GetTaskExecutionsBySessionIdRequest = GetTaskExecutionsBySessionIdRequest
+
+@typing_extensions.final
+class GetTaskExecutionsBySessionIdResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    TASK_EXECUTION_IDS_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def task_execution_ids(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        task_execution_ids: collections.abc.Iterable[builtins.int] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "success", b"success", "task_execution_ids", b"task_execution_ids"]) -> None: ...
+
+global___GetTaskExecutionsBySessionIdResponse = GetTaskExecutionsBySessionIdResponse
+
+@typing_extensions.final
+class GetInvestigationRelatedAlertsResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    RELATED_ALERTS_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def related_alerts(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[core.protos.alert_ops_pb2.SlackAlert]: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        related_alerts: collections.abc.Iterable[core.protos.alert_ops_pb2.SlackAlert] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "related_alerts", b"related_alerts", "success", b"success"]) -> None: ...
+
+global___GetInvestigationRelatedAlertsResponse = GetInvestigationRelatedAlertsResponse
+
+@typing_extensions.final
+class ListInvestigationsRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    INVESTIGATION_TITLE_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    investigation_title: builtins.str
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        investigation_title: builtins.str = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["meta", b"meta"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["investigation_title", b"investigation_title", "meta", b"meta"]) -> None: ...
+
+global___ListInvestigationsRequest = ListInvestigationsRequest
+
+@typing_extensions.final
+class RunInvestigationRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    ALERT_CONTEXT_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    alert_context: builtins.str
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        alert_context: builtins.str = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["meta", b"meta"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["alert_context", b"alert_context", "meta", b"meta"]) -> None: ...
+
+global___RunInvestigationRequest = RunInvestigationRequest
+
+@typing_extensions.final
+class RunInvestigationResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    RESPONSE_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    response: builtins.str
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        response: builtins.str = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["meta", b"meta"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["meta", b"meta", "response", b"response"]) -> None: ...
+
+global___RunInvestigationResponse = RunInvestigationResponse
+
+@typing_extensions.final
+class ApiGetAccountArchitectureRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    ACCOUNT_ID_FIELD_NUMBER: builtins.int
+    @property
+    def account_id(self) -> google.protobuf.wrappers_pb2.Int64Value: ...
+    def __init__(
+        self,
+        *,
+        account_id: google.protobuf.wrappers_pb2.Int64Value | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["account_id", b"account_id"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["account_id", b"account_id"]) -> None: ...
+
+global___ApiGetAccountArchitectureRequest = ApiGetAccountArchitectureRequest
+
+@typing_extensions.final
+class ApiGetAccountArchitectureResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    ARCHITECTURE_CONTEXT_FIELD_NUMBER: builtins.int
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def architecture_context(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    def __init__(
+        self,
+        *,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        architecture_context: google.protobuf.wrappers_pb2.StringValue | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["architecture_context", b"architecture_context", "message", b"message", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["architecture_context", b"architecture_context", "message", b"message", "success", b"success"]) -> None: ...
+
+global___ApiGetAccountArchitectureResponse = ApiGetAccountArchitectureResponse
+
+@typing_extensions.final
+class GetAccountCatalogsRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    CATALOG_TYPE_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def catalog_type(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        catalog_type: google.protobuf.wrappers_pb2.StringValue | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["catalog_type", b"catalog_type", "meta", b"meta"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["catalog_type", b"catalog_type", "meta", b"meta"]) -> None: ...
+
+global___GetAccountCatalogsRequest = GetAccountCatalogsRequest
+
+@typing_extensions.final
+class GetAccountCatalogsResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    CONNECTOR_CATALOG_FIELD_NUMBER: builtins.int
+    SERVICE_CATALOG_FIELD_NUMBER: builtins.int
+    INFRASTRUCTURE_CATALOG_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def connector_catalog(self) -> core.protos.account_catalogs_pb2.IntegrationCatalog: ...
+    @property
+    def service_catalog(self) -> core.protos.account_catalogs_pb2.ServiceCatalog: ...
+    @property
+    def infrastructure_catalog(self) -> core.protos.account_catalogs_pb2.InfrastructureCatalog: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        connector_catalog: core.protos.account_catalogs_pb2.IntegrationCatalog | None = ...,
+        service_catalog: core.protos.account_catalogs_pb2.ServiceCatalog | None = ...,
+        infrastructure_catalog: core.protos.account_catalogs_pb2.InfrastructureCatalog | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["connector_catalog", b"connector_catalog", "infrastructure_catalog", b"infrastructure_catalog", "message", b"message", "meta", b"meta", "service_catalog", b"service_catalog", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["connector_catalog", b"connector_catalog", "infrastructure_catalog", b"infrastructure_catalog", "message", b"message", "meta", b"meta", "service_catalog", b"service_catalog", "success", b"success"]) -> None: ...
+
+global___GetAccountCatalogsResponse = GetAccountCatalogsResponse
+
+@typing_extensions.final
+class CreateOrUpdateCatalogRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    CATALOG_TYPE_FIELD_NUMBER: builtins.int
+    CATALOG_DATA_FIELD_NUMBER: builtins.int
+    @property
+    def catalog_type(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    @property
+    def catalog_data(self) -> google.protobuf.struct_pb2.Struct: ...
+    def __init__(
+        self,
+        *,
+        catalog_type: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        catalog_data: google.protobuf.struct_pb2.Struct | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["catalog_data", b"catalog_data", "catalog_type", b"catalog_type"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["catalog_data", b"catalog_data", "catalog_type", b"catalog_type"]) -> None: ...
+
+global___CreateOrUpdateCatalogRequest = CreateOrUpdateCatalogRequest
+
+@typing_extensions.final
+class CreateOrUpdateCatalogResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    success: builtins.bool
+    @property
+    def message(self) -> global___Message: ...
+    def __init__(
+        self,
+        *,
+        success: builtins.bool = ...,
+        message: global___Message | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["message", b"message", "success", b"success"]) -> None: ...
+
+global___CreateOrUpdateCatalogResponse = CreateOrUpdateCatalogResponse
+
+@typing_extensions.final
+class ListInvestigationsResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    SESSIONS_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def sessions(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[core.protos.alert_ops_pb2.InvestigationSession]: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        sessions: collections.abc.Iterable[core.protos.alert_ops_pb2.InvestigationSession] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "sessions", b"sessions", "success", b"success"]) -> None: ...
+
+global___ListInvestigationsResponse = ListInvestigationsResponse
+
+@typing_extensions.final
+class InvestigationDetailsRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SESSION_ID_FIELD_NUMBER: builtins.int
+    session_id: builtins.str
+    def __init__(
+        self,
+        *,
+        session_id: builtins.str = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["session_id", b"session_id"]) -> None: ...
+
+global___InvestigationDetailsRequest = InvestigationDetailsRequest
+
+@typing_extensions.final
+class InvestigationDetailsResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    SESSION_FIELD_NUMBER: builtins.int
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def session(self) -> core.protos.alert_ops_pb2.InvestigationSession: ...
+    def __init__(
+        self,
+        *,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        session: core.protos.alert_ops_pb2.InvestigationSession | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "session", b"session", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["message", b"message", "session", b"session", "success", b"success"]) -> None: ...
+
+global___InvestigationDetailsResponse = InvestigationDetailsResponse
+
+@typing_extensions.final
+class InvestigationMessagesRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SESSION_ID_FIELD_NUMBER: builtins.int
+    MESSAGE_IDS_FIELD_NUMBER: builtins.int
+    MESSAGE_TYPE_FIELD_NUMBER: builtins.int
+    ALERT_ID_FIELD_NUMBER: builtins.int
+    METADATA_FIELD_NUMBER: builtins.int
+    session_id: builtins.str
+    @property
+    def message_ids(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+    message_type: core.protos.alert_ops_pb2.InvestigationMessageType.ValueType
+    alert_id: builtins.str
+    @property
+    def metadata(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[google.protobuf.struct_pb2.Struct]: ...
+    def __init__(
+        self,
+        *,
+        session_id: builtins.str = ...,
+        message_ids: collections.abc.Iterable[builtins.str] | None = ...,
+        message_type: core.protos.alert_ops_pb2.InvestigationMessageType.ValueType = ...,
+        alert_id: builtins.str = ...,
+        metadata: collections.abc.Iterable[google.protobuf.struct_pb2.Struct] | None = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["alert_id", b"alert_id", "message_ids", b"message_ids", "message_type", b"message_type", "metadata", b"metadata", "session_id", b"session_id"]) -> None: ...
+
+global___InvestigationMessagesRequest = InvestigationMessagesRequest
+
+@typing_extensions.final
+class InvestigationMessagesResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    MESSAGES_FIELD_NUMBER: builtins.int
+    STATE_FIELD_NUMBER: builtins.int
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def messages(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[core.protos.alert_ops_pb2.InvestigationMessage]: ...
+    state: core.protos.alert_ops_pb2.InvestigationSessionState.ValueType
+    def __init__(
+        self,
+        *,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        messages: collections.abc.Iterable[core.protos.alert_ops_pb2.InvestigationMessage] | None = ...,
+        state: core.protos.alert_ops_pb2.InvestigationSessionState.ValueType = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["message", b"message", "messages", b"messages", "state", b"state", "success", b"success"]) -> None: ...
+
+global___InvestigationMessagesResponse = InvestigationMessagesResponse
+
+@typing_extensions.final
+class InvestigationMessageAddReactionRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SESSION_ID_FIELD_NUMBER: builtins.int
+    INVESTIGATION_MESSAGE_ID_FIELD_NUMBER: builtins.int
+    REACTION_FIELD_NUMBER: builtins.int
+    @property
+    def session_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    @property
+    def investigation_message_id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+    reaction: core.protos.alert_ops_pb2.InvestigationMessageReactionType.ValueType
+    def __init__(
+        self,
+        *,
+        session_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        investigation_message_id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+        reaction: core.protos.alert_ops_pb2.InvestigationMessageReactionType.ValueType = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["investigation_message_id", b"investigation_message_id", "session_id", b"session_id"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["investigation_message_id", b"investigation_message_id", "reaction", b"reaction", "session_id", b"session_id"]) -> None: ...
+
+global___InvestigationMessageAddReactionRequest = InvestigationMessageAddReactionRequest
+
+@typing_extensions.final
+class InvestigationMessageAddReactionResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    INVESTIGATION_MESSAGE_FIELD_NUMBER: builtins.int
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def investigation_message(self) -> core.protos.alert_ops_pb2.InvestigationMessage: ...
+    def __init__(
+        self,
+        *,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        investigation_message: core.protos.alert_ops_pb2.InvestigationMessage | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["investigation_message", b"investigation_message", "message", b"message", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["investigation_message", b"investigation_message", "message", b"message", "success", b"success"]) -> None: ...
+
+global___InvestigationMessageAddReactionResponse = InvestigationMessageAddReactionResponse
+
+@typing_extensions.final
+class GetRelatedInvestigationsRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    SESSION_ID_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    session_id: builtins.str
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        session_id: builtins.str = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["meta", b"meta"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["meta", b"meta", "session_id", b"session_id"]) -> None: ...
+
+global___GetRelatedInvestigationsRequest = GetRelatedInvestigationsRequest
+
+@typing_extensions.final
+class GetRelatedInvestigationsResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    RELATED_SESSIONS_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def related_sessions(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[core.protos.alert_ops_pb2.InvestigationSession]: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        related_sessions: collections.abc.Iterable[core.protos.alert_ops_pb2.InvestigationSession] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "related_sessions", b"related_sessions", "success", b"success"]) -> None: ...
+
+global___GetRelatedInvestigationsResponse = GetRelatedInvestigationsResponse
+
+@typing_extensions.final
+class CreateContextUsingDocumentsRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    S3_KEY_FIELD_NUMBER: builtins.int
+    s3_key: builtins.str
+    def __init__(
+        self,
+        *,
+        s3_key: builtins.str = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["s3_key", b"s3_key"]) -> None: ...
+
+global___CreateContextUsingDocumentsRequest = CreateContextUsingDocumentsRequest
+
+@typing_extensions.final
+class CreateContextUsingDocumentsResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    success: builtins.bool
+    message: builtins.str
+    def __init__(
+        self,
+        *,
+        success: builtins.bool = ...,
+        message: builtins.str = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["message", b"message", "success", b"success"]) -> None: ...
+
+global___CreateContextUsingDocumentsResponse = CreateContextUsingDocumentsResponse
+
+@typing_extensions.final
+class FetchS3PresignedUrlRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    FILE_NAME_FIELD_NUMBER: builtins.int
+    FILE_TYPE_FIELD_NUMBER: builtins.int
+    FILE_CATEGORY_FIELD_NUMBER: builtins.int
+    IS_SOP_FIELD_NUMBER: builtins.int
+    file_name: builtins.str
+    file_type: builtins.str
+    file_category: builtins.str
+    @property
+    def is_sop(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    def __init__(
+        self,
+        *,
+        file_name: builtins.str = ...,
+        file_type: builtins.str = ...,
+        file_category: builtins.str = ...,
+        is_sop: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["is_sop", b"is_sop"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["file_category", b"file_category", "file_name", b"file_name", "file_type", b"file_type", "is_sop", b"is_sop"]) -> None: ...
+
+global___FetchS3PresignedUrlRequest = FetchS3PresignedUrlRequest
+
+@typing_extensions.final
+class FetchS3PresignedUrlResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    @typing_extensions.final
+    class S3PresignedUrlField(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        NAME_FIELD_NUMBER: builtins.int
+        VALUE_FIELD_NUMBER: builtins.int
+        name: builtins.str
+        value: builtins.str
+        def __init__(
+            self,
+            *,
+            name: builtins.str = ...,
+            value: builtins.str = ...,
+        ) -> None: ...
+        def ClearField(self, field_name: typing_extensions.Literal["name", b"name", "value", b"value"]) -> None: ...
+
+    PRE_SIGNED_URL_FIELD_NUMBER: builtins.int
+    FIELDS_FIELD_NUMBER: builtins.int
+    pre_signed_url: builtins.str
+    @property
+    def fields(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___FetchS3PresignedUrlResponse.S3PresignedUrlField]: ...
+    def __init__(
+        self,
+        *,
+        pre_signed_url: builtins.str = ...,
+        fields: collections.abc.Iterable[global___FetchS3PresignedUrlResponse.S3PresignedUrlField] | None = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["fields", b"fields", "pre_signed_url", b"pre_signed_url"]) -> None: ...
+
+global___FetchS3PresignedUrlResponse = FetchS3PresignedUrlResponse
+
+@typing_extensions.final
+class FetchS3UploadedFilesRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["meta", b"meta"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["meta", b"meta"]) -> None: ...
+
+global___FetchS3UploadedFilesRequest = FetchS3UploadedFilesRequest
+
+@typing_extensions.final
+class FetchS3UploadedFilesResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    @typing_extensions.final
+    class S3UploadedFile(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        NAME_FIELD_NUMBER: builtins.int
+        TYPE_FIELD_NUMBER: builtins.int
+        UPLOADED_FIELD_NUMBER: builtins.int
+        name: builtins.str
+        type: builtins.str
+        uploaded: builtins.str
+        def __init__(
+            self,
+            *,
+            name: builtins.str = ...,
+            type: builtins.str = ...,
+            uploaded: builtins.str = ...,
+        ) -> None: ...
+        def ClearField(self, field_name: typing_extensions.Literal["name", b"name", "type", b"type", "uploaded", b"uploaded"]) -> None: ...
+
+    META_FIELD_NUMBER: builtins.int
+    FILES_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def files(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___FetchS3UploadedFilesResponse.S3UploadedFile]: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        files: collections.abc.Iterable[global___FetchS3UploadedFilesResponse.S3UploadedFile] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["meta", b"meta"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["files", b"files", "meta", b"meta"]) -> None: ...
+
+global___FetchS3UploadedFilesResponse = FetchS3UploadedFilesResponse
+
+@typing_extensions.final
+class GetS3DownloadLinkRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    FILE_NAME_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def file_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        file_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["file_name", b"file_name", "meta", b"meta"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["file_name", b"file_name", "meta", b"meta"]) -> None: ...
+
+global___GetS3DownloadLinkRequest = GetS3DownloadLinkRequest
+
+@typing_extensions.final
+class GetS3DownloadLinkResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    PRE_SIGNED_URL_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def pre_signed_url(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        pre_signed_url: google.protobuf.wrappers_pb2.StringValue | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "pre_signed_url", b"pre_signed_url", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "pre_signed_url", b"pre_signed_url", "success", b"success"]) -> None: ...
+
+global___GetS3DownloadLinkResponse = GetS3DownloadLinkResponse
+
+@typing_extensions.final
+class ApiInvestigationAddMessageRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SESSION_ID_FIELD_NUMBER: builtins.int
+    MESSAGE_TYPE_FIELD_NUMBER: builtins.int
+    CONTENT_FIELD_NUMBER: builtins.int
+    TASK_EXECUTION_LOG_IDS_FIELD_NUMBER: builtins.int
+    METADATA_FIELD_NUMBER: builtins.int
+    @property
+    def session_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    message_type: core.protos.alert_ops_pb2.InvestigationMessageType.ValueType
+    @property
+    def content(self) -> core.protos.alert_ops_pb2.InvestigationMessageContent: ...
+    @property
+    def task_execution_log_ids(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]: ...
+    @property
+    def metadata(self) -> google.protobuf.struct_pb2.Struct: ...
+    def __init__(
+        self,
+        *,
+        session_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        message_type: core.protos.alert_ops_pb2.InvestigationMessageType.ValueType = ...,
+        content: core.protos.alert_ops_pb2.InvestigationMessageContent | None = ...,
+        task_execution_log_ids: collections.abc.Iterable[builtins.int] | None = ...,
+        metadata: google.protobuf.struct_pb2.Struct | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["content", b"content", "metadata", b"metadata", "session_id", b"session_id"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["content", b"content", "message_type", b"message_type", "metadata", b"metadata", "session_id", b"session_id", "task_execution_log_ids", b"task_execution_log_ids"]) -> None: ...
+
+global___ApiInvestigationAddMessageRequest = ApiInvestigationAddMessageRequest
+
+@typing_extensions.final
+class ApiInvestigationAddMessageResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    def __init__(
+        self,
+        *,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["message", b"message", "success", b"success"]) -> None: ...
+
+global___ApiInvestigationAddMessageResponse = ApiInvestigationAddMessageResponse
+
+@typing_extensions.final
+class GetAccountApiTokensRequest(google.protobuf.message.Message):
+    """///////////////////  Get Api Tokens  /////////////////////"""
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["meta", b"meta"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["meta", b"meta"]) -> None: ...
+
+global___GetAccountApiTokensRequest = GetAccountApiTokensRequest
+
+@typing_extensions.final
+class GetAccountApiTokensResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    ACCOUNT_API_TOKENS_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def account_api_tokens(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[core.protos.account_pb2.AccountApiToken]: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        account_api_tokens: collections.abc.Iterable[core.protos.account_pb2.AccountApiToken] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["meta", b"meta"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["account_api_tokens", b"account_api_tokens", "meta", b"meta"]) -> None: ...
+
+global___GetAccountApiTokensResponse = GetAccountApiTokensResponse
+
+@typing_extensions.final
+class InviteUsersRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    EMAILS_FIELD_NUMBER: builtins.int
+    SIGNUP_DOMAIN_FIELD_NUMBER: builtins.int
+    @property
+    def emails(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+    signup_domain: builtins.str
+    def __init__(
+        self,
+        *,
+        emails: collections.abc.Iterable[builtins.str] | None = ...,
+        signup_domain: builtins.str = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["emails", b"emails", "signup_domain", b"signup_domain"]) -> None: ...
+
+global___InviteUsersRequest = InviteUsersRequest
+
+@typing_extensions.final
+class InviteUsersResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    MESSAGE_FIELD_NUMBER: builtins.int
+    @property
+    def message(self) -> global___Message: ...
+    def __init__(
+        self,
+        *,
+        message: global___Message | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["message", b"message"]) -> None: ...
+
+global___InviteUsersResponse = InviteUsersResponse
+
+@typing_extensions.final
+class GetAdminsListRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    def __init__(
+        self,
+    ) -> None: ...
+
+global___GetAdminsListRequest = GetAdminsListRequest
+
+@typing_extensions.final
+class GetAdminsListResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    MESSAGE_FIELD_NUMBER: builtins.int
+    ADMINS_FIELD_NUMBER: builtins.int
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def admins(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[core.protos.account_pb2.User]: ...
+    def __init__(
+        self,
+        *,
+        message: global___Message | None = ...,
+        admins: collections.abc.Iterable[core.protos.account_pb2.User] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["admins", b"admins", "message", b"message"]) -> None: ...
+
+global___GetAdminsListResponse = GetAdminsListResponse
+
+@typing_extensions.final
+class CheckIfAdminRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    def __init__(
+        self,
+    ) -> None: ...
+
+global___CheckIfAdminRequest = CheckIfAdminRequest
+
+@typing_extensions.final
+class CheckIfAdminResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    MESSAGE_FIELD_NUMBER: builtins.int
+    IS_ADMIN_FIELD_NUMBER: builtins.int
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def is_admin(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    def __init__(
+        self,
+        *,
+        message: global___Message | None = ...,
+        is_admin: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["is_admin", b"is_admin", "message", b"message"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["is_admin", b"is_admin", "message", b"message"]) -> None: ...
+
+global___CheckIfAdminResponse = CheckIfAdminResponse
+
+@typing_extensions.final
+class GetCurrentAccountUsersResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    USERS_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def users(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[core.protos.account_pb2.User]: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        users: collections.abc.Iterable[core.protos.account_pb2.User] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["meta", b"meta"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["meta", b"meta", "users", b"users"]) -> None: ...
+
+global___GetCurrentAccountUsersResponse = GetCurrentAccountUsersResponse
+
+@typing_extensions.final
+class CreateAccountApiTokenRequest(google.protobuf.message.Message):
+    """///////////////////  Create Api Tokens  /////////////////////"""
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    def __init__(
+        self,
+    ) -> None: ...
+
+global___CreateAccountApiTokenRequest = CreateAccountApiTokenRequest
+
+@typing_extensions.final
+class CreateAccountApiTokenResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SUCCESS_FIELD_NUMBER: builtins.int
+    ACCOUNT_API_TOKEN_FIELD_NUMBER: builtins.int
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def account_api_token(self) -> core.protos.account_pb2.AccountApiToken: ...
+    def __init__(
+        self,
+        *,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        account_api_token: core.protos.account_pb2.AccountApiToken | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["account_api_token", b"account_api_token", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["account_api_token", b"account_api_token", "success", b"success"]) -> None: ...
+
+global___CreateAccountApiTokenResponse = CreateAccountApiTokenResponse
+
+@typing_extensions.final
+class DeleteAccountApiTokenRequest(google.protobuf.message.Message):
+    """///////////////////  Delete Api Tokens  /////////////////////"""
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    ACCOUNT_API_TOKEN_KEY_FIELD_NUMBER: builtins.int
+    account_api_token_key: builtins.str
+    def __init__(
+        self,
+        *,
+        account_api_token_key: builtins.str = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["account_api_token_key", b"account_api_token_key"]) -> None: ...
+
+global___DeleteAccountApiTokenRequest = DeleteAccountApiTokenRequest
+
+@typing_extensions.final
+class DeleteAccountApiTokenResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SUCCESS_FIELD_NUMBER: builtins.int
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    def __init__(
+        self,
+        *,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["success", b"success"]) -> None: ...
+
+global___DeleteAccountApiTokenResponse = DeleteAccountApiTokenResponse
+
+@typing_extensions.final
+class CreateOrgDetailsRequest(google.protobuf.message.Message):
+    """////////////////////  Organization Details  /////////////////////"""
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    ORG_DETAILS_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def org_details(self) -> core.protos.account_pb2.OrgDetails: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        org_details: core.protos.account_pb2.OrgDetails | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["meta", b"meta", "org_details", b"org_details"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["meta", b"meta", "org_details", b"org_details"]) -> None: ...
+
+global___CreateOrgDetailsRequest = CreateOrgDetailsRequest
+
+@typing_extensions.final
+class CreateOrgDetailsResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    SUCCESS_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        message: global___Message | None = ...,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> None: ...
+
+global___CreateOrgDetailsResponse = CreateOrgDetailsResponse
+
+@typing_extensions.final
+class GetOrgDetailsRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["meta", b"meta"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["meta", b"meta"]) -> None: ...
+
+global___GetOrgDetailsRequest = GetOrgDetailsRequest
+
+@typing_extensions.final
+class GetOrgDetailsResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    SUCCESS_FIELD_NUMBER: builtins.int
+    ORG_DETAILS_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def org_details(self) -> core.protos.account_pb2.OrgDetails: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        message: global___Message | None = ...,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        org_details: core.protos.account_pb2.OrgDetails | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "org_details", b"org_details", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "org_details", b"org_details", "success", b"success"]) -> None: ...
+
+global___GetOrgDetailsResponse = GetOrgDetailsResponse
+
+@typing_extensions.final
+class GetUserRequest(google.protobuf.message.Message):
+    """///////////////////  Get User  /////////////////////"""
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    def __init__(
+        self,
+    ) -> None: ...
+
+global___GetUserRequest = GetUserRequest
+
+@typing_extensions.final
+class GetUserResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    USER_FIELD_NUMBER: builtins.int
+    @property
+    def user(self) -> core.protos.account_pb2.User: ...
+    def __init__(
+        self,
+        *,
+        user: core.protos.account_pb2.User | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["user", b"user"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["user", b"user"]) -> None: ...
+
+global___GetUserResponse = GetUserResponse
+
+@typing_extensions.final
+class GetGlobalSearchOptionsRequest(google.protobuf.message.Message):
+    """///////////////////  Global Search Options api schema  /////////////////////"""
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["meta", b"meta"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["meta", b"meta"]) -> None: ...
+
+global___GetGlobalSearchOptionsRequest = GetGlobalSearchOptionsRequest
+
+@typing_extensions.final
+class GetGlobalSearchOptionsResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    GLOBAL_QUERY_OPTIONS_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def global_query_options(self) -> core.protos.engine_options_pb2.GlobalQueryOptions: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        global_query_options: core.protos.engine_options_pb2.GlobalQueryOptions | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["global_query_options", b"global_query_options", "meta", b"meta"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["global_query_options", b"global_query_options", "meta", b"meta"]) -> None: ...
+
+global___GetGlobalSearchOptionsResponse = GetGlobalSearchOptionsResponse
+
+@typing_extensions.final
+class CreateConnectorRequest(google.protobuf.message.Message):
     """///////////////////  Connectors API schema  /////////////////////"""
 
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
     CONNECTOR_FIELD_NUMBER: builtins.int
+    CONNECTOR_KEYS_FIELD_NUMBER: builtins.int
+    IS_ACTIVE_FIELD_NUMBER: builtins.int
     @property
     def connector(self) -> core.protos.connectors.connector_pb2.Connector: ...
+    @property
+    def connector_keys(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[core.protos.connectors.connector_pb2.ConnectorKey]: ...
+    @property
+    def is_active(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
     def __init__(
         self,
         *,
         connector: core.protos.connectors.connector_pb2.Connector | None = ...,
+        connector_keys: collections.abc.Iterable[core.protos.connectors.connector_pb2.ConnectorKey] | None = ...,
+        is_active: google.protobuf.wrappers_pb2.BoolValue | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["connector", b"connector"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["connector", b"connector"]) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["connector", b"connector", "is_active", b"is_active"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["connector", b"connector", "connector_keys", b"connector_keys", "is_active", b"is_active"]) -> None: ...
+
+global___CreateConnectorRequest = CreateConnectorRequest
+
+@typing_extensions.final
+class CreateConnectorResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    REQUEST_ID_FIELD_NUMBER: builtins.int
+    CONNECTOR_ID_FIELD_NUMBER: builtins.int
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def request_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    @property
+    def connector_id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+    def __init__(
+        self,
+        *,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        request_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        connector_id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["connector_id", b"connector_id", "message", b"message", "request_id", b"request_id", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["connector_id", b"connector_id", "message", b"message", "request_id", b"request_id", "success", b"success"]) -> None: ...
+
+global___CreateConnectorResponse = CreateConnectorResponse
+
+@typing_extensions.final
+class TestConnectorRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    CONNECTOR_FIELD_NUMBER: builtins.int
+    CONNECTOR_KEYS_FIELD_NUMBER: builtins.int
+    REQUEST_ID_FIELD_NUMBER: builtins.int
+    @property
+    def connector(self) -> core.protos.connectors.connector_pb2.Connector: ...
+    @property
+    def connector_keys(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[core.protos.connectors.connector_pb2.ConnectorKey]: ...
+    @property
+    def request_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    def __init__(
+        self,
+        *,
+        connector: core.protos.connectors.connector_pb2.Connector | None = ...,
+        connector_keys: collections.abc.Iterable[core.protos.connectors.connector_pb2.ConnectorKey] | None = ...,
+        request_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["connector", b"connector", "request_id", b"request_id"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["connector", b"connector", "connector_keys", b"connector_keys", "request_id", b"request_id"]) -> None: ...
 
 global___TestConnectorRequest = TestConnectorRequest
 
@@ -45,14 +1960,2976 @@ class TestConnectorResponse(google.protobuf.message.Message):
     @property
     def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
     @property
-    def message(self) -> core.protos.base_pb2.Message: ...
+    def message(self) -> global___Message: ...
     def __init__(
         self,
         *,
         success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
-        message: core.protos.base_pb2.Message | None = ...,
+        message: global___Message | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing_extensions.Literal["message", b"message", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing_extensions.Literal["message", b"message", "success", b"success"]) -> None: ...
 
 global___TestConnectorResponse = TestConnectorResponse
+
+@typing_extensions.final
+class RequestConnectorAPIRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    CONNECTOR_TYPE_FIELD_NUMBER: builtins.int
+    connector_type: core.protos.base_pb2.Source.ValueType
+    def __init__(
+        self,
+        *,
+        connector_type: core.protos.base_pb2.Source.ValueType = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["connector_type", b"connector_type"]) -> None: ...
+
+global___RequestConnectorAPIRequest = RequestConnectorAPIRequest
+
+@typing_extensions.final
+class RequestConnectorAPIResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    def __init__(
+        self,
+        *,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["message", b"message", "success", b"success"]) -> None: ...
+
+global___RequestConnectorAPIResponse = RequestConnectorAPIResponse
+
+@typing_extensions.final
+class GetVersionInfoRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    def __init__(
+        self,
+    ) -> None: ...
+
+global___GetVersionInfoRequest = GetVersionInfoRequest
+
+@typing_extensions.final
+class GetVersionInfoResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    LATEST_VERSION_FIELD_NUMBER: builtins.int
+    LATEST_VERSION_TIMESTAMP_FIELD_NUMBER: builtins.int
+    latest_version: builtins.str
+    latest_version_timestamp: builtins.int
+    def __init__(
+        self,
+        *,
+        latest_version: builtins.str = ...,
+        latest_version_timestamp: builtins.int = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["latest_version", b"latest_version", "latest_version_timestamp", b"latest_version_timestamp"]) -> None: ...
+
+global___GetVersionInfoResponse = GetVersionInfoResponse
+
+@typing_extensions.final
+class ResetPasswordRequest(google.protobuf.message.Message):
+    """///////////////////  Reset Password APIs  /////////////////////"""
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    EMAIL_FIELD_NUMBER: builtins.int
+    email: builtins.str
+    def __init__(
+        self,
+        *,
+        email: builtins.str = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["email", b"email"]) -> None: ...
+
+global___ResetPasswordRequest = ResetPasswordRequest
+
+@typing_extensions.final
+class ResetPasswordResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    success: builtins.bool
+    @property
+    def message(self) -> global___Message: ...
+    def __init__(
+        self,
+        *,
+        success: builtins.bool = ...,
+        message: global___Message | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["message", b"message", "success", b"success"]) -> None: ...
+
+global___ResetPasswordResponse = ResetPasswordResponse
+
+@typing_extensions.final
+class ResetPasswordConfirmRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    TOKEN_FIELD_NUMBER: builtins.int
+    EMAIL_FIELD_NUMBER: builtins.int
+    NEW_PASSWORD_FIELD_NUMBER: builtins.int
+    token: builtins.str
+    email: builtins.str
+    new_password: builtins.str
+    def __init__(
+        self,
+        *,
+        token: builtins.str = ...,
+        email: builtins.str = ...,
+        new_password: builtins.str = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["email", b"email", "new_password", b"new_password", "token", b"token"]) -> None: ...
+
+global___ResetPasswordConfirmRequest = ResetPasswordConfirmRequest
+
+@typing_extensions.final
+class ResetPasswordConfirmResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    success: builtins.bool
+    @property
+    def message(self) -> global___Message: ...
+    def __init__(
+        self,
+        *,
+        success: builtins.bool = ...,
+        message: global___Message | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["message", b"message", "success", b"success"]) -> None: ...
+
+global___ResetPasswordConfirmResponse = ResetPasswordConfirmResponse
+
+@typing_extensions.final
+class GoogleAuthRequest(google.protobuf.message.Message):
+    """///// Google Auth APIs //////"""
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    ACCESS_TOKEN_FIELD_NUMBER: builtins.int
+    AUD_FIELD_NUMBER: builtins.int
+    STATE_FIELD_NUMBER: builtins.int
+    access_token: builtins.str
+    aud: builtins.str
+    @property
+    def state(self) -> google.protobuf.struct_pb2.Struct: ...
+    def __init__(
+        self,
+        *,
+        access_token: builtins.str = ...,
+        aud: builtins.str = ...,
+        state: google.protobuf.struct_pb2.Struct | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["state", b"state"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["access_token", b"access_token", "aud", b"aud", "state", b"state"]) -> None: ...
+
+global___GoogleAuthRequest = GoogleAuthRequest
+
+@typing_extensions.final
+class GoogleAuthData(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    EMAIL_FIELD_NUMBER: builtins.int
+    FIRST_NAME_FIELD_NUMBER: builtins.int
+    LAST_NAME_FIELD_NUMBER: builtins.int
+    email: builtins.str
+    first_name: builtins.str
+    last_name: builtins.str
+    def __init__(
+        self,
+        *,
+        email: builtins.str = ...,
+        first_name: builtins.str = ...,
+        last_name: builtins.str = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["email", b"email", "first_name", b"first_name", "last_name", b"last_name"]) -> None: ...
+
+global___GoogleAuthData = GoogleAuthData
+
+@typing_extensions.final
+class GoogleAuthResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    MESSAGE_FIELD_NUMBER: builtins.int
+    SUCCESS_FIELD_NUMBER: builtins.int
+    KEY_FIELD_NUMBER: builtins.int
+    REFRESH_KEY_FIELD_NUMBER: builtins.int
+    USER_DATA_FIELD_NUMBER: builtins.int
+    IS_NEW_USER_FIELD_NUMBER: builtins.int
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    key: builtins.str
+    refresh_key: builtins.str
+    @property
+    def user_data(self) -> global___GoogleAuthData: ...
+    @property
+    def is_new_user(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    def __init__(
+        self,
+        *,
+        message: global___Message | None = ...,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        key: builtins.str = ...,
+        refresh_key: builtins.str = ...,
+        user_data: global___GoogleAuthData | None = ...,
+        is_new_user: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["is_new_user", b"is_new_user", "message", b"message", "success", b"success", "user_data", b"user_data"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["is_new_user", b"is_new_user", "key", b"key", "message", b"message", "refresh_key", b"refresh_key", "success", b"success", "user_data", b"user_data"]) -> None: ...
+
+global___GoogleAuthResponse = GoogleAuthResponse
+
+@typing_extensions.final
+class GetConnectorKeysOptionsRequest(google.protobuf.message.Message):
+    """/////////////////// Connector APIs /////////////////////"""
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    CONNECTOR_TYPE_FIELD_NUMBER: builtins.int
+    connector_type: core.protos.base_pb2.Source.ValueType
+    def __init__(
+        self,
+        *,
+        connector_type: core.protos.base_pb2.Source.ValueType = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["connector_type", b"connector_type"]) -> None: ...
+
+global___GetConnectorKeysOptionsRequest = GetConnectorKeysOptionsRequest
+
+@typing_extensions.final
+class GetConnectorKeysOptionsResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    CONNECTOR_FIELD_NUMBER: builtins.int
+    CONNECTOR_KEY_OPTIONS_FIELD_NUMBER: builtins.int
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def connector(self) -> core.protos.connectors.connector_pb2.Connector: ...
+    @property
+    def connector_key_options(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[core.protos.connectors.connector_pb2.ConnectorKey]: ...
+    def __init__(
+        self,
+        *,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        connector: core.protos.connectors.connector_pb2.Connector | None = ...,
+        connector_key_options: collections.abc.Iterable[core.protos.connectors.connector_pb2.ConnectorKey] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["connector", b"connector", "message", b"message", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["connector", b"connector", "connector_key_options", b"connector_key_options", "message", b"message", "success", b"success"]) -> None: ...
+
+global___GetConnectorKeysOptionsResponse = GetConnectorKeysOptionsResponse
+
+@typing_extensions.final
+class GetConnectorKeysRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    CONNECTOR_ID_FIELD_NUMBER: builtins.int
+    CONNECTOR_TYPE_FIELD_NUMBER: builtins.int
+    @property
+    def connector_id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+    connector_type: core.protos.base_pb2.Source.ValueType
+    def __init__(
+        self,
+        *,
+        connector_id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+        connector_type: core.protos.base_pb2.Source.ValueType = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["connector_id", b"connector_id"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["connector_id", b"connector_id", "connector_type", b"connector_type"]) -> None: ...
+
+global___GetConnectorKeysRequest = GetConnectorKeysRequest
+
+@typing_extensions.final
+class GetConnectorKeysResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    CONNECTOR_FIELD_NUMBER: builtins.int
+    CONNECTOR_KEYS_FIELD_NUMBER: builtins.int
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def connector(self) -> core.protos.connectors.connector_pb2.Connector: ...
+    @property
+    def connector_keys(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[core.protos.connectors.connector_pb2.ConnectorKey]: ...
+    def __init__(
+        self,
+        *,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        connector: core.protos.connectors.connector_pb2.Connector | None = ...,
+        connector_keys: collections.abc.Iterable[core.protos.connectors.connector_pb2.ConnectorKey] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["connector", b"connector", "message", b"message", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["connector", b"connector", "connector_keys", b"connector_keys", "message", b"message", "success", b"success"]) -> None: ...
+
+global___GetConnectorKeysResponse = GetConnectorKeysResponse
+
+@typing_extensions.final
+class SaveConnectorKeysRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    CONNECTOR_TYPE_FIELD_NUMBER: builtins.int
+    CONNECTOR_KEYS_FIELD_NUMBER: builtins.int
+    connector_type: core.protos.base_pb2.Source.ValueType
+    @property
+    def connector_keys(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[core.protos.connectors.connector_pb2.ConnectorKey]: ...
+    def __init__(
+        self,
+        *,
+        connector_type: core.protos.base_pb2.Source.ValueType = ...,
+        connector_keys: collections.abc.Iterable[core.protos.connectors.connector_pb2.ConnectorKey] | None = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["connector_keys", b"connector_keys", "connector_type", b"connector_type"]) -> None: ...
+
+global___SaveConnectorKeysRequest = SaveConnectorKeysRequest
+
+@typing_extensions.final
+class SaveConnectorKeysResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    MESSAGE_FIELD_NUMBER: builtins.int
+    message: builtins.str
+    def __init__(
+        self,
+        *,
+        message: builtins.str = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["message", b"message"]) -> None: ...
+
+global___SaveConnectorKeysResponse = SaveConnectorKeysResponse
+
+@typing_extensions.final
+class ApiGetConnectorsRequest(google.protobuf.message.Message):
+    """///////////////////  Get Active Connector List /////////////////////"""
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    CONNECTOR_IDS_FIELD_NUMBER: builtins.int
+    @property
+    def connector_ids(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[google.protobuf.wrappers_pb2.UInt64Value]: ...
+    def __init__(
+        self,
+        *,
+        connector_ids: collections.abc.Iterable[google.protobuf.wrappers_pb2.UInt64Value] | None = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["connector_ids", b"connector_ids"]) -> None: ...
+
+global___ApiGetConnectorsRequest = ApiGetConnectorsRequest
+
+@typing_extensions.final
+class ApiGetConnectorsResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    CONNECTORS_FIELD_NUMBER: builtins.int
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def connectors(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[core.protos.connectors.connector_pb2.Connector]: ...
+    def __init__(
+        self,
+        *,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        connectors: collections.abc.Iterable[core.protos.connectors.connector_pb2.Connector] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["connectors", b"connectors", "message", b"message", "success", b"success"]) -> None: ...
+
+global___ApiGetConnectorsResponse = ApiGetConnectorsResponse
+
+@typing_extensions.final
+class GetConnectorsListRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    CONNECTOR_TYPE_FIELD_NUMBER: builtins.int
+    connector_type: core.protos.base_pb2.Source.ValueType
+    def __init__(
+        self,
+        *,
+        connector_type: core.protos.base_pb2.Source.ValueType = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["connector_type", b"connector_type"]) -> None: ...
+
+global___GetConnectorsListRequest = GetConnectorsListRequest
+
+@typing_extensions.final
+class GetConnectorsListResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    REQUEST_CONNECTORS_FIELD_NUMBER: builtins.int
+    AVAILABLE_CONNECTORS_FIELD_NUMBER: builtins.int
+    CONNECTORS_FIELD_NUMBER: builtins.int
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def request_connectors(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[core.protos.connectors.connector_pb2.Connector]: ...
+    @property
+    def available_connectors(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[core.protos.connectors.connector_pb2.Connector]: ...
+    @property
+    def connectors(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[core.protos.connectors.connector_pb2.Connector]: ...
+    def __init__(
+        self,
+        *,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        request_connectors: collections.abc.Iterable[core.protos.connectors.connector_pb2.Connector] | None = ...,
+        available_connectors: collections.abc.Iterable[core.protos.connectors.connector_pb2.Connector] | None = ...,
+        connectors: collections.abc.Iterable[core.protos.connectors.connector_pb2.Connector] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["available_connectors", b"available_connectors", "connectors", b"connectors", "message", b"message", "request_connectors", b"request_connectors", "success", b"success"]) -> None: ...
+
+global___GetConnectorsListResponse = GetConnectorsListResponse
+
+@typing_extensions.final
+class UpdateConnectorRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    CONNECTOR_ID_FIELD_NUMBER: builtins.int
+    UPDATE_CONNECTOR_OPS_FIELD_NUMBER: builtins.int
+    @property
+    def connector_id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+    @property
+    def update_connector_ops(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[core.protos.connectors.connector_pb2.UpdateConnectorOp]: ...
+    def __init__(
+        self,
+        *,
+        connector_id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+        update_connector_ops: collections.abc.Iterable[core.protos.connectors.connector_pb2.UpdateConnectorOp] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["connector_id", b"connector_id"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["connector_id", b"connector_id", "update_connector_ops", b"update_connector_ops"]) -> None: ...
+
+global___UpdateConnectorRequest = UpdateConnectorRequest
+
+@typing_extensions.final
+class UpdateConnectorResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    def __init__(
+        self,
+        *,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["message", b"message", "success", b"success"]) -> None: ...
+
+global___UpdateConnectorResponse = UpdateConnectorResponse
+
+@typing_extensions.final
+class GetConnectorDefaultDestinationRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    CONNECTOR_ID_FIELD_NUMBER: builtins.int
+    @property
+    def connector_id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+    def __init__(
+        self,
+        *,
+        connector_id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["connector_id", b"connector_id"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["connector_id", b"connector_id"]) -> None: ...
+
+global___GetConnectorDefaultDestinationRequest = GetConnectorDefaultDestinationRequest
+
+@typing_extensions.final
+class GetConnectorDefaultDestinationResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    DEFAULT_DESTINATION_FIELD_NUMBER: builtins.int
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def default_destination(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    def __init__(
+        self,
+        *,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        default_destination: google.protobuf.wrappers_pb2.StringValue | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["default_destination", b"default_destination", "message", b"message", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["default_destination", b"default_destination", "message", b"message", "success", b"success"]) -> None: ...
+
+global___GetConnectorDefaultDestinationResponse = GetConnectorDefaultDestinationResponse
+
+@typing_extensions.final
+class BasicAlertSummaryReportRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    CHANNEL_ID_FIELD_NUMBER: builtins.int
+    channel_id: builtins.str
+    def __init__(
+        self,
+        *,
+        channel_id: builtins.str = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["channel_id", b"channel_id"]) -> None: ...
+
+global___BasicAlertSummaryReportRequest = BasicAlertSummaryReportRequest
+
+@typing_extensions.final
+class BasicAlertSummaryReportResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    @typing_extensions.final
+    class AlertTypeCountTimeSeries(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        ALERT_TYPE_FIELD_NUMBER: builtins.int
+        Y_SERIES_FIELD_NUMBER: builtins.int
+        alert_type: builtins.str
+        @property
+        def y_series(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.float]: ...
+        def __init__(
+            self,
+            *,
+            alert_type: builtins.str = ...,
+            y_series: collections.abc.Iterable[builtins.float] | None = ...,
+        ) -> None: ...
+        def ClearField(self, field_name: typing_extensions.Literal["alert_type", b"alert_type", "y_series", b"y_series"]) -> None: ...
+
+    @typing_extensions.final
+    class AlertSummaryReport(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        TITLE_FIELD_NUMBER: builtins.int
+        COMM_CHANNEL_FIELD_NUMBER: builtins.int
+        X_SERIES_FIELD_NUMBER: builtins.int
+        ALERT_TYPE_COUNT_TIME_SERIES_FIELD_NUMBER: builtins.int
+        title: builtins.str
+        @property
+        def comm_channel(self) -> core.protos.alert_ops_pb2.CommChannel: ...
+        @property
+        def x_series(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+        @property
+        def alert_type_count_time_series(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___BasicAlertSummaryReportResponse.AlertTypeCountTimeSeries]: ...
+        def __init__(
+            self,
+            *,
+            title: builtins.str = ...,
+            comm_channel: core.protos.alert_ops_pb2.CommChannel | None = ...,
+            x_series: collections.abc.Iterable[builtins.str] | None = ...,
+            alert_type_count_time_series: collections.abc.Iterable[global___BasicAlertSummaryReportResponse.AlertTypeCountTimeSeries] | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["comm_channel", b"comm_channel"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["alert_type_count_time_series", b"alert_type_count_time_series", "comm_channel", b"comm_channel", "title", b"title", "x_series", b"x_series"]) -> None: ...
+
+    REPORTS_FIELD_NUMBER: builtins.int
+    @property
+    def reports(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___BasicAlertSummaryReportResponse.AlertSummaryReport]: ...
+    def __init__(
+        self,
+        *,
+        reports: collections.abc.Iterable[global___BasicAlertSummaryReportResponse.AlertSummaryReport] | None = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["reports", b"reports"]) -> None: ...
+
+global___BasicAlertSummaryReportResponse = BasicAlertSummaryReportResponse
+
+@typing_extensions.final
+class AlertOpsReportsRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    def __init__(
+        self,
+    ) -> None: ...
+
+global___AlertOpsReportsRequest = AlertOpsReportsRequest
+
+@typing_extensions.final
+class ReportIntimationRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    ACCOUNT_ID_FIELD_NUMBER: builtins.int
+    REPORT_TYPE_FIELD_NUMBER: builtins.int
+    account_id: builtins.int
+    report_type: core.protos.connectors.connector_pb2.ReportType.ValueType
+    def __init__(
+        self,
+        *,
+        account_id: builtins.int = ...,
+        report_type: core.protos.connectors.connector_pb2.ReportType.ValueType = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["account_id", b"account_id", "report_type", b"report_type"]) -> None: ...
+
+global___ReportIntimationRequest = ReportIntimationRequest
+
+@typing_extensions.final
+class AlertOpsReportsResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    URL_FIELD_NUMBER: builtins.int
+    TYPE_FIELD_NUMBER: builtins.int
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    url: builtins.str
+    type: core.protos.connectors.connector_pb2.ReportType.ValueType
+    def __init__(
+        self,
+        *,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        url: builtins.str = ...,
+        type: core.protos.connectors.connector_pb2.ReportType.ValueType = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["message", b"message", "success", b"success", "type", b"type", "url", b"url"]) -> None: ...
+
+global___AlertOpsReportsResponse = AlertOpsReportsResponse
+
+@typing_extensions.final
+class GetAlertOpsGroupedAlertsListRequest(google.protobuf.message.Message):
+    """/////////////////// AlertOps APIs /////////////////////"""
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    ALERT_SOURCE_FIELD_NUMBER: builtins.int
+    ALERT_TYPES_FIELD_NUMBER: builtins.int
+    ALERT_TITLE_FIELD_NUMBER: builtins.int
+    ALERT_CHANNELS_FIELD_NUMBER: builtins.int
+    ALERT_SEVERITY_FIELD_NUMBER: builtins.int
+    ALERT_STATUS_FIELD_NUMBER: builtins.int
+    SHOW_HIDDEN_ALERTS_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    alert_source: core.protos.base_pb2.Source.ValueType
+    @property
+    def alert_types(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+    alert_title: builtins.str
+    @property
+    def alert_channels(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+    @property
+    def alert_severity(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+    @property
+    def alert_status(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+    @property
+    def show_hidden_alerts(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        alert_source: core.protos.base_pb2.Source.ValueType = ...,
+        alert_types: collections.abc.Iterable[builtins.str] | None = ...,
+        alert_title: builtins.str = ...,
+        alert_channels: collections.abc.Iterable[builtins.str] | None = ...,
+        alert_severity: collections.abc.Iterable[builtins.str] | None = ...,
+        alert_status: collections.abc.Iterable[builtins.str] | None = ...,
+        show_hidden_alerts: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["meta", b"meta", "show_hidden_alerts", b"show_hidden_alerts"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["alert_channels", b"alert_channels", "alert_severity", b"alert_severity", "alert_source", b"alert_source", "alert_status", b"alert_status", "alert_title", b"alert_title", "alert_types", b"alert_types", "meta", b"meta", "show_hidden_alerts", b"show_hidden_alerts"]) -> None: ...
+
+global___GetAlertOpsGroupedAlertsListRequest = GetAlertOpsGroupedAlertsListRequest
+
+@typing_extensions.final
+class GetAlertOpsGroupedAlertsListResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    ALERTS_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def alerts(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[core.protos.alert_ops_pb2.SlackAlert]: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        alerts: collections.abc.Iterable[core.protos.alert_ops_pb2.SlackAlert] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["alerts", b"alerts", "message", b"message", "meta", b"meta", "success", b"success"]) -> None: ...
+
+global___GetAlertOpsGroupedAlertsListResponse = GetAlertOpsGroupedAlertsListResponse
+
+@typing_extensions.final
+class SaveMetadataDetailsRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    ALERT_ID_FIELD_NUMBER: builtins.int
+    ALERT_METADATA_DETAILS_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def alert_id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+    @property
+    def alert_metadata_details(self) -> core.protos.alert_metadata_details_pb2.AlertMetadataDetails: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        alert_id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+        alert_metadata_details: core.protos.alert_metadata_details_pb2.AlertMetadataDetails | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["alert_id", b"alert_id", "alert_metadata_details", b"alert_metadata_details", "meta", b"meta"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["alert_id", b"alert_id", "alert_metadata_details", b"alert_metadata_details", "meta", b"meta"]) -> None: ...
+
+global___SaveMetadataDetailsRequest = SaveMetadataDetailsRequest
+
+@typing_extensions.final
+class SaveMetadataDetailsResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    ALERT_METADATA_DETAILS_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def alert_metadata_details(self) -> core.protos.alert_metadata_details_pb2.AlertMetadataDetails: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        alert_metadata_details: core.protos.alert_metadata_details_pb2.AlertMetadataDetails | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["alert_metadata_details", b"alert_metadata_details", "message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["alert_metadata_details", b"alert_metadata_details", "message", b"message", "meta", b"meta", "success", b"success"]) -> None: ...
+
+global___SaveMetadataDetailsResponse = SaveMetadataDetailsResponse
+
+@typing_extensions.final
+class HideAlertStatusRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    ALERT_ID_FIELD_NUMBER: builtins.int
+    IS_HIDDEN_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def alert_id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+    @property
+    def is_hidden(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        alert_id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+        is_hidden: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["alert_id", b"alert_id", "is_hidden", b"is_hidden", "meta", b"meta"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["alert_id", b"alert_id", "is_hidden", b"is_hidden", "meta", b"meta"]) -> None: ...
+
+global___HideAlertStatusRequest = HideAlertStatusRequest
+
+@typing_extensions.final
+class HideAlertStatusResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    ALERT_METADATA_DETAILS_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def alert_metadata_details(self) -> core.protos.alert_metadata_details_pb2.AlertMetadataDetails: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        alert_metadata_details: core.protos.alert_metadata_details_pb2.AlertMetadataDetails | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["alert_metadata_details", b"alert_metadata_details", "message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["alert_metadata_details", b"alert_metadata_details", "message", b"message", "meta", b"meta", "success", b"success"]) -> None: ...
+
+global___HideAlertStatusResponse = HideAlertStatusResponse
+
+@typing_extensions.final
+class GetAlertOpsGroupedAlertsListResponseV2(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    ALERT_ROWS_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def alert_rows(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[core.protos.alert_ops_pb2.LiveSlackAlertRow]: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        alert_rows: collections.abc.Iterable[core.protos.alert_ops_pb2.LiveSlackAlertRow] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["alert_rows", b"alert_rows", "message", b"message", "meta", b"meta", "success", b"success"]) -> None: ...
+
+global___GetAlertOpsGroupedAlertsListResponseV2 = GetAlertOpsGroupedAlertsListResponseV2
+
+@typing_extensions.final
+class GetAlertGroupsListRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["meta", b"meta"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["meta", b"meta"]) -> None: ...
+
+global___GetAlertGroupsListRequest = GetAlertGroupsListRequest
+
+@typing_extensions.final
+class GetAlertGroupsListResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    ALERT_GROUPS_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def alert_groups(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[google.protobuf.struct_pb2.Struct]: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        alert_groups: collections.abc.Iterable[google.protobuf.struct_pb2.Struct] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["alert_groups", b"alert_groups", "message", b"message", "meta", b"meta", "success", b"success"]) -> None: ...
+
+global___GetAlertGroupsListResponse = GetAlertGroupsListResponse
+
+@typing_extensions.final
+class GetAlertGroupingPreferenceRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["meta", b"meta"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["meta", b"meta"]) -> None: ...
+
+global___GetAlertGroupingPreferenceRequest = GetAlertGroupingPreferenceRequest
+
+@typing_extensions.final
+class GetAlertGroupingPreferenceResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    ALERT_GROUPING_PREFERENCE_FIELD_NUMBER: builtins.int
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def alert_grouping_preference(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    def __init__(
+        self,
+        *,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        alert_grouping_preference: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["alert_grouping_preference", b"alert_grouping_preference", "message", b"message", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["alert_grouping_preference", b"alert_grouping_preference", "message", b"message", "success", b"success"]) -> None: ...
+
+global___GetAlertGroupingPreferenceResponse = GetAlertGroupingPreferenceResponse
+
+@typing_extensions.final
+class BlackListAlertTitlePrefRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    ALERT_TITLE_FIELD_NUMBER: builtins.int
+    IS_ACTIVE_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    alert_title: builtins.str
+    @property
+    def is_active(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        alert_title: builtins.str = ...,
+        is_active: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["is_active", b"is_active", "meta", b"meta"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["alert_title", b"alert_title", "is_active", b"is_active", "meta", b"meta"]) -> None: ...
+
+global___BlackListAlertTitlePrefRequest = BlackListAlertTitlePrefRequest
+
+@typing_extensions.final
+class BlackListAlertTitlePrefResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    def __init__(
+        self,
+        *,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["message", b"message", "success", b"success"]) -> None: ...
+
+global___BlackListAlertTitlePrefResponse = BlackListAlertTitlePrefResponse
+
+@typing_extensions.final
+class GetAlertOpsGroupedIssuesListRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["meta", b"meta"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["meta", b"meta"]) -> None: ...
+
+global___GetAlertOpsGroupedIssuesListRequest = GetAlertOpsGroupedIssuesListRequest
+
+@typing_extensions.final
+class GetAlertOpsGroupedIssuesListResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    ISSUES_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def issues(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[core.protos.alert_ops_pb2.Issue]: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        issues: collections.abc.Iterable[core.protos.alert_ops_pb2.Issue] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["issues", b"issues", "message", b"message", "meta", b"meta", "success", b"success"]) -> None: ...
+
+global___GetAlertOpsGroupedIssuesListResponse = GetAlertOpsGroupedIssuesListResponse
+
+@typing_extensions.final
+class GetAlertOpsSourceOptionsRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    MODE_PLAYGROUND_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def mode_playground(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        mode_playground: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["meta", b"meta", "mode_playground", b"mode_playground"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["meta", b"meta", "mode_playground", b"mode_playground"]) -> None: ...
+
+global___GetAlertOpsSourceOptionsRequest = GetAlertOpsSourceOptionsRequest
+
+@typing_extensions.final
+class GetAlertOpsSourceOptionsResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    ACTIVE_ALERT_SOURCES_FIELD_NUMBER: builtins.int
+    AVAILABLE_ALERT_SOURCES_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def active_alert_sources(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[core.protos.base_pb2.Source.ValueType]: ...
+    @property
+    def available_alert_sources(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[core.protos.base_pb2.Source.ValueType]: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        active_alert_sources: collections.abc.Iterable[core.protos.base_pb2.Source.ValueType] | None = ...,
+        available_alert_sources: collections.abc.Iterable[core.protos.base_pb2.Source.ValueType] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["active_alert_sources", b"active_alert_sources", "available_alert_sources", b"available_alert_sources", "message", b"message", "meta", b"meta", "success", b"success"]) -> None: ...
+
+global___GetAlertOpsSourceOptionsResponse = GetAlertOpsSourceOptionsResponse
+
+@typing_extensions.final
+class GetAlertOpsOptionsRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    MODE_PLAYGROUND_FIELD_NUMBER: builtins.int
+    ALERT_SOURCE_FIELD_NUMBER: builtins.int
+    CONNECTOR_TYPE_FIELD_NUMBER: builtins.int
+    FILTER_CHANNELS_FIELD_NUMBER: builtins.int
+    FILTER_ALERT_TYPES_FIELD_NUMBER: builtins.int
+    FILTER_ALERT_TAGS_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def mode_playground(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    alert_source: core.protos.base_pb2.Source.ValueType
+    @property
+    def connector_type(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[core.protos.base_pb2.Source.ValueType]: ...
+    @property
+    def filter_channels(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+    @property
+    def filter_alert_types(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+    @property
+    def filter_alert_tags(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        mode_playground: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        alert_source: core.protos.base_pb2.Source.ValueType = ...,
+        connector_type: collections.abc.Iterable[core.protos.base_pb2.Source.ValueType] | None = ...,
+        filter_channels: collections.abc.Iterable[builtins.str] | None = ...,
+        filter_alert_types: collections.abc.Iterable[builtins.str] | None = ...,
+        filter_alert_tags: collections.abc.Iterable[builtins.str] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["meta", b"meta", "mode_playground", b"mode_playground"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["alert_source", b"alert_source", "connector_type", b"connector_type", "filter_alert_tags", b"filter_alert_tags", "filter_alert_types", b"filter_alert_types", "filter_channels", b"filter_channels", "meta", b"meta", "mode_playground", b"mode_playground"]) -> None: ...
+
+global___GetAlertOpsOptionsRequest = GetAlertOpsOptionsRequest
+
+@typing_extensions.final
+class GetAlertOpsOptionsRequestV2(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    @typing_extensions.final
+    class SourceRequest(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        ALERT_SOURCE_FIELD_NUMBER: builtins.int
+        CONNECTOR_TYPE_FIELD_NUMBER: builtins.int
+        FILTER_CHANNELS_FIELD_NUMBER: builtins.int
+        FILTER_ALERT_TYPES_FIELD_NUMBER: builtins.int
+        FILTER_ALERT_TAGS_FIELD_NUMBER: builtins.int
+        alert_source: core.protos.base_pb2.Source.ValueType
+        connector_type: core.protos.base_pb2.Source.ValueType
+        @property
+        def filter_channels(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+        @property
+        def filter_alert_types(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+        @property
+        def filter_alert_tags(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+        def __init__(
+            self,
+            *,
+            alert_source: core.protos.base_pb2.Source.ValueType = ...,
+            connector_type: core.protos.base_pb2.Source.ValueType = ...,
+            filter_channels: collections.abc.Iterable[builtins.str] | None = ...,
+            filter_alert_types: collections.abc.Iterable[builtins.str] | None = ...,
+            filter_alert_tags: collections.abc.Iterable[builtins.str] | None = ...,
+        ) -> None: ...
+        def ClearField(self, field_name: typing_extensions.Literal["alert_source", b"alert_source", "connector_type", b"connector_type", "filter_alert_tags", b"filter_alert_tags", "filter_alert_types", b"filter_alert_types", "filter_channels", b"filter_channels"]) -> None: ...
+
+    META_FIELD_NUMBER: builtins.int
+    MODE_PLAYGROUND_FIELD_NUMBER: builtins.int
+    CONNECTOR_TYPE_REQUESTS_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def mode_playground(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def connector_type_requests(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___GetAlertOpsOptionsRequestV2.SourceRequest]: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        mode_playground: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        connector_type_requests: collections.abc.Iterable[global___GetAlertOpsOptionsRequestV2.SourceRequest] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["meta", b"meta", "mode_playground", b"mode_playground"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["connector_type_requests", b"connector_type_requests", "meta", b"meta", "mode_playground", b"mode_playground"]) -> None: ...
+
+global___GetAlertOpsOptionsRequestV2 = GetAlertOpsOptionsRequestV2
+
+@typing_extensions.final
+class GetAlertOpsOptionsResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    ALERT_OPS_OPTIONS_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def alert_ops_options(self) -> core.protos.alert_ops_pb2.AlertOpsOptions: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        alert_ops_options: core.protos.alert_ops_pb2.AlertOpsOptions | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["alert_ops_options", b"alert_ops_options", "meta", b"meta"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["alert_ops_options", b"alert_ops_options", "meta", b"meta"]) -> None: ...
+
+global___GetAlertOpsOptionsResponse = GetAlertOpsOptionsResponse
+
+@typing_extensions.final
+class AlertOpsUserPreferencesRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    PREFERENCES_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def preferences(self) -> core.protos.alert_ops_pb2.UserAlertOpsPreferences: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        preferences: core.protos.alert_ops_pb2.UserAlertOpsPreferences | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["meta", b"meta", "preferences", b"preferences"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["meta", b"meta", "preferences", b"preferences"]) -> None: ...
+
+global___AlertOpsUserPreferencesRequest = AlertOpsUserPreferencesRequest
+
+@typing_extensions.final
+class AlertOpsUserPreferencesResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    PREFERENCES_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def preferences(self) -> core.protos.alert_ops_pb2.UserAlertOpsPreferences: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        preferences: core.protos.alert_ops_pb2.UserAlertOpsPreferences | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "preferences", b"preferences", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "preferences", b"preferences", "success", b"success"]) -> None: ...
+
+global___AlertOpsUserPreferencesResponse = AlertOpsUserPreferencesResponse
+
+@typing_extensions.final
+class GetAlertOpsSlackAlertMetricRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    MODE_PLAYGROUND_FIELD_NUMBER: builtins.int
+    ALERT_SOURCE_FIELD_NUMBER: builtins.int
+    METRIC_NAME_FIELD_NUMBER: builtins.int
+    METRIC_TITLE_FIELD_NUMBER: builtins.int
+    FILTER_CHANNELS_FIELD_NUMBER: builtins.int
+    FILTER_ALERT_TYPES_FIELD_NUMBER: builtins.int
+    FILTER_ALERT_TAGS_FIELD_NUMBER: builtins.int
+    ALERT_TITLES_INCLUSION_PREF_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def mode_playground(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    alert_source: core.protos.base_pb2.Source.ValueType
+    @property
+    def metric_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    @property
+    def metric_title(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    @property
+    def filter_channels(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+    @property
+    def filter_alert_types(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+    @property
+    def filter_alert_tags(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+    alert_titles_inclusion_pref: global___AlertInclusionPrefType.ValueType
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        mode_playground: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        alert_source: core.protos.base_pb2.Source.ValueType = ...,
+        metric_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        metric_title: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        filter_channels: collections.abc.Iterable[builtins.str] | None = ...,
+        filter_alert_types: collections.abc.Iterable[builtins.str] | None = ...,
+        filter_alert_tags: collections.abc.Iterable[builtins.str] | None = ...,
+        alert_titles_inclusion_pref: global___AlertInclusionPrefType.ValueType = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["meta", b"meta", "metric_name", b"metric_name", "metric_title", b"metric_title", "mode_playground", b"mode_playground"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["alert_source", b"alert_source", "alert_titles_inclusion_pref", b"alert_titles_inclusion_pref", "filter_alert_tags", b"filter_alert_tags", "filter_alert_types", b"filter_alert_types", "filter_channels", b"filter_channels", "meta", b"meta", "metric_name", b"metric_name", "metric_title", b"metric_title", "mode_playground", b"mode_playground"]) -> None: ...
+
+global___GetAlertOpsSlackAlertMetricRequest = GetAlertOpsSlackAlertMetricRequest
+
+@typing_extensions.final
+class GetAlertOpsSlackAlertMetricResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    @typing_extensions.final
+    class MetricMapEntry(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        KEY_FIELD_NUMBER: builtins.int
+        VALUE_FIELD_NUMBER: builtins.int
+        key: builtins.str
+        @property
+        def value(self) -> core.protos.alert_ops_pb2.AlertOpsMetricsResponses: ...
+        def __init__(
+            self,
+            *,
+            key: builtins.str = ...,
+            value: core.protos.alert_ops_pb2.AlertOpsMetricsResponses | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["value", b"value"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["key", b"key", "value", b"value"]) -> None: ...
+
+    META_FIELD_NUMBER: builtins.int
+    SUCCESS_FIELD_NUMBER: builtins.int
+    METRIC_MAP_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def metric_map(self) -> google.protobuf.internal.containers.MessageMap[builtins.str, core.protos.alert_ops_pb2.AlertOpsMetricsResponses]: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        metric_map: collections.abc.Mapping[builtins.str, core.protos.alert_ops_pb2.AlertOpsMetricsResponses] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["meta", b"meta", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["meta", b"meta", "metric_map", b"metric_map", "success", b"success"]) -> None: ...
+
+global___GetAlertOpsSlackAlertMetricResponse = GetAlertOpsSlackAlertMetricResponse
+
+@typing_extensions.final
+class GetAlertOpsTopAlertingEntitiesByToolRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    MODE_PLAYGROUND_FIELD_NUMBER: builtins.int
+    ALERT_SOURCE_FIELD_NUMBER: builtins.int
+    THRESHOLD_FIELD_NUMBER: builtins.int
+    FILTER_CHANNELS_FIELD_NUMBER: builtins.int
+    FILTER_ALERT_TYPES_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def mode_playground(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    alert_source: core.protos.base_pb2.Source.ValueType
+    @property
+    def threshold(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+    @property
+    def filter_channels(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+    @property
+    def filter_alert_types(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        mode_playground: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        alert_source: core.protos.base_pb2.Source.ValueType = ...,
+        threshold: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+        filter_channels: collections.abc.Iterable[builtins.str] | None = ...,
+        filter_alert_types: collections.abc.Iterable[builtins.str] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["meta", b"meta", "mode_playground", b"mode_playground", "threshold", b"threshold"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["alert_source", b"alert_source", "filter_alert_types", b"filter_alert_types", "filter_channels", b"filter_channels", "meta", b"meta", "mode_playground", b"mode_playground", "threshold", b"threshold"]) -> None: ...
+
+global___GetAlertOpsTopAlertingEntitiesByToolRequest = GetAlertOpsTopAlertingEntitiesByToolRequest
+
+@typing_extensions.final
+class GetAlertOpsTopAlertingEntitiesByToolResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    @typing_extensions.final
+    class ToolAlertingEntity(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        @typing_extensions.final
+        class MetadataKeyValue(google.protobuf.message.Message):
+            DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+            KEY_FIELD_NUMBER: builtins.int
+            VALUE_FIELD_NUMBER: builtins.int
+            @property
+            def key(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+            @property
+            def value(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+            def __init__(
+                self,
+                *,
+                key: google.protobuf.wrappers_pb2.StringValue | None = ...,
+                value: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            ) -> None: ...
+            def HasField(self, field_name: typing_extensions.Literal["key", b"key", "value", b"value"]) -> builtins.bool: ...
+            def ClearField(self, field_name: typing_extensions.Literal["key", b"key", "value", b"value"]) -> None: ...
+
+        CHANNEL_NAME_FIELD_NUMBER: builtins.int
+        ALERT_TYPE_FIELD_NUMBER: builtins.int
+        FREQUENCY_FIELD_NUMBER: builtins.int
+        TITLE_FIELD_NUMBER: builtins.int
+        ALERT_ENTITY_RESOURCE_METADATA_FIELD_NUMBER: builtins.int
+        @property
+        def channel_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def alert_type(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def frequency(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+        @property
+        def title(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def alert_entity_resource_metadata(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___GetAlertOpsTopAlertingEntitiesByToolResponse.ToolAlertingEntity.MetadataKeyValue]: ...
+        def __init__(
+            self,
+            *,
+            channel_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            alert_type: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            frequency: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+            title: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            alert_entity_resource_metadata: collections.abc.Iterable[global___GetAlertOpsTopAlertingEntitiesByToolResponse.ToolAlertingEntity.MetadataKeyValue] | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["alert_type", b"alert_type", "channel_name", b"channel_name", "frequency", b"frequency", "title", b"title"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["alert_entity_resource_metadata", b"alert_entity_resource_metadata", "alert_type", b"alert_type", "channel_name", b"channel_name", "frequency", b"frequency", "title", b"title"]) -> None: ...
+
+    META_FIELD_NUMBER: builtins.int
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    TOOL_ALERTING_ENTITIES_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def tool_alerting_entities(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___GetAlertOpsTopAlertingEntitiesByToolResponse.ToolAlertingEntity]: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        tool_alerting_entities: collections.abc.Iterable[global___GetAlertOpsTopAlertingEntitiesByToolResponse.ToolAlertingEntity] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "success", b"success", "tool_alerting_entities", b"tool_alerting_entities"]) -> None: ...
+
+global___GetAlertOpsTopAlertingEntitiesByToolResponse = GetAlertOpsTopAlertingEntitiesByToolResponse
+
+@typing_extensions.final
+class AlertOpsSlackAlertsGenerateAQSRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    MODE_PLAYGROUND_FIELD_NUMBER: builtins.int
+    ALERT_SOURCE_FIELD_NUMBER: builtins.int
+    FILTER_CHANNELS_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def mode_playground(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    alert_source: core.protos.base_pb2.Source.ValueType
+    @property
+    def filter_channels(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        mode_playground: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        alert_source: core.protos.base_pb2.Source.ValueType = ...,
+        filter_channels: collections.abc.Iterable[builtins.str] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["meta", b"meta", "mode_playground", b"mode_playground"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["alert_source", b"alert_source", "filter_channels", b"filter_channels", "meta", b"meta", "mode_playground", b"mode_playground"]) -> None: ...
+
+global___AlertOpsSlackAlertsGenerateAQSRequest = AlertOpsSlackAlertsGenerateAQSRequest
+
+@typing_extensions.final
+class AlertOpsSlackAlertsGenerateAQSResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    @typing_extensions.final
+    class ChannelAQSSData(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        CHANNEL_NAME_FIELD_NUMBER: builtins.int
+        AQS_SCORE_MODELS_FIELD_NUMBER: builtins.int
+        @property
+        def channel_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def aqs_score_models(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[core.protos.alert_ops_pb2.AQSScoreModel]: ...
+        def __init__(
+            self,
+            *,
+            channel_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            aqs_score_models: collections.abc.Iterable[core.protos.alert_ops_pb2.AQSScoreModel] | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["channel_name", b"channel_name"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["aqs_score_models", b"aqs_score_models", "channel_name", b"channel_name"]) -> None: ...
+
+    META_FIELD_NUMBER: builtins.int
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    AQS_SCORE_MODELS_FIELD_NUMBER: builtins.int
+    CHANNEL_AQS_DATA_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def aqs_score_models(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[core.protos.alert_ops_pb2.AQSScoreModel]: ...
+    @property
+    def channel_aqs_data(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___AlertOpsSlackAlertsGenerateAQSResponse.ChannelAQSSData]: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        aqs_score_models: collections.abc.Iterable[core.protos.alert_ops_pb2.AQSScoreModel] | None = ...,
+        channel_aqs_data: collections.abc.Iterable[global___AlertOpsSlackAlertsGenerateAQSResponse.ChannelAQSSData] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["aqs_score_models", b"aqs_score_models", "channel_aqs_data", b"channel_aqs_data", "message", b"message", "meta", b"meta", "success", b"success"]) -> None: ...
+
+global___AlertOpsSlackAlertsGenerateAQSResponse = AlertOpsSlackAlertsGenerateAQSResponse
+
+@typing_extensions.final
+class AlertOpsGetAgentTaskConfigOptionsRequest(google.protobuf.message.Message):
+    """/////////////////// AlertOps Agent Task APIs /////////////////////"""
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["meta", b"meta"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["meta", b"meta"]) -> None: ...
+
+global___AlertOpsGetAgentTaskConfigOptionsRequest = AlertOpsGetAgentTaskConfigOptionsRequest
+
+@typing_extensions.final
+class AlertOpsGetAgentTaskConfigOptionsResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    AGENT_TASK_CONFIGS_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def agent_task_configs(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[core.protos.alert_ops_pb2.AgentTaskConfig]: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        agent_task_configs: collections.abc.Iterable[core.protos.alert_ops_pb2.AgentTaskConfig] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["agent_task_configs", b"agent_task_configs", "message", b"message", "meta", b"meta", "success", b"success"]) -> None: ...
+
+global___AlertOpsGetAgentTaskConfigOptionsResponse = AlertOpsGetAgentTaskConfigOptionsResponse
+
+@typing_extensions.final
+class AlertOpsCreateAgentTaskConfigRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    AGENT_TASK_CONFIG_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def agent_task_config(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[core.protos.alert_ops_pb2.AgentTaskConfig]: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        agent_task_config: collections.abc.Iterable[core.protos.alert_ops_pb2.AgentTaskConfig] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["meta", b"meta"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["agent_task_config", b"agent_task_config", "meta", b"meta"]) -> None: ...
+
+global___AlertOpsCreateAgentTaskConfigRequest = AlertOpsCreateAgentTaskConfigRequest
+
+@typing_extensions.final
+class AlertOpsCreateAgentTaskConfigResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    AGENT_TASK_CONFIG_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def agent_task_config(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[core.protos.alert_ops_pb2.AgentTaskConfig]: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        agent_task_config: collections.abc.Iterable[core.protos.alert_ops_pb2.AgentTaskConfig] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["agent_task_config", b"agent_task_config", "message", b"message", "meta", b"meta", "success", b"success"]) -> None: ...
+
+global___AlertOpsCreateAgentTaskConfigResponse = AlertOpsCreateAgentTaskConfigResponse
+
+@typing_extensions.final
+class SearchInvestigationRelatedAlertsRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    SESSION_ID_FIELD_NUMBER: builtins.int
+    RANGE_IN_SECONDS_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def session_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    @property
+    def range_in_seconds(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        session_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        range_in_seconds: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["meta", b"meta", "range_in_seconds", b"range_in_seconds", "search_criteria", b"search_criteria", "session_id", b"session_id"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["meta", b"meta", "range_in_seconds", b"range_in_seconds", "search_criteria", b"search_criteria", "session_id", b"session_id"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing_extensions.Literal["search_criteria", b"search_criteria"]) -> typing_extensions.Literal["range_in_seconds"] | None: ...
+
+global___SearchInvestigationRelatedAlertsRequest = SearchInvestigationRelatedAlertsRequest
+
+@typing_extensions.final
+class SearchInvestigationRelatedAlertsResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    RELATED_ALERTS_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def related_alerts(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[core.protos.alert_ops_pb2.SlackAlert]: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        related_alerts: collections.abc.Iterable[core.protos.alert_ops_pb2.SlackAlert] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "related_alerts", b"related_alerts", "success", b"success"]) -> None: ...
+
+global___SearchInvestigationRelatedAlertsResponse = SearchInvestigationRelatedAlertsResponse
+
+@typing_extensions.final
+class AlertOpsSlackConnectRequest(google.protobuf.message.Message):
+    """/////////////////// AlertOps Slack Specific Graph APIs /////////////////////"""
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["meta", b"meta"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["meta", b"meta"]) -> None: ...
+
+global___AlertOpsSlackConnectRequest = AlertOpsSlackConnectRequest
+
+@typing_extensions.final
+class AlertOpsSlackConnectResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    SUCCESS_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["meta", b"meta", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["meta", b"meta", "success", b"success"]) -> None: ...
+
+global___AlertOpsSlackConnectResponse = AlertOpsSlackConnectResponse
+
+@typing_extensions.final
+class AlertOpsSlackAlertsAutoRCAUpdateStateRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    SLACK_CHANNEL_CONNECTOR_KEY_ID_FIELD_NUMBER: builtins.int
+    IS_AUTO_RCA_ENABLED_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def slack_channel_connector_key_id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+    @property
+    def is_auto_rca_enabled(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        slack_channel_connector_key_id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+        is_auto_rca_enabled: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["is_auto_rca_enabled", b"is_auto_rca_enabled", "meta", b"meta", "slack_channel_connector_key_id", b"slack_channel_connector_key_id"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["is_auto_rca_enabled", b"is_auto_rca_enabled", "meta", b"meta", "slack_channel_connector_key_id", b"slack_channel_connector_key_id"]) -> None: ...
+
+global___AlertOpsSlackAlertsAutoRCAUpdateStateRequest = AlertOpsSlackAlertsAutoRCAUpdateStateRequest
+
+@typing_extensions.final
+class AlertOpsSlackAlertsAutoRCAUpdateStateResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> None: ...
+
+global___AlertOpsSlackAlertsAutoRCAUpdateStateResponse = AlertOpsSlackAlertsAutoRCAUpdateStateResponse
+
+@typing_extensions.final
+class AlertOpsUpdateConnectorConfigurationRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    CONNECTOR_TYPE_FIELD_NUMBER: builtins.int
+    CONNECTOR_ID_FIELD_NUMBER: builtins.int
+    MODEL_ID_FIELD_NUMBER: builtins.int
+    SLACK_ALERT_OPS_CONFIGURATION_FIELD_NUMBER: builtins.int
+    ASANA_ALERT_OPS_CONFIGURATION_FIELD_NUMBER: builtins.int
+    connector_type: core.protos.base_pb2.Source.ValueType
+    @property
+    def connector_id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+    @property
+    def model_id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+    @property
+    def slack_alert_ops_configuration(self) -> global___SlackAlertOpsConfiguration: ...
+    @property
+    def asana_alert_ops_configuration(self) -> global___AsanaAlertOpsConfiguration: ...
+    def __init__(
+        self,
+        *,
+        connector_type: core.protos.base_pb2.Source.ValueType = ...,
+        connector_id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+        model_id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+        slack_alert_ops_configuration: global___SlackAlertOpsConfiguration | None = ...,
+        asana_alert_ops_configuration: global___AsanaAlertOpsConfiguration | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["asana_alert_ops_configuration", b"asana_alert_ops_configuration", "connector_configuration", b"connector_configuration", "connector_id", b"connector_id", "model_id", b"model_id", "slack_alert_ops_configuration", b"slack_alert_ops_configuration"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["asana_alert_ops_configuration", b"asana_alert_ops_configuration", "connector_configuration", b"connector_configuration", "connector_id", b"connector_id", "connector_type", b"connector_type", "model_id", b"model_id", "slack_alert_ops_configuration", b"slack_alert_ops_configuration"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing_extensions.Literal["connector_configuration", b"connector_configuration"]) -> typing_extensions.Literal["slack_alert_ops_configuration", "asana_alert_ops_configuration"] | None: ...
+
+global___AlertOpsUpdateConnectorConfigurationRequest = AlertOpsUpdateConnectorConfigurationRequest
+
+@typing_extensions.final
+class AlertOpsUpdateConnectorConfigurationResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> None: ...
+
+global___AlertOpsUpdateConnectorConfigurationResponse = AlertOpsUpdateConnectorConfigurationResponse
+
+@typing_extensions.final
+class AlertOpsSlackAlertsPublishWeeklyReportRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    ACCOUNT_ID_FIELD_NUMBER: builtins.int
+    SLACK_CHANNEL_CONNECTOR_KEY_ID_FIELD_NUMBER: builtins.int
+    SLACK_CHANNEL_ID_FIELD_NUMBER: builtins.int
+    SLACK_CHANNEL_NAME_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def account_id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+    @property
+    def slack_channel_connector_key_id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+    @property
+    def slack_channel_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    @property
+    def slack_channel_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        account_id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+        slack_channel_connector_key_id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+        slack_channel_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        slack_channel_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["account_id", b"account_id", "meta", b"meta", "slack_channel_connector_key_id", b"slack_channel_connector_key_id", "slack_channel_id", b"slack_channel_id", "slack_channel_name", b"slack_channel_name"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["account_id", b"account_id", "meta", b"meta", "slack_channel_connector_key_id", b"slack_channel_connector_key_id", "slack_channel_id", b"slack_channel_id", "slack_channel_name", b"slack_channel_name"]) -> None: ...
+
+global___AlertOpsSlackAlertsPublishWeeklyReportRequest = AlertOpsSlackAlertsPublishWeeklyReportRequest
+
+@typing_extensions.final
+class AlertOpsSlackAlertsPublishWeeklyReportResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> None: ...
+
+global___AlertOpsSlackAlertsPublishWeeklyReportResponse = AlertOpsSlackAlertsPublishWeeklyReportResponse
+
+@typing_extensions.final
+class GetSlackAppManifestRequest(google.protobuf.message.Message):
+    """/////////////////// AlertOps Slack APIs /////////////////////"""
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    HOST_NAME_FIELD_NUMBER: builtins.int
+    @property
+    def host_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    def __init__(
+        self,
+        *,
+        host_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["host_name", b"host_name"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["host_name", b"host_name"]) -> None: ...
+
+global___GetSlackAppManifestRequest = GetSlackAppManifestRequest
+
+@typing_extensions.final
+class GetSlackAppManifestResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    APP_MANIFEST_FIELD_NUMBER: builtins.int
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def app_manifest(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    def __init__(
+        self,
+        *,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        app_manifest: google.protobuf.wrappers_pb2.StringValue | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["app_manifest", b"app_manifest", "message", b"message", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["app_manifest", b"app_manifest", "message", b"message", "success", b"success"]) -> None: ...
+
+global___GetSlackAppManifestResponse = GetSlackAppManifestResponse
+
+@typing_extensions.final
+class GetAlertOpsDatadogR2D2RedirectUriRequest(google.protobuf.message.Message):
+    """/////////////////// AlertOps Datadog R2D2 APIs /////////////////////"""
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    SITE_FIELD_NUMBER: builtins.int
+    DOMAIN_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def site(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    @property
+    def domain(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        site: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        domain: google.protobuf.wrappers_pb2.StringValue | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["domain", b"domain", "meta", b"meta", "site", b"site"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["domain", b"domain", "meta", b"meta", "site", b"site"]) -> None: ...
+
+global___GetAlertOpsDatadogR2D2RedirectUriRequest = GetAlertOpsDatadogR2D2RedirectUriRequest
+
+@typing_extensions.final
+class GetAlertOpsDatadogR2D2RedirectUriResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    REDIRECT_URI_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def redirect_uri(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        redirect_uri: google.protobuf.wrappers_pb2.StringValue | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "redirect_uri", b"redirect_uri", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "redirect_uri", b"redirect_uri", "success", b"success"]) -> None: ...
+
+global___GetAlertOpsDatadogR2D2RedirectUriResponse = GetAlertOpsDatadogR2D2RedirectUriResponse
+
+@typing_extensions.final
+class GetAlertOpsGChatBotHandlerSpacesRequest(google.protobuf.message.Message):
+    """/////////////////// AlertOps G-Chat Bot Handler APIs /////////////////////"""
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["meta", b"meta"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["meta", b"meta"]) -> None: ...
+
+global___GetAlertOpsGChatBotHandlerSpacesRequest = GetAlertOpsGChatBotHandlerSpacesRequest
+
+@typing_extensions.final
+class GetAlertOpsGChatBotHandlerSpacesResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    SPACES_FIELD_NUMBER: builtins.int
+    REGISTERED_SPACES_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def spaces(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[core.protos.google_chat_bot_handler_pb2.GoogleChatSpace]: ...
+    @property
+    def registered_spaces(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[core.protos.google_chat_bot_handler_pb2.GoogleChatSpace]: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        spaces: collections.abc.Iterable[core.protos.google_chat_bot_handler_pb2.GoogleChatSpace] | None = ...,
+        registered_spaces: collections.abc.Iterable[core.protos.google_chat_bot_handler_pb2.GoogleChatSpace] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "registered_spaces", b"registered_spaces", "spaces", b"spaces", "success", b"success"]) -> None: ...
+
+global___GetAlertOpsGChatBotHandlerSpacesResponse = GetAlertOpsGChatBotHandlerSpacesResponse
+
+@typing_extensions.final
+class RegisterAlertOpsGChatBotHandlerSpacesRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    SPACES_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def spaces(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[core.protos.google_chat_bot_handler_pb2.GoogleChatSpace]: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        spaces: collections.abc.Iterable[core.protos.google_chat_bot_handler_pb2.GoogleChatSpace] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["meta", b"meta"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["meta", b"meta", "spaces", b"spaces"]) -> None: ...
+
+global___RegisterAlertOpsGChatBotHandlerSpacesRequest = RegisterAlertOpsGChatBotHandlerSpacesRequest
+
+@typing_extensions.final
+class RegisterAlertOpsGChatBotHandlerSpacesResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> None: ...
+
+global___RegisterAlertOpsGChatBotHandlerSpacesResponse = RegisterAlertOpsGChatBotHandlerSpacesResponse
+
+@typing_extensions.final
+class AlertOpsGChatBotHandlerSpacesStartDataFetchRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    SPACE_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def space(self) -> core.protos.google_chat_bot_handler_pb2.GoogleChatSpace: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        space: core.protos.google_chat_bot_handler_pb2.GoogleChatSpace | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["meta", b"meta", "space", b"space"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["meta", b"meta", "space", b"space"]) -> None: ...
+
+global___AlertOpsGChatBotHandlerSpacesStartDataFetchRequest = AlertOpsGChatBotHandlerSpacesStartDataFetchRequest
+
+@typing_extensions.final
+class AlertOpsGChatBotHandlerSpacesStartDataFetchResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> None: ...
+
+global___AlertOpsGChatBotHandlerSpacesStartDataFetchResponse = AlertOpsGChatBotHandlerSpacesStartDataFetchResponse
+
+@typing_extensions.final
+class RecoveryRunClickhouseBackFillRequest(google.protobuf.message.Message):
+    """///////////////////  Kenobi Recovery Events Clickhouse BackFill   /////////////////////"""
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["meta", b"meta"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["meta", b"meta"]) -> None: ...
+
+global___RecoveryRunClickhouseBackFillRequest = RecoveryRunClickhouseBackFillRequest
+
+@typing_extensions.final
+class RecoveryRunClickhouseBackFillResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> None: ...
+
+global___RecoveryRunClickhouseBackFillResponse = RecoveryRunClickhouseBackFillResponse
+
+@typing_extensions.final
+class ProxyAgentTokenGetRequest(google.protobuf.message.Message):
+    """///////////////////  Proxy Connector APIs schema  /////////////////////"""
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["meta", b"meta"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["meta", b"meta"]) -> None: ...
+
+global___ProxyAgentTokenGetRequest = ProxyAgentTokenGetRequest
+
+@typing_extensions.final
+class ProxyAgentTokenGetResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    PROXY_AGENT_TOKENS_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def proxy_agent_tokens(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___ProxyAgentApiToken]: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        proxy_agent_tokens: collections.abc.Iterable[global___ProxyAgentApiToken] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "proxy_agent_tokens", b"proxy_agent_tokens", "success", b"success"]) -> None: ...
+
+global___ProxyAgentTokenGetResponse = ProxyAgentTokenGetResponse
+
+@typing_extensions.final
+class ProxyAgentTokenCreateRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    IS_BACKUP_FIELD_NUMBER: builtins.int
+    PRIMARY_AGENT_CONNECTOR_ID_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def is_backup(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def primary_agent_connector_id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        is_backup: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        primary_agent_connector_id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["is_backup", b"is_backup", "meta", b"meta", "primary_agent_connector_id", b"primary_agent_connector_id"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["is_backup", b"is_backup", "meta", b"meta", "primary_agent_connector_id", b"primary_agent_connector_id"]) -> None: ...
+
+global___ProxyAgentTokenCreateRequest = ProxyAgentTokenCreateRequest
+
+@typing_extensions.final
+class ProxyAgentTokenCreateResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    PROXY_AGENT_TOKEN_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def proxy_agent_token(self) -> global___ProxyAgentApiToken: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        proxy_agent_token: global___ProxyAgentApiToken | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "proxy_agent_token", b"proxy_agent_token", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "proxy_agent_token", b"proxy_agent_token", "success", b"success"]) -> None: ...
+
+global___ProxyAgentTokenCreateResponse = ProxyAgentTokenCreateResponse
+
+@typing_extensions.final
+class ProxyAgentTokenDeleteRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    TOKEN_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def token(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        token: google.protobuf.wrappers_pb2.StringValue | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["meta", b"meta", "token", b"token"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["meta", b"meta", "token", b"token"]) -> None: ...
+
+global___ProxyAgentTokenDeleteRequest = ProxyAgentTokenDeleteRequest
+
+@typing_extensions.final
+class ProxyAgentTokenDeleteResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> None: ...
+
+global___ProxyAgentTokenDeleteResponse = ProxyAgentTokenDeleteResponse
+
+@typing_extensions.final
+class ProxyConnectorConnectionTestsRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    def __init__(
+        self,
+    ) -> None: ...
+
+global___ProxyConnectorConnectionTestsRequest = ProxyConnectorConnectionTestsRequest
+
+@typing_extensions.final
+class ProxyConnectorConnectionTestsResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    @typing_extensions.final
+    class TestConnectionRequest(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        REQUEST_ID_FIELD_NUMBER: builtins.int
+        CONNECTOR_NAME_FIELD_NUMBER: builtins.int
+        @property
+        def request_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def connector_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        def __init__(
+            self,
+            *,
+            request_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            connector_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["connector_name", b"connector_name", "request_id", b"request_id"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["connector_name", b"connector_name", "request_id", b"request_id"]) -> None: ...
+
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    REQUESTS_FIELD_NUMBER: builtins.int
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def requests(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___ProxyConnectorConnectionTestsResponse.TestConnectionRequest]: ...
+    def __init__(
+        self,
+        *,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        requests: collections.abc.Iterable[global___ProxyConnectorConnectionTestsResponse.TestConnectionRequest] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["message", b"message", "requests", b"requests", "success", b"success"]) -> None: ...
+
+global___ProxyConnectorConnectionTestsResponse = ProxyConnectorConnectionTestsResponse
+
+@typing_extensions.final
+class ProxyConnectorConnectionResultsRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    @typing_extensions.final
+    class TestConnectionResults(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        REQUEST_ID_FIELD_NUMBER: builtins.int
+        IS_CONNECTION_STATE_SUCCESSFUL_FIELD_NUMBER: builtins.int
+        ERROR_FIELD_NUMBER: builtins.int
+        @property
+        def request_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def is_connection_state_successful(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+        @property
+        def error(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        def __init__(
+            self,
+            *,
+            request_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            is_connection_state_successful: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+            error: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["error", b"error", "is_connection_state_successful", b"is_connection_state_successful", "request_id", b"request_id"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["error", b"error", "is_connection_state_successful", b"is_connection_state_successful", "request_id", b"request_id"]) -> None: ...
+
+    META_FIELD_NUMBER: builtins.int
+    RESULTS_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def results(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___ProxyConnectorConnectionResultsRequest.TestConnectionResults]: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        results: collections.abc.Iterable[global___ProxyConnectorConnectionResultsRequest.TestConnectionResults] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["meta", b"meta"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["meta", b"meta", "results", b"results"]) -> None: ...
+
+global___ProxyConnectorConnectionResultsRequest = ProxyConnectorConnectionResultsRequest
+
+@typing_extensions.final
+class ProxyConnectorConnectionResultsResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> None: ...
+
+global___ProxyConnectorConnectionResultsResponse = ProxyConnectorConnectionResultsResponse
+
+@typing_extensions.final
+class ProxyConnectorRegisterConnectorRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    CONNECTORS_FIELD_NUMBER: builtins.int
+    @property
+    def connectors(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[core.protos.connectors.connector_pb2.Connector]: ...
+    def __init__(
+        self,
+        *,
+        connectors: collections.abc.Iterable[core.protos.connectors.connector_pb2.Connector] | None = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["connectors", b"connectors"]) -> None: ...
+
+global___ProxyConnectorRegisterConnectorRequest = ProxyConnectorRegisterConnectorRequest
+
+@typing_extensions.final
+class ProxyConnectorRegisterConnectorResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    def __init__(
+        self,
+        *,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["message", b"message", "success", b"success"]) -> None: ...
+
+global___ProxyConnectorRegisterConnectorResponse = ProxyConnectorRegisterConnectorResponse
+
+@typing_extensions.final
+class GetConnectedPlaybooksRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    CONNECTOR_ID_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def connector_id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        connector_id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["connector_id", b"connector_id", "meta", b"meta"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["connector_id", b"connector_id", "meta", b"meta"]) -> None: ...
+
+global___GetConnectedPlaybooksRequest = GetConnectedPlaybooksRequest
+
+@typing_extensions.final
+class GetConnectedPlaybooksResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    @typing_extensions.final
+    class Playbook(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        PLAYBOOK_ID_FIELD_NUMBER: builtins.int
+        PLAYBOOK_NAME_FIELD_NUMBER: builtins.int
+        @property
+        def playbook_id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+        @property
+        def playbook_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        def __init__(
+            self,
+            *,
+            playbook_id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+            playbook_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["playbook_id", b"playbook_id", "playbook_name", b"playbook_name"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["playbook_id", b"playbook_id", "playbook_name", b"playbook_name"]) -> None: ...
+
+    META_FIELD_NUMBER: builtins.int
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    CONNECTED_PLAYBOOKS_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def connected_playbooks(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___GetConnectedPlaybooksResponse.Playbook]: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        connected_playbooks: collections.abc.Iterable[global___GetConnectedPlaybooksResponse.Playbook] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["connected_playbooks", b"connected_playbooks", "message", b"message", "meta", b"meta", "success", b"success"]) -> None: ...
+
+global___GetConnectedPlaybooksResponse = GetConnectedPlaybooksResponse
+
+@typing_extensions.final
+class IsIntegrationConnectedRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    CONNECTOR_TYPE_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    connector_type: core.protos.base_pb2.Source.ValueType
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        connector_type: core.protos.base_pb2.Source.ValueType = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["meta", b"meta"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["connector_type", b"connector_type", "meta", b"meta"]) -> None: ...
+
+global___IsIntegrationConnectedRequest = IsIntegrationConnectedRequest
+
+@typing_extensions.final
+class IsIntegrationConnectedResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    META_FIELD_NUMBER: builtins.int
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    @property
+    def meta(self) -> global___Meta: ...
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    def __init__(
+        self,
+        *,
+        meta: global___Meta | None = ...,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> None: ...
+
+global___IsIntegrationConnectedResponse = IsIntegrationConnectedResponse
+
+@typing_extensions.final
+class ConnectorCommentsAddRequest(google.protobuf.message.Message):
+    """///////////////////  AlertOps Slack Alert APIs schema  /////////////////////"""
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    CONNECTOR_ID_FIELD_NUMBER: builtins.int
+    COMMENTS_FIELD_NUMBER: builtins.int
+    @property
+    def connector_id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+    @property
+    def comments(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[google.protobuf.wrappers_pb2.StringValue]: ...
+    def __init__(
+        self,
+        *,
+        connector_id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+        comments: collections.abc.Iterable[google.protobuf.wrappers_pb2.StringValue] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["connector_id", b"connector_id"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["comments", b"comments", "connector_id", b"connector_id"]) -> None: ...
+
+global___ConnectorCommentsAddRequest = ConnectorCommentsAddRequest
+
+@typing_extensions.final
+class ConnectorCommentsAddResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    COMMENTS_FIELD_NUMBER: builtins.int
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def comments(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[core.protos.connectors.connector_pb2.ConnectorContextMemory]: ...
+    def __init__(
+        self,
+        *,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        comments: collections.abc.Iterable[core.protos.connectors.connector_pb2.ConnectorContextMemory] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["comments", b"comments", "message", b"message", "success", b"success"]) -> None: ...
+
+global___ConnectorCommentsAddResponse = ConnectorCommentsAddResponse
+
+@typing_extensions.final
+class ConnectorCommentsGetRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    CONNECTOR_ID_FIELD_NUMBER: builtins.int
+    COMMENTS_FIELD_NUMBER: builtins.int
+    @property
+    def connector_id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+    @property
+    def comments(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[google.protobuf.wrappers_pb2.StringValue]: ...
+    def __init__(
+        self,
+        *,
+        connector_id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+        comments: collections.abc.Iterable[google.protobuf.wrappers_pb2.StringValue] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["connector_id", b"connector_id"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["comments", b"comments", "connector_id", b"connector_id"]) -> None: ...
+
+global___ConnectorCommentsGetRequest = ConnectorCommentsGetRequest
+
+@typing_extensions.final
+class ConnectorCommentsGetResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    COMMENTS_FIELD_NUMBER: builtins.int
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def comments(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[core.protos.connectors.connector_pb2.ConnectorContextMemory]: ...
+    def __init__(
+        self,
+        *,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        comments: collections.abc.Iterable[core.protos.connectors.connector_pb2.ConnectorContextMemory] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["comments", b"comments", "message", b"message", "success", b"success"]) -> None: ...
+
+global___ConnectorCommentsGetResponse = ConnectorCommentsGetResponse
+
+@typing_extensions.final
+class ConnectorCommentsUpdateRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    CONNECTOR_ID_FIELD_NUMBER: builtins.int
+    COMMENT_ID_FIELD_NUMBER: builtins.int
+    COMMENT_FIELD_NUMBER: builtins.int
+    IS_ACTIVE_FIELD_NUMBER: builtins.int
+    @property
+    def connector_id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+    @property
+    def comment_id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+    @property
+    def comment(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    @property
+    def is_active(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    def __init__(
+        self,
+        *,
+        connector_id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+        comment_id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+        comment: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        is_active: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["comment", b"comment", "comment_id", b"comment_id", "connector_id", b"connector_id", "is_active", b"is_active"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["comment", b"comment", "comment_id", b"comment_id", "connector_id", b"connector_id", "is_active", b"is_active"]) -> None: ...
+
+global___ConnectorCommentsUpdateRequest = ConnectorCommentsUpdateRequest
+
+@typing_extensions.final
+class ConnectorCommentsUpdateResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    COMMENT_FIELD_NUMBER: builtins.int
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def comment(self) -> core.protos.connectors.connector_pb2.ConnectorContextMemory: ...
+    def __init__(
+        self,
+        *,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        comment: core.protos.connectors.connector_pb2.ConnectorContextMemory | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["comment", b"comment", "message", b"message", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["comment", b"comment", "message", b"message", "success", b"success"]) -> None: ...
+
+global___ConnectorCommentsUpdateResponse = ConnectorCommentsUpdateResponse
+
+@typing_extensions.final
+class AdminCreateInvestigationsRequest(google.protobuf.message.Message):
+    """///////////????////////////////////////////////// Admin Apis ////////////////////////////////////////////////////////"""
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    @typing_extensions.final
+    class TriggerInvestigationPayload(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        ACCOUNT_ID_FIELD_NUMBER: builtins.int
+        ALERT_IDS_FIELD_NUMBER: builtins.int
+        USER_INPUT_PROMPT_FIELD_NUMBER: builtins.int
+        @property
+        def account_id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+        @property
+        def alert_ids(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+        @property
+        def user_input_prompt(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        def __init__(
+            self,
+            *,
+            account_id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+            alert_ids: collections.abc.Iterable[builtins.str] | None = ...,
+            user_input_prompt: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["account_id", b"account_id", "user_input_prompt", b"user_input_prompt"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["account_id", b"account_id", "alert_ids", b"alert_ids", "user_input_prompt", b"user_input_prompt"]) -> None: ...
+
+    TRIGGER_INVESTIGATION_PAYLOADS_FIELD_NUMBER: builtins.int
+    @property
+    def trigger_investigation_payloads(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___AdminCreateInvestigationsRequest.TriggerInvestigationPayload]: ...
+    def __init__(
+        self,
+        *,
+        trigger_investigation_payloads: collections.abc.Iterable[global___AdminCreateInvestigationsRequest.TriggerInvestigationPayload] | None = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["trigger_investigation_payloads", b"trigger_investigation_payloads"]) -> None: ...
+
+global___AdminCreateInvestigationsRequest = AdminCreateInvestigationsRequest
+
+@typing_extensions.final
+class AdminCreateInvestigationsResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    INVESTIGATION_SESSION_IDS_FIELD_NUMBER: builtins.int
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def investigation_session_ids(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+    def __init__(
+        self,
+        *,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        investigation_session_ids: collections.abc.Iterable[builtins.str] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["investigation_session_ids", b"investigation_session_ids", "message", b"message", "success", b"success"]) -> None: ...
+
+global___AdminCreateInvestigationsResponse = AdminCreateInvestigationsResponse
+
+@typing_extensions.final
+class AdminGetInvestigationDetailsRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    INVESTIGATION_SESSION_IDS_FIELD_NUMBER: builtins.int
+    @property
+    def investigation_session_ids(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+    def __init__(
+        self,
+        *,
+        investigation_session_ids: collections.abc.Iterable[builtins.str] | None = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["investigation_session_ids", b"investigation_session_ids"]) -> None: ...
+
+global___AdminGetInvestigationDetailsRequest = AdminGetInvestigationDetailsRequest
+
+@typing_extensions.final
+class AdminGetInvestigationDetailsResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    INVESTIGATION_SESSIONS_FIELD_NUMBER: builtins.int
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def investigation_sessions(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[core.protos.alert_ops_pb2.InvestigationSession]: ...
+    def __init__(
+        self,
+        *,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        investigation_sessions: collections.abc.Iterable[core.protos.alert_ops_pb2.InvestigationSession] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["investigation_sessions", b"investigation_sessions", "message", b"message", "success", b"success"]) -> None: ...
+
+global___AdminGetInvestigationDetailsResponse = AdminGetInvestigationDetailsResponse
+
+@typing_extensions.final
+class SlackAlertOpsConfiguration(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    IS_ENABLED_FIELD_NUMBER: builtins.int
+    IS_NOTIFICATION_ENABLED_FIELD_NUMBER: builtins.int
+    IS_DM_FIELD_NUMBER: builtins.int
+    @property
+    def is_enabled(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def is_notification_enabled(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def is_dm(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    def __init__(
+        self,
+        *,
+        is_enabled: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        is_notification_enabled: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        is_dm: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["is_dm", b"is_dm", "is_enabled", b"is_enabled", "is_notification_enabled", b"is_notification_enabled"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["is_dm", b"is_dm", "is_enabled", b"is_enabled", "is_notification_enabled", b"is_notification_enabled"]) -> None: ...
+
+global___SlackAlertOpsConfiguration = SlackAlertOpsConfiguration
+
+@typing_extensions.final
+class AsanaAlertOpsConfiguration(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    IS_ENABLED_FIELD_NUMBER: builtins.int
+    @property
+    def is_enabled(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    def __init__(
+        self,
+        *,
+        is_enabled: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["is_enabled", b"is_enabled"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["is_enabled", b"is_enabled"]) -> None: ...
+
+global___AsanaAlertOpsConfiguration = AsanaAlertOpsConfiguration
+
+@typing_extensions.final
+class ProxyAgentApiToken(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    KEY_FIELD_NUMBER: builtins.int
+    CREATED_BY_FIELD_NUMBER: builtins.int
+    CREATED_AT_FIELD_NUMBER: builtins.int
+    IS_ACTIVE_FIELD_NUMBER: builtins.int
+    CONNECTOR_FIELD_NUMBER: builtins.int
+    IS_BACKUP_FIELD_NUMBER: builtins.int
+    PRIMARY_AGENT_CONNECTOR_FIELD_NUMBER: builtins.int
+    IS_LATEST_VERSION_FIELD_NUMBER: builtins.int
+    IS_KUBERNETES_FIELD_NUMBER: builtins.int
+    key: builtins.str
+    created_by: builtins.str
+    @property
+    def created_at(self) -> google.protobuf.timestamp_pb2.Timestamp: ...
+    @property
+    def is_active(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def connector(self) -> core.protos.connectors.connector_pb2.Connector: ...
+    @property
+    def is_backup(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def primary_agent_connector(self) -> core.protos.connectors.connector_pb2.Connector: ...
+    @property
+    def is_latest_version(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def is_kubernetes(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    def __init__(
+        self,
+        *,
+        key: builtins.str = ...,
+        created_by: builtins.str = ...,
+        created_at: google.protobuf.timestamp_pb2.Timestamp | None = ...,
+        is_active: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        connector: core.protos.connectors.connector_pb2.Connector | None = ...,
+        is_backup: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        primary_agent_connector: core.protos.connectors.connector_pb2.Connector | None = ...,
+        is_latest_version: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        is_kubernetes: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["connector", b"connector", "created_at", b"created_at", "is_active", b"is_active", "is_backup", b"is_backup", "is_kubernetes", b"is_kubernetes", "is_latest_version", b"is_latest_version", "primary_agent_connector", b"primary_agent_connector"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["connector", b"connector", "created_at", b"created_at", "created_by", b"created_by", "is_active", b"is_active", "is_backup", b"is_backup", "is_kubernetes", b"is_kubernetes", "is_latest_version", b"is_latest_version", "key", b"key", "primary_agent_connector", b"primary_agent_connector"]) -> None: ...
+
+global___ProxyAgentApiToken = ProxyAgentApiToken

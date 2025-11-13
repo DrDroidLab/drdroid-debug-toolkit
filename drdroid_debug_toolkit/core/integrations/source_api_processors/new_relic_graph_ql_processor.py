@@ -28,7 +28,7 @@ class NewRelicGraphQlConnector(Processor):
 
             graphql_endpoint = "https://{}/graphql".format(self.nr_api_domain)
             transport = RequestsHTTPTransport(url=graphql_endpoint, use_json=True, headers=headers, verify=True,
-                                              retries=3, timeout=EXTERNAL_CALL_TIMEOUT)
+                                              retries=3)
 
             # Create a GraphQL client
             client = Client(transport=transport, fetch_schema_from_transport=False)
@@ -234,6 +234,46 @@ class NewRelicGraphQlConnector(Processor):
             raise e
         return None
 
+    def get_entity_account_id(self, entity_guid):
+        query = gql(f"""
+                    {{
+                        actor {{
+                            user {{
+                                name
+                            }}
+                            entity(guid: "{entity_guid}") {{
+                                accountId
+                                alertSeverity
+                                domain
+                                entityType
+                                firstIndexedAt
+                                guid
+                                indexedAt
+                                lastReportingChangeAt
+                                name
+                                permalink
+                                reporting
+                                type
+                            }}
+                        }}
+                    }}
+                """)
+
+        try:
+            client = self.get_connection()
+            result = client.execute(query)
+            if result:
+                entity_data = result.get('actor', {}).get('entity', {})
+                if entity_data:
+                    return entity_data.get('accountId')
+                else:
+                    logger.warning(f"No entity data found for GUID: {entity_guid}")
+                    return None
+        except Exception as e:
+            logger.error(f"NewRelic get_entity_account_id error: {e}")
+            raise e
+        return None
+
     def get_entity_related_entities_details(self, entity_guid):
         query = gql(f"""
                     {{   
@@ -337,10 +377,12 @@ class NewRelicGraphQlConnector(Processor):
             raise e
         return None
 
-    def execute_nrql_query(self, query):
+    def execute_nrql_query(self, query, account_id=None):
+        if not account_id:
+            account_id = self.nr_account_id
         query = gql(f"""{{
                                 actor {{
-                                    account(id: {self.nr_account_id}) {{
+                                    account(id: {account_id}) {{
                                         nrql(query: "{query}") {{
                                             metadata {{
                                                 eventTypes
@@ -853,5 +895,44 @@ class NewRelicGraphQlConnector(Processor):
                 return output
         except Exception as e:
             logger.error(f"NewRelic get_all_dashboard_entities error: {e}")
+            raise e
+        return None
+
+    def query_newrelic_relationships(self, __nr_api_key, guid):
+        """Query the NewRelic GraphQL API for entity relationships"""
+        query = gql("""
+        {
+          actor {
+            entity(guid: "%s") {
+              name
+              relatedEntities {
+                results {
+                  type
+                  source {
+                    entity {
+                      guid
+                      name
+                    }
+                  }
+                  target {
+                    entity {
+                      guid
+                      name
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        """ % guid)
+
+        try:
+            client = self.get_connection()
+            result = client.execute(query)
+            if result:
+                return result
+        except Exception as e:
+            logger.error(f"NewRelic query_newrelic_relationships error: {e}")
             raise e
         return None

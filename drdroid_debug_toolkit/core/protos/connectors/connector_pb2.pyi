@@ -5,10 +5,12 @@ isort:skip_file
 import builtins
 import collections.abc
 import core.protos.base_pb2
+import core.protos.ui_definition_pb2
 import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.internal.enum_type_wrapper
 import google.protobuf.message
+import google.protobuf.struct_pb2
 import google.protobuf.wrappers_pb2
 import sys
 import typing
@@ -20,323 +22,552 @@ else:
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
-class _ConnectorMetadataModelType:
+class _ReportType:
     ValueType = typing.NewType("ValueType", builtins.int)
     V: typing_extensions.TypeAlias = ValueType
 
-class _ConnectorMetadataModelTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_ConnectorMetadataModelType.ValueType], builtins.type):
+class _ReportTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_ReportType.ValueType], builtins.type):
     DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
-    UNKNOWN_MT: _ConnectorMetadataModelType.ValueType  # 0
-    NEW_RELIC_POLICY: _ConnectorMetadataModelType.ValueType  # 1
-    """New Relic Models"""
-    NEW_RELIC_CONDITION: _ConnectorMetadataModelType.ValueType  # 2
-    NEW_RELIC_ENTITY: _ConnectorMetadataModelType.ValueType  # 3
-    NEW_RELIC_ENTITY_DASHBOARD: _ConnectorMetadataModelType.ValueType  # 4
-    NEW_RELIC_ENTITY_APPLICATION: _ConnectorMetadataModelType.ValueType  # 5
-    NEW_RELIC_NRQL: _ConnectorMetadataModelType.ValueType  # 6
-    NEW_RELIC_ENTITY_DASHBOARD_V2: _ConnectorMetadataModelType.ValueType  # 7
-    DATADOG_MONITOR: _ConnectorMetadataModelType.ValueType  # 101
-    """Datadog Models"""
-    DATADOG_DASHBOARD: _ConnectorMetadataModelType.ValueType  # 102
-    DATADOG_LIVE_INTEGRATION_AWS: _ConnectorMetadataModelType.ValueType  # 103
-    DATADOG_LIVE_INTEGRATION_AWS_LOG: _ConnectorMetadataModelType.ValueType  # 104
-    DATADOG_LIVE_INTEGRATION_AZURE: _ConnectorMetadataModelType.ValueType  # 105
-    DATADOG_LIVE_INTEGRATION_CLOUDFLARE: _ConnectorMetadataModelType.ValueType  # 106
-    DATADOG_LIVE_INTEGRATION_FASTLY: _ConnectorMetadataModelType.ValueType  # 107
-    DATADOG_LIVE_INTEGRATION_GCP: _ConnectorMetadataModelType.ValueType  # 108
-    DATADOG_LIVE_INTEGRATION_CONFLUENT: _ConnectorMetadataModelType.ValueType  # 109
-    DATADOG_SERVICE: _ConnectorMetadataModelType.ValueType  # 110
-    DATADOG_METRIC: _ConnectorMetadataModelType.ValueType  # 111
-    DATADOG_QUERY: _ConnectorMetadataModelType.ValueType  # 112
-    DATADOG_APM: _ConnectorMetadataModelType.ValueType  # 113
-    CLOUDWATCH_METRIC: _ConnectorMetadataModelType.ValueType  # 201
-    """Cloudwatch Models"""
-    CLOUDWATCH_LOG_GROUP: _ConnectorMetadataModelType.ValueType  # 202
-    CLOUDWATCH_LOG_GROUP_QUERY: _ConnectorMetadataModelType.ValueType  # 203
-    CLOUDWATCH_ALARMS: _ConnectorMetadataModelType.ValueType  # 204
-    RDS_INSTANCES: _ConnectorMetadataModelType.ValueType  # 205
-    CLOUDWATCH_DASHBOARD: _ConnectorMetadataModelType.ValueType  # 206
-    GRAFANA_DATASOURCE: _ConnectorMetadataModelType.ValueType  # 301
-    """Grafana Models"""
-    GRAFANA_DASHBOARD: _ConnectorMetadataModelType.ValueType  # 302
-    GRAFANA_TARGET_METRIC_PROMQL: _ConnectorMetadataModelType.ValueType  # 303
-    GRAFANA_PROMETHEUS_DATASOURCE: _ConnectorMetadataModelType.ValueType  # 304
-    GRAFANA_ALERT_RULE: _ConnectorMetadataModelType.ValueType  # 305
-    GRAFANA_LOKI_DATASOURCE: _ConnectorMetadataModelType.ValueType  # 306
-    CLICKHOUSE_DATABASE: _ConnectorMetadataModelType.ValueType  # 401
-    """Clickhouse Models"""
-    CLICKHOUSE_TABLE: _ConnectorMetadataModelType.ValueType  # 402
-    SLACK_CHANNEL: _ConnectorMetadataModelType.ValueType  # 501
-    """Slack Models"""
-    MARKDOWN: _ConnectorMetadataModelType.ValueType  # 601
-    """Documentation Models"""
-    IFRAME: _ConnectorMetadataModelType.ValueType  # 602
-    POSTGRES_QUERY: _ConnectorMetadataModelType.ValueType  # 701
-    """Postgres Models"""
-    POSTGRES_TABLE: _ConnectorMetadataModelType.ValueType  # 702
-    EKS_CLUSTER: _ConnectorMetadataModelType.ValueType  # 801
-    """EKS Models"""
-    SQL_DATABASE_CONNECTION_RAW_QUERY: _ConnectorMetadataModelType.ValueType  # 901
-    """Sql Database Connection Models"""
-    SQL_DATABASE_TABLE: _ConnectorMetadataModelType.ValueType  # 902
-    AZURE_WORKSPACE: _ConnectorMetadataModelType.ValueType  # 1001
-    """Azure Models"""
-    AZURE_RESOURCE: _ConnectorMetadataModelType.ValueType  # 1002
-    SSH_SERVER: _ConnectorMetadataModelType.ValueType  # 1100
-    """Remote Server Models"""
-    SSH_USER: _ConnectorMetadataModelType.ValueType  # 1101
-    GRAFANA_MIMIR_PROMQL: _ConnectorMetadataModelType.ValueType  # 1201
-    """Mimir Server Models"""
-    GKE_CLUSTER: _ConnectorMetadataModelType.ValueType  # 1301
-    """GKE Models"""
-    MS_TEAMS_CHANNEL: _ConnectorMetadataModelType.ValueType  # 1401
-    """MS TEAMS Models"""
-    PAGERDUTY_INCIDENT: _ConnectorMetadataModelType.ValueType  # 1501
-    """Pagerduty Models"""
-    ELASTIC_SEARCH_INDEX: _ConnectorMetadataModelType.ValueType  # 1601
-    """Elastic Search Models"""
-    ELASTIC_SEARCH_SERVICES: _ConnectorMetadataModelType.ValueType  # 1602
-    ELASTIC_SEARCH_DASHBOARDS: _ConnectorMetadataModelType.ValueType  # 1603
-    ELASTIC_SEARCH_INDEX_PATTERNS: _ConnectorMetadataModelType.ValueType  # 1604
-    GCM_METRIC: _ConnectorMetadataModelType.ValueType  # 1701
-    """GCM Models"""
-    GCM_DASHBOARD: _ConnectorMetadataModelType.ValueType  # 1702
-    GCM_CLOUD_RUN_SERVICE_DASHBOARD: _ConnectorMetadataModelType.ValueType  # 1703
-    ZENDUTY_INCIDENT: _ConnectorMetadataModelType.ValueType  # 1801
-    """Zen Duty Models"""
-    ROOTLY_INCIDENT: _ConnectorMetadataModelType.ValueType  # 1901
-    """ROOTLY Models"""
-    OPS_GENIE_ESCALATION: _ConnectorMetadataModelType.ValueType  # 2001
-    """OPS GENIE Models"""
-    OPS_GENIE_TEAM: _ConnectorMetadataModelType.ValueType  # 2002
-    GOOGLE_CHAT_SPACE: _ConnectorMetadataModelType.ValueType  # 2101
-    """Google Chat Models"""
-    MONGODB_DATABASE: _ConnectorMetadataModelType.ValueType  # 2201
-    """MongoDB Models"""
-    MONGODB_COLLECTION: _ConnectorMetadataModelType.ValueType  # 2202
-    OPEN_SEARCH_INDEX: _ConnectorMetadataModelType.ValueType  # 2301
-    """Open Search Models"""
-    ASANA_PROJECT: _ConnectorMetadataModelType.ValueType  # 2401
-    """Asana Models"""
-    MODELS_ACTIVE: _ConnectorMetadataModelType.ValueType  # 2501
-    """Custom Strategies"""
-    GITHUB_REPOSITORY: _ConnectorMetadataModelType.ValueType  # 2601
-    """Github Models"""
-    GITHUB_MEMBER: _ConnectorMetadataModelType.ValueType  # 2602
-    JIRA_PROJECT: _ConnectorMetadataModelType.ValueType  # 2701
-    """Jira Models"""
-    JIRA_USER: _ConnectorMetadataModelType.ValueType  # 2702
-    ARGOCD_APPS: _ConnectorMetadataModelType.ValueType  # 2801
-    """ArgoCd Models"""
-    JENKINS_JOBS: _ConnectorMetadataModelType.ValueType  # 2901
-    """jenkins Models"""
-    POSTHOG_PERSON: _ConnectorMetadataModelType.ValueType  # 3001
-    """PostHog Models"""
-    POSTHOG_GROUP: _ConnectorMetadataModelType.ValueType  # 3002
-    POSTHOG_COHORT: _ConnectorMetadataModelType.ValueType  # 3003
-    POSTHOG_PROPERTY: _ConnectorMetadataModelType.ValueType  # 3004
-    ECS_CLUSTER: _ConnectorMetadataModelType.ValueType  # 4001
-    """ECS Models"""
-    ECS_TASK: _ConnectorMetadataModelType.ValueType  # 4002
-    ECS_SERVICE: _ConnectorMetadataModelType.ValueType  # 4003
-    SIGNOZ_DASHBOARD: _ConnectorMetadataModelType.ValueType  # 5001
-    """SignOz Models"""
-    SIGNOZ_ALERT: _ConnectorMetadataModelType.ValueType  # 5002
-    SIGNOZ_METRIC: _ConnectorMetadataModelType.ValueType  # 5003
-    KUBERNETES_NAMESPACE: _ConnectorMetadataModelType.ValueType  # 6001
-    """Kubernetes Models"""
-    KUBERNETES_SERVICE: _ConnectorMetadataModelType.ValueType  # 6002
-    KUBERNETES_DEPLOYMENT: _ConnectorMetadataModelType.ValueType  # 6003
-    KUBERNETES_INGRESS: _ConnectorMetadataModelType.ValueType  # 6004
-    KUBERNETES_NETWORK_POLICY: _ConnectorMetadataModelType.ValueType  # 6005
-    KUBERNETES_HPA: _ConnectorMetadataModelType.ValueType  # 6006
-    KUBERNETES_REPLICASET: _ConnectorMetadataModelType.ValueType  # 6007
-    KUBERNETES_STATEFULSET: _ConnectorMetadataModelType.ValueType  # 6008
-    SENTRY_PROJECT: _ConnectorMetadataModelType.ValueType  # 7001
+    UNKNOWN_RT: _ReportType.ValueType  # 0
+    INITIAL: _ReportType.ValueType  # 1
+    FINAL: _ReportType.ValueType  # 2
 
-class ConnectorMetadataModelType(_ConnectorMetadataModelType, metaclass=_ConnectorMetadataModelTypeEnumTypeWrapper): ...
+class ReportType(_ReportType, metaclass=_ReportTypeEnumTypeWrapper): ...
 
-UNKNOWN_MT: ConnectorMetadataModelType.ValueType  # 0
-NEW_RELIC_POLICY: ConnectorMetadataModelType.ValueType  # 1
-"""New Relic Models"""
-NEW_RELIC_CONDITION: ConnectorMetadataModelType.ValueType  # 2
-NEW_RELIC_ENTITY: ConnectorMetadataModelType.ValueType  # 3
-NEW_RELIC_ENTITY_DASHBOARD: ConnectorMetadataModelType.ValueType  # 4
-NEW_RELIC_ENTITY_APPLICATION: ConnectorMetadataModelType.ValueType  # 5
-NEW_RELIC_NRQL: ConnectorMetadataModelType.ValueType  # 6
-NEW_RELIC_ENTITY_DASHBOARD_V2: ConnectorMetadataModelType.ValueType  # 7
-DATADOG_MONITOR: ConnectorMetadataModelType.ValueType  # 101
-"""Datadog Models"""
-DATADOG_DASHBOARD: ConnectorMetadataModelType.ValueType  # 102
-DATADOG_LIVE_INTEGRATION_AWS: ConnectorMetadataModelType.ValueType  # 103
-DATADOG_LIVE_INTEGRATION_AWS_LOG: ConnectorMetadataModelType.ValueType  # 104
-DATADOG_LIVE_INTEGRATION_AZURE: ConnectorMetadataModelType.ValueType  # 105
-DATADOG_LIVE_INTEGRATION_CLOUDFLARE: ConnectorMetadataModelType.ValueType  # 106
-DATADOG_LIVE_INTEGRATION_FASTLY: ConnectorMetadataModelType.ValueType  # 107
-DATADOG_LIVE_INTEGRATION_GCP: ConnectorMetadataModelType.ValueType  # 108
-DATADOG_LIVE_INTEGRATION_CONFLUENT: ConnectorMetadataModelType.ValueType  # 109
-DATADOG_SERVICE: ConnectorMetadataModelType.ValueType  # 110
-DATADOG_METRIC: ConnectorMetadataModelType.ValueType  # 111
-DATADOG_QUERY: ConnectorMetadataModelType.ValueType  # 112
-DATADOG_APM: ConnectorMetadataModelType.ValueType  # 113
-CLOUDWATCH_METRIC: ConnectorMetadataModelType.ValueType  # 201
-"""Cloudwatch Models"""
-CLOUDWATCH_LOG_GROUP: ConnectorMetadataModelType.ValueType  # 202
-CLOUDWATCH_LOG_GROUP_QUERY: ConnectorMetadataModelType.ValueType  # 203
-CLOUDWATCH_ALARMS: ConnectorMetadataModelType.ValueType  # 204
-RDS_INSTANCES: ConnectorMetadataModelType.ValueType  # 205
-CLOUDWATCH_DASHBOARD: ConnectorMetadataModelType.ValueType  # 206
-GRAFANA_DATASOURCE: ConnectorMetadataModelType.ValueType  # 301
-"""Grafana Models"""
-GRAFANA_DASHBOARD: ConnectorMetadataModelType.ValueType  # 302
-GRAFANA_TARGET_METRIC_PROMQL: ConnectorMetadataModelType.ValueType  # 303
-GRAFANA_PROMETHEUS_DATASOURCE: ConnectorMetadataModelType.ValueType  # 304
-GRAFANA_ALERT_RULE: ConnectorMetadataModelType.ValueType  # 305
-GRAFANA_LOKI_DATASOURCE: ConnectorMetadataModelType.ValueType  # 306
-CLICKHOUSE_DATABASE: ConnectorMetadataModelType.ValueType  # 401
-"""Clickhouse Models"""
-CLICKHOUSE_TABLE: ConnectorMetadataModelType.ValueType  # 402
-SLACK_CHANNEL: ConnectorMetadataModelType.ValueType  # 501
-"""Slack Models"""
-MARKDOWN: ConnectorMetadataModelType.ValueType  # 601
-"""Documentation Models"""
-IFRAME: ConnectorMetadataModelType.ValueType  # 602
-POSTGRES_QUERY: ConnectorMetadataModelType.ValueType  # 701
-"""Postgres Models"""
-POSTGRES_TABLE: ConnectorMetadataModelType.ValueType  # 702
-EKS_CLUSTER: ConnectorMetadataModelType.ValueType  # 801
-"""EKS Models"""
-SQL_DATABASE_CONNECTION_RAW_QUERY: ConnectorMetadataModelType.ValueType  # 901
-"""Sql Database Connection Models"""
-SQL_DATABASE_TABLE: ConnectorMetadataModelType.ValueType  # 902
-AZURE_WORKSPACE: ConnectorMetadataModelType.ValueType  # 1001
-"""Azure Models"""
-AZURE_RESOURCE: ConnectorMetadataModelType.ValueType  # 1002
-SSH_SERVER: ConnectorMetadataModelType.ValueType  # 1100
-"""Remote Server Models"""
-SSH_USER: ConnectorMetadataModelType.ValueType  # 1101
-GRAFANA_MIMIR_PROMQL: ConnectorMetadataModelType.ValueType  # 1201
-"""Mimir Server Models"""
-GKE_CLUSTER: ConnectorMetadataModelType.ValueType  # 1301
-"""GKE Models"""
-MS_TEAMS_CHANNEL: ConnectorMetadataModelType.ValueType  # 1401
-"""MS TEAMS Models"""
-PAGERDUTY_INCIDENT: ConnectorMetadataModelType.ValueType  # 1501
-"""Pagerduty Models"""
-ELASTIC_SEARCH_INDEX: ConnectorMetadataModelType.ValueType  # 1601
-"""Elastic Search Models"""
-ELASTIC_SEARCH_SERVICES: ConnectorMetadataModelType.ValueType  # 1602
-ELASTIC_SEARCH_DASHBOARDS: ConnectorMetadataModelType.ValueType  # 1603
-ELASTIC_SEARCH_INDEX_PATTERNS: ConnectorMetadataModelType.ValueType  # 1604
-GCM_METRIC: ConnectorMetadataModelType.ValueType  # 1701
-"""GCM Models"""
-GCM_DASHBOARD: ConnectorMetadataModelType.ValueType  # 1702
-GCM_CLOUD_RUN_SERVICE_DASHBOARD: ConnectorMetadataModelType.ValueType  # 1703
-ZENDUTY_INCIDENT: ConnectorMetadataModelType.ValueType  # 1801
-"""Zen Duty Models"""
-ROOTLY_INCIDENT: ConnectorMetadataModelType.ValueType  # 1901
-"""ROOTLY Models"""
-OPS_GENIE_ESCALATION: ConnectorMetadataModelType.ValueType  # 2001
-"""OPS GENIE Models"""
-OPS_GENIE_TEAM: ConnectorMetadataModelType.ValueType  # 2002
-GOOGLE_CHAT_SPACE: ConnectorMetadataModelType.ValueType  # 2101
-"""Google Chat Models"""
-MONGODB_DATABASE: ConnectorMetadataModelType.ValueType  # 2201
-"""MongoDB Models"""
-MONGODB_COLLECTION: ConnectorMetadataModelType.ValueType  # 2202
-OPEN_SEARCH_INDEX: ConnectorMetadataModelType.ValueType  # 2301
-"""Open Search Models"""
-ASANA_PROJECT: ConnectorMetadataModelType.ValueType  # 2401
-"""Asana Models"""
-MODELS_ACTIVE: ConnectorMetadataModelType.ValueType  # 2501
-"""Custom Strategies"""
-GITHUB_REPOSITORY: ConnectorMetadataModelType.ValueType  # 2601
-"""Github Models"""
-GITHUB_MEMBER: ConnectorMetadataModelType.ValueType  # 2602
-JIRA_PROJECT: ConnectorMetadataModelType.ValueType  # 2701
-"""Jira Models"""
-JIRA_USER: ConnectorMetadataModelType.ValueType  # 2702
-ARGOCD_APPS: ConnectorMetadataModelType.ValueType  # 2801
-"""ArgoCd Models"""
-JENKINS_JOBS: ConnectorMetadataModelType.ValueType  # 2901
-"""jenkins Models"""
-POSTHOG_PERSON: ConnectorMetadataModelType.ValueType  # 3001
-"""PostHog Models"""
-POSTHOG_GROUP: ConnectorMetadataModelType.ValueType  # 3002
-POSTHOG_COHORT: ConnectorMetadataModelType.ValueType  # 3003
-POSTHOG_PROPERTY: ConnectorMetadataModelType.ValueType  # 3004
-ECS_CLUSTER: ConnectorMetadataModelType.ValueType  # 4001
-"""ECS Models"""
-ECS_TASK: ConnectorMetadataModelType.ValueType  # 4002
-ECS_SERVICE: ConnectorMetadataModelType.ValueType  # 4003
-SIGNOZ_DASHBOARD: ConnectorMetadataModelType.ValueType  # 5001
-"""SignOz Models"""
-SIGNOZ_ALERT: ConnectorMetadataModelType.ValueType  # 5002
-SIGNOZ_METRIC: ConnectorMetadataModelType.ValueType  # 5003
-KUBERNETES_NAMESPACE: ConnectorMetadataModelType.ValueType  # 6001
-"""Kubernetes Models"""
-KUBERNETES_SERVICE: ConnectorMetadataModelType.ValueType  # 6002
-KUBERNETES_DEPLOYMENT: ConnectorMetadataModelType.ValueType  # 6003
-KUBERNETES_INGRESS: ConnectorMetadataModelType.ValueType  # 6004
-KUBERNETES_NETWORK_POLICY: ConnectorMetadataModelType.ValueType  # 6005
-KUBERNETES_HPA: ConnectorMetadataModelType.ValueType  # 6006
-KUBERNETES_REPLICASET: ConnectorMetadataModelType.ValueType  # 6007
-KUBERNETES_STATEFULSET: ConnectorMetadataModelType.ValueType  # 6008
-SENTRY_PROJECT: ConnectorMetadataModelType.ValueType  # 7001
-global___ConnectorMetadataModelType = ConnectorMetadataModelType
+UNKNOWN_RT: ReportType.ValueType  # 0
+INITIAL: ReportType.ValueType  # 1
+FINAL: ReportType.ValueType  # 2
+global___ReportType = ReportType
+
+@typing_extensions.final
+class ConnectorContextMemory(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    ID_FIELD_NUMBER: builtins.int
+    COMMENT_FIELD_NUMBER: builtins.int
+    CREATED_BY_FIELD_NUMBER: builtins.int
+    CREATED_AT_FIELD_NUMBER: builtins.int
+    @property
+    def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+    @property
+    def comment(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    @property
+    def created_by(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    created_at: builtins.int
+    def __init__(
+        self,
+        *,
+        id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+        comment: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        created_by: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        created_at: builtins.int = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["comment", b"comment", "created_by", b"created_by", "id", b"id"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["comment", b"comment", "created_at", b"created_at", "created_by", b"created_by", "id", b"id"]) -> None: ...
+
+global___ConnectorContextMemory = ConnectorContextMemory
+
+@typing_extensions.final
+class ConnectorFormConfig(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    DESCRIPTION_FIELD_NUMBER: builtins.int
+    FORM_FIELDS_FIELD_NUMBER: builtins.int
+    NAME_FIELD_NUMBER: builtins.int
+    PREREQUISITES_FIELD_NUMBER: builtins.int
+    @property
+    def description(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    @property
+    def form_fields(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[core.protos.ui_definition_pb2.FormField]: ...
+    @property
+    def name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    @property
+    def prerequisites(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    def __init__(
+        self,
+        *,
+        description: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        form_fields: collections.abc.Iterable[core.protos.ui_definition_pb2.FormField] | None = ...,
+        name: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        prerequisites: google.protobuf.wrappers_pb2.StringValue | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["description", b"description", "name", b"name", "prerequisites", b"prerequisites"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["description", b"description", "form_fields", b"form_fields", "name", b"name", "prerequisites", b"prerequisites"]) -> None: ...
+
+global___ConnectorFormConfig = ConnectorFormConfig
+
+@typing_extensions.final
+class PlaybookConnector(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    PLAYBOOK_ID_FIELD_NUMBER: builtins.int
+    PLAYBOOK_NAME_FIELD_NUMBER: builtins.int
+    @property
+    def playbook_id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+    @property
+    def playbook_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    def __init__(
+        self,
+        *,
+        playbook_id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+        playbook_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["playbook_id", b"playbook_id", "playbook_name", b"playbook_name"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["playbook_id", b"playbook_id", "playbook_name", b"playbook_name"]) -> None: ...
+
+global___PlaybookConnector = PlaybookConnector
+
+@typing_extensions.final
+class PeriodicRunStatus(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    class _StatusType:
+        ValueType = typing.NewType("ValueType", builtins.int)
+        V: typing_extensions.TypeAlias = ValueType
+
+    class _StatusTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[PeriodicRunStatus._StatusType.ValueType], builtins.type):  # noqa: F821
+        DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+        UNKNOWN: PeriodicRunStatus._StatusType.ValueType  # 0
+        STARTED: PeriodicRunStatus._StatusType.ValueType  # 1
+        FINISHED: PeriodicRunStatus._StatusType.ValueType  # 2
+        ERROR: PeriodicRunStatus._StatusType.ValueType  # 3
+
+    class StatusType(_StatusType, metaclass=_StatusTypeEnumTypeWrapper): ...
+    UNKNOWN: PeriodicRunStatus.StatusType.ValueType  # 0
+    STARTED: PeriodicRunStatus.StatusType.ValueType  # 1
+    FINISHED: PeriodicRunStatus.StatusType.ValueType  # 2
+    ERROR: PeriodicRunStatus.StatusType.ValueType  # 3
+
+    def __init__(
+        self,
+    ) -> None: ...
+
+global___PeriodicRunStatus = PeriodicRunStatus
+
+@typing_extensions.final
+class ProxyAgentConnectorMetadata(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    PROXY_AGENT_CONNECTOR_ID_FIELD_NUMBER: builtins.int
+    IS_ALIVE_FIELD_NUMBER: builtins.int
+    IS_BACKUP_FIELD_NUMBER: builtins.int
+    PRIMARY_PROXY_AGENT_CONNECTOR_ID_FIELD_NUMBER: builtins.int
+    @property
+    def proxy_agent_connector_id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+    @property
+    def is_alive(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def is_backup(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def primary_proxy_agent_connector_id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+    def __init__(
+        self,
+        *,
+        proxy_agent_connector_id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+        is_alive: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        is_backup: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        primary_proxy_agent_connector_id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["is_alive", b"is_alive", "is_backup", b"is_backup", "primary_proxy_agent_connector_id", b"primary_proxy_agent_connector_id", "proxy_agent_connector_id", b"proxy_agent_connector_id"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["is_alive", b"is_alive", "is_backup", b"is_backup", "primary_proxy_agent_connector_id", b"primary_proxy_agent_connector_id", "proxy_agent_connector_id", b"proxy_agent_connector_id"]) -> None: ...
+
+global___ProxyAgentConnectorMetadata = ProxyAgentConnectorMetadata
+
+@typing_extensions.final
+class SlackConnectorMetadata(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    WORKSPACE_ID_FIELD_NUMBER: builtins.int
+    WORKSPACE_NAME_FIELD_NUMBER: builtins.int
+    AUTHED_USER_ID_FIELD_NUMBER: builtins.int
+    BOT_AUTH_TOKEN_FIELD_NUMBER: builtins.int
+    BOT_USER_ID_FIELD_NUMBER: builtins.int
+    IS_DEBUGGER_MODE_ONLY_FIELD_NUMBER: builtins.int
+    @property
+    def workspace_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    @property
+    def workspace_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    @property
+    def authed_user_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    @property
+    def bot_auth_token(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    @property
+    def bot_user_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    @property
+    def is_debugger_mode_only(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    def __init__(
+        self,
+        *,
+        workspace_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        workspace_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        authed_user_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        bot_auth_token: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        bot_user_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        is_debugger_mode_only: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["authed_user_id", b"authed_user_id", "bot_auth_token", b"bot_auth_token", "bot_user_id", b"bot_user_id", "is_debugger_mode_only", b"is_debugger_mode_only", "workspace_id", b"workspace_id", "workspace_name", b"workspace_name"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["authed_user_id", b"authed_user_id", "bot_auth_token", b"bot_auth_token", "bot_user_id", b"bot_user_id", "is_debugger_mode_only", b"is_debugger_mode_only", "workspace_id", b"workspace_id", "workspace_name", b"workspace_name"]) -> None: ...
+
+global___SlackConnectorMetadata = SlackConnectorMetadata
+
+@typing_extensions.final
+class AsanaConnectorMetadata(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    ACCESS_TOKEN_FIELD_NUMBER: builtins.int
+    @property
+    def access_token(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    def __init__(
+        self,
+        *,
+        access_token: google.protobuf.wrappers_pb2.StringValue | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["access_token", b"access_token"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["access_token", b"access_token"]) -> None: ...
+
+global___AsanaConnectorMetadata = AsanaConnectorMetadata
+
+@typing_extensions.final
+class ProxyAgentMetadata(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    IS_ALIVE_FIELD_NUMBER: builtins.int
+    LAST_PING_AT_FIELD_NUMBER: builtins.int
+    IS_BACKUP_FIELD_NUMBER: builtins.int
+    PRIMARY_PROXY_AGENT_ID_FIELD_NUMBER: builtins.int
+    @property
+    def is_alive(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    last_ping_at: builtins.int
+    @property
+    def is_backup(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def primary_proxy_agent_id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+    def __init__(
+        self,
+        *,
+        is_alive: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        last_ping_at: builtins.int = ...,
+        is_backup: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        primary_proxy_agent_id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["is_alive", b"is_alive", "is_backup", b"is_backup", "primary_proxy_agent_id", b"primary_proxy_agent_id"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["is_alive", b"is_alive", "is_backup", b"is_backup", "last_ping_at", b"last_ping_at", "primary_proxy_agent_id", b"primary_proxy_agent_id"]) -> None: ...
+
+global___ProxyAgentMetadata = ProxyAgentMetadata
 
 @typing_extensions.final
 class Connector(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
+    ID_FIELD_NUMBER: builtins.int
     ACCOUNT_ID_FIELD_NUMBER: builtins.int
     TYPE_FIELD_NUMBER: builtins.int
+    IS_ACTIVE_FIELD_NUMBER: builtins.int
     NAME_FIELD_NUMBER: builtins.int
+    CREATED_BY_FIELD_NUMBER: builtins.int
+    CREATED_AT_FIELD_NUMBER: builtins.int
+    UPDATED_AT_FIELD_NUMBER: builtins.int
+    DISPLAY_NAME_FIELD_NUMBER: builtins.int
+    CATEGORY_FIELD_NUMBER: builtins.int
     KEYS_FIELD_NUMBER: builtins.int
-    ID_FIELD_NUMBER: builtins.int
+    IS_PROXY_ENABLED_FIELD_NUMBER: builtins.int
+    CONTEXT_MEMORY_FIELD_NUMBER: builtins.int
+    IS_AGENT_TASK_ENABLED_FIELD_NUMBER: builtins.int
+    TAGS_FIELD_NUMBER: builtins.int
+    USER_ENABLED_FIELD_NUMBER: builtins.int
+    FORM_CONFIGS_FIELD_NUMBER: builtins.int
+    CONNECTED_PLAYBOOKS_FIELD_NUMBER: builtins.int
+    NOTES_FIELD_NUMBER: builtins.int
+    ADDITIONAL_STATE_FIELD_NUMBER: builtins.int
+    PROXY_AGENT_CONNECTOR_METADATA_FIELD_NUMBER: builtins.int
+    SLACK_CONNECTOR_METADATA_FIELD_NUMBER: builtins.int
+    ASANA_CONNECTOR_METADATA_FIELD_NUMBER: builtins.int
+    PROXY_AGENT_METADATA_FIELD_NUMBER: builtins.int
+    @property
+    def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     @property
     def account_id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     type: core.protos.base_pb2.Source.ValueType
     @property
+    def is_active(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
     def name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    @property
+    def created_by(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    created_at: builtins.int
+    updated_at: builtins.int
+    @property
+    def display_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    @property
+    def category(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
     def keys(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___ConnectorKey]: ...
     @property
-    def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+    def is_proxy_enabled(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def context_memory(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___ConnectorContextMemory]: ...
+    @property
+    def is_agent_task_enabled(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def tags(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+    @property
+    def user_enabled(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def form_configs(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___ConnectorFormConfig]: ...
+    @property
+    def connected_playbooks(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___PlaybookConnector]: ...
+    @property
+    def notes(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    @property
+    def additional_state(self) -> google.protobuf.struct_pb2.Struct: ...
+    @property
+    def proxy_agent_connector_metadata(self) -> global___ProxyAgentConnectorMetadata: ...
+    @property
+    def slack_connector_metadata(self) -> global___SlackConnectorMetadata: ...
+    @property
+    def asana_connector_metadata(self) -> global___AsanaConnectorMetadata: ...
+    @property
+    def proxy_agent_metadata(self) -> global___ProxyAgentMetadata: ...
     def __init__(
         self,
         *,
+        id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
         account_id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
         type: core.protos.base_pb2.Source.ValueType = ...,
+        is_active: google.protobuf.wrappers_pb2.BoolValue | None = ...,
         name: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        created_by: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        created_at: builtins.int = ...,
+        updated_at: builtins.int = ...,
+        display_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        category: google.protobuf.wrappers_pb2.StringValue | None = ...,
         keys: collections.abc.Iterable[global___ConnectorKey] | None = ...,
-        id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+        is_proxy_enabled: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        context_memory: collections.abc.Iterable[global___ConnectorContextMemory] | None = ...,
+        is_agent_task_enabled: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        tags: collections.abc.Iterable[builtins.str] | None = ...,
+        user_enabled: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        form_configs: collections.abc.Iterable[global___ConnectorFormConfig] | None = ...,
+        connected_playbooks: collections.abc.Iterable[global___PlaybookConnector] | None = ...,
+        notes: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        additional_state: google.protobuf.struct_pb2.Struct | None = ...,
+        proxy_agent_connector_metadata: global___ProxyAgentConnectorMetadata | None = ...,
+        slack_connector_metadata: global___SlackConnectorMetadata | None = ...,
+        asana_connector_metadata: global___AsanaConnectorMetadata | None = ...,
+        proxy_agent_metadata: global___ProxyAgentMetadata | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["account_id", b"account_id", "id", b"id", "name", b"name"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["account_id", b"account_id", "id", b"id", "keys", b"keys", "name", b"name", "type", b"type"]) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["account_id", b"account_id", "additional_state", b"additional_state", "asana_connector_metadata", b"asana_connector_metadata", "category", b"category", "created_by", b"created_by", "display_name", b"display_name", "id", b"id", "is_active", b"is_active", "is_agent_task_enabled", b"is_agent_task_enabled", "is_proxy_enabled", b"is_proxy_enabled", "metadata", b"metadata", "name", b"name", "notes", b"notes", "proxy_agent_connector_metadata", b"proxy_agent_connector_metadata", "proxy_agent_metadata", b"proxy_agent_metadata", "slack_connector_metadata", b"slack_connector_metadata", "user_enabled", b"user_enabled"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["account_id", b"account_id", "additional_state", b"additional_state", "asana_connector_metadata", b"asana_connector_metadata", "category", b"category", "connected_playbooks", b"connected_playbooks", "context_memory", b"context_memory", "created_at", b"created_at", "created_by", b"created_by", "display_name", b"display_name", "form_configs", b"form_configs", "id", b"id", "is_active", b"is_active", "is_agent_task_enabled", b"is_agent_task_enabled", "is_proxy_enabled", b"is_proxy_enabled", "keys", b"keys", "metadata", b"metadata", "name", b"name", "notes", b"notes", "proxy_agent_connector_metadata", b"proxy_agent_connector_metadata", "proxy_agent_metadata", b"proxy_agent_metadata", "slack_connector_metadata", b"slack_connector_metadata", "tags", b"tags", "type", b"type", "updated_at", b"updated_at", "user_enabled", b"user_enabled"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing_extensions.Literal["metadata", b"metadata"]) -> typing_extensions.Literal["proxy_agent_connector_metadata", "slack_connector_metadata", "asana_connector_metadata", "proxy_agent_metadata"] | None: ...
 
 global___Connector = Connector
+
+@typing_extensions.final
+class UpdateConnectorOp(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    class _Op:
+        ValueType = typing.NewType("ValueType", builtins.int)
+        V: typing_extensions.TypeAlias = ValueType
+
+    class _OpEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[UpdateConnectorOp._Op.ValueType], builtins.type):  # noqa: F821
+        DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+        UNKNOWN: UpdateConnectorOp._Op.ValueType  # 0
+        UPDATE_CONNECTOR_NAME: UpdateConnectorOp._Op.ValueType  # 1
+        UPDATE_CONNECTOR_STATUS: UpdateConnectorOp._Op.ValueType  # 2
+        UPDATE_CONNECTOR_KEYS: UpdateConnectorOp._Op.ValueType  # 3
+        UPDATE_CONNECTOR_TAGS: UpdateConnectorOp._Op.ValueType  # 4
+        UPDATE_BASIC_DETAILS: UpdateConnectorOp._Op.ValueType  # 5
+        UPDATE_DEFAULT_DESTINATION: UpdateConnectorOp._Op.ValueType  # 6
+
+    class Op(_Op, metaclass=_OpEnumTypeWrapper): ...
+    UNKNOWN: UpdateConnectorOp.Op.ValueType  # 0
+    UPDATE_CONNECTOR_NAME: UpdateConnectorOp.Op.ValueType  # 1
+    UPDATE_CONNECTOR_STATUS: UpdateConnectorOp.Op.ValueType  # 2
+    UPDATE_CONNECTOR_KEYS: UpdateConnectorOp.Op.ValueType  # 3
+    UPDATE_CONNECTOR_TAGS: UpdateConnectorOp.Op.ValueType  # 4
+    UPDATE_BASIC_DETAILS: UpdateConnectorOp.Op.ValueType  # 5
+    UPDATE_DEFAULT_DESTINATION: UpdateConnectorOp.Op.ValueType  # 6
+
+    @typing_extensions.final
+    class UpdateConnectorName(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        NAME_FIELD_NUMBER: builtins.int
+        @property
+        def name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        def __init__(
+            self,
+            *,
+            name: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["name", b"name"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["name", b"name"]) -> None: ...
+
+    @typing_extensions.final
+    class UpdateConnectorStatus(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        IS_ACTIVE_FIELD_NUMBER: builtins.int
+        @property
+        def is_active(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+        def __init__(
+            self,
+            *,
+            is_active: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["is_active", b"is_active"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["is_active", b"is_active"]) -> None: ...
+
+    @typing_extensions.final
+    class UpdateConnectorKeys(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        CONNECTOR_KEYS_FIELD_NUMBER: builtins.int
+        @property
+        def connector_keys(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___ConnectorKey]: ...
+        def __init__(
+            self,
+            *,
+            connector_keys: collections.abc.Iterable[global___ConnectorKey] | None = ...,
+        ) -> None: ...
+        def ClearField(self, field_name: typing_extensions.Literal["connector_keys", b"connector_keys"]) -> None: ...
+
+    @typing_extensions.final
+    class UpdateConnectorTags(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        TAGS_FIELD_NUMBER: builtins.int
+        @property
+        def tags(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+        def __init__(
+            self,
+            *,
+            tags: collections.abc.Iterable[builtins.str] | None = ...,
+        ) -> None: ...
+        def ClearField(self, field_name: typing_extensions.Literal["tags", b"tags"]) -> None: ...
+
+    @typing_extensions.final
+    class UpdateBasicDetails(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        DISPLAY_NAME_FIELD_NUMBER: builtins.int
+        TAGS_FIELD_NUMBER: builtins.int
+        NOTES_FIELD_NUMBER: builtins.int
+        ADDITIONAL_STATE_FIELD_NUMBER: builtins.int
+        @property
+        def display_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def tags(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+        @property
+        def notes(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def additional_state(self) -> google.protobuf.struct_pb2.Struct: ...
+        def __init__(
+            self,
+            *,
+            display_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            tags: collections.abc.Iterable[builtins.str] | None = ...,
+            notes: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            additional_state: google.protobuf.struct_pb2.Struct | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["additional_state", b"additional_state", "display_name", b"display_name", "notes", b"notes"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["additional_state", b"additional_state", "display_name", b"display_name", "notes", b"notes", "tags", b"tags"]) -> None: ...
+
+    @typing_extensions.final
+    class UpdateDefaultDestination(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        DEFAULT_DESTINATION_FIELD_NUMBER: builtins.int
+        @property
+        def default_destination(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        def __init__(
+            self,
+            *,
+            default_destination: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["default_destination", b"default_destination"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["default_destination", b"default_destination"]) -> None: ...
+
+    OP_FIELD_NUMBER: builtins.int
+    UPDATE_CONNECTOR_NAME_FIELD_NUMBER: builtins.int
+    UPDATE_CONNECTOR_STATUS_FIELD_NUMBER: builtins.int
+    UPDATE_CONNECTOR_KEYS_FIELD_NUMBER: builtins.int
+    UPDATE_CONNECTOR_TAGS_FIELD_NUMBER: builtins.int
+    UPDATE_BASIC_DETAILS_FIELD_NUMBER: builtins.int
+    UPDATE_DEFAULT_DESTINATION_FIELD_NUMBER: builtins.int
+    op: global___UpdateConnectorOp.Op.ValueType
+    @property
+    def update_connector_name(self) -> global___UpdateConnectorOp.UpdateConnectorName: ...
+    @property
+    def update_connector_status(self) -> global___UpdateConnectorOp.UpdateConnectorStatus: ...
+    @property
+    def update_connector_keys(self) -> global___UpdateConnectorOp.UpdateConnectorKeys: ...
+    @property
+    def update_connector_tags(self) -> global___UpdateConnectorOp.UpdateConnectorTags: ...
+    @property
+    def update_basic_details(self) -> global___UpdateConnectorOp.UpdateBasicDetails: ...
+    @property
+    def update_default_destination(self) -> global___UpdateConnectorOp.UpdateDefaultDestination: ...
+    def __init__(
+        self,
+        *,
+        op: global___UpdateConnectorOp.Op.ValueType = ...,
+        update_connector_name: global___UpdateConnectorOp.UpdateConnectorName | None = ...,
+        update_connector_status: global___UpdateConnectorOp.UpdateConnectorStatus | None = ...,
+        update_connector_keys: global___UpdateConnectorOp.UpdateConnectorKeys | None = ...,
+        update_connector_tags: global___UpdateConnectorOp.UpdateConnectorTags | None = ...,
+        update_basic_details: global___UpdateConnectorOp.UpdateBasicDetails | None = ...,
+        update_default_destination: global___UpdateConnectorOp.UpdateDefaultDestination | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["update", b"update", "update_basic_details", b"update_basic_details", "update_connector_keys", b"update_connector_keys", "update_connector_name", b"update_connector_name", "update_connector_status", b"update_connector_status", "update_connector_tags", b"update_connector_tags", "update_default_destination", b"update_default_destination"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["op", b"op", "update", b"update", "update_basic_details", b"update_basic_details", "update_connector_keys", b"update_connector_keys", "update_connector_name", b"update_connector_name", "update_connector_status", b"update_connector_status", "update_connector_tags", b"update_connector_tags", "update_default_destination", b"update_default_destination"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing_extensions.Literal["update", b"update"]) -> typing_extensions.Literal["update_connector_name", "update_connector_status", "update_connector_keys", "update_connector_tags", "update_basic_details", "update_default_destination"] | None: ...
+
+global___UpdateConnectorOp = UpdateConnectorOp
 
 @typing_extensions.final
 class ConnectorKey(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
+    ID_FIELD_NUMBER: builtins.int
     KEY_TYPE_FIELD_NUMBER: builtins.int
     KEY_FIELD_NUMBER: builtins.int
+    IS_ACTIVE_FIELD_NUMBER: builtins.int
+    CONNECTOR_ID_FIELD_NUMBER: builtins.int
+    CREATED_AT_FIELD_NUMBER: builtins.int
+    UPDATED_AT_FIELD_NUMBER: builtins.int
+    DISPLAY_NAME_FIELD_NUMBER: builtins.int
     CONNECTOR_NAME_FIELD_NUMBER: builtins.int
+    @property
+    def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     key_type: core.protos.base_pb2.SourceKeyType.ValueType
     @property
     def key(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    @property
+    def is_active(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def connector_id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+    created_at: builtins.int
+    updated_at: builtins.int
+    @property
+    def display_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
     def connector_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     def __init__(
         self,
         *,
+        id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
         key_type: core.protos.base_pb2.SourceKeyType.ValueType = ...,
         key: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        is_active: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        connector_id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+        created_at: builtins.int = ...,
+        updated_at: builtins.int = ...,
+        display_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
         connector_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["connector_name", b"connector_name", "key", b"key"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["connector_name", b"connector_name", "key", b"key", "key_type", b"key_type"]) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["connector_id", b"connector_id", "connector_name", b"connector_name", "display_name", b"display_name", "id", b"id", "is_active", b"is_active", "key", b"key"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["connector_id", b"connector_id", "connector_name", b"connector_name", "created_at", b"created_at", "display_name", b"display_name", "id", b"id", "is_active", b"is_active", "key", b"key", "key_type", b"key_type", "updated_at", b"updated_at"]) -> None: ...
 
 global___ConnectorKey = ConnectorKey

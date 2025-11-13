@@ -13,25 +13,6 @@ message Page {
   google.protobuf.UInt32Value offset = 2;
 }
 
-
-message Meta {
-  TimeRange time_range = 1;
-  Page page = 2;
-  google.protobuf.UInt32Value total_count = 3;
-  google.protobuf.BoolValue show_inactive = 4;
-}
-
-message Message {
-  string title = 1;
-  string description = 2;
-  string traceback = 3;
-}
-
-message ErrorMessage {
-  google.protobuf.BoolValue error = 1;
-  Message message = 2;
-}
-
 enum Function {
   UNKNOWN_F = 0;
   AVG_F = 1;
@@ -77,14 +58,6 @@ enum Op {
   AND = 20;
   OR = 21;
   NOT = 22;
-}
-
-enum Context {
-  UNKNOWN_C = 0;
-  PLAYBOOK = 1;
-  PLAYBOOK_EXECUTION = 2;
-  WORKFLOW = 3;
-  WORKFLOW_EXECUTION = 4;
 }
 
 message OpDescription {
@@ -171,6 +144,7 @@ enum Source {
   CONFLUENCE_SELF_HOSTED = 55;
   GOOGLE_DRIVE = 56;
   NOTION = 57;
+  DRD_PROXY_AGENT = 58;
   MONGODB = 59;
   OPEN_SEARCH = 60;
   LINEAR = 61;
@@ -181,8 +155,15 @@ enum Source {
   DRD_ALERT_WEBHOOK = 66;
   ROLLBAR = 67;
   LAMBDA = 68;
+  BROWSER = 69;
   POSTHOG = 70;
+  MIXPANEL = 71;
   SIGNOZ = 72;
+  BITBUCKET = 73;
+  CORALOGIX = 74;
+  RENDER = 75;
+  MCP_SERVER = 76;
+  VICTORIA_LOGS=77;
 }
 
 enum SourceKeyType {
@@ -201,8 +182,11 @@ enum SourceKeyType {
   NEWRELIC_API_DOMAIN = 19;
 
   SLACK_BOT_AUTH_TOKEN = 8;
-  SLACK_CHANNEL_ID = 9;
+  SLACK_CHANNEL_SKT = 9;
   SLACK_APP_ID = 46;
+  SLACK_APP_CLIENT_ID = 141;
+  SLACK_APP_CLIENT_SECRET = 142;
+  SLACK_APP_SIGNING_SECRET = 143;
 
   HONEYBADGER_USERNAME = 10;
   HONEYBADGER_PASSWORD = 11;
@@ -220,6 +204,7 @@ enum SourceKeyType {
 
   GRAFANA_HOST = 21;
   GRAFANA_API_KEY = 22;
+  GRAFANA_TEAM_HOST = 153;
 
   CLICKHOUSE_INTERFACE = 24;
   CLICKHOUSE_HOST = 25;
@@ -281,7 +266,6 @@ enum SourceKeyType {
   ELASTIC_SEARCH_PORT = 66;
   ELASTIC_SEARCH_API_KEY_ID = 67;
   ELASTIC_SEARCH_API_KEY = 68;
-  KIBANA_HOST = 114;
 
   GRAFANA_LOKI_PROTOCOL = 69;
   GRAFANA_LOKI_HOST = 70;
@@ -312,8 +296,14 @@ enum SourceKeyType {
   ASANA_ACCESS_TOKEN = 86;
 
   CONFLUENCE_CLOUD_API_KEY = 87;
+  CONFLUENCE_CLOUD_SITE_URL = 139;
+  CONFLUENCE_CLOUD_ATLASSIAN_ACCOUNT_EMAIL = 140;
 
   NOTION_API_KEY = 88;
+
+  DRD_PROXY_AGENT_HOST = 89;
+  DRD_PROXY_AGENT_API_TOKEN = 90;
+  DRD_PROXY_AGENT_API_KEY = 91;
 
   MONGODB_CONNECTION_STRING = 92;
 
@@ -343,8 +333,34 @@ enum SourceKeyType {
   POSTHOG_APP_HOST = 122;
   POSTHOG_PROJECT_ID = 123;
 
+  MIXPANEL_SERVICE_ACCOUNT_USERNAME = 131;
+  MIXPANEL_SERVICE_ACCOUNT_SECRET = 132;
+  MIXPANEL_DOMAIN = 133;
+  MIXPANEL_PROJECT_ID = 134;
+  MIXPANEL_WORKSPACE_ID = 135;
+
   SIGNOZ_API_URL = 136;
   SIGNOZ_API_TOKEN = 137;
+
+  KIBANA_HOST = 138;
+
+  // 139, 140 is used
+  BITBUCKET_WORKSPACE = 144;
+  BITBUCKET_API_KEY = 145;
+  BITBUCKET_REPO = 146;
+  RENDER_API_KEY = 147;
+  
+  CORALOGIX_API_KEY = 148;
+  CORALOGIX_ENDPOINT = 149;
+  CORALOGIX_DOMAIN = 152;
+  
+  MCP_SERVER_BASE_URL = 150;
+  MCP_SERVER_AUTH_HEADERS = 151;
+
+  // VictoriaLogs specific keys (used by VictoriaLogs connector forms)
+    VICTORIA_LOGS_PROTOCOL = 154;
+    VICTORIA_LOGS_HOST = 155;
+    VICTORIA_LOGS_PORT = 156;
 }
 
 enum SourceModelType {
@@ -372,6 +388,7 @@ enum SourceModelType {
   DATADOG_METRIC = 111;
   DATADOG_QUERY = 112;
   DATADOG_APM = 113;
+  DATADOG_FIELDS = 114;
 
   //Cloudwatch Models
   CLOUDWATCH_METRIC = 201;
@@ -424,6 +441,14 @@ enum SourceModelType {
 
   //GKE Models
   GKE_CLUSTER = 1301;
+  GKE_NAMESPACE = 1302;
+  GKE_SERVICE = 1303;
+  GKE_DEPLOYMENT = 1304;
+  GKE_INGRESS = 1305;
+  GKE_NETWORK_POLICY = 1306;
+  GKE_HPA = 1307;
+  GKE_REPLICASET = 1308;
+  GKE_STATEFULSET = 1309;
 
   //MS TEAMS Models
   MS_TEAMS_CHANNEL = 1401;
@@ -492,11 +517,13 @@ enum SourceModelType {
   ECS_CLUSTER = 4001;
   ECS_TASK = 4002;
   ECS_SERVICE = 4003;
-
+  
   // SignOz Models
   SIGNOZ_DASHBOARD = 5001;
   SIGNOZ_ALERT = 5002;
   SIGNOZ_METRIC = 5003;
+  SIGNOZ_SERVICE = 5004;
+  SIGNOZ_LOG_ATTRIBUTES = 5005;
 
   // Kubernetes Models
   KUBERNETES_NAMESPACE = 6001;
@@ -508,4 +535,130 @@ enum SourceModelType {
   KUBERNETES_REPLICASET = 6007;
   KUBERNETES_STATEFULSET = 6008;
   KUBERNETES_NETWORK_MAP = 6009;
+
+  SENTRY_PROJECT = 7001;
+
+  // Coralogix Models
+  CORALOGIX_DASHBOARD = 8001;
+  CORALOGIX_INDEX_MAPPING = 8002;
+
+  // VictoriaLogs Models
+  VICTORIA_LOGS_FIELD = 9001;
+}
+
+message EventKey {
+  enum KeyType {
+    UNKNOWN = 0;
+    STRING = 1;
+    LONG = 2;
+    DOUBLE = 3;
+    BOOLEAN = 4;
+    BYTE = 5;
+    ARRAY = 6;
+    OBJECT = 7;
+  }
+  uint64 id = 1;
+  string key = 2;
+  KeyType key_type = 3;
+  EventTypePartial event_type = 4;
+}
+
+message EventType {
+  uint64 id = 1;
+  string name = 2;
+  repeated EventKey keys = 3;
+  repeated Event.EventSource event_sources = 4;
+}
+
+message EventTypeStats {
+  google.protobuf.UInt64Value keys_count = 1;
+  google.protobuf.UInt64Value event_count = 2;
+  google.protobuf.UInt64Value monitor_count = 3;
+}
+
+message EventTypePartial {
+  uint64 id = 1;
+  string name = 2;
+}
+
+message EventTypeSummary {
+  EventTypePartial event_type = 1;
+  EventTypeStats stats = 2;
+}
+
+message EventTypeDefinition {
+  EventType event_type = 1;
+  EventTypeStats stats = 2;
+}
+
+message Event {
+  enum EventSource {
+    UNKNOWN = 0;
+    SAMPLE = 1;
+    API = 2;
+    SDK = 3;
+    SEGMENT = 4;
+    AMPLITUDE = 5;
+    SNS = 6;
+    CLOUDWATCH = 7;
+    COLLECTOR = 8;
+    AWS_KINESIS = 9;
+    SLACK = 10;
+    OPS_GENIE = 11;
+  }
+  uint64 id = 1;
+  EventTypePartial event_type = 2;
+  repeated KeyValue kvs = 3;
+  sfixed64 timestamp = 4;
+  EventSource event_source = 5;
+}
+
+enum Context {
+  UNKNOWN_C = 0;
+  EVENT = 1;
+  MONITOR_TRANSACTION = 2;
+  ENTITY_INSTANCE = 3;
+  EVENT_TYPE = 4;
+  MONITOR = 5;
+  ENTITY = 6;
+  EVENTS_CLICKHOUSE = 7;
+  PANEL_NAME = 8;
+  DASHBOARD_NAME = 9;
+  EVENTS_ALERT_OPS_CLICKHOUSE = 10;
+  SLACK_ALERT = 11;
+  EVENTS_PRODIGAL_CLICKHOUSE = 12;
+  ALERT_OPS = 13;
+  ALERT_MIDDLEWARE = 14;
+}
+
+message Value {
+  // The value is one of the listed fields. It is valid for all values to be unspecified
+  // in which case this AnyValue is considered to be "empty".
+  oneof value {
+    string string_value = 1;
+    bool bool_value = 2;
+    int64 int_value = 3;
+    double double_value = 4;
+    ArrayValue array_value = 5;
+    KeyValueList kvlist_value = 6;
+    bytes bytes_value = 7;
+  }
+}
+
+message ArrayValue {
+  // Array of values. The array may be empty (contain 0 elements).
+  repeated Value values = 1;
+}
+
+message KeyValueList {
+  // A collection of key/value pairs. The list may be empty (may
+  // contain 0 elements).
+  // The keys MUST be unique (it is not allowed to have more than one
+  // value with the same key).
+  repeated KeyValue values = 1;
+}
+
+message KeyValue {
+  string key = 1;
+  Value value = 2;
 }

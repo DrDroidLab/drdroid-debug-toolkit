@@ -33,6 +33,7 @@ class Sentry(google.protobuf.message.Message):
         FETCH_RECENT_ERRORS: Sentry._TaskType.ValueType  # 3
         FETCH_EVENT_INFO_BY_ID: Sentry._TaskType.ValueType  # 4
         FETCH_LIST_OF_RECENT_EVENTS_WITH_SEARCH_QUERY: Sentry._TaskType.ValueType  # 5
+        FETCH_PROJECTS: Sentry._TaskType.ValueType  # 6
 
     class TaskType(_TaskType, metaclass=_TaskTypeEnumTypeWrapper): ...
     UNKNOWN: Sentry.TaskType.ValueType  # 0
@@ -41,6 +42,7 @@ class Sentry(google.protobuf.message.Message):
     FETCH_RECENT_ERRORS: Sentry.TaskType.ValueType  # 3
     FETCH_EVENT_INFO_BY_ID: Sentry.TaskType.ValueType  # 4
     FETCH_LIST_OF_RECENT_EVENTS_WITH_SEARCH_QUERY: Sentry.TaskType.ValueType  # 5
+    FETCH_PROJECTS: Sentry.TaskType.ValueType  # 6
 
     @typing_extensions.final
     class FetchIssueInfoById(google.protobuf.message.Message):
@@ -129,12 +131,21 @@ class Sentry(google.protobuf.message.Message):
         def HasField(self, field_name: typing_extensions.Literal["max_events_to_analyse", b"max_events_to_analyse", "project_slug", b"project_slug", "query", b"query"]) -> builtins.bool: ...
         def ClearField(self, field_name: typing_extensions.Literal["max_events_to_analyse", b"max_events_to_analyse", "project_slug", b"project_slug", "query", b"query"]) -> None: ...
 
+    @typing_extensions.final
+    class FetchProjects(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        def __init__(
+            self,
+        ) -> None: ...
+
     TYPE_FIELD_NUMBER: builtins.int
     FETCH_ISSUE_INFO_BY_ID_FIELD_NUMBER: builtins.int
     FETCH_PROJECT_EVENTS_FIELD_NUMBER: builtins.int
     FETCH_RECENT_ERRORS_FIELD_NUMBER: builtins.int
     FETCH_EVENT_INFO_BY_ID_FIELD_NUMBER: builtins.int
     FETCH_LIST_OF_RECENT_EVENTS_WITH_SEARCH_QUERY_FIELD_NUMBER: builtins.int
+    FETCH_PROJECTS_FIELD_NUMBER: builtins.int
     type: global___Sentry.TaskType.ValueType
     @property
     def fetch_issue_info_by_id(self) -> global___Sentry.FetchIssueInfoById: ...
@@ -146,6 +157,8 @@ class Sentry(google.protobuf.message.Message):
     def fetch_event_info_by_id(self) -> global___Sentry.FetchEventInfoById: ...
     @property
     def fetch_list_of_recent_events_with_search_query(self) -> global___Sentry.FetchListOfRecentEventsWithSearchQuery: ...
+    @property
+    def fetch_projects(self) -> global___Sentry.FetchProjects: ...
     def __init__(
         self,
         *,
@@ -155,9 +168,10 @@ class Sentry(google.protobuf.message.Message):
         fetch_recent_errors: global___Sentry.FetchRecentErrors | None = ...,
         fetch_event_info_by_id: global___Sentry.FetchEventInfoById | None = ...,
         fetch_list_of_recent_events_with_search_query: global___Sentry.FetchListOfRecentEventsWithSearchQuery | None = ...,
+        fetch_projects: global___Sentry.FetchProjects | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["fetch_event_info_by_id", b"fetch_event_info_by_id", "fetch_issue_info_by_id", b"fetch_issue_info_by_id", "fetch_list_of_recent_events_with_search_query", b"fetch_list_of_recent_events_with_search_query", "fetch_project_events", b"fetch_project_events", "fetch_recent_errors", b"fetch_recent_errors", "task", b"task"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["fetch_event_info_by_id", b"fetch_event_info_by_id", "fetch_issue_info_by_id", b"fetch_issue_info_by_id", "fetch_list_of_recent_events_with_search_query", b"fetch_list_of_recent_events_with_search_query", "fetch_project_events", b"fetch_project_events", "fetch_recent_errors", b"fetch_recent_errors", "task", b"task", "type", b"type"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing_extensions.Literal["task", b"task"]) -> typing_extensions.Literal["fetch_issue_info_by_id", "fetch_project_events", "fetch_recent_errors", "fetch_event_info_by_id", "fetch_list_of_recent_events_with_search_query"] | None: ...
+    def HasField(self, field_name: typing_extensions.Literal["fetch_event_info_by_id", b"fetch_event_info_by_id", "fetch_issue_info_by_id", b"fetch_issue_info_by_id", "fetch_list_of_recent_events_with_search_query", b"fetch_list_of_recent_events_with_search_query", "fetch_project_events", b"fetch_project_events", "fetch_projects", b"fetch_projects", "fetch_recent_errors", b"fetch_recent_errors", "task", b"task"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["fetch_event_info_by_id", b"fetch_event_info_by_id", "fetch_issue_info_by_id", b"fetch_issue_info_by_id", "fetch_list_of_recent_events_with_search_query", b"fetch_list_of_recent_events_with_search_query", "fetch_project_events", b"fetch_project_events", "fetch_projects", b"fetch_projects", "fetch_recent_errors", b"fetch_recent_errors", "task", b"task", "type", b"type"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing_extensions.Literal["task", b"task"]) -> typing_extensions.Literal["fetch_issue_info_by_id", "fetch_project_events", "fetch_recent_errors", "fetch_event_info_by_id", "fetch_list_of_recent_events_with_search_query", "fetch_projects"] | None: ...
 
 global___Sentry = Sentry

@@ -41,7 +41,44 @@ import "core/protos/playbooks/source_task_definitions/argocd_task.proto";
 import "core/protos/playbooks/source_task_definitions/jira_task.proto";
 import "core/protos/playbooks/source_task_definitions/signoz_task.proto";
 import "core/protos/playbooks/source_task_definitions/posthog_task.proto";
+import "core/protos/playbooks/source_task_definitions/coralogix_task.proto";
+import "core/protos/playbooks/source_task_definitions/opsgenie_task.proto";
+import "core/protos/playbooks/source_task_definitions/victoria_logs_task.proto";
+import "core/protos/playbooks/source_task_definitions/render_task.proto";
 
+
+message Variable {
+  google.protobuf.StringValue name = 1;
+  google.protobuf.StringValue description = 2;
+  VariableType type = 3;
+  repeated string options = 4;
+  google.protobuf.BoolValue is_active = 5;
+  google.protobuf.StringValue created_by = 6;
+  sfixed64 created_at = 7;
+  google.protobuf.UInt64Value id = 8;
+}
+
+message UpdateVariableOp {
+  enum Op {
+    UNKNOWN = 0;
+    UPDATE_STATUS = 2;
+    UPDATE_VARIABLE = 3;
+  }
+
+  message UpdateVariable {
+    Variable variable = 1;
+  }
+
+  message UpdateStatus {
+    google.protobuf.BoolValue is_active = 1;
+  }
+
+  Op op = 1;
+  oneof update {
+    UpdateVariable update_variable = 101;
+    UpdateStatus update_status = 102;
+  }
+}
 
 // Playbook Task Protos
 message PlaybookTask {
@@ -49,6 +86,8 @@ message PlaybookTask {
     google.protobuf.UInt64Value id = 1;
     Source source = 2;
     google.protobuf.StringValue name = 3;
+    google.protobuf.BoolValue is_proxy_enabled = 4;
+    google.protobuf.UInt64Value proxy_agent_id = 5;
   }
 
   message ExecutionConfiguration {
@@ -59,6 +98,9 @@ message PlaybookTask {
 
     google.protobuf.BoolValue is_result_transformer_enabled = 4;
     Lambda.Function result_transformer_lambda_function = 5;
+    google.protobuf.BoolValue is_approval_required = 6;
+    google.protobuf.StringValue result_transformer_prompt = 7;
+    google.protobuf.BoolValue is_result_transformer_prompt_enabled = 8;
   }
 
   google.protobuf.UInt64Value id = 1;
@@ -106,6 +148,10 @@ message PlaybookTask {
     DrdProxyAgent drd_proxy_agent = 133;
     PostHog posthog = 136;
     Signoz signoz = 137;
+    Render render = 139;
+    Coralogix coralogix = 141;
+    OpsGenie ops_genie = 143;
+    VictoriaLogs victoria_logs = 144;
   }
 }
 
@@ -121,6 +167,13 @@ message PlaybookTaskResultRule {
 }
 
 message PlaybookTaskExecutionLog {
+  message ApprovalContext {
+    google.protobuf.BoolValue is_approved = 1;
+    sfixed64 approved_at = 2;
+    google.protobuf.StringValue approved_by = 3;
+    google.protobuf.StringValue approval_request_id = 4;
+  }
+
   google.protobuf.UInt64Value id = 1;
   sfixed64 timestamp = 2;
   PlaybookTask task = 3;
@@ -131,6 +184,7 @@ message PlaybookTaskExecutionLog {
   google.protobuf.Struct execution_global_variable_set = 8;
   google.protobuf.StringValue proxy_execution_request_id = 9;
   PlaybookExecutionStatusType status = 10;
+  ApprovalContext approval_context = 11;
 }
 
 // Playbook Step Protos

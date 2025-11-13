@@ -1,0 +1,378 @@
+syntax = "proto3";
+package protos.event.playbooks;
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/struct.proto";
+
+import "core/protos/connectors/api.proto";
+import "core/protos/base.proto";
+import "core/protos/alert_ops.proto";
+import "core/protos/query_base.proto";
+import "core/protos/playbooks/playbook.proto";
+import "core/protos/playbooks/playbook_commons.proto";
+import "core/protos/playbooks/source_task_definitions/lambda_function_task.proto";
+
+///////////////////// Playbook Builder APIs /////////////////////
+message PlaybooksBuilderOptionsRequest {
+  core.protos.connectors.Meta meta = 1;
+}
+
+message PlaybooksBuilderOptionsResponse {
+
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  core.protos.connectors.Message message = 3;
+  repeated core.protos.playbooks.PlaybookSourceOptions source_options = 5;
+}
+
+
+///////////////////// PlayBooks Run APIs /////////////////////
+message ApiRunPlaybookTaskRequest {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.Struct global_variable_set = 2;
+  google.protobuf.UInt64Value account_id = 3;
+  google.protobuf.StringValue investigation_session_id = 4;
+  google.protobuf.StringValue created_by = 5;
+  core.protos.playbooks.PlaybookTask playbook_task = 6;
+}
+
+message ApiRunPlaybookTaskResponse {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  core.protos.connectors.Message message = 3;
+  repeated core.protos.playbooks.PlaybookTaskExecutionLog playbook_task_execution_log = 4;
+}
+
+message ApiRunPlaybookStepRequest {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.Struct global_variable_set = 2;
+  google.protobuf.StringValue investigation_session_id = 3;
+  google.protobuf.StringValue created_by = 4;
+  core.protos.playbooks.PlaybookStep playbook_step = 5;
+}
+
+message ApiRunPlaybookStepResponse {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  core.protos.connectors.Message message = 3;
+  core.protos.playbooks.PlaybookStepExecutionLog step_execution_log = 4;
+}
+
+message RunPlaybookTaskRequest {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.Struct global_variable_set = 2;
+  core.protos.playbooks.PlaybookTask playbook_task = 4;
+  google.protobuf.StringValue session_id = 5;
+  google.protobuf.StringValue message_id = 6;
+}
+
+message RunPlaybookTaskResponse {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  core.protos.connectors.Message message = 3;
+  repeated core.protos.playbooks.PlaybookTaskExecutionLog playbook_task_execution_log = 4;
+}
+
+message ApprovePlaybookTaskRequest {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.StringValue approval_request_id = 2;
+  google.protobuf.BoolValue is_approved = 3;
+}
+
+message ApprovePlaybookTaskResponse {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  core.protos.connectors.Message message = 3;
+  core.protos.playbooks.PlaybookTaskExecutionLog playbook_task_execution_log = 4;
+}
+
+message RunBulkPlaybookTaskResponse {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  core.protos.connectors.Message message = 3;
+  repeated core.protos.playbooks.PlaybookTaskExecutionLog playbook_task_execution_logs = 4;
+}
+
+message RunPlaybookStepRequest {
+  core.protos.connectors.Meta meta = 1;
+  core.protos.playbooks.PlaybookStep playbook_step = 2;
+}
+
+message RunPlaybookStepResponse {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  core.protos.connectors.Message message = 3;
+  core.protos.playbooks.PlaybookStepExecutionLog step_execution_log = 4;
+}
+
+message RunPlaybookRequest {
+  core.protos.connectors.Meta meta = 1;
+  core.protos.playbooks.Playbook playbook = 2;
+}
+
+message RunPlaybookResponse {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  core.protos.connectors.Message message = 3;
+  core.protos.playbooks.PlaybookExecution playbook_execution = 4;
+}
+
+message TestResultTransformerRequest {
+  core.protos.playbooks.Lambda.Function transformer_lambda_function = 1;
+  google.protobuf.Struct payload = 2;
+}
+
+message TestResultTransformerResponse {
+  google.protobuf.BoolValue success = 1;
+  core.protos.connectors.Message message = 2;
+  google.protobuf.Struct output = 3;
+}
+
+///////////////////// PlayBooks CRUD APIs /////////////////////
+message GetPlaybooksRequest {
+  core.protos.connectors.Meta meta = 1;
+  repeated uint64 playbook_ids = 2;
+  string playbook_name = 3;
+  google.protobuf.BoolValue outside_folder = 4;
+}
+
+message GetPlaybooksResponse {
+  core.protos.connectors.Meta meta = 1;
+  repeated core.protos.playbooks.Playbook playbooks = 2;
+}
+
+message GetPlaybookCommentsRequest {
+  core.protos.connectors.Meta meta = 1;
+  repeated uint64 playbook_ids = 2;
+}
+
+message GetPlaybookCommentsResponse {
+  core.protos.connectors.Meta meta = 1;
+  repeated core.protos.PlaybookComment comments = 2;
+}
+
+message PlaybooksAgentUploadSOPRequest {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.StringValue file_name = 2;
+}
+
+message PlaybooksAgentUploadSOPResponse {
+  google.protobuf.BoolValue success = 1;
+  core.protos.connectors.Message message = 2;
+  core.protos.playbooks.Playbook playbook = 3;
+}
+
+message PlaybooksAgentUploadSOPFromConfluenceRequest {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.UInt64Value connector_id = 2;
+  repeated string confluence_urls = 3;
+  google.protobuf.BoolValue save_pb_to_db = 4;
+}
+
+message PlaybooksAgentUploadSOPFromConfluenceResponse {
+  google.protobuf.BoolValue success = 1;
+  core.protos.connectors.Message message = 2;
+  repeated core.protos.playbooks.Playbook playbooks = 3;
+}
+
+message ApiGetPlaybooksRequest {
+  core.protos.connectors.Meta meta = 1;
+  repeated uint64 playbook_ids = 2;
+  google.protobuf.UInt64Value account_id = 3;
+  string playbook_name = 4;
+}
+
+message ApiGetPlaybooksResponse {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  core.protos.connectors.Message message = 3;
+  repeated core.protos.playbooks.Playbook playbooks = 4;
+}
+
+message CreatePlaybookRequest {
+  string name = 1;
+  core.protos.playbooks.Playbook playbook = 2;
+}
+
+message CreatePlaybookResponse {
+  google.protobuf.BoolValue success = 1;
+  core.protos.connectors.Message message = 2;
+  core.protos.playbooks.Playbook playbook = 3;
+}
+
+message UpdatePlaybookRequest {
+  google.protobuf.UInt64Value playbook_id = 1;
+  repeated core.protos.playbooks.UpdatePlaybookOp update_playbook_ops = 2;
+}
+
+message UpdatePlaybookResponse {
+  google.protobuf.BoolValue success = 1;
+  core.protos.connectors.Message message = 2;
+}
+
+///////////////////// Playbook Executions APIs //////////////////
+message ExecutionPlaybookGetRequest {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.StringValue playbook_run_id = 2;
+}
+
+message ExecutionPlaybookGetResponse {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  core.protos.connectors.Message message = 3;
+  core.protos.playbooks.PlaybookExecution playbook_execution = 4;
+}
+
+message PlaybookExecutionCreateRequest {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.UInt64Value playbook_id = 2;
+}
+
+message PlaybookExecutionCreateResponse {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  core.protos.connectors.Message message = 3;
+  google.protobuf.StringValue playbook_run_id = 4;
+  google.protobuf.StringValue execution_session_url = 5;
+}
+
+message PlaybookExecutionStatusUpdateRequest {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.StringValue playbook_run_id = 2;
+  core.protos.playbooks.PlaybookExecutionStatusType status = 3;
+}
+
+message PlaybookExecutionStatusUpdateResponse {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  core.protos.connectors.Message message = 3;
+}
+
+message PlaybookExecutionStepExecuteRequest {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.StringValue playbook_run_id = 2;
+  core.protos.playbooks.PlaybookStep step = 3;
+}
+
+message PlaybookExecutionStepExecuteResponse {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  core.protos.connectors.Message message = 3;
+  google.protobuf.StringValue playbook_run_id = 4;
+  core.protos.playbooks.PlaybookStepExecutionLog step_execution_log = 5;
+}
+
+message ExecutionTaskGetRequest {
+  core.protos.connectors.Meta meta = 1;
+  repeated google.protobuf.UInt64Value task_execution_ids = 2;
+  repeated google.protobuf.StringValue proxy_execution_request_ids = 3;
+}
+
+message ExecutionTaskGetResponse {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  core.protos.connectors.Message message = 3;
+  repeated core.protos.playbooks.PlaybookTaskExecutionLog task_execution_logs = 4;
+}
+
+message PlaybookTemplatesGetRequest  {
+  core.protos.connectors.Meta meta = 1;
+}
+
+message PlaybookTemplatesGetResponse  {
+  google.protobuf.BoolValue success = 1;
+  core.protos.connectors.Message message = 2;
+  repeated google.protobuf.Struct data = 3;
+}
+
+message GetVariablesRequest  {
+  core.protos.connectors.Meta meta = 1;
+  repeated google.protobuf.UInt64Value variable_ids = 2;
+  google.protobuf.StringValue variable_name = 3;
+}
+
+message GetVariablesResponse  {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  core.protos.connectors.Message message = 3;
+  repeated core.protos.playbooks.Variable variables = 4;
+}
+
+message CreateVariableRequest  {
+  core.protos.connectors.Meta meta = 1;
+  core.protos.playbooks.Variable variable = 2;
+}
+
+message CreateVariableResponse  {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  core.protos.connectors.Message message = 3;
+  core.protos.playbooks.Variable variable = 4;
+}
+
+message UpdateVariableRequest  {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.UInt64Value variable_id = 2;
+  repeated core.protos.playbooks.UpdateVariableOp update_variable_ops = 3;
+}
+
+message UpdateVariableResponse  {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  core.protos.connectors.Message message = 3;
+  core.protos.playbooks.Variable variable = 4;
+}
+
+
+///////////////////// Proxy Playbook Executions APIs ///////////////
+message ProxyPlaybookExecutionTasksRequest {
+  core.protos.connectors.Meta meta = 1;
+}
+
+message ProxyPlaybookExecutionTasksResponse {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  core.protos.connectors.Message message = 3;
+  repeated core.protos.playbooks.PlaybookTaskExecutionLog playbook_task_executions = 4;
+}
+
+message ProxyPlaybookExecutionResultsRequest {
+  core.protos.connectors.Meta meta = 1;
+  repeated core.protos.playbooks.PlaybookTaskExecutionLog playbook_task_execution_logs = 4;
+}
+
+message ProxyPlaybookExecutionResultsResponse {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  core.protos.connectors.Message message = 3;
+}
+
+
+///////////////////// Investigation Session Playbook APIs ///////////////
+
+message GetRelatedPlaybooksRequest {
+  core.protos.connectors.Meta meta = 1;
+  string session_id = 2;
+  repeated string alert_ids = 3;
+}
+
+message GetRelatedPlaybooksResponse {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  core.protos.connectors.Message message = 3;
+  core.protos.playbooks.Playbook playbook = 4;
+  google.protobuf.StringValue link = 5;
+}
+
+//////////////////////// Task generation APIs ////////////////////////
+message GenerateTaskRequest {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.StringValue document = 2;
+}
+
+message GenerateTaskResponse {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  core.protos.connectors.Message message = 3;
+  repeated core.protos.playbooks.PlaybookTask playbook_tasks = 4;
+}

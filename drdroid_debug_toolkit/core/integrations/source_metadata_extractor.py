@@ -9,7 +9,35 @@ from core.utils.logging_utils import log_function_call
 logger = logging.getLogger(__name__)
 
 
-class SourceMetadataExtractor:
+# Dependency Injection registry for SourceMetadataExtractor base
+_active_source_metadata_extractor_base_class = None
+
+
+def set_source_metadata_extractor_base_class(cls):
+    """
+    Allows overriding the base class used for SourceMetadataExtractor.
+    Must be called before importing modules that subclass SourceMetadataExtractor.
+    """
+    global _active_source_metadata_extractor_base_class
+    _active_source_metadata_extractor_base_class = cls
+    # If the dynamic class is already defined, update its base class to the new one
+    try:
+        if 'SourceMetadataExtractor' in globals() and isinstance(SourceMetadataExtractor, type):
+            SourceMetadataExtractor.__bases__ = (cls,)
+    except Exception:
+        # Best-effort: ignore if MRO update is not safe
+        pass
+
+
+def get_source_metadata_extractor_base_class():
+    """
+    Returns the active base class for SourceMetadataExtractor. Falls back to the default
+    implementation defined in this module when no override is provided.
+    """
+    return _active_source_metadata_extractor_base_class or _DefaultSourceMetadataExtractor
+
+
+class _DefaultSourceMetadataExtractor:
 
     def __init__(self, request_id: str, connector_name: str, source: Source, api_host: str = None, api_token: str = None):
         self.request_id = request_id
@@ -71,3 +99,8 @@ class SourceMetadataExtractor:
     def clear_collected_assets(self):
         """Clear all collected assets."""
         self._collected_assets = {}
+
+
+# Exposed dynamic base for external subclasses
+class SourceMetadataExtractor(get_source_metadata_extractor_base_class()):
+    pass

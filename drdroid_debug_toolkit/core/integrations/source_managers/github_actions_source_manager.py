@@ -5,7 +5,7 @@ from google.protobuf.wrappers_pb2 import StringValue
 
 from core.integrations.source_api_processors.github_actions_api_processor import GithubActionsAPIProcessor
 from core.integrations.source_manager import SourceManager
-from core.protos.base_pb2 import TimeRange, Source
+from core.protos.base_pb2 import TimeRange, Source, SourceKeyType
 from core.protos.literal_pb2 import LiteralType
 from core.protos.connectors.connector_pb2 import Connector as ConnectorProto
 from core.protos.playbooks.playbook_commons_pb2 import PlaybookTaskResult, PlaybookTaskResultType, ApiResponseResult
@@ -13,7 +13,7 @@ from core.protos.playbooks.source_task_definitions.github_actions_task_pb2 impor
 from core.protos.ui_definition_pb2 import FormField, FormFieldType
 
 
-from core.utils.credentilal_utils import generate_credentials_dict
+from core.utils.credentilal_utils import generate_credentials_dict, get_connector_key_type_string, DISPLAY_NAME, CATEGORY, CI_CD
 
 class TimeoutException(Exception):
     pass
@@ -47,6 +47,29 @@ class GithubActionsSourceManager(SourceManager):
                 ]
             },
         }
+        self.connector_form_configs = [
+            {
+                "name": StringValue(value="GitHub Actions Authentication"),
+                "description": StringValue(value="Connect to GitHub Actions using a Personal Access Token (PAT). Ensure the PAT has the necessary scopes (e.g., `repo` for private repositories)."),
+                "form_fields": {
+                    SourceKeyType.GITHUB_ACTIONS_TOKEN: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.GITHUB_ACTIONS_TOKEN)),
+                        display_name=StringValue(value="GitHub Actions Token"),
+                        description=StringValue(value='e.g. "ghp_1234567890abcdefghijklmnopqrstuvwxyz"'),
+                        helper_text=StringValue(value="Enter your GitHub Personal Access Token with 'repo' and 'workflow' scopes from Developer Settings > Personal Access Tokens"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False,
+                        is_sensitive=True
+                    )
+                }
+            }
+        ]
+        self.connector_type_details = {
+            DISPLAY_NAME: "GITHUB ACTIONS",
+            CATEGORY: CI_CD,
+        }
+
     def get_connector_processor(self, github_actions_connector, **kwargs):
         generated_credentials = generate_credentials_dict(github_actions_connector.type, github_actions_connector.keys)
         return GithubActionsAPIProcessor(**generated_credentials)
@@ -59,9 +82,7 @@ class GithubActionsSourceManager(SourceManager):
             owner = task.owner.value
             repo = task.repo.value
             workflow_id = task.workflow_id.value
-            print(f"Fetching action run info for {owner}/{repo}/{workflow_id}")
             runs = self.get_connector_processor(github_actions_connector).get_run_info(owner, repo, workflow_id)
-            print(f"Runs: {runs}")
             if runs['status'] == 'failure' or runs['conclusion'] == 'failure':
                 run_jobs = self.get_connector_processor(github_actions_connector).get_jobs_list(owner, repo,
                                                                                                 workflow_id)

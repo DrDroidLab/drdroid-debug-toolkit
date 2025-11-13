@@ -8,6 +8,7 @@ grpcio-tools==1.70.0
 
 # SSH support for bash operations
 paramiko>=3.4.0
+pandas~=2.3.3
 
 # Kubernetes support
 kubernetes>=26.0.0

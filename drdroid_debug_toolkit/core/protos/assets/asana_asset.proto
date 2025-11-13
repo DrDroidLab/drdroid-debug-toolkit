@@ -3,10 +3,7 @@ package core.protos.connectors;
 
 import "google/protobuf/wrappers.proto";
 import "core/protos/base.proto";
-
-message AsanaAlertOpsConfiguration {
-  google.protobuf.BoolValue is_enabled = 1;
-}
+import "core/protos/connectors/api.proto";
 
 message AsanaProjectAssetModel {
   message Workspace {

@@ -1,0 +1,169 @@
+syntax = "proto3";
+package core.protos.playbooks;
+
+import "google/protobuf/wrappers.proto";
+
+message OpsGenie {
+  message CreateAlert {
+    google.protobuf.StringValue message = 1;
+    google.protobuf.StringValue alias = 2;
+    google.protobuf.StringValue description = 3;
+    repeated string responders = 4;
+    repeated string visible_to = 5;
+    repeated string actions = 6;
+    repeated string tags = 7;
+    map<string, string> details = 8;
+    google.protobuf.StringValue entity = 9;
+    google.protobuf.StringValue priority = 10;
+    google.protobuf.StringValue source = 11;
+    google.protobuf.StringValue user = 12;
+    google.protobuf.StringValue note = 13;
+  }
+
+  message UpdateAlert {
+    google.protobuf.StringValue alert_id = 1;
+    google.protobuf.StringValue message = 2;
+    google.protobuf.StringValue description = 3;
+    google.protobuf.StringValue priority = 4;
+    google.protobuf.StringValue user = 5;
+    google.protobuf.StringValue note = 6;
+    google.protobuf.StringValue source = 7;
+  }
+
+  message GetAlert {
+    google.protobuf.StringValue alert_id = 1;
+  }
+
+  message ListAlerts {
+    google.protobuf.StringValue query = 1;
+    google.protobuf.Int32Value limit = 2;
+    google.protobuf.Int32Value offset = 3;
+  }
+
+  message AcknowledgeAlert {
+    google.protobuf.StringValue alert_id = 1;
+    google.protobuf.StringValue user = 2;
+    google.protobuf.StringValue note = 3;
+    google.protobuf.StringValue source = 4;
+  }
+
+  message CloseAlert {
+    google.protobuf.StringValue alert_id = 1;
+    google.protobuf.StringValue user = 2;
+    google.protobuf.StringValue note = 3;
+    google.protobuf.StringValue source = 4;
+  }
+
+  message FetchTeams {
+    // No parameters needed for fetching teams
+  }
+
+  message FetchEscalationPolicies {
+    // No parameters needed for fetching escalation policies
+  }
+
+  message CreateIncident {
+    google.protobuf.StringValue message = 1;
+    google.protobuf.StringValue description = 2;
+    google.protobuf.StringValue responders = 3;
+    google.protobuf.StringValue priority = 4;
+    google.protobuf.StringValue tags = 5;
+    map<string, string> details = 6;
+    google.protobuf.StringValue note = 7;
+    map<string, string> status_page_entry = 8;
+    google.protobuf.BoolValue notify_stakeholders = 9;
+  }
+
+  message GetIncident {
+    google.protobuf.StringValue incident_id = 1;
+  }
+
+  message UpdateIncident {
+    google.protobuf.StringValue incident_id = 1;
+    google.protobuf.StringValue message = 2;
+    google.protobuf.StringValue description = 3;
+    google.protobuf.StringValue priority = 4;
+  }
+
+  message ListIncidents {
+    google.protobuf.StringValue query = 1;
+    google.protobuf.Int32Value limit = 2;
+    google.protobuf.Int32Value offset = 3;
+  }
+
+  message CloseIncident {
+    google.protobuf.StringValue incident_id = 1;
+    google.protobuf.StringValue note = 2;
+  }
+
+  message GetRequestStatus {
+    google.protobuf.StringValue request_id = 1;
+  }
+
+  message ResolveIncident {
+    google.protobuf.StringValue incident_id = 1;
+    google.protobuf.StringValue note = 2;
+  }
+
+  message ReopenIncident {
+    google.protobuf.StringValue incident_id = 1;
+    google.protobuf.StringValue note = 2;
+  }
+
+  message AddIncidentNote {
+    google.protobuf.StringValue incident_id = 1;
+    google.protobuf.StringValue note = 2;
+  }
+
+  message ListIncidentNotes {
+    google.protobuf.StringValue incident_id = 1;
+    google.protobuf.StringValue offset = 2;
+    google.protobuf.StringValue direction = 3;
+    google.protobuf.Int32Value limit = 4;
+    google.protobuf.StringValue order = 5;
+  }
+
+  enum TaskType {
+    UNKNOWN = 0;
+    CREATE_ALERT = 1;
+    UPDATE_ALERT = 2;
+    GET_ALERT = 3;
+    LIST_ALERTS = 4;
+    ACKNOWLEDGE_ALERT = 5;
+    CLOSE_ALERT = 6;
+    FETCH_TEAMS = 7;
+    FETCH_ESCALATION_POLICIES = 8;
+    CREATE_INCIDENT = 9;
+    GET_INCIDENT = 10;
+    LIST_INCIDENTS = 11;
+    CLOSE_INCIDENT = 12;
+    GET_REQUEST_STATUS = 13;
+    UPDATE_INCIDENT = 14;
+    RESOLVE_INCIDENT = 15;
+    REOPEN_INCIDENT = 16;
+    ADD_INCIDENT_NOTE = 17;
+    LIST_INCIDENT_NOTES = 18;
+  }
+
+  TaskType type = 1;
+  oneof task {
+    CreateAlert create_alert = 2;
+    UpdateAlert update_alert = 3;
+    GetAlert get_alert = 4;
+    ListAlerts list_alerts = 5;
+    AcknowledgeAlert acknowledge_alert = 6;
+    CloseAlert close_alert = 7;
+    FetchTeams fetch_teams = 8;
+    FetchEscalationPolicies fetch_escalation_policies = 9;
+    CreateIncident create_incident = 10;
+    GetIncident get_incident = 11;
+    ListIncidents list_incidents = 12;
+    CloseIncident close_incident = 13;
+    GetRequestStatus get_request_status = 14;
+    UpdateIncident update_incident = 15;
+    ResolveIncident resolve_incident = 16;
+    ReopenIncident reopen_incident = 17;
+    AddIncidentNote add_incident_note = 18;
+    ListIncidentNotes list_incident_notes = 19;
+  }
+}
