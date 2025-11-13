@@ -233,8 +233,8 @@ class GithubSourceManager(SourceManager):
                     SourceKeyType.GITHUB_ORG: FormField(
                         key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.GITHUB_ORG)),
                         display_name=StringValue(value="GitHub Organization"),
-                        description=StringValue(value='e.g. "github.com/my-org", "github.com/acme-corp", "github.com/awesome-team"'),
-                        helper_text=StringValue(value="Enter your GitHub organization name (found in the URL: github.com/org-name)"),
+                        description=StringValue(value='e.g. "my-org", "acme-corp", "awesome-team"'),
+                        helper_text=StringValue(value="Enter your GitHub organization name (found in the URL: org-name)"),
                         data_type=LiteralType.STRING,
                         form_field_type=FormFieldType.TEXT_FT,
                         is_optional=False
