@@ -161,6 +161,13 @@ class DatadogSourceManager(SourceManager):
                               data_type=LiteralType.LONG,
                               form_field_type=FormFieldType.TEXT_FT,
                               is_optional=True),
+                    FormField(key_name=StringValue(value="environments"),
+                              display_name=StringValue(value="Environments"),
+                              description=StringValue(value='e.g. "production,staging,dev"'),
+                              helper_text=StringValue(value='(Optional) Enter comma-separated environments to match (leave empty to use default behavior)'),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT,
+                              is_optional=True),
                 ]
             },
             Datadog.TaskType.SPAN_SEARCH_EXECUTION: {
@@ -1360,6 +1367,12 @@ class DatadogSourceManager(SourceManager):
         if task.metric_families and task.metric_families.value:
             metric_families = [f.strip() for f in task.metric_families.value.split(',') if f.strip()]
 
+        # Extract environments parameter (optional, defaults to empty list)
+        # Parse comma-separated string into list
+        task_environments = []
+        if task.environments and task.environments.value:
+            task_environments = [e.strip() for e in task.environments.value.split(',') if e.strip()]
+
         dd_api_processor = self.get_connector_processor(datadog_connector)
 
         start_time = time_range.time_geq
@@ -1368,9 +1381,16 @@ class DatadogSourceManager(SourceManager):
         interval = interval * 1000 # Convert to milliseconds
         matching_metrics, environments = self.filter_using_assets(datadog_connector, filters=None, service_name=service_name)
         
-        # Check if "production" is in the environments and use it for the query
+        # Match environments from task with environments from filter_using_assets
         query_env = "prod"  # Default environment
-        if environments and "production" in [env_val for env_val in environments]:
+        if task_environments and environments:
+            # Find the first matching environment
+            for task_env in task_environments:
+                if task_env in environments:
+                    query_env = task_env
+                    break
+        elif environments and "production" in [env_val for env_val in environments]:
+            # Fallback to old behavior if no task environments specified
             query_env = "production"
         
         if not matching_metrics:
