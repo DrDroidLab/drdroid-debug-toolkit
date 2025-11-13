@@ -435,22 +435,36 @@ class DatadogApiProcessor(Processor):
         try:
             configuration = self.get_connection()
             with ApiClient(configuration) as api_client:
-                # Validate API Key
+                # Validate API Key (this endpoint only requires API key)
                 api_instance = AuthenticationApi(api_client)
                 response: AuthenticationValidationResponse = api_instance.validate()
                 if not response.get('valid', False):
-                    raise Exception("Datadog API connection is not valid. Check API Key")
+                    raise Exception("Datadog API Key is not valid. Check API Key")
                 
-                # Validate Application Key by making a call that requires it
+                # Validate Application Key by making a call that requires both keys
+                # Since API key is already validated, if this fails it's likely the Application Key
                 monitors_api_instance = MonitorsApi(api_client)
                 monitors_api_instance.list_monitors(page_size=1)
                 
                 return True
         except ApiException as e:
             logger.error("Exception when calling Datadog API: %s\n" % e)
-            if "AuthenticationApi" in str(e) or "validate" in str(e):
+            # Check if this is from the validate() call (API key validation)
+            if hasattr(e, 'status') and e.status == 403:
+                # 403 Forbidden typically means Application Key is invalid
+                # (since we already validated API key above)
+                raise Exception("Datadog Application Key is not valid. Check Application Key")
+            elif hasattr(e, 'status') and e.status == 401:
+                # 401 Unauthorized could be either, but if we got past validate(), it's likely App Key
+                error_msg = str(e).lower()
+                if "application" in error_msg or "app" in error_msg:
+                    raise Exception("Datadog Application Key is not valid. Check Application Key")
+                else:
+                    raise Exception("Datadog API Key is not valid. Check API Key")
+            elif "AuthenticationApi" in str(e) or "validate" in str(e):
                 raise Exception("Datadog API Key is not valid. Check API Key")
             else:
+                # Default: assume Application Key issue since API key was already validated
                 raise Exception("Datadog Application Key is not valid. Check Application Key")
         except Exception as e:
             logger.error("Exception when testing Datadog connection: %s\n" % e)
