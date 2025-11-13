@@ -2,15 +2,15 @@ import logging
 from google.protobuf.struct_pb2 import Struct
 from google.protobuf.wrappers_pb2 import StringValue, BoolValue, UInt64Value
 
-from integrations.source_api_processors.render_api_processor import RenderAPIProcessor
-from core.integrations.source_manager import SourceManager
+from drdroid_debug_toolkit.core.integrations.source_api_processors.render_api_processor import RenderAPIProcessor
+from drdroid_debug_toolkit.core.integrations.source_manager import SourceManager
 from drdroid_debug_toolkit.core.protos.base_pb2 import TimeRange
 from drdroid_debug_toolkit.core.protos.connectors.connector_pb2 import Connector as ConnectorProto
 from drdroid_debug_toolkit.core.protos.base_pb2 import SourceKeyType, Source
 from drdroid_debug_toolkit.core.protos.literal_pb2 import LiteralType, Literal
 from drdroid_debug_toolkit.core.protos.playbooks.playbook_commons_pb2 import PlaybookTaskResult, PlaybookTaskResultType, ApiResponseResult
 from drdroid_debug_toolkit.core.protos.playbooks.playbook_pb2 import PlaybookTask
-from core.protos.playbooks.source_task_definitions.render_task_pb2 import Render
+from drdroid_debug_toolkit.core.protos.playbooks.source_task_definitions.render_task_pb2 import Render
 from drdroid_debug_toolkit.core.protos.ui_definition_pb2 import FormField, FormFieldType
 from utils.proto_utils import proto_to_dict, dict_to_proto
 from core.utils.credentilal_utils import DISPLAY_NAME, CATEGORY, CLOUD_MANAGED_SERVICES, get_connector_key_type_string, generate_credentials_dict
