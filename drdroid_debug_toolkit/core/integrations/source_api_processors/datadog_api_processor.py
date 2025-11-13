@@ -594,8 +594,14 @@ class DatadogApiProcessor(Processor):
         else:
             end_iso = datetime.now(tz=timezone.utc).isoformat()
 
-        payload = json.dumps({
+        # Build page object - only include cursor if provided
+        page_obj = {"limit": limit}
+        if cursor:
+            page_obj["cursor"] = cursor
+
+        payload = {
             "data": {
+                "type": "search_request",
                 "attributes": {
                     "filter": {
                         "from": start_iso,
@@ -603,32 +609,28 @@ class DatadogApiProcessor(Processor):
                         "to": end_iso
                     },
                     "options": {
-                        "timezone": "GMT"
+                        "timezone": "UTC"
                     },
-                    "page": {
-                        "cursor": cursor,
-                        "limit": limit
-                    },
+                    "page": page_obj,
                     "sort": "-timestamp"
-                },
-                "type": "search_request",
-                "cursor": cursor
+                }
             }
-        })
+        }
 
         headers = {
             'DD-APPLICATION-KEY': self.__dd_app_key,
             'DD-API-KEY': self.__dd_api_key,
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
         }
 
         try:
-            response = make_request_with_retry("POST", url, headers=headers, payload=payload, default_resend_delay=10)
+            response = make_request_with_retry("POST", url, headers=headers, payload=json.dumps(payload), default_resend_delay=10)
             if response.status_code == 200:
                 return response.json()
             else:
                 logger.error(
-                    f"DatadogApiProcessor.search_spans:: Error occurred searching spans with status_code: {response.status_code}")
+                    f"DatadogApiProcessor.search_spans:: Error occurred searching spans with status_code: {response.status_code}, response: {response.text}")
                 return None
         except Exception as e:
             logger.error(f"DatadogApiProcessor.search_spans:: Exception occurred searching spans with error: {e}")

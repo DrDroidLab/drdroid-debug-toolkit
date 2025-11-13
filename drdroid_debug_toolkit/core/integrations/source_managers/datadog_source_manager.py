@@ -1555,15 +1555,20 @@ class DatadogSourceManager(SourceManager):
                 limit=limit
             )
 
-            if not response:
+            if not response or not isinstance(response, dict):
+                logger.warning(f"Datadog span search returned invalid response: {response}")
                 return PlaybookTaskResult(
                     type=PlaybookTaskResultType.TEXT,
                     text=TextResult(output=StringValue(value=f"No spans returned from Datadog for query: {query}")),
                     source=self.source
                 )
 
-            meta = response.get("meta", {})
-            next_cursor = meta.get("page", {}).get("after")
+            meta = response.get("meta", {}) if isinstance(response, dict) else {}
+            next_cursor = None
+            if isinstance(meta, dict):
+                page = meta.get("page", {})
+                if isinstance(page, dict):
+                    next_cursor = page.get("after")
 
             metadata_kwargs = {}
             if next_cursor:
