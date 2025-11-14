@@ -3,8 +3,8 @@ import re
 
 import requests
 
-from integrations.processor import Processor
-from drdroid_debug_toolkit.core.protos.base_pb2 import TimeRange
+from core.integrations.processor import Processor
+from core.protos.base_pb2 import TimeRange
 
 logger = logging.getLogger(__name__)
 
