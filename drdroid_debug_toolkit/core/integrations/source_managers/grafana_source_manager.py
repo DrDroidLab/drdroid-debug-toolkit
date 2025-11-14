@@ -849,6 +849,13 @@ class GrafanaSourceManager(SourceManager):
                 )
             
             dashboard_uid = task.dashboard_uid.value
+            # Precompute metadata for all return paths
+            time_params = self._get_grafana_time_params(time_range)
+            metadata = self._create_metadata_with_grafana_url(grafana_connector, "variables", {
+                "dashboard_uid": dashboard_uid,
+                **time_params,
+                "orgId": "1"
+            })
             
             # Parse fixed_variables if provided
             fixed_variables = {}
@@ -888,14 +895,7 @@ class GrafanaSourceManager(SourceManager):
 
             variables_data = grafana_api_processor.get_dashboard_variables(dashboard_uid, fixed_variables, time_range)
             
-            if not variables_data or not variables_data.get('variables'):
-                # Create metadata with Grafana URL using effective host
-                metadata = self._create_metadata_with_grafana_url(grafana_connector, "variables", {
-                    "dashboard_uid": dashboard_uid,
-                    **self._get_grafana_time_params(time_range),
-                    "orgId": "1"
-                })
-                
+            if not variables_data:
                 return PlaybookTaskResult(
                     type=PlaybookTaskResultType.TEXT,
                     text=TextResult(output=StringValue(value=f"No variables found for dashboard: {dashboard_uid}. Send an empty dictionary for template variables")),
