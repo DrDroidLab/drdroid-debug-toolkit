@@ -76,8 +76,8 @@ class VictoriaLogsSourceManager(SourceManager):
                         default_value=Literal(type=LiteralType.LONG, long=Int64Value(value=9428)),
                         is_optional=True
                     ),
-                    SourceKeyType.MCP_SERVER_AUTH_HEADERS: FormField(
-                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.MCP_SERVER_AUTH_HEADERS)),
+                    SourceKeyType.VICTORIA_LOGS_HEADERS: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.VICTORIA_LOGS_HEADERS)),
                         display_name=StringValue(value="Custom Headers (JSON)"),
                         helper_text=StringValue(value="Optional JSON headers e.g. {\"Authorization\": \"Bearer <token>\"}"),
                         data_type=LiteralType.STRING,
