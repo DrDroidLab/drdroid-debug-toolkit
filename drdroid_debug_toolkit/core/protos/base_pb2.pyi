@@ -448,6 +448,7 @@ class _SourceKeyTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     """VictoriaLogs specific keys (used by VictoriaLogs connector forms)"""
     VICTORIA_LOGS_HOST: _SourceKeyType.ValueType  # 155
     VICTORIA_LOGS_PORT: _SourceKeyType.ValueType  # 156
+    VICTORIA_LOGS_HEADERS: _SourceKeyType.ValueType  # 157
 
 class SourceKeyType(_SourceKeyType, metaclass=_SourceKeyTypeEnumTypeWrapper): ...
 
@@ -595,6 +596,7 @@ VICTORIA_LOGS_PROTOCOL: SourceKeyType.ValueType  # 154
 """VictoriaLogs specific keys (used by VictoriaLogs connector forms)"""
 VICTORIA_LOGS_HOST: SourceKeyType.ValueType  # 155
 VICTORIA_LOGS_PORT: SourceKeyType.ValueType  # 156
+VICTORIA_LOGS_HEADERS: SourceKeyType.ValueType  # 157
 global___SourceKeyType = SourceKeyType
 
 class _SourceModelType:

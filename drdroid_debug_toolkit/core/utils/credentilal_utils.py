@@ -259,8 +259,8 @@ def generate_credentials_dict(connector_type, connector_keys):
                 credentials_dict['VICTORIA_LOGS_HOST'] = conn_key.key.value
             elif conn_key.key_type == SourceKeyType.VICTORIA_LOGS_PORT:
                 credentials_dict['VICTORIA_LOGS_PORT'] = conn_key.key.value
-            elif conn_key.key_type == SourceKeyType.MCP_SERVER_AUTH_HEADERS:
-                credentials_dict['MCP_SERVER_AUTH_HEADERS'] = conn_key.key.value
+            elif conn_key.key_type == SourceKeyType.VICTORIA_LOGS_HEADERS:
+                credentials_dict['VICTORIA_LOGS_HEADERS'] = conn_key.key.value
             elif conn_key.key_type == SourceKeyType.SSL_VERIFY:
                 # Normalize to string like other connectors; processor handles str/bool
                 credentials_dict['SSL_VERIFY'] = 'true'
@@ -571,6 +571,43 @@ def credential_yaml_to_connector_proto(connector_name, credential_yaml, connecto
             c_keys.append(ConnectorKey(
                 key_type=SourceKeyType.X_SCOPE_ORG_ID,
                 key=StringValue(value=credential_yaml['x_scope_org_id'])
+            ))
+        if credential_yaml.get('ssl_verify', None):
+            ssl_verify_flag = credential_yaml['ssl_verify']
+            if isinstance(ssl_verify_flag, str):
+                ssl_verify_flag = ssl_verify_flag.lower()
+            if isinstance(ssl_verify_flag, bool):
+                ssl_verify_flag = str(ssl_verify_flag).lower()
+            c_keys.append(ConnectorKey(
+                key_type=SourceKeyType.SSL_VERIFY,
+                key=StringValue(value=ssl_verify_flag)
+            ))
+    elif c_type == 'VICTORIA_LOGS':
+        if 'host' not in credential_yaml:
+            raise Exception(f'Host not found in credential yaml for victoria logs source in connector: {connector_name}')
+        if 'port' not in credential_yaml:
+            raise Exception(f'Port not found in credential yaml for victoria logs source in connector: {connector_name}')
+        if 'protocol' not in credential_yaml:
+            raise Exception(f'Protocol not found in credential yaml for victoria logs source in connector: {connector_name}')
+
+        c_source = Source.VICTORIA_LOGS
+
+        c_keys.append(ConnectorKey(
+            key_type=SourceKeyType.VICTORIA_LOGS_HOST,
+            key=StringValue(value=credential_yaml['host'])
+        ))
+        c_keys.append(ConnectorKey(
+            key_type=SourceKeyType.VICTORIA_LOGS_PORT,
+            key=StringValue(value=str(credential_yaml['port']))
+        ))
+        c_keys.append(ConnectorKey(
+            key_type=SourceKeyType.VICTORIA_LOGS_PROTOCOL,
+            key=StringValue(value=credential_yaml['protocol'])
+        ))
+        if credential_yaml.get('victoria_logs_headers', None):
+            c_keys.append(ConnectorKey(
+                key_type=SourceKeyType.VICTORIA_LOGS_HEADERS,
+                key=StringValue(value=credential_yaml['victoria_logs_headers'])
             ))
         if credential_yaml.get('ssl_verify', None):
             ssl_verify_flag = credential_yaml['ssl_verify']

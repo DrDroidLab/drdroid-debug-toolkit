@@ -358,9 +358,11 @@ enum SourceKeyType {
   MCP_SERVER_AUTH_HEADERS = 151;
 
   // VictoriaLogs specific keys (used by VictoriaLogs connector forms)
-    VICTORIA_LOGS_PROTOCOL = 154;
-    VICTORIA_LOGS_HOST = 155;
-    VICTORIA_LOGS_PORT = 156;
+  VICTORIA_LOGS_PROTOCOL = 154;
+  VICTORIA_LOGS_HOST = 155;
+  VICTORIA_LOGS_PORT = 156;
+  VICTORIA_LOGS_HEADERS = 157;
+
 }
 
 enum SourceModelType {
