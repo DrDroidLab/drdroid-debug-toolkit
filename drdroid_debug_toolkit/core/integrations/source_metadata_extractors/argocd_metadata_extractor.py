@@ -10,9 +10,9 @@ logger = logging.getLogger(__name__)
 
 class ArgoCDSourceMetadataExtractor(SourceMetadataExtractor):
 
-    def __init__(self, argocd_server, argocd_token, account_id=None, connector_id=None):
+    def __init__(self, request_id: str, connector_name: str, argocd_server, argocd_token):
         self.argocd_processor = ArgoCDAPIProcessor(argocd_server, argocd_token)
-        super().__init__(account_id, connector_id, Source.ARGOCD)
+        super().__init__(request_id, connector_name, Source.ARGOCD)
 
     @log_function_call
     def extract_applications(self):
