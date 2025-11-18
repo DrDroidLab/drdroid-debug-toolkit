@@ -48,24 +48,6 @@ class GrafanaSourceMetadataExtractor(SourceMetadataExtractor):
         self.__grafana_api_processor = GrafanaApiProcessor(grafana_host, grafana_api_key, ssl_verify)
         super().__init__(request_id, connector_name, Source.GRAFANA)
 
-class _ProdInitGrafanaSourceMetadataExtractor(GrafanaSourceMetadataExtractor):
-    """
-    Adapter for production environment where initializer signature differs.
-    Only __init__ varies; all other methods are inherited unchanged.
-    """
-    def __init__(self, grafana_host, grafana_api_key, account_id: Optional[str] = None, connector_id: Optional[str] = None, ssl_verify: str = "true"):
-        super().__init__(
-            request_id=account_id or "",
-            connector_name=connector_id or "",
-            grafana_host=grafana_host,
-            grafana_api_key=grafana_api_key,
-            ssl_verify=ssl_verify,
-        )
-
-# Conditionally expose the prod adapter under the canonical class name
-if IS_PROD_ENV:
-    GrafanaSourceMetadataExtractor = _ProdInitGrafanaSourceMetadataExtractor  # type: ignore[assignment]
-
     @log_function_call
     def extract_data_source(self):
         model_type = SourceModelType.GRAFANA_DATASOURCE

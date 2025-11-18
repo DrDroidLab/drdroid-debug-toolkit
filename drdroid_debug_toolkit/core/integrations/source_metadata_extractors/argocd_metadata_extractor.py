@@ -46,18 +46,3 @@ class ArgoCDSourceMetadataExtractor(SourceMetadataExtractor):
         if len(model_data) > 0:
             self.create_or_update_model_metadata(model_type, model_data)
 
-class _ProdInitArgoCDSourceMetadataExtractor(ArgoCDSourceMetadataExtractor):
-    """
-    Adapter for production environment where initializer signature differs.
-    Only __init__ varies; all other methods are inherited unchanged.
-    """
-    def __init__(self, argocd_server, argocd_token, account_id: Optional[str] = None, connector_id: Optional[str] = None):
-        # Initialize processor like the original extractor
-        self.argocd_processor = ArgoCDAPIProcessor(argocd_server, argocd_token)
-        # Call the next in MRO after ArgoCDSourceMetadataExtractor to reach the dynamic base
-        super(ArgoCDSourceMetadataExtractor, self).__init__(account_id, connector_id, Source.ARGOCD)
-
-
-# Conditionally expose the prod adapter under the canonical class name
-if IS_PROD_ENV:
-    ArgoCDSourceMetadataExtractor = _ProdInitArgoCDSourceMetadataExtractor  # type: ignore[assignment]
