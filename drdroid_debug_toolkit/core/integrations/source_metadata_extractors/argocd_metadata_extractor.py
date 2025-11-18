@@ -19,8 +19,12 @@ logger = logging.getLogger(__name__)
 
 class ArgoCDSourceMetadataExtractor(SourceMetadataExtractor):
 
-    def __init__(self, request_id: str, connector_name: str, argocd_server, argocd_token, ):
+    def __init__(self, request_id: str, connector_name: str, argocd_server, argocd_token, account_id=None, connector_id=None):
         self.argocd_processor = ArgoCDAPIProcessor(argocd_server, argocd_token)
+
+        if account_id is not None and connector_id is not None:
+            request_id = account_id
+            connector_name = connector_id
 
         super().__init__(request_id, connector_name, Source.ARGOCD)
 
