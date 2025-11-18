@@ -1,13 +1,4 @@
 import logging
-from typing import Optional
-
-# Lightweight prod-env detection mirroring core.utils.playbooks_client
-IS_PROD_ENV = False
-try:
-    from django.conf import settings  # type: ignore
-    IS_PROD_ENV = bool(getattr(settings, "IS_PROD_ENV", False))
-except Exception:
-    pass
 
 from core.integrations.source_api_processors.argocd_api_processor import ArgoCDAPIProcessor
 from core.integrations.source_metadata_extractor import SourceMetadataExtractor
