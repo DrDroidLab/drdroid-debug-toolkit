@@ -1,4 +1,5 @@
 import logging
+import sys
 from datetime import datetime, date
 
 import requests
@@ -7,6 +8,15 @@ from core.protos.base_pb2 import Source
 from core.utils.logging_utils import log_function_call
 
 logger = logging.getLogger(__name__)
+
+# Ensure a single module instance regardless of import path aliasing
+_MODULE_ALIASES = [
+    'core.integrations.source_metadata_extractor',
+    'drdroid_debug_toolkit.core.integrations.source_metadata_extractor',
+]
+for _alias in _MODULE_ALIASES:
+    if _alias not in sys.modules:
+        sys.modules[_alias] = sys.modules[__name__]
 
 
 # Dependency Injection registry for SourceMetadataExtractor base
@@ -20,13 +30,24 @@ def set_source_metadata_extractor_base_class(cls):
     """
     global _active_source_metadata_extractor_base_class
     _active_source_metadata_extractor_base_class = cls
-    # If the dynamic class is already defined, update its base class to the new one
-    try:
-        if 'SourceMetadataExtractor' in globals() and isinstance(SourceMetadataExtractor, type):
-            SourceMetadataExtractor.__bases__ = (cls,)
-    except Exception:
-        # Best-effort: ignore if MRO update is not safe
-        pass
+
+    def _rebase_module(mod):
+        try:
+            sme_cls = getattr(mod, 'SourceMetadataExtractor', None)
+            if isinstance(sme_cls, type) and sme_cls is not cls:
+                sme_cls.__bases__ = (cls,)
+        except Exception:
+            # Best-effort: ignore if MRO update is not safe
+            pass
+
+    # Rebase in the current module
+    _rebase_module(sys.modules.get(__name__))
+
+    # Rebase in any known alias module instances (if both were imported separately)
+    for _alias in _MODULE_ALIASES:
+        mod = sys.modules.get(_alias)
+        if mod is not None:
+            _rebase_module(mod)
 
 
 def get_source_metadata_extractor_base_class():
