@@ -864,7 +864,33 @@ class DatadogApiProcessor(Processor):
                 with ApiClient(configuration) as api_client:
                     api_instance = MonitorsApi(api_client)
                     response = api_instance.list_monitors()
-                    return response
+                    
+                    # Convert to consistent format (list of monitor dicts)
+                    if hasattr(response, 'to_dict'):
+                        # If it's a Datadog API response object, convert it
+                        response_dict = response.to_dict()
+                        monitors = response_dict if isinstance(response_dict, list) else response_dict.get('monitors', [])
+                    elif isinstance(response, list):
+                        # If it's already a list, convert each monitor to dict
+                        monitors = []
+                        for monitor in response:
+                            if hasattr(monitor, 'to_dict'):
+                                monitors.append(monitor.to_dict())
+                            elif isinstance(monitor, dict):
+                                monitors.append(monitor)
+                            else:
+                                monitors.append(monitor)
+                    else:
+                        # Fallback: try to convert to dict
+                        monitors = response if isinstance(response, list) else []
+                    
+                    # Return in consistent format matching search endpoint
+                    return {
+                        "monitors": monitors,
+                        "counts": {
+                            "total": len(monitors)
+                        }
+                    }
         except Exception as e:
             logger.error(f"Exception occurred while querying monitors with error: {e}")
             raise e
