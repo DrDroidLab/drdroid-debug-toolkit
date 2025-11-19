@@ -775,7 +775,8 @@ class DatadogApiProcessor(Processor):
         """
         try:
             # Pagination defaults - handled internally
-            page = 0
+            # Datadog API uses POST for monitor search and page starts at 1, not 0
+            page = 1
             per_page = 100  # Reasonable default for fetching monitors
             
             # Use the search endpoint for query-based filtering
@@ -784,45 +785,52 @@ class DatadogApiProcessor(Processor):
                 headers = {
                     "DD-API-KEY": self.__dd_api_key,
                     "DD-APPLICATION-KEY": self.__dd_app_key,
-                    "Accept": "application/json"
+                    "Accept": "application/json",
+                    "Content-Type": "application/json"
                 }
-                params = {
-                    "query": query,
-                    "page": page,
-                    "per_page": per_page
-                }
-                if sort:
-                    params["sort"] = sort
                 
-                response = requests.get(url, headers=headers, params=params, timeout=EXTERNAL_CALL_TIMEOUT)
-                response.raise_for_status()
-                result = response.json()
+                # Datadog monitor search uses POST request with JSON body
+                all_monitors = []
+                max_pages = 50  # Limit to prevent excessive API calls
                 
-                # If there are more pages and we got results, try to fetch additional pages
-                # This handles pagination automatically for better UX
-                if isinstance(result, dict) and result.get('monitors'):
-                    all_monitors = result.get('monitors', [])
-                    total_count = result.get('counts', {}).get('total', len(all_monitors))
-                    current_count = len(all_monitors)
+                for current_page in range(1, max_pages + 1):
+                    body = {
+                        "query": query,
+                        "page": current_page,
+                        "per_page": per_page
+                    }
+                    if sort:
+                        body["sort"] = sort
                     
-                    # If we haven't fetched all monitors and there are more, fetch them
-                    if current_count < total_count and current_count > 0:
-                        # Fetch remaining pages (up to a reasonable limit to avoid excessive API calls)
-                        max_pages = min(10, (total_count // per_page) + 1)  # Limit to 10 pages max
-                        for p in range(1, max_pages):
-                            params['page'] = p
-                            page_response = requests.get(url, headers=headers, params=params, timeout=EXTERNAL_CALL_TIMEOUT)
-                            page_response.raise_for_status()
-                            page_result = page_response.json()
-                            if isinstance(page_result, dict) and page_result.get('monitors'):
-                                all_monitors.extend(page_result.get('monitors', []))
-                                if len(all_monitors) >= total_count:
-                                    break
+                    response = requests.post(url, headers=headers, json=body, timeout=EXTERNAL_CALL_TIMEOUT)
+                    response.raise_for_status()
+                    result = response.json()
+                    
+                    # Check if result has monitors
+                    if isinstance(result, dict):
+                        monitors = result.get('monitors', [])
+                        if not monitors:
+                            break  # No more monitors
                         
-                        # Update result with all monitors
-                        result['monitors'] = all_monitors
+                        all_monitors.extend(monitors)
+                        
+                        # Check if there are more results
+                        counts = result.get('counts', {})
+                        total = counts.get('total', len(all_monitors))
+                        
+                        if len(all_monitors) >= total or len(monitors) < per_page:
+                            break  # Got all monitors or last page
+                    else:
+                        # Unexpected response format, return what we have
+                        break
                 
-                return result
+                # Return in expected format
+                return {
+                    "monitors": all_monitors,
+                    "counts": {
+                        "total": len(all_monitors)
+                    }
+                }
             else:
                 # If no query, use list_monitors (this returns all monitors)
                 configuration = self.get_connection()
