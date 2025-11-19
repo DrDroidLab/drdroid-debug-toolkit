@@ -1346,29 +1346,6 @@ def extract_services_and_downstream(account_id, model_data=None):
                         downstream_services = metadata[env_tag]['calls']
                         if downstream_services:
                             service_downstream_map[service].update(downstream_services)
-        else:
-            # Original database query path
-            records = ConnectorMetadataModelStore.objects.filter(account_id=account_id,
-                                                                 model_type=ConnectorMetadataModelType.DATADOG_SERVICE,
-                                                                 is_active=True)
-            logger.info(f"Retrieved {records.count()} records from database")
-
-            for record in records:
-                service = record.model_uid
-                if service not in service_downstream_map:
-                    service_downstream_map[service] = set()
-                if not record.metadata:
-                    continue
-                try:
-                    metadata = record.metadata
-                    downstream_services = []
-                    if isinstance(metadata, dict) and 'prod' in metadata and 'calls' in metadata['prod']:
-                        downstream_services = metadata['prod']['calls']
-                    if downstream_services:
-                        service_downstream_map[service].update(downstream_services)
-                except (TypeError, KeyError) as e:
-                    logger.error(f"Error processing metadata for service {service}: {e}")
-                    service_downstream_map[service].add('ERROR_PROCESSING_METADATA')
 
         results = [
             {'service': service, 'downstream': ','.join(sorted(downstream)) if downstream else ''}
