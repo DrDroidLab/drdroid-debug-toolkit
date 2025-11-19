@@ -4,6 +4,7 @@ from core.integrations.source_metadata_extractor import SourceMetadataExtractor
 from core.integrations.source_api_processors.datadog_api_processor import DatadogApiProcessor, extract_services_and_downstream
 from core.protos.base_pb2 import Source, SourceModelType
 from core.utils.logging_utils import log_function_call
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -94,10 +95,24 @@ class DatadogSourceMetadataExtractor(SourceMetadataExtractor):
         model_data = {}
         try:
             response = self.__dd_api_processor.fetch_dashboards()
-            if not response or 'dashboards' not in response:
+            # The processor may return a JSON string; parse it if needed
+            if isinstance(response, str):
+                try:
+                    response = json.loads(response)
+                except Exception as e:
+                    logger.error(f'Error parsing datadog dashboards response JSON: {e}')
+                    return model_data
+            if not isinstance(response, dict):
+                logger.error('Unexpected datadog dashboards response type; expected dict')
                 return model_data
-            dashboards = response['dashboards']
-            dashboard_ids = [dashboard['id'] for dashboard in dashboards]
+            dashboards = response.get('dashboards') or response.get('data') or []
+            if not isinstance(dashboards, list):
+                logger.error('Unexpected datadog dashboards payload; expected list under "dashboards" or "data"')
+                return model_data
+            dashboard_ids = []
+            for dashboard in dashboards:
+                if isinstance(dashboard, dict) and 'id' in dashboard:
+                    dashboard_ids.append(dashboard['id'])
             for dashboard_id in dashboard_ids:
                 try:
                     dashboard = self.__dd_api_processor.fetch_dashboard_details(dashboard_id)
