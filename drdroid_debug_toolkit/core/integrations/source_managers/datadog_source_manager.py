@@ -2051,20 +2051,26 @@ class DatadogSourceManager(SourceManager):
                     metadata=metadata
                 )
 
-            # Convert response to Struct
-            response_struct = Struct()
-            if isinstance(response_data, dict):
-                response_struct.update(response_data)
-            elif isinstance(response_data, list):
-                # If it's a list, wrap it in a dict
-                response_struct.update({"monitors": response_data})
-            elif hasattr(response_data, 'to_dict'):
-                # If it's a Datadog API response object
-                response_struct.update(response_data.to_dict())
-            else:
-                # Try to convert to dict via json
-                response_dict = json.loads(json.dumps(response_data, default=str))
-                response_struct.update(response_dict)
+            # Convert response to Struct - ensure all values are JSON-serializable
+            # First serialize to JSON and back to convert all complex types to basic Python types
+            try:
+                # Convert to JSON string and back to ensure all types are serializable
+                json_str = json.dumps(response_data, default=str)
+                response_dict = json.loads(json_str)
+                # Use dict_to_proto with Struct class
+                response_struct = dict_to_proto(response_dict, Struct)
+            except Exception as e:
+                logger.error(f"Error converting response to Struct: {e}, response_data type: {type(response_data)}")
+                # Fallback: try to handle different response types
+                if isinstance(response_data, dict):
+                    response_struct = dict_to_proto(response_data, Struct)
+                elif isinstance(response_data, list):
+                    response_struct = dict_to_proto({"monitors": response_data}, Struct)
+                elif hasattr(response_data, 'to_dict'):
+                    response_struct = dict_to_proto(response_data.to_dict(), Struct)
+                else:
+                    # Last resort: wrap in a dict
+                    response_struct = dict_to_proto({"data": str(response_data)}, Struct)
 
             # Extract Datadog API domain and create metadata
             api_domain = self._extract_api_domain_from_connector(datadog_connector)
