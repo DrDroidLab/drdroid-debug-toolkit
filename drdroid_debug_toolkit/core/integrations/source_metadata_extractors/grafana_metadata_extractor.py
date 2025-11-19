@@ -1,5 +1,4 @@
 import re
-import time
 import logging
 
 from core.integrations.source_metadata_extractor import SourceMetadataExtractor
@@ -56,6 +55,7 @@ class GrafanaSourceMetadataExtractor(SourceMetadataExtractor):
 
         if len(model_data) > 0:
             self.create_or_update_model_metadata(model_type, model_data)
+        return model_data
 
     @log_function_call
     def extract_prometheus_data_source(self):
@@ -75,62 +75,71 @@ class GrafanaSourceMetadataExtractor(SourceMetadataExtractor):
             model_data[datasource_id] = ds
         if len(model_data) > 0:
             self.create_or_update_model_metadata(model_type, model_data)
+        return model_data
 
     @log_function_call
-    def extract_dashboards(self):
+    def extract_loki_data_source(self):
+        model_type = SourceModelType.GRAFANA_LOKI_DATASOURCE
+        try:
+            all_data_sources = self.__grafana_api_processor.fetch_data_sources()
+            all_loki_data_sources = [ds for ds in all_data_sources if ds['type'] == 'loki']
+        except Exception as e:
+            logger.error(f'Error fetching grafana loki data sources: {e}')
+            return
+        if not all_loki_data_sources:
+            return
+        model_data = {}
+        for ds in all_loki_data_sources:
+            datasource_id = ds['uid']
+            # Fetch available labels for this Loki datasource
+            try:
+                loki_labels = self.__grafana_api_processor.fetch_loki_labels(datasource_id)
+                ds['available_labels'] = loki_labels
+            except Exception as e:
+                logger.error(f'Error fetching loki labels for datasource {datasource_id}: {e}')
+                ds['available_labels'] = []
+            
+            model_data[datasource_id] = ds
+        if len(model_data) > 0:
+            self.create_or_update_model_metadata(model_type, model_data)
+        return model_data
+
+    @log_function_call
+    def extract_dashboards(self, save_to_db=True):
         model_type = SourceModelType.GRAFANA_DASHBOARD
         try:
             all_dashboards = self.__grafana_api_processor.fetch_dashboards()
-            logger.info(f'grafana_metadata_extractor.extract_dashboards: Fetched {len(all_dashboards)} dashboards')
         except Exception as e:
-            logger.error(f'grafana_metadata_extractor.extract_dashboards: Error fetching grafana dashboards: {e}')
+            logger.error(f'Error fetching grafana dashboards: {e}')
             return
         if not all_dashboards:
-            logger.info('grafana_metadata_extractor.extract_dashboards: No dashboards found')
             return
         all_db_dashboard_uids = []
         for db in all_dashboards:
             if db['type'] == 'dash-db':
                 all_db_dashboard_uids.append(db['uid'])
 
-        logger.info(f'grafana_metadata_extractor.extract_dashboards: Fetched {len(all_db_dashboard_uids)} dashboard uids')
-        # Incremental persistence to avoid oversized payloads (e.g., HTTP 413)
-        batch_size = 15
-        batch_model_data = {}
-        total_saved = 0
+        model_data = {}
         for uid in all_db_dashboard_uids:
             try:
                 dashboard_details = self.__grafana_api_processor.fetch_dashboard_details(uid)
             except Exception as e:
-                logger.error(f'grafana_metadata_extractor.extract_dashboards: Error fetching grafana dashboard details: {e}')
+                logger.error(f'Error fetching grafana dashboard details: {e}')
                 continue
             if not dashboard_details:
-                logger.info(f'grafana_metadata_extractor.extract_dashboards: No dashboard details found for uid: {uid}')
                 continue
-
-            batch_model_data[uid] = dashboard_details
-
-            if len(batch_model_data) >= batch_size:
-                logger.info(f'grafana_metadata_extractor.extract_dashboards: Persisting batch of {len(batch_model_data)} dashboards')
-                self.create_or_update_model_metadata(model_type, batch_model_data)
-                total_saved += len(batch_model_data)
-                batch_model_data = {}
-
-        # Persist any remaining dashboards
-        if len(batch_model_data) > 0:
-            logger.info(f'grafana_metadata_extractor.extract_dashboards: Persisting final batch of {len(batch_model_data)} dashboards')
-            self.create_or_update_model_metadata(model_type, batch_model_data)
-            total_saved += len(batch_model_data)
-
-        logger.info(f'grafana_metadata_extractor.extract_dashboards: Done. Total dashboards persisted: {total_saved}')
+            model_data[uid] = dashboard_details
+        if len(model_data) > 0:
+            self.create_or_update_model_metadata(model_type, model_data)
+        return model_data
 
     # @log_function_call
-    # def extract_dashboard_target_metric_promql(self):
+    # def extract_dashboard_target_metric_promql(self, save_to_db=True):
     #     model_type = SourceModelType.GRAFANA_TARGET_METRIC_PROMQL
     #     try:
     #         all_data_sources = self.__grafana_api_processor.fetch_data_sources()
     #     except Exception as e:
-    #         logger.error(f'Error fetching grafana data sources for target metric promql: {e}')
+    #         capture_exception(Exception(f'Error fetching grafana data sources for target metric promql: {e}'))
     #         return
     #     if not all_data_sources:
     #         return
@@ -138,7 +147,7 @@ class GrafanaSourceMetadataExtractor(SourceMetadataExtractor):
     #     try:
     #         all_dashboards = self.__grafana_api_processor.fetch_dashboards()
     #     except Exception as e:
-    #         logger.error(f'Error fetching grafana dashboard for target metric promql: {e}')
+    #         capture_exception(Exception(f'Error fetching grafana dashboard for target metric promql: {e}'))
     #         return
     #     if not all_dashboards:
     #         return
@@ -152,7 +161,7 @@ class GrafanaSourceMetadataExtractor(SourceMetadataExtractor):
     #         try:
     #             dashboard_details = self.__grafana_api_processor.fetch_dashboard_details(uid)
     #         except Exception as e:
-    #             logger.error(f'Error fetching grafana dashboard details for target metric promql: {e}')
+    #             capture_exception(Exception(f'Error fetching grafana dashboard details for target metric promql: {e}'))
     #             continue
     #         if not dashboard_details:
     #             continue
@@ -206,16 +215,16 @@ class GrafanaSourceMetadataExtractor(SourceMetadataExtractor):
     #                                                 response = self.__grafana_api_processor.fetch_promql_metric_labels(
     #                                                     datasource_uid, metric_name)
     #                                             except Exception as e:
-    #                                                 logger.error(
-    #                                                     f'Error fetching promql metric labels for target metric promql: {e}')
+    #                                                 capture_exception(Exception(
+    #                                                     f'Error fetching promql metric labels for target metric promql: {e}'))
     #                                                 response = None
     #                                             while not response and retry_attempts < 3:
     #                                                 try:
     #                                                     response = self.__grafana_api_processor.fetch_promql_metric_labels(
     #                                                         datasource_uid, metric_name)
     #                                                 except Exception as e:
-    #                                                     logger.error(
-    #                                                         f'Error fetching promql metric labels for target metric promql: {e}')
+    #                                                     capture_exception(Exception(
+    #                                                         f'Error fetching promql metric labels for target metric promql: {e}'))
     #                                                     response = None
     #                                                 time.sleep(5)
     #                                                 retry_attempts += 1
@@ -230,16 +239,16 @@ class GrafanaSourceMetadataExtractor(SourceMetadataExtractor):
     #                                                             response = self.__grafana_api_processor.fetch_promql_metric_label_values(
     #                                                                 datasource_uid, metric_name, lb)
     #                                                         except Exception as e:
-    #                                                             logger.error(
-    #                                                                 f'Error fetching promql metric label values for target metric promql: {e}')
+    #                                                             capture_exception(Exception(
+    #                                                                 f'Error fetching promql metric label values for target metric promql: {e}'))
     #                                                             response = None
     #                                                         while not response and retry_attempts < 3:
     #                                                             try:
     #                                                                 response = self.__grafana_api_processor.fetch_promql_metric_label_values(
     #                                                                     datasource_uid, metric_name, lb)
     #                                                             except Exception as e:
-    #                                                                 logger.error(
-    #                                                                     f'Error fetching promql metric label values for target metric promql: {e}')
+    #                                                                 capture_exception(Exception(
+    #                                                                     f'Error fetching promql metric label values for target metric promql: {e}'))
     #                                                                 response = None
     #                                                             time.sleep(5)
     #                                                             retry_attempts += 1
@@ -250,8 +259,9 @@ class GrafanaSourceMetadataExtractor(SourceMetadataExtractor):
     #                                                 if label_value_options:
     #                                                     model_data[model_uid][
     #                                                         'optional_label_options'] = label_value_options
-    #                         if len(model_data) > 0:
-    #                             self.create_or_update_model_metadata(model_type, model_data)
+    #                                 if save_to_db:
+    #                                     self.create_or_update_model_metadata(model_type, model_uid,
+    #                                                                          model_data[model_uid])
     #             if 'dashboard' in dashboard_details and 'rows' in dashboard_details['dashboard']:
     #                 rows = dashboard_details['dashboard']['rows']
     #                 for r in rows:
@@ -305,16 +315,16 @@ class GrafanaSourceMetadataExtractor(SourceMetadataExtractor):
     #                                                         response = self.__grafana_api_processor.fetch_promql_metric_labels(
     #                                                             datasource_uid, metric_name)
     #                                                     except Exception as e:
-    #                                                         logger.error(
-    #                                                             f'Error fetching promql metric labels for target metric promql: {e}')
+    #                                                         capture_exception(Exception(
+    #                                                             f'Error fetching promql metric labels for target metric promql: {e}'))
     #                                                         response = None
     #                                                     while not response and retry_attempts < 3:
     #                                                         try:
     #                                                             response = self.__grafana_api_processor.fetch_promql_metric_labels(
     #                                                                 datasource_uid, metric_name)
     #                                                         except Exception as e:
-    #                                                             logger.error(
-    #                                                                 f'Error fetching promql metric labels for target metric promql: {e}')
+    #                                                             capture_exception(Exception(
+    #                                                                 f'Error fetching promql metric labels for target metric promql: {e}'))
     #                                                             response = None
     #                                                         time.sleep(5)
     #                                                         retry_attempts += 1
@@ -330,16 +340,16 @@ class GrafanaSourceMetadataExtractor(SourceMetadataExtractor):
     #                                                                     response = self.__grafana_api_processor.fetch_promql_metric_label_values(
     #                                                                         datasource_uid, metric_name, lb)
     #                                                                 except Exception as e:
-    #                                                                     logger.error(
-    #                                                                         f'Error fetching promql metric label values for target metric promql: {e}')
+    #                                                                     capture_exception(Exception(
+    #                                                                         f'Error fetching promql metric label values for target metric promql: {e}'))
     #                                                                     response = None
     #                                                                 while not response and retry_attempts < 3:
     #                                                                     try:
     #                                                                         response = self.__grafana_api_processor.fetch_promql_metric_label_values(
     #                                                                             datasource_uid, metric_name, lb)
     #                                                                     except Exception as e:
-    #                                                                         logger.error(
-    #                                                                             f'Error fetching promql metric label values for target metric promql: {e}')
+    #                                                                         capture_exception(Exception(
+    #                                                                             f'Error fetching promql metric label values for target metric promql: {e}'))
     #                                                                         response = None
     #                                                                     time.sleep(5)
     #                                                                     retry_attempts += 1
@@ -350,8 +360,9 @@ class GrafanaSourceMetadataExtractor(SourceMetadataExtractor):
     #                                                         if label_value_options:
     #                                                             model_data[model_uid][
     #                                                                 'optional_label_options'] = label_value_options
-    #                         if len(model_data) > 0:
-    #                             self.create_or_update_model_metadata(model_type, model_data)
+    #                                         if save_to_db:
+    #                                             self.create_or_update_model_metadata(model_type, model_uid,
+    #                                                                                  model_data[model_uid])
     #             if 'dashboard' in dashboard_details and 'panels' in dashboard_details['dashboard']:
     #                 panels = dashboard_details['dashboard']['panels']
     #                 for panel in panels:
@@ -405,16 +416,16 @@ class GrafanaSourceMetadataExtractor(SourceMetadataExtractor):
     #                                                         response = self.__grafana_api_processor.fetch_promql_metric_labels(
     #                                                             datasource_uid, metric_name)
     #                                                     except Exception as e:
-    #                                                         logger.error(
-    #                                                             f'Error fetching promql metric labels for target metric promql: {e}')
+    #                                                         capture_exception(Exception(
+    #                                                             f'Error fetching promql metric labels for target metric promql: {e}'))
     #                                                         response = None
     #                                                     while not response and retry_attempts < 3:
     #                                                         try:
     #                                                             response = self.__grafana_api_processor.fetch_promql_metric_labels(
     #                                                                 datasource_uid, metric_name)
     #                                                         except Exception as e:
-    #                                                             logger.error(
-    #                                                                 f'Error fetching promql metric labels for target metric promql: {e}')
+    #                                                             capture_exception(Exception(
+    #                                                                 f'Error fetching promql metric labels for target metric promql: {e}'))
     #                                                             response = None
     #                                                         time.sleep(5)
     #                                                         retry_attempts += 1
@@ -430,16 +441,16 @@ class GrafanaSourceMetadataExtractor(SourceMetadataExtractor):
     #                                                                     response = self.__grafana_api_processor.fetch_promql_metric_label_values(
     #                                                                         datasource_uid, metric_name, lb)
     #                                                                 except Exception as e:
-    #                                                                     logger.error(
-    #                                                                         f"Error fetching promql metric label values for target metric promql: {e}")
+    #                                                                     capture_exception(Exception(
+    #                                                                         f"Error fetching promql metric label values for target metric promql: {e}"))
     #                                                                     response = None
     #                                                                 while not response and retry_attempts < 3:
     #                                                                     try:
     #                                                                         response = self.__grafana_api_processor.fetch_promql_metric_label_values(
     #                                                                             datasource_uid, metric_name, lb)
     #                                                                     except Exception as e:
-    #                                                                         logger.error(
-    #                                                                             f"Error fetching promql metric label values for target metric promql: {e}")
+    #                                                                         capture_exception(Exception(
+    #                                                                             f"Error fetching promql metric label values for target metric promql: {e}"))
     #                                                                         response = None
     #                                                                     time.sleep(5)
     #                                                                     retry_attempts += 1
@@ -450,10 +461,11 @@ class GrafanaSourceMetadataExtractor(SourceMetadataExtractor):
     #                                                         if label_value_options:
     #                                                             model_data[model_uid][
     #                                                                 'optional_label_options'] = label_value_options
-    #                         if len(model_data) > 0:
-    #                             self.create_or_update_model_metadata(model_type, model_data)
+    #                                         if save_to_db:
+    #                                             self.create_or_update_model_metadata(model_type, model_uid,
+    #                                                                                  model_data[model_uid])
     #         except Exception as e:
-    #             logger.error(f'Error extracting grafana target metric promql: {e}')
+    #             capture_exception(Exception(f'Error extracting grafana target metric promql: {e}'))
     #     return model_data
 
     @log_function_call
@@ -480,95 +492,4 @@ class GrafanaSourceMetadataExtractor(SourceMetadataExtractor):
         if len(model_data) > 0:
             self.create_or_update_model_metadata(model_type, model_data)
 
-    @log_function_call
-    def extract_dashboard_variables(self, dashboard_uid: str) -> dict:
-        """Extract variables and their values from a specific Grafana Dashboard.
-        
-        Args:
-            dashboard_uid: UID of the dashboard to extract variables from
-            
-        Returns:
-            dict: Dashboard variables data with current values
-        """
-        try:
-            # Get dashboard variables from API
-            variables_data = self.__grafana_api_processor.get_dashboard_variables(dashboard_uid)
-            
-            if not variables_data or not variables_data.get('variables'):
-                logger.warning(f"No variables found for dashboard: {dashboard_uid}")
-                return {"variables": {}, "message": f"No variables found for dashboard: {dashboard_uid}"}
-            
-            # Fetch dashboard details to get current values
-            try:
-                dashboard_details = self.__grafana_api_processor.fetch_dashboard_details(dashboard_uid)
-                if not dashboard_details or 'dashboard' not in dashboard_details:
-                    logger.warning(f"Failed to fetch dashboard details for UID: {dashboard_uid}")
-                    return {"variables": variables_data.get('variables', {})}
-                
-                dashboard_dict = dashboard_details['dashboard']
-                
-                # Extract current values from dashboard template variables
-                current_values = {}
-                dashboard_templating = dashboard_dict.get("templating", {})
-                if isinstance(dashboard_templating, dict) and "list" in dashboard_templating:
-                    template_vars = dashboard_templating.get("list", [])
-                    for var in template_vars:
-                        if not isinstance(var, dict):
-                            continue
-                        
-                        var_name = var.get("name", "")
-                        if not var_name:
-                            continue
-                        
-                        current = var.get("current", {})
-                        if isinstance(current, dict):
-                            current_values[var_name] = current.get("value")
-                
-                # Enhance the API response with current values from dashboard
-                api_variables = variables_data.get('variables', {})
-                enhanced_variables = {}
-                for var_name, var_info in api_variables.items():
-                    enhanced_variables[var_name] = {
-                        'allowed_values': var_info
-                    }
-                    if var_name in current_values:
-                        enhanced_variables[var_name]['current_value'] = current_values[var_name]
-                
-                # Return enhanced variables data
-                return {
-                    'variables': enhanced_variables,
-                    'dashboard_title': dashboard_dict.get('title', ''),
-                    'dashboard_uid': dashboard_uid
-                }
-                
-            except Exception as dashboard_error:
-                logger.warning(f"Failed to get current values from dashboard details: {dashboard_error}")
-                return {
-                    'variables': variables_data.get('variables', {}),
-                    'dashboard_retrieval_error': str(dashboard_error)
-                }
-                
-        except Exception as e:
-            logger.error(f'Error extracting dashboard variables for UID {dashboard_uid}: {e}')
-            return {
-                'error': f'Error extracting dashboard variables: {str(e)}',
-                'dashboard_uid': dashboard_uid
-            }
-
-    @log_function_call
-    def extract_loki_data_source(self):
-        model_type = SourceModelType.GRAFANA_LOKI_DATASOURCE
-        try:
-            all_data_sources = self.__grafana_api_processor.fetch_data_sources()
-            all_loki_data_sources = [ds for ds in all_data_sources if ds['type'] == 'loki']
-        except Exception as e:
-            logger.error(f'Error fetching grafana loki data sources: {e}')
-            return
-        if not all_loki_data_sources:
-            return
-        model_data = {}
-        for ds in all_loki_data_sources:
-            datasource_id = ds['uid']
-            model_data[datasource_id] = ds
-        self.create_or_update_model_metadata(model_type, model_data)
         return model_data

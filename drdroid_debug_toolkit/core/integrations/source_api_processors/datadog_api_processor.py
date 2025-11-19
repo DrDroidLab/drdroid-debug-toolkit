@@ -1441,3 +1441,66 @@ class DatadogApiProcessor(Processor):
         except Exception as e:
             logger.error(f"Exception occurred while fetching logs for field extraction: {e}")
             return all_logs if 'all_logs' in locals() else []
+
+def format_results_as_entries(results):
+    """
+    Transform the results into the desired format with an entries array
+    """
+    entries = []
+
+    for result in results:
+        entry = {
+            "service_name": result.get('service'),
+            "downstream_services": result.get('downstream').split(',') if result.get('downstream') else []
+        }
+
+        # Only include fields that have values
+        entry = {k: v for k, v in entry.items() if v}
+
+        entries.append(entry)
+
+    return {"entries": entries}
+
+
+def extract_services_and_downstream(account_id, model_data=None):
+    logger.info("Processing service relationships...")
+    try:
+        service_downstream_map = {}
+
+        # If model_data is provided, use it instead of querying the database
+        if model_data:
+            for service, metadata in model_data.items():
+                if service not in service_downstream_map:
+                    service_downstream_map[service] = set()
+
+                # Look for 'calls' in production environments
+                prod_env_tags = ['prod', 'production', 'prd', 'prod_env', 'production_env',
+                                 'production_environment', 'prod_environment']
+
+                for env_tag in prod_env_tags:
+                    if env_tag in metadata and 'calls' in metadata[env_tag]:
+                        downstream_services = metadata[env_tag]['calls']
+                        if downstream_services:
+                            service_downstream_map[service].update(downstream_services)
+
+        results = [
+            {'service': service, 'downstream': ','.join(sorted(downstream)) if downstream else ''}
+            for service, downstream in service_downstream_map.items()]
+
+        if results:
+            logger.info(f"Total unique services: {len(results)}")
+            service_catalog_data = format_results_as_entries(results)
+
+            return service_catalog_data
+        else:
+            logger.info("No data found matching the criteria")
+            empty_catalog = {"entries": []}
+
+        return empty_catalog
+    except Exception as e:
+        logger.error(f"Error executing query or processing results: {e}")
+        import traceback
+        traceback.print_exc()
+        empty_catalog = {"entries": []}
+
+        return empty_catalog
