@@ -54,6 +54,7 @@ message Datadog {
     google.protobuf.StringValue service_name = 1;
     google.protobuf.UInt64Value interval = 2;
     google.protobuf.StringValue metric_families = 3;
+    google.protobuf.StringValue environments = 4;
   }
 
   message GenericQueryTask {
@@ -80,6 +81,11 @@ message Datadog {
     google.protobuf.StringValue cursor = 3;
   }
 
+  message QueryMonitorsTask {
+    google.protobuf.StringValue query = 1;
+    google.protobuf.StringValue sort = 2;
+  }
+
   enum TaskType {
     UNKNOWN = 0;
     SERVICE_METRIC_EXECUTION = 1;
@@ -94,6 +100,7 @@ message Datadog {
     GET_DASHBOARD_VARIABLE_VALUES = 10;
     FETCH_DASHBOARDS = 11;
     SPAN_SEARCH_EXECUTION = 12;
+    QUERY_MONITORS = 13;
   }
 
   TaskType type = 1;
@@ -110,5 +117,6 @@ message Datadog {
     GetDashboardVariableValuesTask get_dashboard_variable_values = 11;
     FetchDashboardsTask fetch_dashboards = 12;
     SpanSearchExecutionTask span_search_execution = 13;
+    QueryMonitorsTask query_monitors = 14;
   }
 }
