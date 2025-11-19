@@ -181,6 +181,36 @@ class SentrySourceManager(SourceManager):
                 'display_name': 'Fetch Sentry Projects',
                 'category': 'Projects',
                 'form_fields': []
+            },
+            Sentry.TaskType.QUERY_ISSUES: {
+                'executor': self.query_issues,
+                'model_types': [],
+                'result_type': PlaybookTaskResultType.API_RESPONSE,
+                'display_name': 'Query Sentry Issues',
+                'category': 'Error',
+                'form_fields': [
+                    FormField(key_name=StringValue(value="project_slug"),
+                              display_name=StringValue(value="Project Slug"),
+                              description=StringValue(value='Enter Project Slug'),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT),
+                    FormField(key_name=StringValue(value="query"),
+                              display_name=StringValue(value="Query"),
+                              description=StringValue(value='Optional query string (e.g., "is:unresolved level:error")'),
+                              helper_text=StringValue(value='(Optional) Enter Query'),
+                              default_value=Literal(type=LiteralType.STRING, string=StringValue(value="is:unresolved")),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT,
+                              is_optional=True),
+                    FormField(key_name=StringValue(value="stats_period"),
+                              display_name=StringValue(value="Stats Period"),
+                              description=StringValue(value='Optional stats period (e.g., "24h", "14d")'),
+                              helper_text=StringValue(value='(Optional) Enter Stats Period'),
+                              default_value=Literal(type=LiteralType.STRING, string=StringValue(value="24h")),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT,
+                              is_optional=True),
+                ]
             }
         }
         self.connector_form_configs = [
@@ -767,3 +797,90 @@ class SentrySourceManager(SourceManager):
                 source=self.source,
                 metadata=metadata
             )
+
+    def query_issues(self, time_range: TimeRange, sentry_task: Sentry,
+                     sentry_connector: ConnectorProto):
+        """
+        Query Sentry issues with optional filters.
+        
+        Args:
+            time_range: The time range (used for start/end time if stats_period not provided)
+            sentry_task: The Sentry task containing query parameters
+            sentry_connector: The Sentry connector to use
+            
+        Returns:
+            A PlaybookTaskResult containing issues as API response
+        """
+        try:
+            if not sentry_connector:
+                raise Exception("Task execution Failed:: No Sentry source found")
+
+            task = sentry_task.query_issues
+            project_slug = task.project_slug.value
+            query = task.query.value if task.query.value else None
+            stats_period = task.stats_period.value if task.stats_period.value else None
+            
+            # Pagination is handled internally - not exposed to users
+            sentry_processor = self.get_connector_processor(sentry_connector)
+            
+            # Determine time parameters
+            start_time = None
+            end_time = None
+            if not stats_period:
+                # Use time_range if stats_period not provided
+                start_time = datetime.fromtimestamp(time_range.time_geq, tz=timezone.utc).isoformat()
+                end_time = datetime.fromtimestamp(time_range.time_lt, tz=timezone.utc).isoformat()
+            
+            # Query issues - pagination handled internally
+            issues = sentry_processor.fetch_issues_with_query(
+                project_slug, 
+                query, 
+                start_time=start_time, 
+                end_time=end_time,
+                stats_period=stats_period
+            )
+            
+            if not issues:
+                # Extract org slug and create metadata with Sentry URL
+                org_slug = self._extract_org_slug_from_connector(sentry_connector)
+                metadata = self._create_metadata_with_sentry_url(org_slug, "project_issues", {
+                    "project_slug": project_slug,
+                    "query": query,
+                    "stats_period": stats_period or "24h"
+                })
+                
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.API_RESPONSE,
+                    api_response=ApiResponseResult(
+                        response_status=UInt64Value(value=404),
+                        response_body=dict_to_proto({"error": f"No issues found with query: {query or 'all'}"}, Struct)
+                    ),
+                    source=self.source,
+                    metadata=metadata
+                )
+            
+            # Convert issues to Struct
+            from google.protobuf.struct_pb2 import Struct
+            response_struct = dict_to_proto({"issues": issues}, Struct)
+            
+            # Extract org slug and create metadata with Sentry URL
+            org_slug = self._extract_org_slug_from_connector(sentry_connector)
+            metadata = self._create_metadata_with_sentry_url(org_slug, "project_issues", {
+                "project_slug": project_slug,
+                "query": query,
+                "stats_period": stats_period or "24h"
+            })
+            
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                api_response=ApiResponseResult(
+                    response_status=UInt64Value(value=200),
+                    response_body=response_struct
+                ),
+                source=self.source,
+                metadata=metadata
+            )
+
+        except Exception as e:
+            logger.error(f"Error executing query issues task: {e}")
+            raise Exception(f"Task execution Failed:: {e}")

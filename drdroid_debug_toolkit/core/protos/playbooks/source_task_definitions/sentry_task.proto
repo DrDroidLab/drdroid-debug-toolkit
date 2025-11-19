@@ -27,6 +27,12 @@ message Sentry {
     google.protobuf.Int64Value max_events_to_analyse = 3;
   }
 
+  message QueryIssues {
+    google.protobuf.StringValue project_slug = 1;
+    google.protobuf.StringValue query = 2;  // Optional query string (e.g., "is:unresolved level:error")
+    google.protobuf.StringValue stats_period = 3;  // Optional stats period (e.g., "24h", "14d")
+  }
+
   message FetchProjects {}
 
   enum TaskType {
@@ -37,6 +43,7 @@ message Sentry {
     FETCH_EVENT_INFO_BY_ID = 4;
     FETCH_LIST_OF_RECENT_EVENTS_WITH_SEARCH_QUERY = 5;
     FETCH_PROJECTS = 6;
+    QUERY_ISSUES = 7;
   }
 
   TaskType type = 1;
@@ -47,5 +54,6 @@ message Sentry {
     FetchEventInfoById fetch_event_info_by_id = 5;
     FetchListOfRecentEventsWithSearchQuery fetch_list_of_recent_events_with_search_query = 6;
     FetchProjects fetch_projects = 7;
+    QueryIssues query_issues = 8;
   }
 }
