@@ -50,6 +50,7 @@ class PosthogSourceMetadataExtractor(SourceMetadataExtractor):
             logger.info(f"Extracted {len(model_data)} PostHog property definitions")
             if len(model_data) > 0:
                 self.create_or_update_model_metadata(model_type, model_data)
+            logger.info(f"Extracted {len(model_data)} PostHog property definitions")
             
         except Exception as e:
             logger.error(f'Error extracting PostHog property definitions: {e}')
