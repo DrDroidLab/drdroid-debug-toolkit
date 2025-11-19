@@ -75,20 +75,27 @@ def buildSentryUrl(org_slug: str, task_type: str, params: dict = None) -> str:
                 # For project slug, we need to construct the full path
                 url_params.append(f"project={params['project_slug']}")
             
-            # Add query parameter if provided
-            if 'query' in params:
-                url_params.append(f"query={urllib.parse.quote(params['query'])}")
+            # Add query parameter if provided and not None/empty
+            if 'query' in params and params['query']:
+                # Ensure query is a string before quoting
+                query_str = str(params['query']) if params['query'] is not None else ''
+                if query_str:
+                    url_params.append(f"query={urllib.parse.quote(query_str)}")
             
             # Add standard Sentry UI parameters
             url_params.append("referrer=issue-list")
             url_params.append("sort=date")
             
             # Add time range parameters - prefer start/end for custom ranges, statsPeriod for predefined periods
-            if 'start' in params and 'end' in params:
+            if 'start' in params and 'end' in params and params['start'] and params['end']:
                 # Custom time range - use start/end with utc=true
-                url_params.append(f"start={urllib.parse.quote(params['start'])}")
-                url_params.append(f"end={urllib.parse.quote(params['end'])}")
-                url_params.append("utc=true")
+                # Ensure start and end are strings before quoting
+                start_str = str(params['start']) if params['start'] is not None else ''
+                end_str = str(params['end']) if params['end'] is not None else ''
+                if start_str and end_str:
+                    url_params.append(f"start={urllib.parse.quote(start_str)}")
+                    url_params.append(f"end={urllib.parse.quote(end_str)}")
+                    url_params.append("utc=true")
             elif 'stats_period' in params:
                 # Predefined period (1h, 24h, etc.)
                 url_params.append(f"statsPeriod={params['stats_period']}")
@@ -181,6 +188,44 @@ class SentrySourceManager(SourceManager):
                 'display_name': 'Fetch Sentry Projects',
                 'category': 'Projects',
                 'form_fields': []
+            },
+            Sentry.TaskType.QUERY_ISSUES: {
+                'executor': self.query_issues,
+                'model_types': [],
+                'result_type': PlaybookTaskResultType.API_RESPONSE,
+                'display_name': 'Query Sentry Issues',
+                'category': 'Error',
+                'form_fields': [
+                    FormField(key_name=StringValue(value="project_slug"),
+                              display_name=StringValue(value="Project Slug"),
+                              description=StringValue(value='Enter Project Slug'),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT),
+                    FormField(key_name=StringValue(value="query"),
+                              display_name=StringValue(value="Query"),
+                              description=StringValue(value='Optional query string (e.g., "is:unresolved level:error")'),
+                              helper_text=StringValue(value='(Optional) Enter Query'),
+                              default_value=Literal(type=LiteralType.STRING, string=StringValue(value="is:unresolved")),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT,
+                              is_optional=True),
+                    FormField(key_name=StringValue(value="stats_period"),
+                              display_name=StringValue(value="Stats Period"),
+                              description=StringValue(value='Optional stats period. Valid values: "" (disable), "24h" (default), "14d"'),
+                              helper_text=StringValue(value='(Optional) Enter Stats Period - only "24h" or "14d" are valid'),
+                              default_value=Literal(type=LiteralType.STRING, string=StringValue(value="24h")),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT,
+                              is_optional=True),
+                    FormField(key_name=StringValue(value="limit"),
+                              display_name=StringValue(value="Limit"),
+                              description=StringValue(value='Optional limit on total number of issues to return (pagination stops when limit is reached)'),
+                              helper_text=StringValue(value='(Optional) Enter Limit - maximum number of issues to return'),
+                              default_value=Literal(type=LiteralType.LONG, long=Int64Value(value=0)),
+                              data_type=LiteralType.LONG,
+                              form_field_type=FormFieldType.TEXT_FT,
+                              is_optional=True),
+                ]
             }
         }
         self.connector_form_configs = [
@@ -767,3 +812,105 @@ class SentrySourceManager(SourceManager):
                 source=self.source,
                 metadata=metadata
             )
+
+    def query_issues(self, time_range: TimeRange, sentry_task: Sentry,
+                     sentry_connector: ConnectorProto):
+        """
+        Query Sentry issues with optional filters.
+        
+        Args:
+            time_range: The time range (used for start/end time if stats_period not provided)
+            sentry_task: The Sentry task containing query parameters
+            sentry_connector: The Sentry connector to use
+            
+        Returns:
+            A PlaybookTaskResult containing issues as API response
+        """
+        try:
+            if not sentry_connector:
+                raise Exception("Task execution Failed:: No Sentry source found")
+
+            task = sentry_task.query_issues
+            project_slug = task.project_slug.value
+            query = task.query.value if task.query.value else None
+            stats_period = task.stats_period.value if task.stats_period.value else None
+            # Extract limit - treat 0 or unset as None (no limit)
+            limit = None
+            if task.HasField("limit") and task.limit.value and task.limit.value > 0:
+                limit = int(task.limit.value)
+            
+            # Pagination is handled internally - not exposed to users
+            sentry_processor = self.get_connector_processor(sentry_connector)
+            
+            # Determine time parameters
+            # Sentry API only accepts specific statsPeriod values: "", "24h", "14d"
+            # If an invalid value is provided, we'll use start_time/end_time instead
+            start_time = None
+            end_time = None
+            valid_stats_periods = {"", "24h", "14d"}
+            
+            if stats_period and stats_period not in valid_stats_periods:
+                # Invalid stats_period - use start_time/end_time instead
+                logger.warning(f"Invalid stats_period '{stats_period}'. Valid values are: '', '24h', '14d'. Using start_time/end_time instead.")
+                stats_period = None
+                start_time = datetime.fromtimestamp(time_range.time_geq, tz=timezone.utc).isoformat()
+                end_time = datetime.fromtimestamp(time_range.time_lt, tz=timezone.utc).isoformat()
+            elif not stats_period:
+                # No stats_period provided - use time_range
+                start_time = datetime.fromtimestamp(time_range.time_geq, tz=timezone.utc).isoformat()
+                end_time = datetime.fromtimestamp(time_range.time_lt, tz=timezone.utc).isoformat()
+            # If stats_period is valid, use it (don't set start_time/end_time as they're mutually exclusive)
+            
+            # Query issues - pagination handled internally
+            issues = sentry_processor.fetch_issues_with_query(
+                project_slug, 
+                query, 
+                start_time=start_time, 
+                end_time=end_time,
+                stats_period=stats_period,
+                limit=limit
+            )
+            
+            if not issues:
+                # Extract org slug and create metadata with Sentry URL
+                org_slug = self._extract_org_slug_from_connector(sentry_connector)
+                metadata = self._create_metadata_with_sentry_url(org_slug, "project_issues", {
+                    "project_slug": project_slug,
+                    "query": query,
+                    "stats_period": stats_period or "24h"
+                })
+                
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.API_RESPONSE,
+                    api_response=ApiResponseResult(
+                        response_status=UInt64Value(value=404),
+                        response_body=dict_to_proto({"error": f"No issues found with query: {query or 'all'}"}, Struct)
+                    ),
+                    source=self.source,
+                    metadata=metadata
+                )
+            
+            # Convert issues to Struct
+            response_struct = dict_to_proto({"issues": issues}, Struct)
+            
+            # Extract org slug and create metadata with Sentry URL
+            org_slug = self._extract_org_slug_from_connector(sentry_connector)
+            metadata = self._create_metadata_with_sentry_url(org_slug, "project_issues", {
+                "project_slug": project_slug,
+                "query": query,
+                "stats_period": stats_period or "24h"
+            })
+            
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                api_response=ApiResponseResult(
+                    response_status=UInt64Value(value=200),
+                    response_body=response_struct
+                ),
+                source=self.source,
+                metadata=metadata
+            )
+
+        except Exception as e:
+            logger.error(f"Error executing query issues task: {e}")
+            raise Exception(f"Task execution Failed:: {e}")
