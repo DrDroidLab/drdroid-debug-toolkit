@@ -775,8 +775,6 @@ class DatadogApiProcessor(Processor):
         """
         try:
             # Pagination defaults - handled internally
-            # Datadog API uses POST for monitor search and page starts at 1, not 0
-            page = 1
             per_page = 100  # Reasonable default for fetching monitors
             
             # Use the search endpoint for query-based filtering
@@ -785,24 +783,24 @@ class DatadogApiProcessor(Processor):
                 headers = {
                     "DD-API-KEY": self.__dd_api_key,
                     "DD-APPLICATION-KEY": self.__dd_app_key,
-                    "Accept": "application/json",
-                    "Content-Type": "application/json"
+                    "Accept": "application/json"
                 }
                 
-                # Datadog monitor search uses POST request with JSON body
+                # Datadog monitor search uses GET request with query parameters
                 all_monitors = []
                 max_pages = 50  # Limit to prevent excessive API calls
+                page = 0  # Start from page 0 (as per API docs, "Page to start paginating from")
                 
-                for current_page in range(1, max_pages + 1):
-                    body = {
+                for current_page in range(max_pages):
+                    params = {
                         "query": query,
                         "page": current_page,
                         "per_page": per_page
                     }
                     if sort:
-                        body["sort"] = sort
+                        params["sort"] = sort
                     
-                    response = requests.post(url, headers=headers, json=body, timeout=EXTERNAL_CALL_TIMEOUT)
+                    response = requests.get(url, headers=headers, params=params, timeout=EXTERNAL_CALL_TIMEOUT)
                     response.raise_for_status()
                     result = response.json()
                     
