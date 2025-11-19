@@ -1,4 +1,4 @@
-from integrations.source_metadata_extractor import SourceMetadataExtractor
+from core.integrations.source_metadata_extractor import SourceMetadataExtractor
 from core.integrations.source_api_processors.victoria_logs_api_processor import VictoriaLogsApiProcessor
 from core.protos.base_pb2 import Source, SourceModelType
 from core.utils.logging_utils import log_function_call
