@@ -211,8 +211,8 @@ class SentrySourceManager(SourceManager):
                               is_optional=True),
                     FormField(key_name=StringValue(value="stats_period"),
                               display_name=StringValue(value="Stats Period"),
-                              description=StringValue(value='Optional stats period (e.g., "24h", "14d")'),
-                              helper_text=StringValue(value='(Optional) Enter Stats Period'),
+                              description=StringValue(value='Optional stats period. Valid values: "" (disable), "24h" (default), "14d"'),
+                              helper_text=StringValue(value='(Optional) Enter Stats Period - only "24h" or "14d" are valid'),
                               default_value=Literal(type=LiteralType.STRING, string=StringValue(value="24h")),
                               data_type=LiteralType.STRING,
                               form_field_type=FormFieldType.TEXT_FT,
@@ -831,12 +831,23 @@ class SentrySourceManager(SourceManager):
             sentry_processor = self.get_connector_processor(sentry_connector)
             
             # Determine time parameters
+            # Sentry API only accepts specific statsPeriod values: "", "24h", "14d"
+            # If an invalid value is provided, we'll use start_time/end_time instead
             start_time = None
             end_time = None
-            if not stats_period:
-                # Use time_range if stats_period not provided
+            valid_stats_periods = {"", "24h", "14d"}
+            
+            if stats_period and stats_period not in valid_stats_periods:
+                # Invalid stats_period - use start_time/end_time instead
+                logger.warning(f"Invalid stats_period '{stats_period}'. Valid values are: '', '24h', '14d'. Using start_time/end_time instead.")
+                stats_period = None
                 start_time = datetime.fromtimestamp(time_range.time_geq, tz=timezone.utc).isoformat()
                 end_time = datetime.fromtimestamp(time_range.time_lt, tz=timezone.utc).isoformat()
+            elif not stats_period:
+                # No stats_period provided - use time_range
+                start_time = datetime.fromtimestamp(time_range.time_geq, tz=timezone.utc).isoformat()
+                end_time = datetime.fromtimestamp(time_range.time_lt, tz=timezone.utc).isoformat()
+            # If stats_period is valid, use it (don't set start_time/end_time as they're mutually exclusive)
             
             # Query issues - pagination handled internally
             issues = sentry_processor.fetch_issues_with_query(
