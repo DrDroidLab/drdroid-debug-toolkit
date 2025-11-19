@@ -57,6 +57,9 @@ class VictoriaLogsSourceMetadataExtractor(SourceMetadataExtractor):
 
         if payload['fields']:
             # Persist discovered field names under VictoriaLogs field model type
-            self.create_or_update_model_metadata(SourceModelType.VICTORIA_LOGS_FIELD, 'victoria_logs_field_names', payload)
+            self.create_or_update_model_metadata(
+                SourceModelType.VICTORIA_LOGS_FIELD,
+                {'victoria_logs_field_names': payload}
+            )
 
         return payload
