@@ -210,8 +210,6 @@ class PostgresSourceMetadataExtractor(SourceMetadataExtractor):
                 }
                 
                 model_data[model_uid] = table_metadata
-                
-                model_data[model_uid] = table_metadata
             
         except Exception as e:
             logger.error(f'Error extracting PostgreSQL tables from database {database}: {e}')
