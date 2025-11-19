@@ -9,9 +9,9 @@ logger = logging.getLogger(__name__)
 
 class SentrySourceMetadataExtractor(SourceMetadataExtractor):
 
-    def __init__(self, api_key, org_slug, account_id=None, connector_id=None):
+    def __init__(self, request_id: str, connector_name: str, api_key, org_slug):
         self.sentry_processor = SentryApiProcessor(api_key, org_slug)
-        super().__init__(account_id, connector_id, Source.SENTRY)
+        super().__init__(request_id, connector_name, Source.SENTRY)
 
     @log_function_call
     def extract_projects(self):
