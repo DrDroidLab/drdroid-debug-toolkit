@@ -122,16 +122,19 @@ class SentryApiProcessor(Processor):
                 params['statsPeriod'] = stats_period
         
             all_issues = []
-            cursor = None
+            current_url = url
+            current_params = params.copy()
             max_pages = 50  # Limit to prevent excessive API calls
             page_count = 0
             
             while page_count < max_pages:
-                page_params = params.copy()
-                if cursor:
-                    page_params['cursor'] = cursor
-                
-                response = requests.get(url, headers=headers, params=page_params, timeout=EXTERNAL_CALL_TIMEOUT)
+                # Make request - use full URL if we have a next URL, otherwise use base URL with params
+                if page_count == 0:
+                    # First request: use base URL with params
+                    response = requests.get(current_url, headers=headers, params=current_params, timeout=EXTERNAL_CALL_TIMEOUT)
+                else:
+                    # Subsequent requests: use the next URL directly from Link header
+                    response = requests.get(current_url, headers=headers, timeout=EXTERNAL_CALL_TIMEOUT)
                 
                 if not response:
                     break
@@ -143,84 +146,60 @@ class SentryApiProcessor(Processor):
                     if isinstance(page_data, list):
                         if len(page_data) == 0:
                             # No more results
-                            logger.info(f"Received empty page, stopping pagination. Total issues fetched: {len(all_issues)}")
                             break
                             
                         all_issues.extend(page_data)
                         page_count += 1
-                        logger.info(f"Fetched page {page_count}: {len(page_data)} issues (total so far: {len(all_issues)})")
+                        logger.info(f"Fetched page {page_count}: {len(page_data)} issues (total: {len(all_issues)})")
                         
-                        # Check for pagination in Link header
+                        # Check for next page in Link header
                         link_header = response.headers.get('Link', '')
-                        logger.debug(f"Link header: {link_header}")
-                        
-                        # Check if there are more results
-                        # Sentry Link header format: <url>; rel="next"; results="true"
-                        # or multiple links separated by commas
-                        has_next = False
                         next_url = None
                         
                         if link_header:
-                            # Parse Link header - it can contain multiple links separated by commas
+                            # Parse Link header - format: <url>; rel="next"; results="true"
+                            # Can have multiple links separated by commas
                             links = [link.strip() for link in link_header.split(',')]
                             for link in links:
                                 if 'rel="next"' in link or "rel='next'" in link:
-                                    has_next = True
                                     # Extract URL from <url> format
                                     url_match = re.search(r'<([^>]+)>', link)
                                     if url_match:
                                         next_url = url_match.group(1)
-                                        # Extract cursor from URL query parameters
-                                        cursor_match = re.search(r'[?&]cursor=([^&"]+)', next_url)
-                                        if cursor_match:
-                                            cursor = cursor_match.group(1)
-                                            logger.debug(f"Extracted cursor from next URL: {cursor}")
-                                        else:
-                                            # Try to extract from the URL path or other location
-                                            # Some APIs put cursor in different places
-                                            logger.warning(f"Could not extract cursor from next URL: {next_url}")
-                                            cursor = None
-                                    break
+                                        # Check if there are more results
+                                        if 'results="false"' in link or "results='false'" in link:
+                                            # This is the last page
+                                            next_url = None
+                                        break
                         
-                        # Also check for results indicator in Link header
-                        if link_header and 'results="false"' in link_header:
-                            logger.info("Link header indicates no more results (results=false)")
+                        # If no next URL, we're done
+                        if not next_url:
                             break
                         
-                        # If no next link or no cursor extracted, we're done
-                        if not has_next or not cursor:
-                            logger.info(f"No more pages available. Total issues fetched: {len(all_issues)}")
-                            break
+                        # Use the next URL for the next iteration
+                        current_url = next_url
                     else:
-                        # If response is not a list, return as-is (might be error or different format)
+                        # If response is not a list, return what we have
                         if page_count == 0:
                             return page_data
                         else:
-                            # We already got some results, return what we have
-                            logger.warning(f"Unexpected response format on page {page_count + 1}, returning {len(all_issues)} issues")
                             break
                         
                 elif response.status_code in (429, 403):
                     reset_in_epoch_seconds = int(response.headers.get('X-Sentry-Rate-Limit-Reset', 0))
                     if reset_in_epoch_seconds:
                         sleep_time = max(0, reset_in_epoch_seconds - int(time.time()))
-                        logger.warning(f"Rate limited, sleeping for {sleep_time} seconds")
                         time.sleep(sleep_time)
                         continue  # Retry this page
                     else:
-                        logger.warning("Rate limited, sleeping for 100 seconds")
                         time.sleep(100)
                         continue  # Retry this page
                 else:
-                    logger.error(f"Error occurred while fetching issues with query status_code: {response.status_code} "
-                                 f"and response: {response.text}")
-                    # If we have some results, return them; otherwise return None
-                    break
-                
-                # If no cursor for next page, we're done
-                if not cursor:
-                    logger.info(f"No cursor for next page. Total issues fetched: {len(all_issues)}")
-                    break
+                    logger.error(f"Error fetching issues: status_code={response.status_code}, response={response.text[:200]}")
+                    # If we have some results, return them
+                    if all_issues:
+                        break
+                    return None
             
             logger.info(f"Pagination complete. Total issues fetched: {len(all_issues)}")
             return all_issues if all_issues else None
