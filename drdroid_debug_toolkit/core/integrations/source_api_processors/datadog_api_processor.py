@@ -761,6 +761,79 @@ class DatadogApiProcessor(Processor):
             logger.error(f"Exception occurred while fetching monitors with error: {e}")
             raise e
 
+    def query_monitors(self, query: str = None, sort: str = None):
+        """
+        Query Datadog monitors with optional filters.
+        Pagination is handled internally with reasonable defaults.
+        
+        Args:
+            query: Optional query string to filter monitors (e.g., "status:alert type:metric")
+            sort: Sort order string (e.g., "name,asc" or "status,desc")
+            
+        Returns:
+            List of monitors matching the query
+        """
+        try:
+            # Pagination defaults - handled internally
+            page = 0
+            per_page = 100  # Reasonable default for fetching monitors
+            
+            # Use the search endpoint for query-based filtering
+            if query:
+                url = f"{self.__dd_host}/api/v1/monitor/search"
+                headers = {
+                    "DD-API-KEY": self.__dd_api_key,
+                    "DD-APPLICATION-KEY": self.__dd_app_key,
+                    "Accept": "application/json"
+                }
+                params = {
+                    "query": query,
+                    "page": page,
+                    "per_page": per_page
+                }
+                if sort:
+                    params["sort"] = sort
+                
+                response = requests.get(url, headers=headers, params=params, timeout=EXTERNAL_CALL_TIMEOUT)
+                response.raise_for_status()
+                result = response.json()
+                
+                # If there are more pages and we got results, try to fetch additional pages
+                # This handles pagination automatically for better UX
+                if isinstance(result, dict) and result.get('monitors'):
+                    all_monitors = result.get('monitors', [])
+                    total_count = result.get('counts', {}).get('total', len(all_monitors))
+                    current_count = len(all_monitors)
+                    
+                    # If we haven't fetched all monitors and there are more, fetch them
+                    if current_count < total_count and current_count > 0:
+                        # Fetch remaining pages (up to a reasonable limit to avoid excessive API calls)
+                        max_pages = min(10, (total_count // per_page) + 1)  # Limit to 10 pages max
+                        for p in range(1, max_pages):
+                            params['page'] = p
+                            page_response = requests.get(url, headers=headers, params=params, timeout=EXTERNAL_CALL_TIMEOUT)
+                            page_response.raise_for_status()
+                            page_result = page_response.json()
+                            if isinstance(page_result, dict) and page_result.get('monitors'):
+                                all_monitors.extend(page_result.get('monitors', []))
+                                if len(all_monitors) >= total_count:
+                                    break
+                        
+                        # Update result with all monitors
+                        result['monitors'] = all_monitors
+                
+                return result
+            else:
+                # If no query, use list_monitors (this returns all monitors)
+                configuration = self.get_connection()
+                with ApiClient(configuration) as api_client:
+                    api_instance = MonitorsApi(api_client)
+                    response = api_instance.list_monitors()
+                    return response
+        except Exception as e:
+            logger.error(f"Exception occurred while querying monitors with error: {e}")
+            raise e
+
     def fetch_dashboards(self):
         try:
             configuration = self.get_connection()
