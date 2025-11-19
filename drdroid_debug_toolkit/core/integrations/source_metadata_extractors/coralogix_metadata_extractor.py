@@ -55,9 +55,9 @@ def extract_widget_query(widget: dict, **kwargs) -> str:
 
 class CoralogixSourceMetadataExtractor(SourceMetadataExtractor):
 
-    def __init__(self, api_key, endpoint, ssl_verify="true", domain=None, account_id=None, connector_id=None):
+    def __init__(self, request_id: str, connector_name: str, api_key, endpoint, ssl_verify="true", domain=None):
         self.__coralogix_api_processor = CoralogixApiProcessor(api_key, endpoint, ssl_verify, domain)
-        super().__init__(account_id, connector_id, Source.CORALOGIX)
+        super().__init__(request_id, connector_name, Source.CORALOGIX)
 
     @log_function_call
     def extract_dashboards(self):
