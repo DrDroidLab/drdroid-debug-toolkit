@@ -860,7 +860,6 @@ class SentrySourceManager(SourceManager):
                 )
             
             # Convert issues to Struct
-            from google.protobuf.struct_pb2 import Struct
             response_struct = dict_to_proto({"issues": issues}, Struct)
             
             # Extract org slug and create metadata with Sentry URL
