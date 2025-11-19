@@ -71,23 +71,23 @@ class DatadogSourceMetadataExtractor(SourceMetadataExtractor):
             self.create_or_update_model_metadata(model_type, model_data)
         return model_data
 
-    # @log_function_call
-    # def extract_monitor(self):
-    #     model_type = SourceModelType.DATADOG_MONITOR
-    #     model_data = {}
-    #     try:
-    #         monitors = self.__dd_api_processor.fetch_monitors()
-    #         if not monitors or len(monitors) == 0:
-    #             return model_data
-    #         for monitor in monitors:
-    #             monitor_dict = monitor.to_dict()
-    #             monitor_id = str(monitor_dict['id'])
-    #             model_data[monitor_id] = monitor_dict
-    #     except Exception as e:
-    #         logger.error(f'Error extracting datadog monitors: {e}')
-    #     if len(model_data) > 0:
-    #         self.create_or_update_model_metadata(model_type, model_data)
-    #     return model_data
+    @log_function_call
+    def extract_monitor(self):
+        model_type = SourceModelType.DATADOG_MONITOR
+        model_data = {}
+        try:
+            monitors = self.__dd_api_processor.fetch_monitors()
+            if not monitors or len(monitors) == 0:
+                return model_data
+            for monitor in monitors:
+                monitor_dict = monitor.to_dict()
+                monitor_id = str(monitor_dict['id'])
+                model_data[monitor_id] = monitor_dict
+        except Exception as e:
+            logger.error(f'Error extracting datadog monitors: {e}')
+        if len(model_data) > 0:
+            self.create_or_update_model_metadata(model_type, model_data)
+        return model_data
 
     @log_function_call
     def extract_dashboard(self):
@@ -285,147 +285,147 @@ class DatadogSourceMetadataExtractor(SourceMetadataExtractor):
             self.create_or_update_model_metadata(model_type, model_data)
         return model_data
 
-    # @log_function_call
-    # def extract_fields(self, log_limit=5000):
-    #     """
-    #     Extract unique fields, tags, and attributes from recent Datadog logs.
+    @log_function_call
+    def extract_fields(self, log_limit=5000):
+        """
+        Extract unique fields, tags, and attributes from recent Datadog logs.
         
-    #     Args:
-    #         log_limit (int): Maximum number of logs to analyze (default: 10000)
+        Args:
+            log_limit (int): Maximum number of logs to analyze (default: 10000)
             
-    #     Returns:
-    #         dict: Dictionary containing extracted field information
-    #     """
-    #     model_type = SourceModelType.DATADOG_FIELDS
-    #     model_data = {}
+        Returns:
+            dict: Dictionary containing extracted field information
+        """
+        model_type = SourceModelType.DATADOG_FIELDS
+        model_data = {}
         
-    #     try:
-    #         # Import required modules
-    #         from datetime import datetime, timezone, timedelta
-    #         from collections import defaultdict, Counter
-    #         import json
+        try:
+            # Import required modules
+            from datetime import datetime, timezone, timedelta
+            from collections import defaultdict, Counter
+            import json
             
-    #         # Calculate time range for last 24 hours
-    #         end_time = datetime.now(timezone.utc)
-    #         start_time = end_time - timedelta(hours=24)
+            # Calculate time range for last 24 hours
+            end_time = datetime.now(timezone.utc)
+            start_time = end_time - timedelta(hours=24)
             
-    #         # Convert to Unix timestamps
-    #         start_timestamp = int(start_time.timestamp())
-    #         end_timestamp = int(end_time.timestamp())
+            # Convert to Unix timestamps
+            start_timestamp = int(start_time.timestamp())
+            end_timestamp = int(end_time.timestamp())
             
-    #         # Fetch recent logs
-    #         logger.info(f"Requesting {log_limit} logs for field extraction from {start_timestamp} to {end_timestamp}")
-    #         logs = self.__dd_api_processor.fetch_logs_for_field_extraction(
-    #             start_time=start_timestamp,
-    #             end_time=end_timestamp,
-    #             limit=log_limit
-    #         )
-    #         logger.info(f"Successfully fetched {len(logs) if logs else 0} logs for field extraction")
+            # Fetch recent logs
+            logger.info(f"Requesting {log_limit} logs for field extraction from {start_timestamp} to {end_timestamp}")
+            logs = self.__dd_api_processor.fetch_logs_for_field_extraction(
+                start_time=start_timestamp,
+                end_time=end_timestamp,
+                limit=log_limit
+            )
+            logger.info(f"Successfully fetched {len(logs) if logs else 0} logs for field extraction")
             
-    #         if not logs:
-    #             logger.warning("No logs found for field extraction")
-    #             return model_data
+            if not logs:
+                logger.warning("No logs found for field extraction")
+                return model_data
             
-    #         # Initialize data structures for collecting field information
-    #         field_info = defaultdict(lambda: {'type': 'string', 'values': set(), 'count': 0})
-    #         tag_info = defaultdict(lambda: {'values': set(), 'count': 0})
-    #         attribute_info = defaultdict(lambda: {'type': 'string', 'values': set(), 'count': 0})
+            # Initialize data structures for collecting field information
+            field_info = defaultdict(lambda: {'type': 'string', 'values': set(), 'count': 0})
+            tag_info = defaultdict(lambda: {'values': set(), 'count': 0})
+            attribute_info = defaultdict(lambda: {'type': 'string', 'values': set(), 'count': 0})
             
-    #         total_logs_analyzed = 0
+            total_logs_analyzed = 0
             
-    #         # Process each log entry
-    #         for log_entry in logs:
-    #             total_logs_analyzed += 1
+            # Process each log entry
+            for log_entry in logs:
+                total_logs_analyzed += 1
                 
-    #             # Extract basic fields from log structure
-    #             if 'id' in log_entry:
-    #                 field_info['id']['values'].add(str(log_entry['id']))
-    #                 field_info['id']['count'] += 1
+                # Extract basic fields from log structure
+                if 'id' in log_entry:
+                    field_info['id']['values'].add(str(log_entry['id']))
+                    field_info['id']['count'] += 1
                 
-    #             if 'type' in log_entry:
-    #                 field_info['type']['values'].add(str(log_entry['type']))
-    #                 field_info['type']['count'] += 1
+                if 'type' in log_entry:
+                    field_info['type']['values'].add(str(log_entry['type']))
+                    field_info['type']['count'] += 1
                 
-    #             # Extract attributes
-    #             if 'attributes' in log_entry:
-    #                 attributes = log_entry['attributes']
+                # Extract attributes
+                if 'attributes' in log_entry:
+                    attributes = log_entry['attributes']
                     
-    #                 for attr_name, attr_value in attributes.items():
-    #                     # Determine attribute type
-    #                     if isinstance(attr_value, bool):
-    #                         attr_type = 'boolean'
-    #                     elif isinstance(attr_value, (int, float)):
-    #                         attr_type = 'number'
-    #                     elif isinstance(attr_value, list):
-    #                         attr_type = 'array'
-    #                     elif isinstance(attr_value, dict):
-    #                         attr_type = 'object'
-    #                     else:
-    #                         attr_type = 'string'
+                    for attr_name, attr_value in attributes.items():
+                        # Determine attribute type
+                        if isinstance(attr_value, bool):
+                            attr_type = 'boolean'
+                        elif isinstance(attr_value, (int, float)):
+                            attr_type = 'number'
+                        elif isinstance(attr_value, list):
+                            attr_type = 'array'
+                        elif isinstance(attr_value, dict):
+                            attr_type = 'object'
+                        else:
+                            attr_type = 'string'
                         
-    #                     # Store attribute information
-    #                     attribute_info[attr_name]['type'] = attr_type
-    #                     attribute_info[attr_name]['values'].add(str(attr_value))
-    #                     attribute_info[attr_name]['count'] += 1
+                        # Store attribute information
+                        attribute_info[attr_name]['type'] = attr_type
+                        attribute_info[attr_name]['values'].add(str(attr_value))
+                        attribute_info[attr_name]['count'] += 1
                         
-    #                     # Also store as field for backward compatibility
-    #                     field_info[attr_name]['type'] = attr_type
-    #                     field_info[attr_name]['values'].add(str(attr_value))
-    #                     field_info[attr_name]['count'] += 1
+                        # Also store as field for backward compatibility
+                        field_info[attr_name]['type'] = attr_type
+                        field_info[attr_name]['values'].add(str(attr_value))
+                        field_info[attr_name]['count'] += 1
                         
-    #                     # Extract tags from attributes
-    #                     if attr_name == 'tags' and isinstance(attr_value, list):
-    #                         for tag in attr_value:
-    #                             if isinstance(tag, str) and ':' in tag:
-    #                                 tag_name = tag.split(':', 1)[0]
-    #                                 tag_value = tag.split(':', 1)[1]
-    #                                 tag_info[tag_name]['values'].add(tag_value)
-    #                                 tag_info[tag_name]['count'] += 1
+                        # Extract tags from attributes
+                        if attr_name == 'tags' and isinstance(attr_value, list):
+                            for tag in attr_value:
+                                if isinstance(tag, str) and ':' in tag:
+                                    tag_name = tag.split(':', 1)[0]
+                                    tag_value = tag.split(':', 1)[1]
+                                    tag_info[tag_name]['values'].add(tag_value)
+                                    tag_info[tag_name]['count'] += 1
             
-    #         # Convert to the required format
-    #         fields_data = {
-    #             'source': 'logs',
-    #             'fields': [],
-    #             'tags': [],
-    #             'attributes': [],
-    #             'total_logs_analyzed': total_logs_analyzed,
-    #             'extraction_timestamp': int(datetime.now(timezone.utc).timestamp())
-    #         }
+            # Convert to the required format
+            fields_data = {
+                'source': 'logs',
+                'fields': [],
+                'tags': [],
+                'attributes': [],
+                'total_logs_analyzed': total_logs_analyzed,
+                'extraction_timestamp': int(datetime.now(timezone.utc).timestamp())
+            }
             
-    #         # Process field information
-    #         for field_name, info in field_info.items():
-    #             if info['count'] > 0:  # Only include fields that actually appeared
-    #                 fields_data['fields'].append({
-    #                     'field_name': field_name,
-    #                     'field_type': info['type'],
-    #                 })
+            # Process field information
+            for field_name, info in field_info.items():
+                if info['count'] > 0:  # Only include fields that actually appeared
+                    fields_data['fields'].append({
+                        'field_name': field_name,
+                        'field_type': info['type'],
+                    })
             
-    #         # Process tag information
-    #         for tag_name, info in tag_info.items():
-    #             if info['count'] > 0:  # Only include tags that actually appeared
-    #                 fields_data['tags'].append({
-    #                     'tag_name': tag_name,
-    #                 })
+            # Process tag information
+            for tag_name, info in tag_info.items():
+                if info['count'] > 0:  # Only include tags that actually appeared
+                    fields_data['tags'].append({
+                        'tag_name': tag_name,
+                    })
             
-    #         # Process attribute information
-    #         for attr_name, info in attribute_info.items():
-    #             if info['count'] > 0:  # Only include attributes that actually appeared
-    #                 fields_data['attributes'].append({
-    #                     'attribute_name': attr_name,
-    #                     'attribute_type': info['type'],
-    #                 })
+            # Process attribute information
+            for attr_name, info in attribute_info.items():
+                if info['count'] > 0:  # Only include attributes that actually appeared
+                    fields_data['attributes'].append({
+                        'attribute_name': attr_name,
+                        'attribute_type': info['type'],
+                    })
             
-    #         # Store in model_data
-    #         model_data['log_fields'] = fields_data
+            # Store in model_data
+            model_data['log_fields'] = fields_data
             
-    #         # Save to database if requested
-    #         if len(model_data) > 0:
-    #             self.create_or_update_model_metadata(model_type, model_data)
+            # Save to database if requested
+            if len(model_data) > 0:
+                self.create_or_update_model_metadata(model_type, model_data)
             
-    #         logger.info(f"Extracted {len(fields_data['fields'])} fields, {len(fields_data['tags'])} tags, "
-    #                    f"and {len(fields_data['attributes'])} attributes from {total_logs_analyzed} logs")
+            logger.info(f"Extracted {len(fields_data['fields'])} fields, {len(fields_data['tags'])} tags, "
+                       f"and {len(fields_data['attributes'])} attributes from {total_logs_analyzed} logs")
             
-    #     except Exception as e:
-    #         logger.error(f'Error extracting datadog fields: {e}')
+        except Exception as e:
+            logger.error(f'Error extracting datadog fields: {e}')
             
-    #     return model_data
+        return model_data
