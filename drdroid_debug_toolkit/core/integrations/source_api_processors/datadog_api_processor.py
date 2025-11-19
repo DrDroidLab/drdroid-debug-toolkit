@@ -787,48 +787,77 @@ class DatadogApiProcessor(Processor):
                 }
                 
                 # Datadog monitor search uses GET request with query parameters
+                # According to API docs: query, page, per_page, sort are all query string parameters
                 all_monitors = []
                 max_pages = 50  # Limit to prevent excessive API calls
-                # Datadog API uses 1-based pagination (page starts at 1, not 0)
                 
-                for current_page in range(1, max_pages + 1):
-                    params = {
-                        "query": query,
-                        "page": current_page,
-                        "per_page": per_page
-                    }
-                    if sort:
-                        params["sort"] = sort
+                # Try the search endpoint - if it fails with 400, the query might be invalid
+                try:
+                    for current_page in range(0, max_pages):  # Start from 0 as per API docs
+                        params = {
+                            "query": query,
+                            "page": current_page,
+                            "per_page": per_page
+                        }
+                        if sort:
+                            params["sort"] = sort
+                        
+                        response = requests.get(url, headers=headers, params=params, timeout=EXTERNAL_CALL_TIMEOUT)
+                        
+                        # If we get a 400 error, the query syntax might be invalid
+                        if response.status_code == 400:
+                            error_detail = response.text
+                            logger.warning(f"Monitor search returned 400 for query '{query}': {error_detail}")
+                            # Return empty result instead of failing
+                            return {
+                                "monitors": [],
+                                "counts": {
+                                    "total": 0
+                                },
+                                "error": f"Invalid query syntax: {error_detail}"
+                            }
+                        
+                        response.raise_for_status()
+                        result = response.json()
+                        
+                        # Check if result has monitors
+                        if isinstance(result, dict):
+                            monitors = result.get('monitors', [])
+                            if not monitors:
+                                break  # No more monitors
+                            
+                            all_monitors.extend(monitors)
+                            
+                            # Check if there are more results
+                            counts = result.get('counts', {})
+                            total = counts.get('total', len(all_monitors))
+                            
+                            if len(all_monitors) >= total or len(monitors) < per_page:
+                                break  # Got all monitors or last page
+                        else:
+                            # Unexpected response format, return what we have
+                            break
                     
-                    response = requests.get(url, headers=headers, params=params, timeout=EXTERNAL_CALL_TIMEOUT)
-                    response.raise_for_status()
-                    result = response.json()
-                    
-                    # Check if result has monitors
-                    if isinstance(result, dict):
-                        monitors = result.get('monitors', [])
-                        if not monitors:
-                            break  # No more monitors
-                        
-                        all_monitors.extend(monitors)
-                        
-                        # Check if there are more results
-                        counts = result.get('counts', {})
-                        total = counts.get('total', len(all_monitors))
-                        
-                        if len(all_monitors) >= total or len(monitors) < per_page:
-                            break  # Got all monitors or last page
-                    else:
-                        # Unexpected response format, return what we have
-                        break
-                
-                # Return in expected format
-                return {
-                    "monitors": all_monitors,
-                    "counts": {
-                        "total": len(all_monitors)
+                    # Return in expected format
+                    return {
+                        "monitors": all_monitors,
+                        "counts": {
+                            "total": len(all_monitors)
+                        }
                     }
-                }
+                except requests.exceptions.HTTPError as e:
+                    if e.response.status_code == 400:
+                        error_detail = e.response.text
+                        logger.warning(f"Monitor search failed with 400 for query '{query}': {error_detail}")
+                        # Return empty result instead of raising
+                        return {
+                            "monitors": [],
+                            "counts": {
+                                "total": 0
+                            },
+                            "error": f"Invalid query syntax: {error_detail}"
+                        }
+                    raise
             else:
                 # If no query, use list_monitors (this returns all monitors)
                 configuration = self.get_connection()
