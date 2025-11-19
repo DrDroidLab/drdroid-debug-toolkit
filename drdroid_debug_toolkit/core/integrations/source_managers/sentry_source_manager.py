@@ -221,8 +221,8 @@ class SentrySourceManager(SourceManager):
                               display_name=StringValue(value="Limit"),
                               description=StringValue(value='Optional limit on total number of issues to return (pagination stops when limit is reached)'),
                               helper_text=StringValue(value='(Optional) Enter Limit - maximum number of issues to return'),
-                              default_value=Literal(type=LiteralType.INT64, int64=Int64Value(value=0)),
-                              data_type=LiteralType.INT64,
+                              default_value=Literal(type=LiteralType.LONG, long=Int64Value(value=0)),
+                              data_type=LiteralType.LONG,
                               form_field_type=FormFieldType.TEXT_FT,
                               is_optional=True),
                 ]
