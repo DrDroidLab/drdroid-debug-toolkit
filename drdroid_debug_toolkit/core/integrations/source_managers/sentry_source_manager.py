@@ -75,20 +75,27 @@ def buildSentryUrl(org_slug: str, task_type: str, params: dict = None) -> str:
                 # For project slug, we need to construct the full path
                 url_params.append(f"project={params['project_slug']}")
             
-            # Add query parameter if provided
-            if 'query' in params:
-                url_params.append(f"query={urllib.parse.quote(params['query'])}")
+            # Add query parameter if provided and not None/empty
+            if 'query' in params and params['query']:
+                # Ensure query is a string before quoting
+                query_str = str(params['query']) if params['query'] is not None else ''
+                if query_str:
+                    url_params.append(f"query={urllib.parse.quote(query_str)}")
             
             # Add standard Sentry UI parameters
             url_params.append("referrer=issue-list")
             url_params.append("sort=date")
             
             # Add time range parameters - prefer start/end for custom ranges, statsPeriod for predefined periods
-            if 'start' in params and 'end' in params:
+            if 'start' in params and 'end' in params and params['start'] and params['end']:
                 # Custom time range - use start/end with utc=true
-                url_params.append(f"start={urllib.parse.quote(params['start'])}")
-                url_params.append(f"end={urllib.parse.quote(params['end'])}")
-                url_params.append("utc=true")
+                # Ensure start and end are strings before quoting
+                start_str = str(params['start']) if params['start'] is not None else ''
+                end_str = str(params['end']) if params['end'] is not None else ''
+                if start_str and end_str:
+                    url_params.append(f"start={urllib.parse.quote(start_str)}")
+                    url_params.append(f"end={urllib.parse.quote(end_str)}")
+                    url_params.append("utc=true")
             elif 'stats_period' in params:
                 # Predefined period (1h, 24h, etc.)
                 url_params.append(f"statsPeriod={params['stats_period']}")
