@@ -16,7 +16,7 @@ class PosthogSourceMetadataExtractor(SourceMetadataExtractor):
         super().__init__(request_id, connector_name, Source.POSTHOG)
 
     @log_function_call
-    def extract_property_definitions(self, save_to_db=False):
+    def extract_property_definitions(self):
         """Extract PostHog property definitions and optionally save them to the database"""
         model_data = {}
         model_type = SourceModelType.POSTHOG_PROPERTY
@@ -47,10 +47,9 @@ class PosthogSourceMetadataExtractor(SourceMetadataExtractor):
                 # Use the property name as the model_uid since it's what will be used in queries
                 model_data[prop_name] = prop_def
                 
-                if save_to_db:
-                    self.create_or_update_model_metadata(model_type, prop_name, prop_def)
-                    
             logger.info(f"Extracted {len(model_data)} PostHog property definitions")
+            if len(model_data) > 0:
+                self.create_or_update_model_metadata(model_type, model_data)
             
         except Exception as e:
             logger.error(f'Error extracting PostHog property definitions: {e}')
