@@ -140,6 +140,7 @@ class Sentry(google.protobuf.message.Message):
         PROJECT_SLUG_FIELD_NUMBER: builtins.int
         QUERY_FIELD_NUMBER: builtins.int
         STATS_PERIOD_FIELD_NUMBER: builtins.int
+        LIMIT_FIELD_NUMBER: builtins.int
         @property
         def project_slug(self) -> google.protobuf.wrappers_pb2.StringValue: ...
         @property
@@ -148,15 +149,19 @@ class Sentry(google.protobuf.message.Message):
         @property
         def stats_period(self) -> google.protobuf.wrappers_pb2.StringValue:
             """Optional stats period (e.g., "24h", "14d")"""
+        @property
+        def limit(self) -> google.protobuf.wrappers_pb2.Int64Value:
+            """Optional limit on total number of issues to return (pagination continues until limit is reached)"""
         def __init__(
             self,
             *,
             project_slug: google.protobuf.wrappers_pb2.StringValue | None = ...,
             query: google.protobuf.wrappers_pb2.StringValue | None = ...,
             stats_period: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            limit: google.protobuf.wrappers_pb2.Int64Value | None = ...,
         ) -> None: ...
-        def HasField(self, field_name: typing_extensions.Literal["project_slug", b"project_slug", "query", b"query", "stats_period", b"stats_period"]) -> builtins.bool: ...
-        def ClearField(self, field_name: typing_extensions.Literal["project_slug", b"project_slug", "query", b"query", "stats_period", b"stats_period"]) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["limit", b"limit", "project_slug", b"project_slug", "query", b"query", "stats_period", b"stats_period"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["limit", b"limit", "project_slug", b"project_slug", "query", b"query", "stats_period", b"stats_period"]) -> None: ...
 
     @typing_extensions.final
     class FetchProjects(google.protobuf.message.Message):

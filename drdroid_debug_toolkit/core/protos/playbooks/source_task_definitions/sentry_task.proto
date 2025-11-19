@@ -31,6 +31,7 @@ message Sentry {
     google.protobuf.StringValue project_slug = 1;
     google.protobuf.StringValue query = 2;  // Optional query string (e.g., "is:unresolved level:error")
     google.protobuf.StringValue stats_period = 3;  // Optional stats period (e.g., "24h", "14d")
+    google.protobuf.Int64Value limit = 4;  // Optional limit on total number of issues to return (pagination continues until limit is reached)
   }
 
   message FetchProjects {}

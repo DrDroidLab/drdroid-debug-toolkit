@@ -217,6 +217,14 @@ class SentrySourceManager(SourceManager):
                               data_type=LiteralType.STRING,
                               form_field_type=FormFieldType.TEXT_FT,
                               is_optional=True),
+                    FormField(key_name=StringValue(value="limit"),
+                              display_name=StringValue(value="Limit"),
+                              description=StringValue(value='Optional limit on total number of issues to return (pagination stops when limit is reached)'),
+                              helper_text=StringValue(value='(Optional) Enter Limit - maximum number of issues to return'),
+                              default_value=Literal(type=LiteralType.INT64, int64=Int64Value(value=0)),
+                              data_type=LiteralType.INT64,
+                              form_field_type=FormFieldType.TEXT_FT,
+                              is_optional=True),
                 ]
             }
         }
@@ -826,6 +834,10 @@ class SentrySourceManager(SourceManager):
             project_slug = task.project_slug.value
             query = task.query.value if task.query.value else None
             stats_period = task.stats_period.value if task.stats_period.value else None
+            # Extract limit - treat 0 or unset as None (no limit)
+            limit = None
+            if task.HasField("limit") and task.limit.value and task.limit.value > 0:
+                limit = int(task.limit.value)
             
             # Pagination is handled internally - not exposed to users
             sentry_processor = self.get_connector_processor(sentry_connector)
@@ -855,7 +867,8 @@ class SentrySourceManager(SourceManager):
                 query, 
                 start_time=start_time, 
                 end_time=end_time,
-                stats_period=stats_period
+                stats_period=stats_period,
+                limit=limit
             )
             
             if not issues:
