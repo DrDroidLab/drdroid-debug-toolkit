@@ -789,9 +789,9 @@ class DatadogApiProcessor(Processor):
                 # Datadog monitor search uses GET request with query parameters
                 all_monitors = []
                 max_pages = 50  # Limit to prevent excessive API calls
-                page = 0  # Start from page 0 (as per API docs, "Page to start paginating from")
+                # Datadog API uses 1-based pagination (page starts at 1, not 0)
                 
-                for current_page in range(max_pages):
+                for current_page in range(1, max_pages + 1):
                     params = {
                         "query": query,
                         "page": current_page,
