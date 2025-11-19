@@ -30,7 +30,7 @@ class PostgresSourceMetadataExtractor(SourceMetadataExtractor):
         super().__init__(request_id, connector_name, Source.POSTGRES)
 
     @log_function_call
-    def extract_tables(self, database=None, save_to_db=False):
+    def extract_tables(self, database=None):
         """Extract all tables from a specific database and optionally save them to the database"""
         model_data = {}
         model_type = SourceModelType.POSTGRES_TABLE
@@ -211,12 +211,12 @@ class PostgresSourceMetadataExtractor(SourceMetadataExtractor):
                 
                 model_data[model_uid] = table_metadata
                 
-                if save_to_db:
-                    self.create_or_update_model_metadata(model_type, model_uid, table_metadata)
-            
-            logger.info(f"Extracted {len(model_data)} tables from PostgreSQL database {db_to_use}")
+                model_data[model_uid] = table_metadata
             
         except Exception as e:
             logger.error(f'Error extracting PostgreSQL tables from database {database}: {e}')
+            
+        if len(model_data) > 0:
+            self.create_or_update_model_metadata(model_type, model_data)
             
         return model_data
