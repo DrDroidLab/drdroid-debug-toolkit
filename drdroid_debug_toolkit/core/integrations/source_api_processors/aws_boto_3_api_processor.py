@@ -110,22 +110,20 @@ class AWSBoto3ApiProcessor(Processor):
 
             try:
                 start_query_response = client.start_query(
-                    logGroupName='drd-permission-test-log-group-non-existent',
+                    logGroupName='test-log-group',
                     startTime=start_time,
                     endTime=end_time,
                     queryString='fields @timestamp | limit 1',
                 )
 
                 # Best-effort: immediately stop the query if it was started successfully.
-                raise Exception(f"query response: {start_query_response}")
                 logger.info(f"CloudWatch Logs StartQuery permission check passed: {start_query_response}")
                 query_id = start_query_response.get('queryId')
                 if query_id:
                     try:
                         client.stop_query(queryId=query_id)
                     except Exception:
-                        # Non-fatal; permission to start is what we care about.
-                        pass
+                        raise e
 
                 return True
 
