@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime, timedelta
+from sqlite3 import ProgrammingError
 
 import boto3
 import requests
@@ -89,6 +90,7 @@ class AWSBoto3ApiProcessor(Processor):
     def test_logs_describe_log_groups_permission(self):
         """Tests permission to describe CloudWatch log groups."""
         try:
+            logger.info(f"Testing CloudWatch Logs describe_log_groups permission for region: {self.region}")
             client = self.get_connection()
             client.describe_log_groups(limit=1)
             return True
@@ -99,6 +101,7 @@ class AWSBoto3ApiProcessor(Processor):
     def test_logs_start_query_permission(self):
         """Tests permission to start a CloudWatch Logs Insights query (logs:StartQuery)."""
         try:
+            logger.info(f"Testing CloudWatch Logs start_query permission for region: {self.region}")
             client = self.get_connection()
 
             # Use a non-existent log group and a simple query to avoid reading real data.
