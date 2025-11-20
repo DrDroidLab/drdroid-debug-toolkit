@@ -96,6 +96,62 @@ class AWSBoto3ApiProcessor(Processor):
             logger.warning(f"CloudWatch Logs describe_log_groups permission check failed: {e}")
             raise e
 
+    def test_logs_start_query_permission(self):
+        """Tests permission to start a CloudWatch Logs Insights query (logs:StartQuery)."""
+        try:
+            client = self.get_connection()
+
+            # Use a non-existent log group and a simple query to avoid reading real data.
+            end_time = int(datetime.utcnow().timestamp())
+            start_time = end_time - 300  # last 5 minutes
+
+            try:
+                start_query_response = client.start_query(
+                    logGroupName='drd-permission-test-log-group-non-existent',
+                    startTime=start_time,
+                    endTime=end_time,
+                    queryString='fields @timestamp | limit 1',
+                )
+
+                # Best-effort: immediately stop the query if it was started successfully.
+                query_id = start_query_response.get('queryId')
+                if query_id:
+                    try:
+                        client.stop_query(queryId=query_id)
+                    except Exception:
+                        # Non-fatal; permission to start is what we care about.
+                        pass
+
+                return True
+
+            except client.exceptions.ClientError as ce:
+                error_code = ce.response.get('Error', {}).get('Code')
+                http_status_code = ce.response.get('ResponseMetadata', {}).get('HTTPStatusCode')
+                message_lower = str(ce).lower()
+
+                # Resource not found means permissions are likely fine but the test resource doesn't exist.
+                if error_code in ['ResourceNotFoundException', 'ResourceNotFound'] or http_status_code in [400, 404] or 'resource not found' in message_lower:
+                    logger.info(
+                        "CloudWatch Logs StartQuery permission check passed "
+                        "(ignoring resource not found: "
+                        f"{error_code or http_status_code} - "
+                        f"{ce.response.get('Error', {}).get('Message', str(ce))[:100]}...)"
+                    )
+                    return True
+
+                # Explicit access denied errors should fail the permission check.
+                if error_code in ['AccessDeniedException', 'AccessDenied'] or 'accessdenied' in message_lower or 'forbidden' in message_lower:
+                    logger.warning(f"CloudWatch Logs StartQuery permission check failed due to access denied/forbidden: {ce}")
+                    raise ce
+
+                # Any other client error is unexpected, surface it.
+                logger.warning(f"CloudWatch Logs StartQuery permission check failed with unexpected ClientError: {ce}")
+                raise ce
+
+        except Exception as e:
+            logger.warning(f"CloudWatch Logs StartQuery permission check failed with unexpected error: {e}")
+            raise e
+
     def test_ecs_list_clusters_permission(self):
         """Tests permission to list ECS clusters."""
         try:
