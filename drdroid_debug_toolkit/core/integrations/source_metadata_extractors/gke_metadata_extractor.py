@@ -606,3 +606,263 @@ class GkeSourceMetadataExtractor(SourceMetadataExtractor):
         except Exception as e:
             logger.error(f"Exception in GKE extract_statefulsets method: {str(e)}")
             raise
+    
+    @log_function_call
+    def extract_deployments_for_namespace(self, zone, cluster_name, namespace):
+        """Extract deployments for a specific namespace in a specific cluster"""
+        model_data = {}
+        model_type = SourceModelType.GKE_DEPLOYMENT
+
+        try:
+            deployments_response = self.gke_api_processor.list_deployments(zone, cluster_name, namespace)
+            deployments_dict = deployments_response.to_dict()
+
+            for item in deployments_dict.get('items', []):
+                metadata = item.get('metadata', {})
+                deployment_name = metadata.get('name')
+
+                if not deployment_name:
+                    continue
+
+                # Use zone/cluster/namespace/deployment as the unique identifier
+                namespaced_name = f"{zone}/{cluster_name}/{namespace}/{deployment_name}"
+
+                # Add cluster and zone context to the item
+                item['gke_context'] = {
+                    'zone': zone,
+                    'cluster': cluster_name
+                }
+
+                model_data[namespaced_name] = self._sanitize_metadata(item)
+
+            logger.info(f"Extracted {len(model_data)} deployments from namespace {namespace} in cluster {cluster_name}")
+            if len(model_data) > 0:
+                self.create_or_update_model_metadata(model_type, model_data)
+            return model_data
+
+        except Exception as e:
+            logger.error(f"Error extracting deployments for namespace {namespace} in cluster {cluster_name}: {str(e)}")
+        if len(model_data) > 0:
+            self.create_or_update_model_metadata(model_type, model_data)
+        return model_data
+
+    @log_function_call
+    def extract_services_for_namespace(self, zone, cluster_name, namespace):
+        """Extract services for a specific namespace in a specific cluster"""
+        model_data = {}
+        model_type = SourceModelType.GKE_SERVICE
+
+        try:
+            services_response = self.gke_api_processor.list_services(zone, cluster_name, namespace)
+            services_dict = services_response.to_dict()
+
+            for item in services_dict.get('items', []):
+                metadata = item.get('metadata', {})
+                service_name = metadata.get('name')
+
+                if not service_name:
+                    continue
+
+                # Use zone/cluster/namespace/service as the unique identifier
+                namespaced_name = f"{zone}/{cluster_name}/{namespace}/{service_name}"
+
+                # Add cluster and zone context to the item
+                item['gke_context'] = {
+                    'zone': zone,
+                    'cluster': cluster_name
+                }
+
+                model_data[namespaced_name] = self._sanitize_metadata(item)
+
+            logger.info(f"Extracted {len(model_data)} services from namespace {namespace} in cluster {cluster_name}")
+
+        except Exception as e:
+            logger.error(f"Error extracting services for namespace {namespace} in cluster {cluster_name}: {str(e)}")
+
+        if len(model_data) > 0:
+            self.create_or_update_model_metadata(model_type, model_data)
+        return model_data
+
+    @log_function_call
+    def extract_ingresses_for_namespace(self, zone, cluster_name, namespace):
+        """Extract ingresses for a specific namespace in a specific cluster"""
+        model_data = {}
+        model_type = SourceModelType.GKE_INGRESS
+
+        try:
+            ingresses_response = self.gke_api_processor.list_ingresses(zone, cluster_name, namespace)
+            ingresses_dict = ingresses_response.to_dict()
+
+            for item in ingresses_dict.get('items', []):
+                metadata = item.get('metadata', {})
+                ingress_name = metadata.get('name')
+
+                if not ingress_name:
+                    continue
+
+                # Use zone/cluster/namespace/ingress as the unique identifier
+                namespaced_name = f"{zone}/{cluster_name}/{namespace}/{ingress_name}"
+
+                # Add cluster and zone context to the item
+                item['gke_context'] = {
+                    'zone': zone,
+                    'cluster': cluster_name
+                }
+
+                model_data[namespaced_name] = self._sanitize_metadata(item)
+
+            logger.info(f"Extracted {len(model_data)} ingresses from namespace {namespace} in cluster {cluster_name}")
+
+        except Exception as e:
+            logger.error(f"Error extracting ingresses for namespace {namespace} in cluster {cluster_name}: {str(e)}")
+
+        if len(model_data) > 0:
+            self.create_or_update_model_metadata(model_type, model_data)
+        return model_data
+
+    @log_function_call
+    def extract_network_policies_for_namespace(self, zone, cluster_name, namespace):
+        """Extract network policies for a specific namespace in a specific cluster"""
+        model_data = {}
+        model_type = SourceModelType.GKE_NETWORK_POLICY
+
+        try:
+            policies_response = self.gke_api_processor.list_network_policies(zone, cluster_name, namespace)
+            policies_dict = policies_response.to_dict()
+
+            for item in policies_dict.get('items', []):
+                metadata = item.get('metadata', {})
+                policy_name = metadata.get('name')
+
+                if not policy_name:
+                    continue
+
+                # Use zone/cluster/namespace/policy as the unique identifier
+                namespaced_name = f"{zone}/{cluster_name}/{namespace}/{policy_name}"
+
+                # Add cluster and zone context to the item
+                item['gke_context'] = {
+                    'zone': zone,
+                    'cluster': cluster_name
+                }
+
+                model_data[namespaced_name] = self._sanitize_metadata(item)
+
+            logger.info(f"Extracted {len(model_data)} network policies from namespace {namespace} in cluster {cluster_name}")
+
+        except Exception as e:
+            logger.error(f"Error extracting network policies for namespace {namespace} in cluster {cluster_name}: {str(e)}")
+
+        if len(model_data) > 0:
+            self.create_or_update_model_metadata(model_type, model_data)
+        return model_data
+
+    @log_function_call
+    def extract_replicasets_for_namespace(self, zone, cluster_name, namespace):
+        """Extract replicasets for a specific namespace in a specific cluster"""
+        model_data = {}
+        model_type = SourceModelType.GKE_REPLICASET
+
+        try:
+            replicasets_response = self.gke_api_processor.list_replicasets(zone, cluster_name, namespace)
+            replicasets_dict = replicasets_response.to_dict()
+
+            for item in replicasets_dict.get('items', []):
+                metadata = item.get('metadata', {})
+                rs_name = metadata.get('name')
+
+                if not rs_name:
+                    continue
+
+                # Use zone/cluster/namespace/replicaset as the unique identifier
+                namespaced_name = f"{zone}/{cluster_name}/{namespace}/{rs_name}"
+
+                # Add cluster and zone context to the item
+                item['gke_context'] = {
+                    'zone': zone,
+                    'cluster': cluster_name
+                }
+
+                model_data[namespaced_name] = self._sanitize_metadata(item)
+
+            logger.info(f"Extracted {len(model_data)} replicasets from namespace {namespace} in cluster {cluster_name}")
+
+        except Exception as e:
+            logger.error(f"Error extracting replicasets for namespace {namespace} in cluster {cluster_name}: {str(e)}")
+
+        if len(model_data) > 0:
+            self.create_or_update_model_metadata(model_type, model_data)
+        return model_data
+
+    @log_function_call
+    def extract_statefulsets_for_namespace(self, zone, cluster_name, namespace):
+        """Extract statefulsets for a specific namespace in a specific cluster"""
+        model_data = {}
+        model_type = SourceModelType.GKE_STATEFULSET
+
+        try:
+            statefulsets_response = self.gke_api_processor.list_statefulsets(zone, cluster_name, namespace)
+            statefulsets_dict = statefulsets_response.to_dict()
+
+            for item in statefulsets_dict.get('items', []):
+                metadata = item.get('metadata', {})
+                ss_name = metadata.get('name')
+
+                if not ss_name:
+                    continue
+
+                # Use zone/cluster/namespace/statefulset as the unique identifier
+                namespaced_name = f"{zone}/{cluster_name}/{namespace}/{ss_name}"
+
+                # Add cluster and zone context to the item
+                item['gke_context'] = {
+                    'zone': zone,
+                    'cluster': cluster_name
+                }
+
+                model_data[namespaced_name] = self._sanitize_metadata(item)
+
+            logger.info(f"Extracted {len(model_data)} statefulsets from namespace {namespace} in cluster {cluster_name}")
+
+        except Exception as e:
+            logger.error(f"Error extracting statefulsets for namespace {namespace} in cluster {cluster_name}: {str(e)}")
+        
+        if len(model_data) > 0:
+            self.create_or_update_model_metadata(model_type, model_data)
+        return model_data
+
+    @log_function_call
+    def extract_pod_autoscalers_for_namespace(self, zone, cluster_name, namespace):
+        """Extract HPAs for a specific namespace in a specific cluster"""
+        model_data = {}
+        model_type = SourceModelType.GKE_HPA
+
+        try:
+            hpas_response = self.gke_api_processor.list_horizontal_pod_autoscalers(zone, cluster_name, namespace)
+            hpas_dict = hpas_response.to_dict()
+
+            for item in hpas_dict.get('items', []):
+                metadata = item.get('metadata', {})
+                hpa_name = metadata.get('name')
+
+                if not hpa_name:
+                    continue
+
+                # Use zone/cluster/namespace/hpa as the unique identifier
+                namespaced_name = f"{zone}/{cluster_name}/{namespace}/{hpa_name}"
+
+                # Add cluster and zone context to the item
+                item['gke_context'] = {
+                    'zone': zone,
+                    'cluster': cluster_name
+                }
+
+                model_data[namespaced_name] = self._sanitize_metadata(item)
+
+            logger.info(f"Extracted {len(model_data)} HPAs from namespace {namespace} in cluster {cluster_name}")
+
+        except Exception as e:
+            logger.error(f"Error extracting HPAs for namespace {namespace} in cluster {cluster_name}: {str(e)}")
+        if len(model_data) > 0:
+            self.create_or_update_model_metadata(model_type, model_data)
+        return model_data
