@@ -266,7 +266,6 @@ class CloudwatchSourceManager(SourceManager):
                               is_optional=True),
                 ],
                 'permission_checks': {
-                    'test_cloudwatch_list_dashboards_permission': [{'client_type': 'cloudwatch'}],
                     'test_cloudwatch_list_metrics_permission': [{'client_type': 'cloudwatch'}]
                 }
             },
