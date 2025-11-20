@@ -114,6 +114,7 @@ class AWSBoto3ApiProcessor(Processor):
                 )
 
                 # Best-effort: immediately stop the query if it was started successfully.
+                logger.info(f"CloudWatch Logs StartQuery permission check passed: {start_query_response}")
                 query_id = start_query_response.get('queryId')
                 if query_id:
                     try:
