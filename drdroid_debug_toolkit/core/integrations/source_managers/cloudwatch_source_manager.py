@@ -219,7 +219,8 @@ class CloudwatchSourceManager(SourceManager):
                               form_field_type=FormFieldType.MULTILINE_FT)
                 ],
                 'permission_checks': {
-                    'test_logs_describe_log_groups_permission': [{'client_type': 'logs'}]
+                    'test_logs_describe_log_groups_permission': [{'client_type': 'logs'}],
+                    'test_logs_start_query_permission': [{'client_type': 'logs'}]
                 }
             },
             Cloudwatch.TaskType.RDS_GET_SQL_QUERY_PERFORMANCE_STATS: {
