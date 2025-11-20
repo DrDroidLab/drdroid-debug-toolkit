@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from sqlite3 import ProgrammingError
 
 import boto3
@@ -105,7 +105,7 @@ class AWSBoto3ApiProcessor(Processor):
             client = self.get_connection()
 
             # Use a non-existent log group and a simple query to avoid reading real data.
-            end_time = int(datetime.utcnow().timestamp())
+            end_time = int(datetime.now(timezone.utc).timestamp())
             start_time = end_time - 300  # last 5 minutes
 
             try:
@@ -133,7 +133,11 @@ class AWSBoto3ApiProcessor(Processor):
                 message_lower = str(ce).lower()
 
                 # Resource not found means permissions are likely fine but the test resource doesn't exist.
-                if error_code in ['ResourceNotFoundException', 'ResourceNotFound'] or http_status_code in [400, 404] or 'resource not found' in message_lower:
+                if (
+                    error_code in ['ResourceNotFoundException', 'ResourceNotFound']
+                    or http_status_code == 404
+                    or 'resource not found' in message_lower
+                ):
                     logger.info(
                         "CloudWatch Logs StartQuery permission check passed "
                         "(ignoring resource not found: "
