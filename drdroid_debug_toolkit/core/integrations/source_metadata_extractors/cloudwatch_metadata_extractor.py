@@ -226,7 +226,8 @@ class CloudwatchSourceMetadataExtractor(SourceMetadataExtractor):
                     if not next_token or next_token == '':
                         break
 
-                model_data[namespace] = {self.__region: metric_dimension_map}
+                if metric_dimension_map:
+                    model_data[namespace] = {self.__region: metric_dimension_map}
 
             if len(model_data) > 0:
                 self.create_or_update_model_metadata(model_type, model_data)
