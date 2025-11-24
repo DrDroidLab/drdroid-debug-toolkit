@@ -14,15 +14,15 @@ class VictoriaLogsApiProcessor:
         self._ssl_verify = kwargs.get('SSL_VERIFY', True)
 
         # Optional custom headers (e.g., Authorization, tenant headers)
-        # Expect JSON string in MCP_SERVER_AUTH_HEADERS
-        raw_headers = kwargs.get('MCP_SERVER_AUTH_HEADERS')
+        # Expect JSON string in VICTORIA_LOGS_HEADERS
+        raw_headers = kwargs.get('VICTORIA_LOGS_HEADERS')
         self._headers: Dict[str, str] = {}
         if isinstance(raw_headers, str):
             try:
                 self._headers = json.loads(raw_headers)
             except Exception:
                 # Fallback: treat as bearer token string
-                self._headers = {'Authorization': f'Bearer {raw_headers}'}
+                self._headers = {'Authorization': f'Basic {raw_headers}'}
         elif isinstance(raw_headers, dict):
             self._headers = raw_headers
 
@@ -53,6 +53,7 @@ class VictoriaLogsApiProcessor:
         """
         url = f"{self._base_url}{path}"
         headers = {**self._headers}  # requests sets proper form content-type for dict data
+
         resp = requests.post(url, data=data, headers=headers, timeout=60, verify=self._ssl_verify)
         resp.raise_for_status()
         return resp

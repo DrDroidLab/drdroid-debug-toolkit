@@ -13,7 +13,7 @@ class VictoriaLogsSourceMetadataExtractor(SourceMetadataExtractor):
         host = kwargs.get('VICTORIA_LOGS_HOST', host)
         port = kwargs.get('VICTORIA_LOGS_PORT', port)
         ssl_verify = kwargs.get('SSL_VERIFY', ssl_verify)
-        headers_json = kwargs.get('MCP_SERVER_AUTH_HEADERS', headers_json)
+        headers_json = kwargs.get('VICTORIA_LOGS_HEADERS', headers_json)
 
         # Normalize types
         try:
@@ -28,7 +28,7 @@ class VictoriaLogsSourceMetadataExtractor(SourceMetadataExtractor):
             VICTORIA_LOGS_HOST=host,
             VICTORIA_LOGS_PORT=port,
             SSL_VERIFY=ssl_verify,
-            MCP_SERVER_AUTH_HEADERS=headers_json,
+            VICTORIA_LOGS_HEADERS=headers_json,
         )
         super().__init__(request_id, connector_name, Source.VICTORIA_LOGS)
 
