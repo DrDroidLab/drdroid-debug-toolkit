@@ -45,13 +45,28 @@ class CoralogixApiProcessor(Processor):
         """
         try:
             # Use the correct Coralogix API endpoint for testing connection
-            url = f'{self.__endpoint}/mgmt/openapi/v1/dashboards/folders'
-
-            response = requests.get(
+            start_time_rfc3339 = self._parse_time_to_rfc3339("now-4h")
+            end_time_rfc3339 = self._parse_time_to_rfc3339("now")
+            
+            url = f'{self.__endpoint}/api/v1/dataprime/query'
+            
+            payload = {
+                "query": "* | limit 1",
+                "metadata": {
+                    "tier": "TIER_FREQUENT_SEARCH",
+                    "syntax": "QUERY_SYNTAX_LUCENE",
+                    "startDate": start_time_rfc3339,
+                    "endDate": end_time_rfc3339,
+                    "defaultSource": "logs"
+                }
+            }
+            
+            response = requests.post(
                 url, 
                 headers=self.headers, 
+                json=payload,
                 verify=self.__ssl_verify, 
-                timeout=30
+                timeout=60
             )
 
             if response.status_code == 200:
