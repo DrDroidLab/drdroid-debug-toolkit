@@ -73,6 +73,11 @@ message NewRelic {
     repeated uint32 timeseries_offsets = 5;
   }
 
+  message GetDashboardVariableValuesTask {
+    google.protobuf.StringValue dashboard_guid = 1;
+    google.protobuf.StringValue variable_name = 2;
+  }
+
   enum TaskType {
     UNKNOWN = 0;
     ENTITY_APPLICATION_GOLDEN_METRIC_EXECUTION = 1;
@@ -83,6 +88,7 @@ message NewRelic {
     FETCH_DASHBOARD_WIDGETS = 6;
     ENTITY_APPLICATION_APM_DATABASE_SUMMARY = 7;
     ENTITY_APPLICATION_APM_TRANSACTION_SUMMARY = 8;
+    GET_DASHBOARD_VARIABLE_VALUES = 9;
   }
 
   TaskType type = 1;
@@ -95,6 +101,7 @@ message NewRelic {
     FetchDashboardWidgetsTask fetch_dashboard_widgets = 7;
     EntityApplicationAPMDatabaseSummaryTask entity_application_apm_database_summary = 8;
     EntityApplicationAPMTransactionSummaryTask entity_application_apm_transaction_summary = 9;
+    GetDashboardVariableValuesTask get_dashboard_variable_values = 10;
   }
 }
 

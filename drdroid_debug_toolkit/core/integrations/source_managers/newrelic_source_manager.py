@@ -12,7 +12,7 @@ from core.protos.base_pb2 import TimeRange, Source, SourceModelType, SourceKeyTy
 from core.protos.connectors.connector_pb2 import Connector as ConnectorProto
 from core.protos.literal_pb2 import LiteralType, Literal
 from core.protos.playbooks.playbook_commons_pb2 import PlaybookTaskResult, TimeseriesResult, LabelValuePair, \
-    PlaybookTaskResultType, TextResult, TableResult
+    PlaybookTaskResultType, TextResult, TableResult, ApiResponseResult
 from core.protos.playbooks.source_task_definitions.new_relic_task_pb2 import NewRelic
 from core.protos.ui_definition_pb2 import FormField, FormFieldType
 from core.protos.assets.asset_pb2 import AccountConnectorAssets, AccountConnectorAssetsModelFilters
@@ -248,6 +248,26 @@ class NewRelicSourceManager(SourceManager):
                               ],
                               default_value=Literal(type=LiteralType.STRING, string=StringValue(value="Most Time Consuming")),
                               is_optional=False),
+                ]
+            },
+            NewRelic.TaskType.GET_DASHBOARD_VARIABLE_VALUES: {
+                'executor': self.execute_get_dashboard_variable_values,
+                'model_types': [SourceModelType.NEW_RELIC_ENTITY_DASHBOARD],
+                'result_type': PlaybookTaskResultType.API_RESPONSE,
+                'display_name': 'Get New Relic dashboard variable values',
+                'category': 'Dashboard',
+                'form_fields': [
+                    FormField(key_name=StringValue(value="dashboard_guid"),
+                              display_name=StringValue(value="Dashboard GUID"),
+                              description=StringValue(value="Enter Dashboard GUID"),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT),
+                    FormField(key_name=StringValue(value="variable_name"),
+                              display_name=StringValue(value="Variable Name (Optional)"),
+                              description=StringValue(value="Enter specific variable name to filter"),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT,
+                              is_optional=True),
                 ]
             },
         }
@@ -2700,4 +2720,89 @@ class NewRelicSourceManager(SourceManager):
             )
 
         return processed_series_list
+
+    def execute_get_dashboard_variable_values(self, time_range: TimeRange, nr_task: NewRelic,
+                                               nr_connector: ConnectorProto):
+        """
+        Execute a task to get dashboard variable values.
+        
+        Args:
+            time_range: The time range (not used for this task)
+            nr_task: The New Relic task containing dashboard variable values information
+            nr_connector: The New Relic connector to use
+            
+        Returns:
+            A PlaybookTaskResult containing dashboard variable values as API response
+        """
+        try:
+            if not nr_connector:
+                raise Exception("Task execution Failed:: No New Relic source found")
+
+            task = nr_task.get_dashboard_variable_values
+            dashboard_guid = task.dashboard_guid.value
+            variable_name = task.variable_name.value if task.HasField('variable_name') and task.variable_name.value else None
+
+            nr_gql_processor = self.get_connector_processor(nr_connector)
+
+            print(
+                f"Playbook Task Downstream Request: Type -> New Relic GET_DASHBOARD_VARIABLE_VALUES, Dashboard_GUID -> {dashboard_guid}, Variable_Name -> {variable_name}",
+                flush=True,
+            )
+
+            # Get dashboard variable values
+            response_data = nr_gql_processor.get_dashboard_variable_values(dashboard_guid, variable_name)
+
+            # Import required modules
+            from google.protobuf.struct_pb2 import Struct
+            from google.protobuf.wrappers_pb2 import UInt64Value
+            from core.utils.proto_utils import dict_to_proto
+
+            if not response_data or not response_data.get('variables'):
+                error_struct = Struct()
+                error_message = f"Dashboard not found or no variables found for dashboard GUID: {dashboard_guid}"
+                if variable_name:
+                    error_message += f", variable: {variable_name}"
+                error_struct.update({"error": error_message})
+                
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.API_RESPONSE,
+                    api_response=ApiResponseResult(
+                        response_status=UInt64Value(value=404),
+                        response_body=error_struct
+                    ),
+                    source=self.source
+                )
+
+            # Convert response data to Struct
+            if isinstance(response_data, dict):
+                response_struct = Struct()
+                response_struct.update(response_data)
+            else:
+                response_struct = dict_to_proto(response_data, Struct)
+
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                api_response=ApiResponseResult(
+                    response_status=UInt64Value(value=200),
+                    response_body=response_struct
+                ),
+                source=self.source
+            )
+
+        except Exception as e:
+            logger.error(f"Error while executing get dashboard variable values task: {e}")
+            from google.protobuf.struct_pb2 import Struct
+            from google.protobuf.wrappers_pb2 import UInt64Value
+            
+            error_struct = Struct()
+            error_struct.update({"error": f"Error executing dashboard variable values task: {str(e)}"})
+            
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                api_response=ApiResponseResult(
+                    response_status=UInt64Value(value=500),
+                    response_body=error_struct
+                ),
+                source=self.source
+            )
 
