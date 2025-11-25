@@ -270,6 +270,38 @@ class NewRelicSourceManager(SourceManager):
                               is_optional=True),
                 ]
             },
+            NewRelic.TaskType.EXECUTE_DASHBOARD_WIDGETS_WITH_VARIABLES: {
+                'executor': self.execute_dashboard_widgets_with_variables,
+                'model_types': [SourceModelType.NEW_RELIC_ENTITY_DASHBOARD_V2],
+                'result_type': PlaybookTaskResultType.TIMESERIES,
+                'display_name': 'Execute New Relic dashboard widgets with variables',
+                'category': 'Metrics',
+                'form_fields': [
+                    FormField(key_name=StringValue(value="dashboard_name"),
+                              display_name=StringValue(value="Dashboard Name"),
+                              description=StringValue(value="Enter Dashboard Name"),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT),
+                    FormField(key_name=StringValue(value="page_name"),
+                              display_name=StringValue(value="Page Name (Optional)"),
+                              description=StringValue(value="Enter Page Name to filter widgets"),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT,
+                              is_optional=True),
+                    FormField(key_name=StringValue(value="widget_names"),
+                              display_name=StringValue(value="Widget Names (Optional)"),
+                              description=StringValue(value="Enter widget names to filter (comma-separated)"),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT,
+                              is_optional=True),
+                    FormField(key_name=StringValue(value="template_variables"),
+                              display_name=StringValue(value="Template Variables (Optional)"),
+                              description=StringValue(value='JSON object with variable values, e.g., {"appName": "my-app", "env": "prod"}'),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.MULTILINE_FT,
+                              is_optional=True),
+                ]
+            },
         }
 
         self.connector_form_configs = [
@@ -2803,6 +2835,297 @@ class NewRelicSourceManager(SourceManager):
                     response_status=UInt64Value(value=500),
                     response_body=error_struct
                 ),
+                source=self.source
+            )
+
+    def _substitute_nrql_variables(self, nrql_expression: str, variables: dict) -> str:
+        """
+        Substitute New Relic template variables in NRQL queries.
+        New Relic uses {{variableName}} syntax for template variables.
+        
+        Args:
+            nrql_expression: The NRQL query string that may contain {{variableName}} placeholders
+            variables: Dictionary mapping variable names to their values
+            
+        Returns:
+            NRQL query string with variables substituted
+        """
+        if not nrql_expression or not variables:
+            return nrql_expression
+        
+        result = nrql_expression
+        # New Relic uses {{variableName}} syntax
+        import re
+        # Pattern to match {{variableName}} or {{variableName:format}}
+        pattern = r'\{\{([^}:]+)(?::[^}]+)?\}\}'
+        
+        def replace_var(match):
+            var_name = match.group(1).strip()
+            if var_name in variables:
+                var_value = variables[var_name]
+                # Handle list values (for multi-selection variables)
+                if isinstance(var_value, list):
+                    # For IN clauses, join with commas and wrap each in quotes if needed
+                    if len(var_value) == 1:
+                        return str(var_value[0])
+                    else:
+                        # Format as: 'value1','value2','value3'
+                        return "','".join([str(v) for v in var_value])
+                else:
+                    return str(var_value)
+            else:
+                # Variable not found, keep the original placeholder
+                logger.warning(f"Variable '{var_name}' not found in provided variables, keeping placeholder")
+                return match.group(0)
+        
+        result = re.sub(pattern, replace_var, result)
+        return result
+
+    def execute_dashboard_widgets_with_variables(self, time_range: TimeRange, nr_task: NewRelic,
+                                                 nr_connector: ConnectorProto):
+        """
+        Execute dashboard widgets with template variable substitution.
+        Similar to Grafana's EXECUTE_ALL_DASHBOARD_PANELS task.
+        
+        Args:
+            time_range: The time range for the queries
+            nr_task: The New Relic task containing dashboard and variable information
+            nr_connector: The New Relic connector to use
+            
+        Returns:
+            A PlaybookTaskResult containing timeseries data from all widgets
+        """
+        try:
+            if not nr_connector:
+                raise Exception("Task execution Failed:: No New Relic source found")
+
+            task = nr_task.execute_dashboard_widgets_with_variables
+            dashboard_name = task.dashboard_name.value
+            page_name = task.page_name.value if task.HasField('page_name') and task.page_name.value else None
+            widget_names_str = task.widget_names.value if task.HasField('widget_names') and task.widget_names.value else ''
+            widget_names = [name.strip() for name in widget_names_str.split(',') if name.strip()] if widget_names_str else None
+
+            nr_gql_processor = self.get_connector_processor(nr_connector)
+
+            # 1. Find the dashboard and get its GUID
+            client = PrototypeClient()
+            assets = client.get_connector_assets(
+                connector_type=Source.Name(nr_connector.type),
+                connector_id=str(nr_connector.id.value),
+                asset_type=SourceModelType.NEW_RELIC_ENTITY_DASHBOARD_V2,
+            )
+
+            if not assets or not assets.new_relic or not assets.new_relic.assets:
+                raise Exception(f"No dashboard assets found for the account {nr_connector.account_id.value}")
+
+            newrelic_assets = assets.new_relic.assets
+            all_dashboard_entities_v2 = [
+                asset.new_relic_entity_dashboard_v2
+                for asset in newrelic_assets
+                if asset.HasField('new_relic_entity_dashboard_v2')
+            ]
+
+            dashboard_guid = None
+            for entity in all_dashboard_entities_v2:
+                current_dashboard_name = entity.dashboard_name.value
+                if page_name:
+                    target_name = f"{dashboard_name} / {page_name}"
+                    if current_dashboard_name.lower() == target_name.lower():
+                        dashboard_guid = entity.dashboard_guid.value
+                        break
+                else:
+                    if current_dashboard_name.lower().startswith(dashboard_name.lower() + " / ") or \
+                            current_dashboard_name.lower() == dashboard_name.lower():
+                        dashboard_guid = entity.dashboard_guid.value
+                        break
+
+            if not dashboard_guid:
+                raise Exception(f"Dashboard with name '{dashboard_name}' not found")
+
+            # 2. Fetch dashboard variables to get default values
+            variables_data = nr_gql_processor.get_dashboard_variable_values(dashboard_guid)
+            default_variables = {}
+            if variables_data and variables_data.get('variables'):
+                for var_name, var_info in variables_data['variables'].items():
+                    # Use default value if available
+                    if 'default_value' in var_info:
+                        default_variables[var_name] = var_info['default_value']
+                    # Or use first item if it's a list variable
+                    elif 'items' in var_info and var_info['items']:
+                        default_variables[var_name] = var_info['items'][0].get('value', '')
+
+            # 3. Parse user-provided template variables
+            user_variables = {}
+            if task.HasField("template_variables") and task.template_variables.value:
+                try:
+                    import json
+                    import ast
+                    template_vars_str = task.template_variables.value
+                    
+                    # Try to parse as JSON first
+                    if isinstance(template_vars_str, dict):
+                        user_variables = template_vars_str
+                    elif isinstance(template_vars_str, str):
+                        if template_vars_str.startswith('{') and template_vars_str.endswith('}'):
+                            try:
+                                user_variables = json.loads(template_vars_str)
+                            except json.JSONDecodeError:
+                                # Fallback to ast.literal_eval for Python dict format
+                                user_variables = ast.literal_eval(template_vars_str)
+                        else:
+                            user_variables = json.loads(template_vars_str)
+                    
+                    # Process comma-separated values
+                    processed_vars = {}
+                    for key, value in user_variables.items():
+                        if isinstance(value, str) and ',' in value:
+                            processed_vars[key] = [v.strip() for v in value.split(',') if v.strip()]
+                        else:
+                            processed_vars[key] = value
+                    user_variables = processed_vars
+                except (json.JSONDecodeError, ValueError, SyntaxError) as e:
+                    logger.warning(f"Failed to parse template_variables: {e}")
+                    user_variables = {}
+
+            # 4. Merge default and user variables (user variables take precedence)
+            template_vars_dict = default_variables.copy()
+            template_vars_dict.update(user_variables)
+
+            print(
+                f"Playbook Task Downstream Request: Type -> New Relic EXECUTE_DASHBOARD_WIDGETS_WITH_VARIABLES, "
+                f"Dashboard -> {dashboard_name}, Variables -> {template_vars_dict}",
+                flush=True,
+            )
+
+            # 5. Find matching widgets (reuse existing logic)
+            try:
+                matching_widgets = self._find_matching_dashboard_widgets_v2(
+                    nr_connector, dashboard_name, page_name, widget_names
+                )
+
+                # Deduplicate widgets
+                unique_widgets_by_content = {}
+                for widget in matching_widgets:
+                    sorted_expressions = sorted(widget.get('nrql_expressions', []))
+                    content_key = (widget.get('title', ''), tuple(sorted_expressions))
+                    if content_key not in unique_widgets_by_content:
+                        unique_widgets_by_content[content_key] = widget
+                
+                matching_widgets = list(unique_widgets_by_content.values())
+                
+            except Exception as e:
+                logger.error(f"Error finding dashboard/widgets: {e}")
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value=f'Error finding dashboard/widgets: {e}')),
+                    source=self.source
+                )
+
+            if not matching_widgets:
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value=f'No widgets found in dashboard "{dashboard_name}"')),
+                    source=self.source
+                )
+
+            # 6. Process each widget with variable substitution
+            all_widget_timeseries = []
+            for widget in matching_widgets:
+                widget_title = widget.get('title', 'Untitled Widget')
+                nrql_expressions = widget.get('nrql_expressions', [])
+
+                try:
+                    if not nrql_expressions:
+                        logger.warning(f"Skipping widget '{widget_title}' as it has no NRQL queries.")
+                        continue
+
+                    # Deduplicate NRQL expressions
+                    unique_nrql_expressions = []
+                    seen_nrql = set()
+                    for nrql in nrql_expressions:
+                        if nrql and nrql not in seen_nrql:
+                            unique_nrql_expressions.append(nrql)
+                            seen_nrql.add(nrql)
+
+                    if not unique_nrql_expressions:
+                        logger.warning(f"Skipping widget '{widget_title}' as it has no unique, non-empty NRQL queries.")
+                        continue
+
+                    # Process each NRQL query
+                    for idx, nrql in enumerate(unique_nrql_expressions):
+                        try:
+                            # Substitute variables in NRQL query
+                            substituted_nrql = self._substitute_nrql_variables(nrql, template_vars_dict)
+                            
+                            # Prepare NRQL with time range
+                            prepared_nrql = self._prepare_widget_nrql(substituted_nrql, time_range)
+
+                            print(
+                                f"Playbook Task Downstream Request: Type -> NewRelicDashboardWithVariables, "
+                                f"Account -> {nr_connector.account_id.value}, Dashboard -> {dashboard_name}, "
+                                f"Widget -> {widget_title}, Query Index -> {idx}, "
+                                f"Original NRQL -> {nrql[:100]}..., "
+                                f"Substituted NRQL -> {prepared_nrql[:100]}...",
+                                flush=True
+                            )
+
+                            # Execute NRQL
+                            response = nr_gql_processor.execute_nrql_query(prepared_nrql)
+
+                            # Parse response
+                            labeled_metric_timeseries_list = self._parse_nrql_response(response, widget_title)
+
+                            # Add query index label
+                            for series in labeled_metric_timeseries_list:
+                                updated_labels = list(series.metric_label_values)
+                                existing_qi = next((lbl for lbl in updated_labels if lbl.name.value == 'query_index'), None)
+                                if existing_qi:
+                                    existing_qi.value.value = str(idx)
+                                else:
+                                    updated_labels.append(
+                                        LabelValuePair(name=StringValue(value='query_index'), value=StringValue(value=str(idx)))
+                                    )
+                                
+                                new_series = TimeseriesResult.LabeledMetricTimeseries(
+                                    metric_label_values=updated_labels,
+                                    unit=series.unit,
+                                    datapoints=series.datapoints
+                                )
+                                all_widget_timeseries.append(new_series)
+
+                        except Exception as e:
+                            logger.error(f"Error executing NRQL query {idx} for widget '{widget_title}': {e}")
+                            continue
+
+                except Exception as e:
+                    logger.error(f"Error processing widget '{widget_title}': {e}")
+                    continue
+
+            if not all_widget_timeseries:
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value='No timeseries data returned from widgets')),
+                    source=self.source
+                )
+
+            # 7. Combine all timeseries into a single result
+            timeseries_result = TimeseriesResult(
+                metric_expression=StringValue(value=f"Dashboard: {dashboard_name}"),
+                metric_name=StringValue(value="dashboard_widgets"),
+                labeled_metric_timeseries=all_widget_timeseries
+            )
+
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.TIMESERIES,
+                timeseries=timeseries_result,
+                source=self.source
+            )
+
+        except Exception as e:
+            logger.error(f"Error while executing dashboard widgets with variables task: {e}")
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.TEXT,
+                text=TextResult(output=StringValue(value=f"Error executing dashboard widgets with variables task: {str(e)}")),
                 source=self.source
             )
 
