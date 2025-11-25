@@ -1,6 +1,6 @@
 import logging
 
-from core.integrations.source_api_processors.argocd_api_processor import ArgoCDAPIProcessor
+from core.integrations.source_api_processors.argocd_api_processor import ArgoCDAPIProcessor, extract_argocd_apps
 from core.integrations.source_metadata_extractor import SourceMetadataExtractor
 from core.protos.base_pb2 import Source, SourceModelType
 from core.utils.logging_utils import log_function_call
@@ -10,9 +10,8 @@ logger = logging.getLogger(__name__)
 
 class ArgoCDSourceMetadataExtractor(SourceMetadataExtractor):
 
-    def __init__(self, request_id: str, connector_name: str, argocd_server, argocd_token, ):
+    def __init__(self, request_id: str, connector_name: str, argocd_server, argocd_token):
         self.argocd_processor = ArgoCDAPIProcessor(argocd_server, argocd_token)
-
         super().__init__(request_id, connector_name, Source.ARGOCD)
 
     @log_function_call
@@ -26,13 +25,17 @@ class ArgoCDSourceMetadataExtractor(SourceMetadataExtractor):
 
             for application in applications.get('items', []):  # Iterate over application items
                 try:
-                    app_name = application.get('metadata', {}).get('name', '')  # Access the name safely
-                    path = application.get('spec', {}).get('source', {}).get('path', '')
+                    app_name = application.get("metadata", {}).get("name", "")  # Access the name safely
+                    path = application.get("spec", {}).get("source", {}).get("path", "")  # Access the path safely
                     if app_name:
                         model_data[app_name] = {"name": app_name, "path": path}
                 except KeyError as e:
-                    logger.error(f"Missing key {e} in application: {application}")
+                    logger.error(f"Missing key {e} in application: {application}")  # Handle missing keys
         except Exception as e:
             logger.error(f'Error extracting ArgoCD applications: {e}')
+        if model_data and self.account_id:
+            extract_argocd_apps(self.account_id, model_data)
         if len(model_data) > 0:
             self.create_or_update_model_metadata(model_type, model_data)
+        return model_data
+

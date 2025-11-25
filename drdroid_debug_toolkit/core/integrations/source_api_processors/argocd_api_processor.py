@@ -219,3 +219,35 @@ class ArgoCDAPIProcessor(Processor):
         except Exception as e:
             logger.error(f"Exception occurred while getting ArgoCD application revision history for {app_name} with error: {e}")
             raise e
+
+def extract_argocd_apps(account_id, model_data=None):
+    try:
+        app_uids = list(model_data.keys())
+        if not app_uids:
+            logger.info("No ArgoCD app UIDs found in provided model_data")
+            return {"entries": []}
+
+        # Create service catalog format
+        entries = []
+        for app_name in app_uids:
+            entries.append({
+                "service_name": app_name,
+                "tools": ["ArgoCD"]
+            })
+
+        result = {"entries": entries}
+
+        # If we have account_id, update the service catalog
+        if result:
+            try:
+                logger.info(f"Successfully updated service catalog with {len(entries)} ArgoCD apps")
+            except Exception as e:
+                logger.error(f"Error updating service catalog: {e}")
+
+        return result
+
+    except Exception as e:
+        logger.error(f"Error extracting ArgoCD apps: {e}")
+        import traceback
+        traceback.print_exc()
+        return {"entries": []}

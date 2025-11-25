@@ -269,6 +269,29 @@ class DatadogSourceManager(SourceManager):
                 'category': 'Dashboards',
                 'form_fields': [],
             },
+            Datadog.TaskType.QUERY_MONITORS: {
+                'executor': self.execute_query_monitors,
+                'model_types': [],
+                'result_type': PlaybookTaskResultType.API_RESPONSE,
+                'display_name': 'Query Datadog Monitors',
+                'category': 'Monitors',
+                'form_fields': [
+                    FormField(key_name=StringValue(value="query"),
+                              display_name=StringValue(value="Query"),
+                              description=StringValue(value='Optional query string (e.g., "status:alert type:metric")'),
+                              helper_text=StringValue(value='(Optional) Enter Query'),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT,
+                              is_optional=True),
+                    FormField(key_name=StringValue(value="sort"),
+                              display_name=StringValue(value="Sort"),
+                              description=StringValue(value='Sort order (e.g., "name,asc" or "status,desc")'),
+                              helper_text=StringValue(value='(Optional) Enter Sort Order'),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT,
+                              is_optional=True),
+                ]
+            },
         }
         self.connector_form_configs = [
             {
@@ -404,6 +427,15 @@ class DatadogSourceManager(SourceManager):
         
         elif task_type == "fetch_dashboards":
             return f"{base_url}/dashboard/lists"
+        
+        elif task_type == "query_monitors":
+            query = params.get('query', '')
+            if query:
+                # URL for monitors with query filter
+                return f"{base_url}/monitors/manage?q={query}"
+            else:
+                # URL for all monitors
+                return f"{base_url}/monitors/manage"
         
         else:
             # Default fallback to dashboard lists
@@ -1968,4 +2000,95 @@ class DatadogSourceManager(SourceManager):
         except Exception as e:
             logger.error(f"Error while executing fetch dashboards task: {e}")
             raise Exception(f"Error while executing Datadog task: {e}")
+
+    def execute_query_monitors(self, time_range: TimeRange, dd_task: Datadog, datadog_connector: ConnectorProto):
+        """
+        Execute a task to query Datadog monitors with optional filters.
+        
+        Args:
+            time_range: The time range (not used for this task)
+            dd_task: The Datadog task containing query parameters
+            datadog_connector: The Datadog connector to use
+            
+        Returns:
+            A PlaybookTaskResult containing monitors as API response
+        """
+        try:
+            if not datadog_connector:
+                raise Exception("Task execution Failed:: No Datadog source found")
+
+            task = dd_task.query_monitors
+            query = task.query.value if task.query.value else None
+            sort = task.sort.value if task.sort.value else None
+            
+            # Pagination is handled internally with defaults - not exposed to users
+            dd_api_processor = self.get_connector_processor(datadog_connector)
+
+            # Query monitors - pagination handled internally with reasonable defaults
+            response_data = dd_api_processor.query_monitors(query=query, sort=sort)
+
+            # Import required modules
+            from google.protobuf.struct_pb2 import Struct
+            import json
+
+            if not response_data:
+                error_struct = Struct()
+                error_struct.update({"error": "No monitors found"})
+                
+                # Extract Datadog API domain and create metadata
+                api_domain = self._extract_api_domain_from_connector(datadog_connector)
+                metadata = self._create_metadata_with_datadog_url(api_domain, "query_monitors", {
+                    "query": query
+                })
+                
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.API_RESPONSE,
+                    api_response=ApiResponseResult(
+                        response_status=UInt64Value(value=404),
+                        response_body=error_struct
+                    ),
+                    source=self.source,
+                    metadata=metadata
+                )
+
+            # Convert response to Struct - ensure all values are JSON-serializable
+            # First serialize to JSON and back to convert all complex types to basic Python types
+            try:
+                # Convert to JSON string and back to ensure all types are serializable
+                json_str = json.dumps(response_data, default=str)
+                response_dict = json.loads(json_str)
+                # Use dict_to_proto with Struct class
+                response_struct = dict_to_proto(response_dict, Struct)
+            except Exception as e:
+                logger.error(f"Error converting response to Struct: {e}, response_data type: {type(response_data)}")
+                # Fallback: try to handle different response types
+                if isinstance(response_data, dict):
+                    response_struct = dict_to_proto(response_data, Struct)
+                elif isinstance(response_data, list):
+                    response_struct = dict_to_proto({"monitors": response_data}, Struct)
+                elif hasattr(response_data, 'to_dict'):
+                    response_struct = dict_to_proto(response_data.to_dict(), Struct)
+                else:
+                    # Last resort: wrap in a dict
+                    response_struct = dict_to_proto({"data": str(response_data)}, Struct)
+
+            # Extract Datadog API domain and create metadata
+            api_domain = self._extract_api_domain_from_connector(datadog_connector)
+            metadata = self._create_metadata_with_datadog_url(api_domain, "query_monitors", {
+                "query": query
+            })
+
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                api_response=ApiResponseResult(
+                    response_status=UInt64Value(value=200),
+                    response_body=response_struct
+                ),
+                source=self.source,
+                metadata=metadata
+            )
+
+        except Exception as e:
+            logger.error(f"Error executing query monitors task: {e}")
+            raise Exception(f"Task execution Failed:: {e}")
 
