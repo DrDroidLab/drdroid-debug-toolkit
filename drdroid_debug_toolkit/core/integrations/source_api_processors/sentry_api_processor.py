@@ -25,8 +25,9 @@ class SentryApiProcessor(Processor):
             }
             response = requests.request("GET", url, headers=headers)
             response.raise_for_status()
+            return True
         except Exception as e:
-            logger.error(f"Exception occurred while testing postgres connection with error: {e}")
+            logger.error(f"Exception occurred while testing Sentry connection with error: {e}")
             raise e
 
     def fetch_issue_details(self, issue_id):
