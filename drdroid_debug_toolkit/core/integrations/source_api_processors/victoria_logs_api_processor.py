@@ -54,15 +54,7 @@ class VictoriaLogsApiProcessor:
         url = f"{self._base_url}{path}"
         headers = {**self._headers}  # requests sets proper form content-type for dict data
 
-        print('url', url)
-        print('headers', headers)
-        print('data', data)
-        print('ssl_verify', self._ssl_verify)
-
         resp = requests.post(url, data=data, headers=headers, timeout=60, verify=self._ssl_verify)
-
-        print('status_code', resp.status_code)
-        print('text', resp.text)
 
         resp.raise_for_status()
         return resp
