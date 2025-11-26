@@ -9,13 +9,22 @@ message DrdProxyAgent {
     google.protobuf.StringValue command = 1;
   }
 
+  message AssetRefresh {
+    google.protobuf.StringValue connector_id = 1;
+    google.protobuf.StringValue connector_name = 2;
+    google.protobuf.UInt32Value connector_type = 3;
+    google.protobuf.StringValue extractor_method = 4;
+  }
+
   enum TaskType {
     UNKNOWN = 0;
     COMMAND = 1;
+    ASSET_REFRESH = 2;
   }
 
   TaskType type = 1;
   oneof task {
     Command command = 2;
+    AssetRefresh asset_refresh = 3;
   }
 }
