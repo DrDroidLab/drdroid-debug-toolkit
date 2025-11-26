@@ -29,10 +29,12 @@ class DrdProxyAgent(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
         UNKNOWN: DrdProxyAgent._TaskType.ValueType  # 0
         COMMAND: DrdProxyAgent._TaskType.ValueType  # 1
+        ASSET_REFRESH: DrdProxyAgent._TaskType.ValueType  # 2
 
     class TaskType(_TaskType, metaclass=_TaskTypeEnumTypeWrapper): ...
     UNKNOWN: DrdProxyAgent.TaskType.ValueType  # 0
     COMMAND: DrdProxyAgent.TaskType.ValueType  # 1
+    ASSET_REFRESH: DrdProxyAgent.TaskType.ValueType  # 2
 
     @typing_extensions.final
     class Command(google.protobuf.message.Message):
@@ -49,19 +51,50 @@ class DrdProxyAgent(google.protobuf.message.Message):
         def HasField(self, field_name: typing_extensions.Literal["command", b"command"]) -> builtins.bool: ...
         def ClearField(self, field_name: typing_extensions.Literal["command", b"command"]) -> None: ...
 
+    @typing_extensions.final
+    class AssetRefresh(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        CONNECTOR_ID_FIELD_NUMBER: builtins.int
+        CONNECTOR_NAME_FIELD_NUMBER: builtins.int
+        CONNECTOR_TYPE_FIELD_NUMBER: builtins.int
+        EXTRACTOR_METHOD_FIELD_NUMBER: builtins.int
+        @property
+        def connector_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def connector_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def connector_type(self) -> google.protobuf.wrappers_pb2.UInt32Value: ...
+        @property
+        def extractor_method(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        def __init__(
+            self,
+            *,
+            connector_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            connector_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            connector_type: google.protobuf.wrappers_pb2.UInt32Value | None = ...,
+            extractor_method: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["connector_id", b"connector_id", "connector_name", b"connector_name", "connector_type", b"connector_type", "extractor_method", b"extractor_method"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["connector_id", b"connector_id", "connector_name", b"connector_name", "connector_type", b"connector_type", "extractor_method", b"extractor_method"]) -> None: ...
+
     TYPE_FIELD_NUMBER: builtins.int
     COMMAND_FIELD_NUMBER: builtins.int
+    ASSET_REFRESH_FIELD_NUMBER: builtins.int
     type: global___DrdProxyAgent.TaskType.ValueType
     @property
     def command(self) -> global___DrdProxyAgent.Command: ...
+    @property
+    def asset_refresh(self) -> global___DrdProxyAgent.AssetRefresh: ...
     def __init__(
         self,
         *,
         type: global___DrdProxyAgent.TaskType.ValueType = ...,
         command: global___DrdProxyAgent.Command | None = ...,
+        asset_refresh: global___DrdProxyAgent.AssetRefresh | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["command", b"command", "task", b"task"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["command", b"command", "task", b"task", "type", b"type"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing_extensions.Literal["task", b"task"]) -> typing_extensions.Literal["command"] | None: ...
+    def HasField(self, field_name: typing_extensions.Literal["asset_refresh", b"asset_refresh", "command", b"command", "task", b"task"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["asset_refresh", b"asset_refresh", "command", b"command", "task", b"task", "type", b"type"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing_extensions.Literal["task", b"task"]) -> typing_extensions.Literal["command", "asset_refresh"] | None: ...
 
 global___DrdProxyAgent = DrdProxyAgent
