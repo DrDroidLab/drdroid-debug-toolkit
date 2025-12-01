@@ -15,10 +15,23 @@ class JiraApiProcessor(Processor):
         if not all([jira_cloud_api_key, jira_domain, jira_email]):
             raise ValueError("All JIRA credentials (api_key, domain, email) are required")
 
-        self.domain = jira_domain
+        normalized_domain = self._normalize_jira_domain(jira_domain)
+        self.domain = normalized_domain
         self.__username = jira_email
         self.__api_token = jira_cloud_api_key
-        self.base_url = f"https://{jira_domain}.atlassian.net/rest/api/3"
+        self.base_url = f"https://{normalized_domain}.atlassian.net/rest/api/3"
+
+    @staticmethod
+    def _normalize_jira_domain(domain: str) -> str:
+        """Normalize JIRA domain to extract subdomain.
+        
+        Handles both formats:
+        - "yourcompany" -> "yourcompany"
+        - "yourcompany.atlassian.net" -> "yourcompany"
+        """
+        domain = domain.strip()
+        # Extract subdomain (first part before any dot)
+        return domain.split(".")[0]
 
     @staticmethod
     def _is_account_id(id_string):
