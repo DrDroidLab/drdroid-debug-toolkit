@@ -359,7 +359,7 @@ class CloudwatchSourceManager(SourceManager):
             }
         ]
         self.connector_type_details = {
-            DISPLAY_NAME: "CLOUDWATCH",
+            DISPLAY_NAME: "AWS",
             CATEGORY: CLOUD_MANAGED_SERVICES,
         }
 
