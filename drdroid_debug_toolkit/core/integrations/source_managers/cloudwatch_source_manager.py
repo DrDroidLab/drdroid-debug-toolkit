@@ -357,7 +357,7 @@ class CloudwatchSourceManager(SourceManager):
                               is_optional=True),
                     FormField(key_name=StringValue(value="metrics"),
                               display_name=StringValue(value="Metrics"),
-                              description=StringValue(value="List of metrics to analyze (comma-separated, e.g., UnblendedCost,BlendedCost or as JSON array). Default: UnblendedCost"),
+                              description=StringValue(value="List of metrics to analyze (comma-separated, e.g., UnblendedCost,BlendedCost). Default: UnblendedCost"),
                               data_type=LiteralType.STRING,
                               form_field_type=FormFieldType.TEXT_FT,
                               is_optional=True),
@@ -1239,10 +1239,21 @@ class CloudwatchSourceManager(SourceManager):
             filter_tag_key = task.filter_tag_key.value if task.HasField('filter_tag_key') else None
             granularity = task.granularity.value if task.HasField('granularity') else 'DAILY'
 
-            # Handle repeated fields
-            filter_values = list(task.filter_values) if task.filter_values else None
-            filter_tag_values = list(task.filter_tag_values) if task.filter_tag_values else None
-            metrics = list(task.metrics) if len(task.metrics) > 0 else ['UnblendedCost']
+            # Handle repeated fields - parse comma-separated strings if needed
+            if task.filter_values:
+                filter_values = list(task.filter_values)
+            else:
+                filter_values = None
+            
+            if task.filter_tag_values:
+                filter_tag_values = list(task.filter_tag_values)
+            else:
+                filter_tag_values = None
+            
+            if len(task.metrics) > 0:
+                metrics = list(task.metrics)
+            else:
+                metrics = ['UnblendedCost']
 
             # Get Cost Explorer processor (must use us-east-1)
             ce_processor = self.get_connector_processor(cloudwatch_connector, client_type='ce', region='us-east-1')
