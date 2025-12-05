@@ -38,6 +38,8 @@ class Cloudwatch(google.protobuf.message.Message):
         ECS_GET_TASK_LOGS: Cloudwatch._TaskType.ValueType  # 6
         FETCH_DASHBOARD: Cloudwatch._TaskType.ValueType  # 7
         FETCH_S3_FILE: Cloudwatch._TaskType.ValueType  # 8
+        COST_ANALYSIS: Cloudwatch._TaskType.ValueType  # 9
+        DISCOVER_DIMENSIONS: Cloudwatch._TaskType.ValueType  # 10
 
     class TaskType(_TaskType, metaclass=_TaskTypeEnumTypeWrapper): ...
     UNKNOWN: Cloudwatch.TaskType.ValueType  # 0
@@ -49,6 +51,8 @@ class Cloudwatch(google.protobuf.message.Message):
     ECS_GET_TASK_LOGS: Cloudwatch.TaskType.ValueType  # 6
     FETCH_DASHBOARD: Cloudwatch.TaskType.ValueType  # 7
     FETCH_S3_FILE: Cloudwatch.TaskType.ValueType  # 8
+    COST_ANALYSIS: Cloudwatch.TaskType.ValueType  # 9
+    DISCOVER_DIMENSIONS: Cloudwatch.TaskType.ValueType  # 10
 
     @typing_extensions.final
     class EcsListClusters(google.protobuf.message.Message):
@@ -232,6 +236,104 @@ class Cloudwatch(google.protobuf.message.Message):
         def HasField(self, field_name: typing_extensions.Literal["bucket_name", b"bucket_name", "object_key", b"object_key"]) -> builtins.bool: ...
         def ClearField(self, field_name: typing_extensions.Literal["bucket_name", b"bucket_name", "object_key", b"object_key"]) -> None: ...
 
+    @typing_extensions.final
+    class CostAnalysis(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        START_DATE_FIELD_NUMBER: builtins.int
+        END_DATE_FIELD_NUMBER: builtins.int
+        GROUP_BY_DIMENSION_FIELD_NUMBER: builtins.int
+        GROUP_BY_TAG_KEY_FIELD_NUMBER: builtins.int
+        FILTER_DIMENSION_FIELD_NUMBER: builtins.int
+        FILTER_VALUES_FIELD_NUMBER: builtins.int
+        FILTER_TAG_KEY_FIELD_NUMBER: builtins.int
+        FILTER_TAG_VALUES_FIELD_NUMBER: builtins.int
+        GRANULARITY_FIELD_NUMBER: builtins.int
+        METRICS_FIELD_NUMBER: builtins.int
+        @property
+        def start_date(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def end_date(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def group_by_dimension(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def group_by_tag_key(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def filter_dimension(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def filter_values(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+        @property
+        def filter_tag_key(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def filter_tag_values(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+        @property
+        def granularity(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def metrics(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+        def __init__(
+            self,
+            *,
+            start_date: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            end_date: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            group_by_dimension: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            group_by_tag_key: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            filter_dimension: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            filter_values: collections.abc.Iterable[builtins.str] | None = ...,
+            filter_tag_key: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            filter_tag_values: collections.abc.Iterable[builtins.str] | None = ...,
+            granularity: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            metrics: collections.abc.Iterable[builtins.str] | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["end_date", b"end_date", "filter_dimension", b"filter_dimension", "filter_tag_key", b"filter_tag_key", "granularity", b"granularity", "group_by_dimension", b"group_by_dimension", "group_by_tag_key", b"group_by_tag_key", "start_date", b"start_date"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["end_date", b"end_date", "filter_dimension", b"filter_dimension", "filter_tag_key", b"filter_tag_key", "filter_tag_values", b"filter_tag_values", "filter_values", b"filter_values", "granularity", b"granularity", "group_by_dimension", b"group_by_dimension", "group_by_tag_key", b"group_by_tag_key", "metrics", b"metrics", "start_date", b"start_date"]) -> None: ...
+
+    @typing_extensions.final
+    class DiscoverDimensions(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        START_DATE_FIELD_NUMBER: builtins.int
+        END_DATE_FIELD_NUMBER: builtins.int
+        DIMENSIONS_TO_CHECK_FIELD_NUMBER: builtins.int
+        MAX_VALUES_PER_DIMENSION_FIELD_NUMBER: builtins.int
+        MIN_COST_THRESHOLD_FIELD_NUMBER: builtins.int
+        INCLUDE_TAGS_FIELD_NUMBER: builtins.int
+        SAMPLE_ONLY_FIELD_NUMBER: builtins.int
+        FILTER_BY_SERVICE_FIELD_NUMBER: builtins.int
+        REGION_FILTER_FIELD_NUMBER: builtins.int
+        @property
+        def start_date(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def end_date(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def dimensions_to_check(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+        @property
+        def max_values_per_dimension(self) -> google.protobuf.wrappers_pb2.Int32Value: ...
+        @property
+        def min_cost_threshold(self) -> google.protobuf.wrappers_pb2.DoubleValue: ...
+        @property
+        def include_tags(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+        @property
+        def sample_only(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+        @property
+        def filter_by_service(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+        @property
+        def region_filter(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+        def __init__(
+            self,
+            *,
+            start_date: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            end_date: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            dimensions_to_check: collections.abc.Iterable[builtins.str] | None = ...,
+            max_values_per_dimension: google.protobuf.wrappers_pb2.Int32Value | None = ...,
+            min_cost_threshold: google.protobuf.wrappers_pb2.DoubleValue | None = ...,
+            include_tags: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+            sample_only: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+            filter_by_service: collections.abc.Iterable[builtins.str] | None = ...,
+            region_filter: collections.abc.Iterable[builtins.str] | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["end_date", b"end_date", "include_tags", b"include_tags", "max_values_per_dimension", b"max_values_per_dimension", "min_cost_threshold", b"min_cost_threshold", "sample_only", b"sample_only", "start_date", b"start_date"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["dimensions_to_check", b"dimensions_to_check", "end_date", b"end_date", "filter_by_service", b"filter_by_service", "include_tags", b"include_tags", "max_values_per_dimension", b"max_values_per_dimension", "min_cost_threshold", b"min_cost_threshold", "region_filter", b"region_filter", "sample_only", b"sample_only", "start_date", b"start_date"]) -> None: ...
+
     TYPE_FIELD_NUMBER: builtins.int
     METRIC_EXECUTION_FIELD_NUMBER: builtins.int
     FILTER_LOG_EVENTS_FIELD_NUMBER: builtins.int
@@ -241,6 +343,8 @@ class Cloudwatch(google.protobuf.message.Message):
     ECS_GET_TASK_LOGS_FIELD_NUMBER: builtins.int
     FETCH_DASHBOARD_FIELD_NUMBER: builtins.int
     FETCH_S3_FILE_FIELD_NUMBER: builtins.int
+    COST_ANALYSIS_FIELD_NUMBER: builtins.int
+    DISCOVER_DIMENSIONS_FIELD_NUMBER: builtins.int
     type: global___Cloudwatch.TaskType.ValueType
     @property
     def metric_execution(self) -> global___Cloudwatch.MetricExecution: ...
@@ -258,6 +362,10 @@ class Cloudwatch(google.protobuf.message.Message):
     def fetch_dashboard(self) -> global___Cloudwatch.FetchDashboard: ...
     @property
     def fetch_s3_file(self) -> global___Cloudwatch.FetchS3File: ...
+    @property
+    def cost_analysis(self) -> global___Cloudwatch.CostAnalysis: ...
+    @property
+    def discover_dimensions(self) -> global___Cloudwatch.DiscoverDimensions: ...
     def __init__(
         self,
         *,
@@ -270,9 +378,11 @@ class Cloudwatch(google.protobuf.message.Message):
         ecs_get_task_logs: global___Cloudwatch.EcsGetTaskLogs | None = ...,
         fetch_dashboard: global___Cloudwatch.FetchDashboard | None = ...,
         fetch_s3_file: global___Cloudwatch.FetchS3File | None = ...,
+        cost_analysis: global___Cloudwatch.CostAnalysis | None = ...,
+        discover_dimensions: global___Cloudwatch.DiscoverDimensions | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["ecs_get_task_logs", b"ecs_get_task_logs", "ecs_list_clusters", b"ecs_list_clusters", "ecs_list_tasks", b"ecs_list_tasks", "fetch_dashboard", b"fetch_dashboard", "fetch_s3_file", b"fetch_s3_file", "filter_log_events", b"filter_log_events", "metric_execution", b"metric_execution", "rds_get_sql_query_performance_stats", b"rds_get_sql_query_performance_stats", "task", b"task"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["ecs_get_task_logs", b"ecs_get_task_logs", "ecs_list_clusters", b"ecs_list_clusters", "ecs_list_tasks", b"ecs_list_tasks", "fetch_dashboard", b"fetch_dashboard", "fetch_s3_file", b"fetch_s3_file", "filter_log_events", b"filter_log_events", "metric_execution", b"metric_execution", "rds_get_sql_query_performance_stats", b"rds_get_sql_query_performance_stats", "task", b"task", "type", b"type"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing_extensions.Literal["task", b"task"]) -> typing_extensions.Literal["metric_execution", "filter_log_events", "rds_get_sql_query_performance_stats", "ecs_list_clusters", "ecs_list_tasks", "ecs_get_task_logs", "fetch_dashboard", "fetch_s3_file"] | None: ...
+    def HasField(self, field_name: typing_extensions.Literal["cost_analysis", b"cost_analysis", "discover_dimensions", b"discover_dimensions", "ecs_get_task_logs", b"ecs_get_task_logs", "ecs_list_clusters", b"ecs_list_clusters", "ecs_list_tasks", b"ecs_list_tasks", "fetch_dashboard", b"fetch_dashboard", "fetch_s3_file", b"fetch_s3_file", "filter_log_events", b"filter_log_events", "metric_execution", b"metric_execution", "rds_get_sql_query_performance_stats", b"rds_get_sql_query_performance_stats", "task", b"task"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["cost_analysis", b"cost_analysis", "discover_dimensions", b"discover_dimensions", "ecs_get_task_logs", b"ecs_get_task_logs", "ecs_list_clusters", b"ecs_list_clusters", "ecs_list_tasks", b"ecs_list_tasks", "fetch_dashboard", b"fetch_dashboard", "fetch_s3_file", b"fetch_s3_file", "filter_log_events", b"filter_log_events", "metric_execution", b"metric_execution", "rds_get_sql_query_performance_stats", b"rds_get_sql_query_performance_stats", "task", b"task", "type", b"type"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing_extensions.Literal["task", b"task"]) -> typing_extensions.Literal["metric_execution", "filter_log_events", "rds_get_sql_query_performance_stats", "ecs_list_clusters", "ecs_list_tasks", "ecs_get_task_logs", "fetch_dashboard", "fetch_s3_file", "cost_analysis", "discover_dimensions"] | None: ...
 
 global___Cloudwatch = Cloudwatch
