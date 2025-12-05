@@ -1252,13 +1252,22 @@ class CloudwatchSourceManager(SourceManager):
             end_date = task.end_date.value
 
             # Optional fields with defaults
-            dimensions_to_check = list(task.dimensions_to_check) if task.dimensions_to_check else None
+            dimensions_to_check = None
+            if task.HasField('dimensions_to_check') and task.dimensions_to_check.value:
+                dimensions_to_check = [item.strip() for item in task.dimensions_to_check.value.split(',') if item.strip()]
+            
             max_values_per_dimension = task.max_values_per_dimension.value if task.HasField('max_values_per_dimension') else 50
             min_cost_threshold = task.min_cost_threshold.value if task.HasField('min_cost_threshold') else 0.01
             include_tags = task.include_tags.value if task.HasField('include_tags') else True
             sample_only = task.sample_only.value if task.HasField('sample_only') else False
-            filter_by_service = list(task.filter_by_service) if task.filter_by_service else None
-            region_filter = list(task.region_filter) if task.region_filter else None
+            
+            filter_by_service = None
+            if task.HasField('filter_by_service') and task.filter_by_service.value:
+                filter_by_service = [item.strip() for item in task.filter_by_service.value.split(',') if item.strip()]
+            
+            region_filter = None
+            if task.HasField('region_filter') and task.region_filter.value:
+                region_filter = [item.strip() for item in task.region_filter.value.split(',') if item.strip()]
 
             # Get Cost Explorer processor (must use us-east-1)
             ce_processor = self.get_connector_processor(cloudwatch_connector, client_type='ce', region='us-east-1')
