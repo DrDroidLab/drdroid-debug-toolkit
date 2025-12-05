@@ -3,7 +3,7 @@ import logging
 from datetime import datetime, timedelta, date
 from typing import Any
 
-from google.protobuf.wrappers_pb2 import StringValue, DoubleValue, UInt64Value, Int64Value
+from google.protobuf.wrappers_pb2 import StringValue, DoubleValue, UInt64Value, Int64Value, BoolValue
 from google.protobuf.struct_pb2 import Struct
 
 from core.integrations.source_api_processors.aws_boto_3_api_processor import AWSBoto3ApiProcessor
@@ -392,7 +392,7 @@ class CloudwatchSourceManager(SourceManager):
                               display_name=StringValue(value="Sample Only"),
                               description=StringValue(value="Return only top 10 values per dimension for quick overview"),
                               data_type=LiteralType.BOOLEAN,
-                              default_value=Literal(type=LiteralType.BOOLEAN, boolean=False),
+                              default_value=Literal(type=LiteralType.BOOLEAN, boolean=BoolValue(value=False)),
                               form_field_type=FormFieldType.CHECKBOX_FT,
                               is_optional=True),
                 ],
