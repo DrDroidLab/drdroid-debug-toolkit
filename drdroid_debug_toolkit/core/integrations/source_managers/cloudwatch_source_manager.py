@@ -1,5 +1,7 @@
 import pytz
 import logging
+import json
+import ast
 from datetime import datetime, timedelta, date
 from typing import Any
 
@@ -351,7 +353,15 @@ class CloudwatchSourceManager(SourceManager):
                                   Literal(type=LiteralType.STRING, string=StringValue(value="DAILY")),
                                   Literal(type=LiteralType.STRING, string=StringValue(value="MONTHLY")),
                                   Literal(type=LiteralType.STRING, string=StringValue(value="HOURLY"))
-                              ]),
+                              ],
+                              is_optional=True),
+                    FormField(key_name=StringValue(value="metrics"),
+                              display_name=StringValue(value="Metrics"),
+                              description=StringValue(value="List of metrics to analyze (e.g., ['UnblendedCost'], ['BlendedCost'], ['UsageQuantity']). Default: ['UnblendedCost']"),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT,
+                              default_value=Literal(type=LiteralType.STRING, string=StringValue(value='["UnblendedCost"]')),
+                              is_optional=True),
                 ],
                 'permission_checks': {
                     'test_cost_explorer_permission': [{'client_type': 'ce'}]
@@ -470,6 +480,105 @@ class CloudwatchSourceManager(SourceManager):
             DISPLAY_NAME: "CLOUDWATCH",
             CATEGORY: CLOUD_MANAGED_SERVICES,
         }
+
+    def _parse_repeated_field_value(self, value):
+        """Parse a value that should be a repeated field (array).
+        Handles both JSON array strings and comma-separated strings.
+        """
+        if value is None:
+            return None
+        if isinstance(value, list):
+            return value
+        if not isinstance(value, str):
+            return value
+        
+        # Try to parse as JSON array first
+        value = value.strip()
+        if value.startswith('[') and value.endswith(']'):
+            try:
+                parsed = json.loads(value)
+                if isinstance(parsed, list):
+                    return parsed
+            except (json.JSONDecodeError, ValueError):
+                pass
+            # Try ast.literal_eval as fallback
+            try:
+                parsed = ast.literal_eval(value)
+                if isinstance(parsed, list):
+                    return parsed
+            except (ValueError, SyntaxError):
+                pass
+        
+        # Try comma-separated string
+        if ',' in value:
+            return [item.strip() for item in value.split(',') if item.strip()]
+        
+        # Single value, return as list
+        return [value] if value else []
+
+    def get_resolved_task(self, global_variable_set, input_task):
+        """Override to preprocess repeated fields that might come as strings."""
+        from core.protos.playbooks.playbook_pb2 import PlaybookTask
+        from core.utils.proto_utils import proto_to_dict, dict_to_proto
+        from core.integrations.utils.executor_utils import resolve_global_variables
+        from core.protos.playbooks.playbook_commons_pb2 import PlaybookTaskResultType
+        
+        source = input_task.source
+        if not source or source == Source.UNKNOWN or source != self.source:
+            raise Exception("PlaybookSourceManager.resolve_source_task_proto:: Applicable Source not found for task")
+        source_str = Source.Name(source).lower()
+
+        task_dict = proto_to_dict(input_task)
+        source_task_dict = task_dict.get(source_str, {})
+        if not source_task_dict:
+            raise Exception(f"PlaybookSourceManager.get_source_task:: No task definition found for: {source_str}")
+
+        source_task_proto = dict_to_proto(source_task_dict, self.task_proto)
+        task_type = source_task_proto.type
+        if task_type not in self.task_type_callable_map:
+            raise Exception(f"PlaybookSourceManager.get_source_task:: Task type {task_type} not supported for "
+                            f"source: {source_str}")
+
+        task_type_name = self.task_proto.TaskType.Name(task_type).lower()
+        source_task_type_dict = source_task_dict.get(task_type_name, {})
+        if 'form_fields' not in self.task_type_callable_map[task_type]:
+            raise Exception(f"PlaybookSourceManager.get_source_task:: Form fields not found for task type: "
+                            f"{task_type_name} in {source_str} source manager")
+
+        if not source_task_type_dict and self.task_type_callable_map[task_type]['form_fields']:
+            raise Exception(f"PlaybookSourceManager.get_source_task:: No definition for task type: {task_type_name} "
+                            f"found in task")
+
+        # Preprocess repeated fields for cost_analysis task BEFORE resolving global variables
+        if task_type_name == 'cost_analysis':
+            # Fields that should be arrays
+            repeated_fields = ['filter_values', 'filter_tag_values', 'metrics']
+            for field_name in repeated_fields:
+                if field_name in source_task_type_dict:
+                    source_task_type_dict[field_name] = self._parse_repeated_field_value(source_task_type_dict[field_name])
+
+        # Resolve global variables in source_type_task_def
+        form_fields = self.task_type_callable_map[task_type]['form_fields']
+        resolved_source_task_type_dict, task_local_variable_map = resolve_global_variables(form_fields,
+                                                                                           global_variable_set,
+                                                                                           source_task_type_dict)
+
+        # Add timeseries offsets to resolved_source_type_task_def if present in timeseries task
+        if 'result_type' not in self.task_type_callable_map[task_type]:
+            raise Exception(f"PlaybookSourceManager.get_source_task:: Result type not found for task type: "
+                            f"{task_type_name} in {source_str} source manager")
+        if self.task_type_callable_map[task_type]['result_type'] == PlaybookTaskResultType.TIMESERIES and \
+                input_task.execution_configuration and input_task.execution_configuration.timeseries_offsets:
+            resolved_source_task_type_dict['timeseries_offsets'] = list(
+                input_task.execution_configuration.timeseries_offsets)
+
+        source_task_dict[task_type_name] = resolved_source_task_type_dict
+        resolved_source_task_proto = dict_to_proto(source_task_dict, self.task_proto)
+
+        task_dict[source_str] = source_task_dict
+        resolved_task: PlaybookTask = dict_to_proto(task_dict, PlaybookTask)
+
+        return resolved_task, resolved_source_task_proto, task_local_variable_map
 
     def get_connector_processor(self, cloudwatch_connector, **kwargs):
         generated_credentials = generate_credentials_dict(cloudwatch_connector.type, cloudwatch_connector.keys)
@@ -1132,7 +1241,7 @@ class CloudwatchSourceManager(SourceManager):
             # Handle repeated fields
             filter_values = list(task.filter_values) if task.filter_values else None
             filter_tag_values = list(task.filter_tag_values) if task.filter_tag_values else None
-            metrics = list(task.metrics) if task.metrics else ['UnblendedCost']
+            metrics = list(task.metrics) if len(task.metrics) > 0 else ['UnblendedCost']
 
             # Get Cost Explorer processor (must use us-east-1)
             ce_processor = self.get_connector_processor(cloudwatch_connector, client_type='ce', region='us-east-1')
