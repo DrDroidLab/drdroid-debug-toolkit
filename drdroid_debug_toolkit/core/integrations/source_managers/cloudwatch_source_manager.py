@@ -357,10 +357,9 @@ class CloudwatchSourceManager(SourceManager):
                               is_optional=True),
                     FormField(key_name=StringValue(value="metrics"),
                               display_name=StringValue(value="Metrics"),
-                              description=StringValue(value="List of metrics to analyze (e.g., ['UnblendedCost'], ['BlendedCost'], ['UsageQuantity']). Default: ['UnblendedCost']"),
+                              description=StringValue(value="List of metrics to analyze (comma-separated, e.g., UnblendedCost,BlendedCost or as JSON array). Default: UnblendedCost"),
                               data_type=LiteralType.STRING,
                               form_field_type=FormFieldType.TEXT_FT,
-                              default_value=Literal(type=LiteralType.STRING, string=StringValue(value='["UnblendedCost"]')),
                               is_optional=True),
                 ],
                 'permission_checks': {
@@ -533,6 +532,16 @@ class CloudwatchSourceManager(SourceManager):
         if not source_task_dict:
             raise Exception(f"PlaybookSourceManager.get_source_task:: No task definition found for: {source_str}")
 
+        # Preprocess repeated fields BEFORE first dict_to_proto call
+        # Check if this is a cost_analysis task by looking at the task type
+        if 'cost_analysis' in source_task_dict:
+            cost_analysis_dict = source_task_dict.get('cost_analysis', {})
+            repeated_fields = ['filter_values', 'filter_tag_values', 'metrics']
+            for field_name in repeated_fields:
+                if field_name in cost_analysis_dict:
+                    cost_analysis_dict[field_name] = self._parse_repeated_field_value(cost_analysis_dict[field_name])
+            source_task_dict['cost_analysis'] = cost_analysis_dict
+
         source_task_proto = dict_to_proto(source_task_dict, self.task_proto)
         task_type = source_task_proto.type
         if task_type not in self.task_type_callable_map:
@@ -548,14 +557,6 @@ class CloudwatchSourceManager(SourceManager):
         if not source_task_type_dict and self.task_type_callable_map[task_type]['form_fields']:
             raise Exception(f"PlaybookSourceManager.get_source_task:: No definition for task type: {task_type_name} "
                             f"found in task")
-
-        # Preprocess repeated fields for cost_analysis task BEFORE resolving global variables
-        if task_type_name == 'cost_analysis':
-            # Fields that should be arrays
-            repeated_fields = ['filter_values', 'filter_tag_values', 'metrics']
-            for field_name in repeated_fields:
-                if field_name in source_task_type_dict:
-                    source_task_type_dict[field_name] = self._parse_repeated_field_value(source_task_type_dict[field_name])
 
         # Resolve global variables in source_type_task_def
         form_fields = self.task_type_callable_map[task_type]['form_fields']
