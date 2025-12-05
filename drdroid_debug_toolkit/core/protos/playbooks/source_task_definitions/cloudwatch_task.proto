@@ -57,11 +57,11 @@ message Cloudwatch {
     google.protobuf.StringValue group_by_dimension = 3;
     google.protobuf.StringValue group_by_tag_key = 4;
     google.protobuf.StringValue filter_dimension = 5;
-    repeated string filter_values = 6;
+    google.protobuf.StringValue filter_values = 6;
     google.protobuf.StringValue filter_tag_key = 7;
-    repeated string filter_tag_values = 8;
+    google.protobuf.StringValue filter_tag_values = 8;
     google.protobuf.StringValue granularity = 9;
-    repeated string metrics = 10;
+    google.protobuf.StringValue metrics = 10;
   }
 
   message DiscoverDimensions {

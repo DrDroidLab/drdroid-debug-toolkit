@@ -1,7 +1,5 @@
 import pytz
 import logging
-import json
-import ast
 from datetime import datetime, timedelta, date
 from typing import Any
 
@@ -480,41 +478,6 @@ class CloudwatchSourceManager(SourceManager):
             CATEGORY: CLOUD_MANAGED_SERVICES,
         }
 
-    def _parse_repeated_field_value(self, value):
-        """Parse a value that should be a repeated field (array).
-        Handles both JSON array strings and comma-separated strings.
-        """
-        if value is None:
-            return None
-        if isinstance(value, list):
-            return value
-        if not isinstance(value, str):
-            return value
-        
-        # Try to parse as JSON array first
-        value = value.strip()
-        if value.startswith('[') and value.endswith(']'):
-            try:
-                parsed = json.loads(value)
-                if isinstance(parsed, list):
-                    return parsed
-            except (json.JSONDecodeError, ValueError):
-                pass
-            # Try ast.literal_eval as fallback
-            try:
-                parsed = ast.literal_eval(value)
-                if isinstance(parsed, list):
-                    return parsed
-            except (ValueError, SyntaxError):
-                pass
-        
-        # Try comma-separated string
-        if ',' in value:
-            return [item.strip() for item in value.split(',') if item.strip()]
-        
-        # Single value, return as list
-        return [value] if value else []
-
     def get_resolved_task(self, global_variable_set, input_task):
         """Override to preprocess repeated fields that might come as strings."""
         from core.protos.playbooks.playbook_pb2 import PlaybookTask
@@ -531,16 +494,6 @@ class CloudwatchSourceManager(SourceManager):
         source_task_dict = task_dict.get(source_str, {})
         if not source_task_dict:
             raise Exception(f"PlaybookSourceManager.get_source_task:: No task definition found for: {source_str}")
-
-        # Preprocess repeated fields BEFORE first dict_to_proto call
-        # Check if this is a cost_analysis task by looking at the task type
-        if 'cost_analysis' in source_task_dict:
-            cost_analysis_dict = source_task_dict.get('cost_analysis', {})
-            repeated_fields = ['filter_values', 'filter_tag_values', 'metrics']
-            for field_name in repeated_fields:
-                if field_name in cost_analysis_dict:
-                    cost_analysis_dict[field_name] = self._parse_repeated_field_value(cost_analysis_dict[field_name])
-            source_task_dict['cost_analysis'] = cost_analysis_dict
 
         source_task_proto = dict_to_proto(source_task_dict, self.task_proto)
         task_type = source_task_proto.type
@@ -1239,19 +1192,17 @@ class CloudwatchSourceManager(SourceManager):
             filter_tag_key = task.filter_tag_key.value if task.HasField('filter_tag_key') else None
             granularity = task.granularity.value if task.HasField('granularity') else 'DAILY'
 
-            # Handle repeated fields - parse comma-separated strings if needed
-            if task.filter_values:
-                filter_values = list(task.filter_values)
-            else:
-                filter_values = None
+            # Parse comma-separated strings into lists
+            filter_values = None
+            if task.HasField('filter_values') and task.filter_values.value:
+                filter_values = [item.strip() for item in task.filter_values.value.split(',') if item.strip()]
             
-            if task.filter_tag_values:
-                filter_tag_values = list(task.filter_tag_values)
-            else:
-                filter_tag_values = None
+            filter_tag_values = None
+            if task.HasField('filter_tag_values') and task.filter_tag_values.value:
+                filter_tag_values = [item.strip() for item in task.filter_tag_values.value.split(',') if item.strip()]
             
-            if len(task.metrics) > 0:
-                metrics = list(task.metrics)
+            if task.HasField('metrics') and task.metrics.value:
+                metrics = [item.strip() for item in task.metrics.value.split(',') if item.strip()]
             else:
                 metrics = ['UnblendedCost']
 
