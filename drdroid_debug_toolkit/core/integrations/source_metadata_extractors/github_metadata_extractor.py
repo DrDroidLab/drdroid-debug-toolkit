@@ -1,6 +1,4 @@
 import logging
-import base64
-import binascii
 
 from core.integrations.source_metadata_extractor import SourceMetadataExtractor
 from core.integrations.source_api_processors.github_api_processor import GithubAPIProcessor
@@ -17,35 +15,6 @@ class GithubSourceMetadataExtractor(SourceMetadataExtractor):
         self.gh_processor = GithubAPIProcessor(api_key, org)
         super().__init__(request_id, connector_name, Source.GITHUB)
 
-    def _fetch_readme_content(self, repo_name):
-        """
-        Fetch README file content from repository root.
-        Tries common README file names in order of preference.
-        Returns the decoded content as a string, or None if not found.
-        """
-        readme_file_names = ['README.md', 'README', 'README.txt', 'README.rst', 'readme.md', 'readme']
-        
-        for readme_file in readme_file_names:
-            try:
-                file_data = self.gh_processor.fetch_file(repo_name, readme_file)
-                if file_data and file_data.get('content'):
-                    # Decode base64 content
-                    content_encoded = file_data['content']
-                    # GitHub API returns content with newlines, so we need to remove them
-                    content_encoded = content_encoded.replace('\n', '')
-                    try:
-                        content_decoded = base64.b64decode(content_encoded).decode('utf-8')
-                        return content_decoded
-                    except (binascii.Error, UnicodeDecodeError) as e:
-                        logger.warning(f'Error decoding README content for {repo_name}/{readme_file}: {e}')
-                        continue
-            except Exception as e:
-                # File not found or other error, try next README file name
-                logger.debug(f'Could not fetch {readme_file} for repo {repo_name}: {e}')
-                continue
-        
-        return None
-
     @log_function_call
     def extract_repos(self):
         model_data = {}
@@ -58,7 +27,7 @@ class GithubSourceMetadataExtractor(SourceMetadataExtractor):
             for repo in repos:
                 repo_name = repo['name']
                 # Fetch README content and add to metadata
-                readme_content = self._fetch_readme_content(repo_name)
+                readme_content = self.gh_processor.fetch_readme_content(repo_name)
                 if readme_content:
                     repo['readme'] = readme_content
                 model_data[repo_name] = repo
