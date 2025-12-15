@@ -1374,7 +1374,7 @@ class SignozApiProcessor(Processor):
                     "timeAggregation": "rate",
                     "spaceAggregation": "sum",
                     "functions": [],
-                    "filters": {"items": [], "op": "AND"},
+                    "filters": {"items": [], "op": "AND", "filterExpression": ""},
                     "expression": "A",
                     "disabled": False,
                     "stepInterval": 60,
@@ -1397,7 +1397,7 @@ class SignozApiProcessor(Processor):
             # (see SigNoz query_range builder API docs); using a top-level "filter"
             # key is ignored by the backend.
             if filter_expression:
-                builder_queries["A"]["filter"]["expression"] = filter_expression
+                builder_queries["A"]["filters"]["filterExpression"] = filter_expression
             
             payload = {
                 "start": from_time,
