@@ -1558,7 +1558,7 @@ class SignozApiProcessor(Processor):
                where_clauses.append(filter_expression)
             
             where_sql = " AND ".join(where_clauses)
-            query = f"SELECT {select_cols} FROM {table} WHERE {where_sql} ORDER BY traceID, timestamp LIMIT {limit * 10}"  # Get more records to account for multiple spans per trace
+            query = f"SELECT {select_cols} FROM {table} WHERE {where_sql} ORDER BY traceID, timestamp LIMIT {limit}"
             
             result = self.execute_clickhouse_query_tool(
                 query=query, 
