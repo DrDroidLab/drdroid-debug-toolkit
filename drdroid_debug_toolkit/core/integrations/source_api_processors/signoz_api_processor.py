@@ -1397,7 +1397,7 @@ class SignozApiProcessor(Processor):
             # (see SigNoz query_range builder API docs); using a top-level "filter"
             # key is ignored by the backend.
             if filter_expression:
-                builder_queries["A"]["filters"]["filterExpression"] = filter_expression
+                builder_queries["A"]["filter"]["expression"] = filter_expression
             
             payload = {
                 "start": from_time,
