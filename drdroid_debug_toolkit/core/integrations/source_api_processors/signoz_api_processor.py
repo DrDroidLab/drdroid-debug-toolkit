@@ -1526,7 +1526,10 @@ class SignozApiProcessor(Processor):
         Fetch traces from SigNoz using a filter expression. Returns all spans for each trace.
         
         Args:
-            filter_expression: Filter expression for traces (e.g., "serviceName = 'emailservice'")
+            filter_expression: Filter expression for traces. 
+                Can use either ClickHouse column names (e.g., "serviceName = 'emailservice'") 
+                or common field names (e.g., "service.name = 'emailservice'") which will be 
+                converted to ClickHouse column names.
             start_time: Start time as RFC3339 or relative string
             end_time: End time as RFC3339 or relative string  
             duration: Duration string (e.g., '2h', '90m')
