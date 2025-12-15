@@ -1392,9 +1392,12 @@ class SignozApiProcessor(Processor):
                 }
             }
             
-            # Add filter expression to the builder query if provided
+            # Add filter expression to the builder query if provided.
+            # SigNoz query_range expects the expression under filters.filterExpression
+            # (see SigNoz query_range builder API docs); using a top-level "filter"
+            # key is ignored by the backend.
             if filter_expression:
-                builder_queries["A"]["filter"] = filter_expression
+                builder_queries["A"]["filters"]["filterExpression"] = filter_expression
             
             payload = {
                 "start": from_time,
