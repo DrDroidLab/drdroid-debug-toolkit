@@ -1341,7 +1341,14 @@ class SignozApiProcessor(Processor):
         Fetch logs from SigNoz using a filter expression.
         
         Args:
-            filter_expression: Filter expression for logs (e.g., "service.name = 'my-service'")
+            filter_expression: Filter expression for logs in SigNoz format.
+                Examples:
+                - "resource.service.name = 'emailservice'"
+                - "attributes.severity_text = 'ERROR'"
+                - "resource.service.name = 'emailservice' AND attributes.severity_text = 'ERROR'"
+                
+                Use SigNoz field names as documented in their API docs.
+                
             start_time: Start time as RFC3339 or relative string
             end_time: End time as RFC3339 or relative string  
             duration: Duration string (e.g., '2h', '90m')
@@ -1357,59 +1364,52 @@ class SignozApiProcessor(Processor):
             to_time = int(end_dt.timestamp() * 1000)
             limit = int(limit) if limit else 100
             
-            # Use the exact same working approach as the old fetch_traces_or_logs function
-            builder_queries = {
-                "A": {
-                    "dataSource": "logs",
-                    "queryName": "A",
-                    "aggregateOperator": "noop",
-                    "aggregateAttribute": {
-                        "id": "------false",
-                        "dataType": "",
-                        "key": "",
-                        "isColumn": False,
-                        "type": "",
-                        "isJSON": False
+            # Use SigNoz v5 API format which supports filter.expression directly
+            # Pass the expression directly to SigNoz - let SigNoz handle parsing
+            query_spec = {
+                "name": "A",
+                "signal": "logs",
+                "order": [
+                    {
+                        "key": {
+                            "name": "timestamp"
+                        },
+                        "direction": "desc"
                     },
-                    "timeAggregation": "rate",
-                    "spaceAggregation": "sum",
-                    "functions": [],
-                    "filters": {"items": [], "op": "AND"},
-                    "expression": "A",
-                    "disabled": False,
-                    "stepInterval": 60,
-                    "having": [],
-                    "limit": None,
-                    "orderBy": [
-                        {"columnName": "timestamp", "order": "desc"},
-                        {"columnName": "id", "order": "desc"}
-                    ],
-                    "groupBy": [],
-                    "legend": "",
-                    "reduceTo": "avg",
-                    "offset": 0,
-                    "pageSize": limit
-                }
+                    {
+                        "key": {
+                            "name": "id"
+                        },
+                        "direction": "desc"
+                    }
+                ],
+                "offset": 0,
+                "limit": limit
             }
             
-            # Add filter expression to the builder query if provided
+            # Add filter expression if provided - pass it directly to SigNoz
             if filter_expression:
-                builder_queries["A"]["filter"] = filter_expression
+                query_spec["filter"] = {
+                    "expression": filter_expression
+                }
             
             payload = {
                 "start": from_time,
                 "end": to_time,
-                "step": 60,
+                "requestType": "raw",
                 "variables": {},
                 "compositeQuery": {
-                    "queryType": "builder",
-                    "panelType": "list",
-                    "fillGaps": False,
-                    "builderQueries": builder_queries
+                    "queries": [
+                        {
+                            "type": "builder_query",
+                            "spec": query_spec
+                        }
+                    ]
                 }
             }
             
-            result = self._post_query_range(payload)
+            # Use v5 API which supports filter.expression format
+            result = self._post_query_range_v5(payload)
             
             return {
                 "status": "success", 
@@ -1526,7 +1526,10 @@ class SignozApiProcessor(Processor):
         Fetch traces from SigNoz using a filter expression. Returns all spans for each trace.
         
         Args:
-            filter_expression: Filter expression for traces (e.g., "serviceName = 'emailservice'")
+            filter_expression: Filter expression for traces. 
+                Can use either ClickHouse column names (e.g., "serviceName = 'emailservice'") 
+                or common field names (e.g., "service.name = 'emailservice'") which will be 
+                converted to ClickHouse column names.
             start_time: Start time as RFC3339 or relative string
             end_time: End time as RFC3339 or relative string  
             duration: Duration string (e.g., '2h', '90m')
@@ -1555,7 +1558,7 @@ class SignozApiProcessor(Processor):
                where_clauses.append(filter_expression)
             
             where_sql = " AND ".join(where_clauses)
-            query = f"SELECT {select_cols} FROM {table} WHERE {where_sql} ORDER BY traceID, timestamp LIMIT {limit * 10}"  # Get more records to account for multiple spans per trace
+            query = f"SELECT {select_cols} FROM {table} WHERE {where_sql} ORDER BY traceID, timestamp LIMIT {limit}"
             
             result = self.execute_clickhouse_query_tool(
                 query=query, 
