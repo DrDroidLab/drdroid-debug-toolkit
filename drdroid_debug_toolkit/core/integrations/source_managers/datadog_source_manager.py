@@ -1158,6 +1158,9 @@ class DatadogSourceManager(SourceManager):
                                 for time_idx, timestamp in enumerate(times):
                                     if time_idx < len(series_values):
                                         value = series_values[time_idx]
+                                        # Skip None values (Datadog returns None when there's no data for a timestamp)
+                                        if value is None:
+                                            continue
                                         datapoint = TimeseriesResult.LabeledMetricTimeseries.Datapoint(
                                             timestamp=int(timestamp),
                                             value=DoubleValue(value=value)
@@ -1517,6 +1520,9 @@ class DatadogSourceManager(SourceManager):
                 # Extract the data points from the series
                 data = series[0].get('pointlist', [])
                 for datapoint in data:
+                    # Skip None values (Datadog returns None when there's no data for a timestamp)
+                    if datapoint[1] is None:
+                        continue
                     timestamp = int(datapoint[0])
                     value = float(datapoint[1])
                     datapoint = TimeseriesResult.LabeledMetricTimeseries.Datapoint(
@@ -1699,7 +1705,10 @@ class DatadogSourceManager(SourceManager):
                 for point in pointlist:
                     if len(point) >= 2:  # Ensure we have both timestamp and value
                         timestamp = int(point[0])  # Timestamp is first element
-                        value = float(point[1])    # Value is second element
+                        # Skip None values (Datadog returns None when there's no data for a timestamp)
+                        if point[1] is None:
+                            continue
+                        value = float(point[1])
                         datapoint = TimeseriesResult.LabeledMetricTimeseries.Datapoint(
                             timestamp=timestamp,
                             value=DoubleValue(value=value)
