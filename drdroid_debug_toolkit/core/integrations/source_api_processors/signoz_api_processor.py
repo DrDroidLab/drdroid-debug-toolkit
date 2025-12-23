@@ -1151,41 +1151,42 @@ class SignozApiProcessor(Processor):
         
         return results
 
-    def execute_clickhouse_query_tool(
+    def signoz_query_clickhouse(
         self,
         query,
         time_geq,
         time_lt,
-        panel_type="table",
-        fill_gaps=False,
-        step=60,
     ):
         """
-        Tool: Execute a Clickhouse SQL query via the Signoz API.
+        Execute a ClickHouse SQL query via the SigNoz v5 query_range API.
+        
+        Args:
+            query: The ClickHouse SQL query to execute
+            time_geq: Start time (Unix timestamp in seconds)
+            time_lt: End time (Unix timestamp in seconds)
+            
+        Returns:
+            Response from the v5 query_range API
         """
         from_time = int(time_geq * 1000)
         to_time = int(time_lt * 1000)
         payload = {
             "start": from_time,
             "end": to_time,
-            "step": step,
-            "variables": {},
-            "formatForWeb": True,
+            "requestType": "trace",
             "compositeQuery": {
-                "queryType": "clickhouse_sql",
-                "panelType": panel_type,
-                "fillGaps": fill_gaps,
-                "chQueries": {
-                    "A": {
-                        "name": "A",
-                        "legend": "",
-                        "disabled": False,
-                        "query": query,
+                "queries": [
+                    {
+                        "type": "clickhouse_sql",
+                        "spec": {
+                            "name": "A",
+                            "query": query
+                        }
                     }
-                },
-            },
+                ]
+            }
         }
-        return self._post_query_range(payload)
+        return self._post_query_range_v5(payload)
 
     def execute_builder_query_tool(
         self,
@@ -1249,13 +1250,10 @@ class SignozApiProcessor(Processor):
                 where_sql = " AND ".join(where_clauses)
                 query = f"SELECT {select_cols} FROM {table} WHERE {where_sql} LIMIT {limit}"
                 
-                result = self.execute_clickhouse_query_tool(
+                result = self.signoz_query_clickhouse(
                     query=query, 
                     time_geq=int(start_dt.timestamp()), 
-                    time_lt=int(end_dt.timestamp()), 
-                    panel_type="table", 
-                    fill_gaps=False, 
-                    step=60
+                    time_lt=int(end_dt.timestamp())
                 )
                 
             elif data_type == "logs":
@@ -1560,13 +1558,10 @@ class SignozApiProcessor(Processor):
             where_sql = " AND ".join(where_clauses)
             query = f"SELECT {select_cols} FROM {table} WHERE {where_sql} ORDER BY traceID, timestamp LIMIT {limit}"
             
-            result = self.execute_clickhouse_query_tool(
+            result = self.signoz_query_clickhouse(
                 query=query, 
                 time_geq=int(start_dt.timestamp()), 
-                time_lt=int(end_dt.timestamp()), 
-                panel_type="table", 
-                fill_gaps=False, 
-                step=60
+                time_lt=int(end_dt.timestamp())
             )
             
             return {
@@ -1618,13 +1613,10 @@ class SignozApiProcessor(Processor):
         try:
             start_dt, end_dt = self._get_time_range(None, None, duration, default_hours=3)
             # Use table panel type for simpler parsing
-            resp = self.execute_clickhouse_query_tool(
+            resp = self.signoz_query_clickhouse(
                 query=query_sql,
                 time_geq=int(start_dt.timestamp()),
-                time_lt=int(end_dt.timestamp()),
-                panel_type="table",
-                fill_gaps=False,
-                step=60,
+                time_lt=int(end_dt.timestamp())
             )
             return self._parse_clickhouse_table_values(resp)
         except Exception as e:
@@ -1758,13 +1750,10 @@ class SignozApiProcessor(Processor):
             """
             
             # Execute the query
-            result = self.execute_clickhouse_query_tool(
+            result = self.signoz_query_clickhouse(
                 query=query,
                 time_geq=int(start_dt.timestamp()),
-                time_lt=int(end_dt.timestamp()),
-                panel_type="table",
-                fill_gaps=False,
-                step=60
+                time_lt=int(end_dt.timestamp())
             )
             
             # Extract trace IDs from response
@@ -1817,13 +1806,10 @@ class SignozApiProcessor(Processor):
             query = f"SELECT {select_cols} FROM {table} WHERE {where_sql} LIMIT {limit}"
             
             
-            result = self.execute_clickhouse_query_tool(
+            result = self.signoz_query_clickhouse(
                 query=query, 
                 time_geq=int(start_dt.timestamp()), 
-                time_lt=int(end_dt.timestamp()), 
-                panel_type="table", 
-                fill_gaps=False, 
-                step=60
+                time_lt=int(end_dt.timestamp())
             )
             
             # Extract spans from response

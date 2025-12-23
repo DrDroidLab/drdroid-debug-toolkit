@@ -1479,51 +1479,24 @@ class SignozSourceManager(SourceManager):
             task = signoz_task.clickhouse_query
             query = task.query.value
 
-            step = self._get_step_interval(time_range, task)
-            fill_gaps = task.fill_gaps.value if task.HasField("fill_gaps") else False
-            panel_type = task.panel_type.value if task.HasField("panel_type") else "table"
-
             signoz_api_processor = self.get_connector_processor(signoz_connector)
 
-            # Convert timerange to milliseconds for Signoz API
-            from_time = int(time_range.time_geq * 1000)
-            to_time = int(time_range.time_lt * 1000)
-
-            # Prepare the query payload
-            payload = {
-                "start": from_time,
-                "end": to_time,
-                "step": step,
-                "variables": {},
-                "formatForWeb": True,
-                "compositeQuery": {
-                    "queryType": "clickhouse_sql",
-                    "panelType": panel_type,
-                    "fillGaps": fill_gaps,
-                    "chQueries": {
-                        "A": {
-                            "name": "A",
-                            "legend": "",
-                            "disabled": False,
-                            "query": query,
-                        }
-                    },
-                },
-            }
-
-            # Execute the query
-            result = signoz_api_processor.execute_signoz_query(payload)
+            # Execute the query using the new v5 API method
+            result = signoz_api_processor.signoz_query_clickhouse(
+                query=query,
+                time_geq=time_range.time_geq,
+                time_lt=time_range.time_lt
+            )
 
             # Extract API URL and create metadata with SignOz URL
             api_url = self._extract_api_url_from_connector(signoz_connector)
             metadata = self._create_metadata_with_signoz_url(api_url, "metrics", {
-                "start_time": from_time,
-                "end_time": to_time,
-                "step": step
+                "start_time": int(time_range.time_geq * 1000),
+                "end_time": int(time_range.time_lt * 1000)
             })
 
-            # Create the appropriate task result based on panel_type
-            return self._create_task_result(result, panel_type, query, "Clickhouse Query", metadata)
+            # Create the appropriate task result
+            return self._create_task_result(result, "table", query, "Clickhouse Query", metadata)
         except Exception as e:
             logger.error(f"Error while executing Signoz Clickhouse query task: {e}")
             raise Exception(f"Error while executing Signoz Clickhouse query task: {e}") from e
