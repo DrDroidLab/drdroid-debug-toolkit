@@ -1366,7 +1366,6 @@ class SignozApiProcessor(Processor):
             
             # Use SigNoz v5 API format which supports filter.expression directly
             # Pass the expression directly to SigNoz - let SigNoz handle parsing
-            # This implementation uses the v5 API endpoint for better filter expression support
             query_spec = {
                 "name": "A",
                 "signal": "logs",
