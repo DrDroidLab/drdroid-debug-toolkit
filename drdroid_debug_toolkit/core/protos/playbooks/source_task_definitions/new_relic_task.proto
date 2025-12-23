@@ -78,6 +78,13 @@ message NewRelic {
     google.protobuf.StringValue variable_name = 2;
   }
 
+  message ExecuteDashboardWidgetsWithVariablesTask {
+    google.protobuf.StringValue dashboard_name = 1;
+    google.protobuf.StringValue page_name = 2;
+    google.protobuf.StringValue widget_names = 3;
+    google.protobuf.StringValue template_variables = 4;
+  }
+
   enum TaskType {
     UNKNOWN = 0;
     ENTITY_APPLICATION_GOLDEN_METRIC_EXECUTION = 1;
@@ -89,6 +96,7 @@ message NewRelic {
     ENTITY_APPLICATION_APM_DATABASE_SUMMARY = 7;
     ENTITY_APPLICATION_APM_TRANSACTION_SUMMARY = 8;
     GET_DASHBOARD_VARIABLE_VALUES = 9;
+    EXECUTE_DASHBOARD_WIDGETS_WITH_VARIABLES = 10;
   }
 
   TaskType type = 1;
@@ -102,6 +110,7 @@ message NewRelic {
     EntityApplicationAPMDatabaseSummaryTask entity_application_apm_database_summary = 8;
     EntityApplicationAPMTransactionSummaryTask entity_application_apm_transaction_summary = 9;
     GetDashboardVariableValuesTask get_dashboard_variable_values = 10;
+    ExecuteDashboardWidgetsWithVariablesTask execute_dashboard_widgets_with_variables = 11;
   }
 }
 
