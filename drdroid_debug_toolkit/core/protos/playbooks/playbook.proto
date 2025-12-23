@@ -45,7 +45,7 @@ import "core/protos/playbooks/source_task_definitions/coralogix_task.proto";
 import "core/protos/playbooks/source_task_definitions/opsgenie_task.proto";
 import "core/protos/playbooks/source_task_definitions/victoria_logs_task.proto";
 import "core/protos/playbooks/source_task_definitions/render_task.proto";
-
+import "core/protos/playbooks/source_task_definitions/mcp_task.proto";
 
 message Variable {
   google.protobuf.StringValue name = 1;
@@ -152,6 +152,7 @@ message PlaybookTask {
     Coralogix coralogix = 141;
     OpsGenie ops_genie = 143;
     VictoriaLogs victoria_logs = 144;
+    McpServer mcp_server = 145;
   }
 }
 
