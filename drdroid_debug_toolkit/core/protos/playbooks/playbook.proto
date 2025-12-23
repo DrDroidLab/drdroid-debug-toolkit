@@ -152,8 +152,8 @@ message PlaybookTask {
     Coralogix coralogix = 141;
     OpsGenie ops_genie = 143;
     VictoriaLogs victoria_logs = 144;
+    McpServer mcp_server = 145;
   }
-  McpServer mcp_server = 145;
 }
 
 message PlaybookTaskResultRule {
