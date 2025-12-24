@@ -1173,15 +1173,21 @@ class SignozApiProcessor(Processor):
         from_time = int(time_geq * 1000)
         to_time = int(time_lt * 1000)
         
-        # Validate request_type
-        if request_type not in ["logs", "traces"]:
-            logger.warning(f"Invalid request_type '{request_type}', defaulting to 'traces'")
-            request_type = "traces"
+        # Map request_type to API format
+        # API expects: "trace" (singular) for traces, "raw" for logs
+        api_request_type = "trace"  # default
+        if request_type == "logs":
+            api_request_type = "raw"
+        elif request_type == "traces":
+            api_request_type = "trace"
+        else:
+            logger.warning(f"Invalid request_type '{request_type}', defaulting to 'trace'")
+            api_request_type = "trace"
         
         payload = {
             "start": from_time,
             "end": to_time,
-            "requestType": request_type,
+            "requestType": api_request_type,
             "compositeQuery": {
                 "queries": [
                     {
