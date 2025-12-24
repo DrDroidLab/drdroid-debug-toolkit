@@ -1156,6 +1156,7 @@ class SignozApiProcessor(Processor):
         query,
         time_geq,
         time_lt,
+        request_type="traces",
     ):
         """
         Execute a ClickHouse SQL query via the SigNoz v5 query_range API.
@@ -1164,16 +1165,23 @@ class SignozApiProcessor(Processor):
             query: The ClickHouse SQL query to execute
             time_geq: Start time (Unix timestamp in seconds)
             time_lt: End time (Unix timestamp in seconds)
+            request_type: Request type for v5 API - "logs" or "traces" (default: "traces")
             
         Returns:
             Response from the v5 query_range API
         """
         from_time = int(time_geq * 1000)
         to_time = int(time_lt * 1000)
+        
+        # Validate request_type
+        if request_type not in ["logs", "traces"]:
+            logger.warning(f"Invalid request_type '{request_type}', defaulting to 'traces'")
+            request_type = "traces"
+        
         payload = {
             "start": from_time,
             "end": to_time,
-            "requestType": "trace",
+            "requestType": request_type,
             "compositeQuery": {
                 "queries": [
                     {

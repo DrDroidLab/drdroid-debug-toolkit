@@ -738,6 +738,28 @@ class SignozSourceManager(SourceManager):
                             ),
                         ],
                     ),
+                    FormField(
+                        key_name=StringValue(value="request_type"),
+                        display_name=StringValue(value="Request Type"),
+                        description=StringValue(value="Request type for v5 API - 'logs' or 'traces'"),
+                        data_type=LiteralType.STRING,
+                        is_optional=True,
+                        default_value=Literal(
+                            type=LiteralType.STRING,
+                            string=StringValue(value="traces"),
+                        ),
+                        form_field_type=FormFieldType.DROPDOWN_FT,
+                        valid_values=[
+                            Literal(
+                                type=LiteralType.STRING,
+                                string=StringValue(value="traces"),
+                            ),
+                            Literal(
+                                type=LiteralType.STRING,
+                                string=StringValue(value="logs"),
+                            ),
+                        ],
+                    ),
                 ],
             },
             Signoz.TaskType.BUILDER_QUERY: {
@@ -1478,6 +1500,13 @@ class SignozSourceManager(SourceManager):
 
             task = signoz_task.clickhouse_query
             query = task.query.value
+            
+            # Get request_type from proto, default to "traces"
+            request_type = task.request_type.value if task.HasField("request_type") and task.request_type.value else "traces"
+            # Validate and normalize request_type
+            if request_type not in ["logs", "traces"]:
+                logger.warning(f"Invalid request_type '{request_type}', defaulting to 'traces'")
+                request_type = "traces"
 
             signoz_api_processor = self.get_connector_processor(signoz_connector)
 
@@ -1485,7 +1514,8 @@ class SignozSourceManager(SourceManager):
             result = signoz_api_processor.signoz_query_clickhouse(
                 query=query,
                 time_geq=time_range.time_geq,
-                time_lt=time_range.time_lt
+                time_lt=time_range.time_lt,
+                request_type=request_type
             )
 
             # Extract API URL and create metadata with SignOz URL
@@ -1495,8 +1525,56 @@ class SignozSourceManager(SourceManager):
                 "end_time": int(time_range.time_lt * 1000)
             })
 
+            # Extract result from v5 API response
+            # v5 API response structure: {"status": "success", "data": {"data": {"results": [{"queryName": "A", "rows": [...]}]}}}
+            query_result_item = None
+            if result and isinstance(result, dict):
+                # Check for v5 API format: result.data.data.results[0]
+                if "data" in result and isinstance(result["data"], dict):
+                    data_level = result["data"]
+                    if "data" in data_level and isinstance(data_level["data"], dict):
+                        inner_data = data_level["data"]
+                        if "results" in inner_data and isinstance(inner_data["results"], list) and len(inner_data["results"]) > 0:
+                            # Extract the first result which contains rows
+                            first_result = inner_data["results"][0]
+                            # Convert v5 format to expected format: wrap rows in table structure
+                            if "rows" in first_result:
+                                query_result_item = {
+                                    "table": {
+                                        "rows": first_result["rows"]
+                                    },
+                                    "queryName": first_result.get("queryName", "A")
+                                }
+                # Check for v4 API format: result.data.result[0]
+                elif "data" in result and "result" in result["data"]:
+                    api_results = result["data"]["result"]
+                    if isinstance(api_results, list) and len(api_results) > 0:
+                        query_result_item = api_results[0]
+                # Check for alternative formats
+                elif "result" in result:
+                    if isinstance(result["result"], list) and len(result["result"]) > 0:
+                        query_result_item = result["result"][0]
+                    elif isinstance(result["result"], dict):
+                        query_result_item = result["result"]
+
             # Create the appropriate task result
-            return self._create_task_result(result, "table", query, "Clickhouse Query", metadata)
+            if query_result_item:
+                task_result = self._create_task_result(query_result_item, "table", query, "Clickhouse Query", metadata)
+                if task_result:
+                    return task_result
+            
+            # Fallback: return entire response as API_RESPONSE if table conversion fails
+            try:
+                response_struct = dict_to_proto(result, Struct)
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.API_RESPONSE,
+                    api_response=ApiResponseResult(response_body=response_struct),
+                    source=self.source,
+                    metadata=metadata,
+                )
+            except Exception as e:
+                logger.error(f"Failed to convert result to API response: {e}", exc_info=True)
+                raise Exception(f"Failed to process Clickhouse query result: {e}") from e
         except Exception as e:
             logger.error(f"Error while executing Signoz Clickhouse query task: {e}")
             raise Exception(f"Error while executing Signoz Clickhouse query task: {e}") from e

@@ -10,6 +10,7 @@ message Signoz {
     google.protobuf.Int32Value step = 2;
     google.protobuf.BoolValue fill_gaps = 3;
     google.protobuf.StringValue panel_type = 4;
+    google.protobuf.StringValue request_type = 5;  // "logs" or "traces" for v5 API requestType
   }
 
   message BuilderQueryTask {
