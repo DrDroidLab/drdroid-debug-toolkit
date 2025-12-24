@@ -292,6 +292,157 @@ class DatadogSourceManager(SourceManager):
                               is_optional=True),
                 ]
             },
+            Datadog.TaskType.LIST_MONITORS: {
+                'executor': self.execute_list_monitors,
+                'model_types': [],
+                'result_type': PlaybookTaskResultType.API_RESPONSE,
+                'display_name': 'List All Datadog Monitors',
+                'category': 'Monitors',
+                'form_fields': []
+            },
+            Datadog.TaskType.GET_MONITOR_DETAILS: {
+                'executor': self.execute_get_monitor_details,
+                'model_types': [],
+                'result_type': PlaybookTaskResultType.API_RESPONSE,
+                'display_name': 'Get Datadog Monitor Details',
+                'category': 'Monitors',
+                'form_fields': [
+                    FormField(key_name=StringValue(value="monitor_id"),
+                              display_name=StringValue(value="Monitor ID"),
+                              description=StringValue(value='The numeric ID of the monitor'),
+                              helper_text=StringValue(value='Enter Monitor ID'),
+                              data_type=LiteralType.LONG,
+                              form_field_type=FormFieldType.TEXT_FT),
+                ]
+            },
+            Datadog.TaskType.CREATE_MONITOR: {
+                'executor': self.execute_create_monitor,
+                'model_types': [],
+                'result_type': PlaybookTaskResultType.API_RESPONSE,
+                'display_name': 'Create Datadog Monitor',
+                'category': 'Monitors',
+                'form_fields': [
+                    FormField(key_name=StringValue(value="name"),
+                              display_name=StringValue(value="Name"),
+                              description=StringValue(value='Name of the monitor'),
+                              helper_text=StringValue(value='Enter Monitor Name'),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT),
+                    FormField(key_name=StringValue(value="type"),
+                              display_name=StringValue(value="Type"),
+                              description=StringValue(value='Monitor type'),
+                              helper_text=StringValue(value='Select Monitor Type'),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.DROPDOWN_FT,
+                              valid_values=[
+                                  Literal(type=LiteralType.STRING, string=StringValue(value="metric alert")),
+                                  Literal(type=LiteralType.STRING, string=StringValue(value="query alert")),
+                                  Literal(type=LiteralType.STRING, string=StringValue(value="service check")),
+                                  Literal(type=LiteralType.STRING, string=StringValue(value="event alert")),
+                                  Literal(type=LiteralType.STRING, string=StringValue(value="event-v2 alert")),
+                                  Literal(type=LiteralType.STRING, string=StringValue(value="log alert")),
+                                  Literal(type=LiteralType.STRING, string=StringValue(value="process alert")),
+                                  Literal(type=LiteralType.STRING, string=StringValue(value="rum alert")),
+                                  Literal(type=LiteralType.STRING, string=StringValue(value="trace-analytics alert")),
+                                  Literal(type=LiteralType.STRING, string=StringValue(value="synthetics alert")),
+                                  Literal(type=LiteralType.STRING, string=StringValue(value="audit alert")),
+                                  Literal(type=LiteralType.STRING, string=StringValue(value="composite")),
+                                  Literal(type=LiteralType.STRING, string=StringValue(value="ci-pipelines alert")),
+                                  Literal(type=LiteralType.STRING, string=StringValue(value="error-tracking alert")),
+                                  Literal(type=LiteralType.STRING, string=StringValue(value="database-monitoring alert")),
+                              ]),
+                    FormField(key_name=StringValue(value="query"),
+                              display_name=StringValue(value="Query"),
+                              description=StringValue(value='The monitor query (e.g., "avg(last_5m):avg:system.cpu.user{*} > 90")'),
+                              helper_text=StringValue(value='Enter Monitor Query'),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.MULTILINE_FT),
+                    FormField(key_name=StringValue(value="message"),
+                              display_name=StringValue(value="Message"),
+                              description=StringValue(value='Message to include with notifications'),
+                              helper_text=StringValue(value='(Optional) Enter Notification Message'),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.MULTILINE_FT,
+                              is_optional=True),
+                    FormField(key_name=StringValue(value="priority"),
+                              display_name=StringValue(value="Priority"),
+                              description=StringValue(value='Monitor priority (1-5, where 1 is highest)'),
+                              helper_text=StringValue(value='(Optional) Enter Priority'),
+                              data_type=LiteralType.LONG,
+                              form_field_type=FormFieldType.TEXT_FT,
+                              is_optional=True),
+                    FormField(key_name=StringValue(value="critical_threshold"),
+                              display_name=StringValue(value="Critical Threshold"),
+                              description=StringValue(value='The critical threshold value (must match the value in query, e.g., 90 for "> 90")'),
+                              helper_text=StringValue(value='Enter Critical Threshold'),
+                              data_type=LiteralType.DOUBLE,
+                              form_field_type=FormFieldType.TEXT_FT),
+                    FormField(key_name=StringValue(value="warning_threshold"),
+                              display_name=StringValue(value="Warning Threshold"),
+                              description=StringValue(value='(Optional) The warning threshold value'),
+                              helper_text=StringValue(value='(Optional) Enter Warning Threshold'),
+                              data_type=LiteralType.DOUBLE,
+                              form_field_type=FormFieldType.TEXT_FT,
+                              is_optional=True),
+                ]
+            },
+            Datadog.TaskType.UPDATE_MONITOR: {
+                'executor': self.execute_update_monitor,
+                'model_types': [],
+                'result_type': PlaybookTaskResultType.API_RESPONSE,
+                'display_name': 'Update Datadog Monitor',
+                'category': 'Monitors',
+                'form_fields': [
+                    FormField(key_name=StringValue(value="monitor_id"),
+                              display_name=StringValue(value="Monitor ID"),
+                              description=StringValue(value='The numeric ID of the monitor to update'),
+                              helper_text=StringValue(value='Enter Monitor ID'),
+                              data_type=LiteralType.LONG,
+                              form_field_type=FormFieldType.TEXT_FT),
+                    FormField(key_name=StringValue(value="name"),
+                              display_name=StringValue(value="Name"),
+                              description=StringValue(value='Updated name of the monitor'),
+                              helper_text=StringValue(value='(Optional) Enter New Name'),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT,
+                              is_optional=True),
+                    FormField(key_name=StringValue(value="query"),
+                              display_name=StringValue(value="Query"),
+                              description=StringValue(value='Updated monitor query'),
+                              helper_text=StringValue(value='(Optional) Enter New Query'),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.MULTILINE_FT,
+                              is_optional=True),
+                    FormField(key_name=StringValue(value="message"),
+                              display_name=StringValue(value="Message"),
+                              description=StringValue(value='Updated notification message'),
+                              helper_text=StringValue(value='(Optional) Enter New Message'),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.MULTILINE_FT,
+                              is_optional=True),
+                    FormField(key_name=StringValue(value="priority"),
+                              display_name=StringValue(value="Priority"),
+                              description=StringValue(value='Updated priority (1-5)'),
+                              helper_text=StringValue(value='(Optional) Enter New Priority'),
+                              data_type=LiteralType.LONG,
+                              form_field_type=FormFieldType.TEXT_FT,
+                              is_optional=True),
+                    FormField(key_name=StringValue(value="critical_threshold"),
+                              display_name=StringValue(value="Critical Threshold"),
+                              description=StringValue(value='Updated critical threshold (must match threshold in query - update both together)'),
+                              helper_text=StringValue(value='(Optional) Enter New Critical Threshold'),
+                              data_type=LiteralType.DOUBLE,
+                              form_field_type=FormFieldType.TEXT_FT,
+                              is_optional=True),
+                    FormField(key_name=StringValue(value="warning_threshold"),
+                              display_name=StringValue(value="Warning Threshold"),
+                              description=StringValue(value='Updated warning threshold (must match threshold in query if applicable)'),
+                              helper_text=StringValue(value='(Optional) Enter New Warning Threshold'),
+                              data_type=LiteralType.DOUBLE,
+                              form_field_type=FormFieldType.TEXT_FT,
+                              is_optional=True),
+                ]
+            },
         }
         self.connector_form_configs = [
             {
@@ -2099,5 +2250,343 @@ class DatadogSourceManager(SourceManager):
 
         except Exception as e:
             logger.error(f"Error executing query monitors task: {e}")
+            raise Exception(f"Task execution Failed:: {e}")
+
+    def execute_list_monitors(self, time_range: TimeRange, dd_task: Datadog, datadog_connector: ConnectorProto):
+        """
+        Execute a task to list all Datadog monitors.
+
+        Args:
+            time_range: The time range (not used for this task)
+            dd_task: The Datadog task
+            datadog_connector: The Datadog connector to use
+
+        Returns:
+            A PlaybookTaskResult containing all monitors as API response
+        """
+        try:
+            if not datadog_connector:
+                raise Exception("Task execution Failed:: No Datadog source found")
+
+            dd_api_processor = self.get_connector_processor(datadog_connector)
+            response_data = dd_api_processor.fetch_monitors()
+
+            from google.protobuf.struct_pb2 import Struct
+            import json
+
+            if not response_data:
+                error_struct = Struct()
+                error_struct.update({"error": "No monitors found"})
+                api_domain = self._extract_api_domain_from_connector(datadog_connector)
+                metadata = self._create_metadata_with_datadog_url(api_domain, "list_monitors", {})
+
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.API_RESPONSE,
+                    api_response=ApiResponseResult(
+                        response_status=UInt64Value(value=404),
+                        response_body=error_struct
+                    ),
+                    source=self.source,
+                    metadata=metadata
+                )
+
+            # Convert response to list format
+            if hasattr(response_data, '__iter__') and not isinstance(response_data, (str, dict)):
+                monitors_list = []
+                for monitor in response_data:
+                    if hasattr(monitor, 'to_dict'):
+                        monitors_list.append(monitor.to_dict())
+                    elif isinstance(monitor, dict):
+                        monitors_list.append(monitor)
+                    else:
+                        monitors_list.append(str(monitor))
+                response_dict = {"monitors": monitors_list, "total": len(monitors_list)}
+            else:
+                response_dict = {"monitors": [], "total": 0}
+
+            json_str = json.dumps(response_dict, default=str)
+            response_struct = dict_to_proto(json.loads(json_str), Struct)
+
+            api_domain = self._extract_api_domain_from_connector(datadog_connector)
+            metadata = self._create_metadata_with_datadog_url(api_domain, "list_monitors", {})
+
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                api_response=ApiResponseResult(
+                    response_status=UInt64Value(value=200),
+                    response_body=response_struct
+                ),
+                source=self.source,
+                metadata=metadata
+            )
+
+        except Exception as e:
+            logger.error(f"Error executing list monitors task: {e}")
+            raise Exception(f"Task execution Failed:: {e}")
+
+    def execute_get_monitor_details(self, time_range: TimeRange, dd_task: Datadog, datadog_connector: ConnectorProto):
+        """
+        Execute a task to get details of a specific Datadog monitor.
+
+        Args:
+            time_range: The time range (not used for this task)
+            dd_task: The Datadog task containing monitor_id
+            datadog_connector: The Datadog connector to use
+
+        Returns:
+            A PlaybookTaskResult containing monitor details as API response
+        """
+        try:
+            if not datadog_connector:
+                raise Exception("Task execution Failed:: No Datadog source found")
+
+            task = dd_task.get_monitor_details
+            monitor_id = task.monitor_id.value if task.monitor_id else None
+
+            if not monitor_id:
+                raise Exception("Task execution Failed:: Monitor ID is required")
+
+            dd_api_processor = self.get_connector_processor(datadog_connector)
+            response_data = dd_api_processor.fetch_monitor_details(monitor_id)
+
+            from google.protobuf.struct_pb2 import Struct
+            import json
+
+            if not response_data:
+                error_struct = Struct()
+                error_struct.update({"error": f"Monitor {monitor_id} not found"})
+                api_domain = self._extract_api_domain_from_connector(datadog_connector)
+                metadata = self._create_metadata_with_datadog_url(api_domain, "get_monitor", {"monitor_id": monitor_id})
+
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.API_RESPONSE,
+                    api_response=ApiResponseResult(
+                        response_status=UInt64Value(value=404),
+                        response_body=error_struct
+                    ),
+                    source=self.source,
+                    metadata=metadata
+                )
+
+            # Convert response to dict
+            if hasattr(response_data, 'to_dict'):
+                response_dict = response_data.to_dict()
+            elif isinstance(response_data, dict):
+                response_dict = response_data
+            else:
+                response_dict = {"data": str(response_data)}
+
+            json_str = json.dumps(response_dict, default=str)
+            response_struct = dict_to_proto(json.loads(json_str), Struct)
+
+            api_domain = self._extract_api_domain_from_connector(datadog_connector)
+            metadata = self._create_metadata_with_datadog_url(api_domain, "get_monitor", {"monitor_id": monitor_id})
+
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                api_response=ApiResponseResult(
+                    response_status=UInt64Value(value=200),
+                    response_body=response_struct
+                ),
+                source=self.source,
+                metadata=metadata
+            )
+
+        except Exception as e:
+            logger.error(f"Error executing get monitor details task: {e}")
+            raise Exception(f"Task execution Failed:: {e}")
+
+    def execute_create_monitor(self, time_range: TimeRange, dd_task: Datadog, datadog_connector: ConnectorProto):
+        """
+        Execute a task to create a new Datadog monitor.
+
+        Args:
+            time_range: The time range (not used for this task)
+            dd_task: The Datadog task containing monitor definition
+            datadog_connector: The Datadog connector to use
+
+        Returns:
+            A PlaybookTaskResult containing created monitor details as API response
+        """
+        try:
+            if not datadog_connector:
+                raise Exception("Task execution Failed:: No Datadog source found")
+
+            task = dd_task.create_monitor
+
+            # Build monitor definition from task parameters
+            monitor_definition = {}
+
+            if task.name and task.name.value:
+                monitor_definition['name'] = task.name.value
+            else:
+                raise Exception("Task execution Failed:: Monitor name is required")
+
+            if task.type and task.type.value:
+                monitor_definition['type'] = task.type.value
+            else:
+                raise Exception("Task execution Failed:: Monitor type is required")
+
+            if task.query and task.query.value:
+                monitor_definition['query'] = task.query.value
+            else:
+                raise Exception("Task execution Failed:: Monitor query is required")
+
+            if task.message and task.message.value:
+                monitor_definition['message'] = task.message.value
+
+            if task.tags:
+                monitor_definition['tags'] = list(task.tags)
+
+            if task.priority and task.priority.value:
+                monitor_definition['priority'] = task.priority.value
+
+            # Build options with thresholds
+            options = {}
+            if task.options:
+                options = proto_to_dict(task.options)
+
+            # Add thresholds from explicit threshold fields
+            if task.critical_threshold and task.critical_threshold.value is not None:
+                if 'thresholds' not in options:
+                    options['thresholds'] = {}
+                options['thresholds']['critical'] = task.critical_threshold.value
+
+            if task.warning_threshold and task.warning_threshold.value is not None:
+                if 'thresholds' not in options:
+                    options['thresholds'] = {}
+                options['thresholds']['warning'] = task.warning_threshold.value
+
+            if options:
+                monitor_definition['options'] = options
+
+            dd_api_processor = self.get_connector_processor(datadog_connector)
+            response_data = dd_api_processor.create_monitor(monitor_definition)
+
+            if isinstance(response_data, dict):
+                response_dict = response_data
+            elif hasattr(response_data, 'to_dict'):
+                response_dict = response_data.to_dict()
+            else:
+                response_dict = {"data": str(response_data)}
+
+            json_str = json.dumps(response_dict, default=str)
+            response_struct = dict_to_proto(json.loads(json_str), Struct)
+
+            api_domain = self._extract_api_domain_from_connector(datadog_connector)
+            metadata = self._create_metadata_with_datadog_url(api_domain, "create_monitor", {
+                "name": monitor_definition.get('name'),
+                "type": monitor_definition.get('type')
+            })
+
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                api_response=ApiResponseResult(
+                    response_status=UInt64Value(value=201),
+                    response_body=response_struct
+                ),
+                source=self.source,
+                metadata=metadata
+            )
+
+        except Exception as e:
+            logger.error(f"Error executing create monitor task: {e}")
+            raise Exception(f"Task execution Failed:: {e}")
+
+    def execute_update_monitor(self, time_range: TimeRange, dd_task: Datadog, datadog_connector: ConnectorProto):
+        """
+        Execute a task to update an existing Datadog monitor.
+
+        Args:
+            time_range: The time range (not used for this task)
+            dd_task: The Datadog task containing monitor updates
+            datadog_connector: The Datadog connector to use
+
+        Returns:
+            A PlaybookTaskResult containing updated monitor details as API response
+        """
+        try:
+            if not datadog_connector:
+                raise Exception("Task execution Failed:: No Datadog source found")
+
+            task = dd_task.update_monitor
+
+            monitor_id = task.monitor_id.value if task.monitor_id else None
+            if not monitor_id:
+                raise Exception("Task execution Failed:: Monitor ID is required")
+
+            # Build monitor update definition from task parameters
+            monitor_definition = {}
+
+            if task.name and task.name.value:
+                monitor_definition['name'] = task.name.value
+
+            if task.type and task.type.value:
+                monitor_definition['type'] = task.type.value
+
+            if task.query and task.query.value:
+                monitor_definition['query'] = task.query.value
+
+            if task.message and task.message.value:
+                monitor_definition['message'] = task.message.value
+
+            if task.tags:
+                monitor_definition['tags'] = list(task.tags)
+
+            if task.priority and task.priority.value:
+                monitor_definition['priority'] = task.priority.value
+
+            # Build options with thresholds
+            options = {}
+            if task.options:
+                options = proto_to_dict(task.options)
+
+            # Add thresholds from explicit threshold fields
+            if task.critical_threshold and task.critical_threshold.value is not None:
+                if 'thresholds' not in options:
+                    options['thresholds'] = {}
+                options['thresholds']['critical'] = task.critical_threshold.value
+
+            if task.warning_threshold and task.warning_threshold.value is not None:
+                if 'thresholds' not in options:
+                    options['thresholds'] = {}
+                options['thresholds']['warning'] = task.warning_threshold.value
+
+            if options:
+                monitor_definition['options'] = options
+
+            if not monitor_definition:
+                raise Exception("Task execution Failed:: At least one field to update is required")
+
+            dd_api_processor = self.get_connector_processor(datadog_connector)
+            response_data = dd_api_processor.update_monitor(monitor_id, monitor_definition)
+
+            if isinstance(response_data, dict):
+                response_dict = response_data
+            elif hasattr(response_data, 'to_dict'):
+                response_dict = response_data.to_dict()
+            else:
+                response_dict = {"data": str(response_data)}
+
+            json_str = json.dumps(response_dict, default=str)
+            response_struct = dict_to_proto(json.loads(json_str), Struct)
+
+            api_domain = self._extract_api_domain_from_connector(datadog_connector)
+            metadata = self._create_metadata_with_datadog_url(api_domain, "update_monitor", {
+                "monitor_id": monitor_id
+            })
+
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                api_response=ApiResponseResult(
+                    response_status=UInt64Value(value=200),
+                    response_body=response_struct
+                ),
+                source=self.source,
+                metadata=metadata
+            )
+
+        except Exception as e:
+            logger.error(f"Error executing update monitor task: {e}")
             raise Exception(f"Task execution Failed:: {e}")
 
