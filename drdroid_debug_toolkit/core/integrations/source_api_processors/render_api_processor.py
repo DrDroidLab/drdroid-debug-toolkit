@@ -67,8 +67,14 @@ class RenderAPIProcessor(Processor):
             raise Exception(f"Failed to get service: {e}")
 
     def fetch_logs(self, service_id, start_time=None, end_time=None, limit=None,
-                   instance=None, level=None):
-        """Fetch logs for a specific service."""
+                   instance=None, host=None, status_code=None, method=None,
+                   task=None, task_run=None, level=None, type=None, text=None, path=None):
+        """Fetch logs for a specific service.
+        
+        According to Render API docs: https://api-docs.render.com/reference/list-logs
+        - startTime and endTime must be Unix timestamps (epoch seconds)
+        - All filter parameters are arrays of strings
+        """
         try:
             # First, get the service details to extract the ownerId
             service_url = f"{self.base_url}/services/{service_id}"
@@ -88,55 +94,109 @@ class RenderAPIProcessor(Processor):
                 'resource': [service_id]  # resource is required and should be an array
             }
             
-            # Time parameters might be required
+            # Helper function to convert time to Unix timestamp
+            def to_unix_timestamp(time_value):
+                """Convert ISO 8601 string or datetime to Unix timestamp (seconds)."""
+                if not time_value:
+                    return None
+                import datetime
+                from datetime import timezone
+                if isinstance(time_value, str):
+                    # Try parsing ISO 8601 format
+                    try:
+                        dt = datetime.datetime.fromisoformat(time_value.replace('Z', '+00:00'))
+                        return int(dt.timestamp())
+                    except:
+                        # If parsing fails, assume it's already a timestamp string
+                        try:
+                            return int(float(time_value))
+                        except:
+                            return None
+                elif isinstance(time_value, (int, float)):
+                    return int(time_value)
+                return None
+            
+            # Time parameters - Render API expects Unix timestamps (epoch seconds)
             if start_time:
-                params['startTime'] = start_time
+                start_ts = to_unix_timestamp(start_time)
+                if start_ts:
+                    params['startTime'] = start_ts
             else:
-                # If no start time provided, use a default (e.g., 1 hour ago)
+                # Default: 1 hour ago
                 import datetime
                 from datetime import timezone
                 default_start = datetime.datetime.now(timezone.utc) - datetime.timedelta(hours=1)
-                # Use ISO 8601 format as required by Render API
-                params['startTime'] = default_start.strftime('%Y-%m-%dT%H:%M:%SZ')
+                params['startTime'] = int(default_start.timestamp())
             
             if end_time:
-                params['endTime'] = end_time
+                end_ts = to_unix_timestamp(end_time)
+                if end_ts:
+                    params['endTime'] = end_ts
             else:
-                # If no end time provided, use current time
+                # Default: now
                 import datetime
                 from datetime import timezone
-                # Use ISO 8601 format as required by Render API
-                params['endTime'] = datetime.datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
+                params['endTime'] = int(datetime.datetime.now(timezone.utc).timestamp())
             
             if limit:
                 params['limit'] = limit
             
-            # Add filter parameters according to Render API documentation
-            # Reference: https://api-docs.render.com/reference/list-logs
-            def format_filter_param(value):
-                """Format filter parameter - support comma-separated strings for multiple values."""
+            # Helper function to convert filter values to arrays
+            def to_filter_array(value):
+                """Convert value to array of strings for filter parameters."""
                 if not value:
                     return None
                 if isinstance(value, list):
-                    # Join list values with comma for comma-separated format
+                    # Filter out empty values and convert to strings
                     filtered = [str(v).strip() for v in value if v]
-                    return ','.join(filtered) if filtered else None
-                return str(value).strip() if value else None
+                    return filtered if filtered else None
+                if isinstance(value, str):
+                    # Handle comma-separated strings
+                    values = [v.strip() for v in value.split(',') if v.strip()]
+                    return values if values else None
+                return [str(value).strip()] if value else None
             
-            # instanceId - The ID of a specific instance (supports comma-separated for multiple)
+            # Add filter parameters - all are arrays of strings according to API docs
             if instance:
-                instance_value = format_filter_param(instance)
-                if instance_value:
-                    params['instanceId'] = instance_value
-            
-            # level - The log level to filter by (e.g., info, error)
+                instance_array = to_filter_array(instance)
+                if instance_array:
+                    params['instance'] = instance_array
+            if host:
+                host_array = to_filter_array(host)
+                if host_array:
+                    params['host'] = host_array
+            if status_code:
+                status_code_array = to_filter_array(status_code)
+                if status_code_array:
+                    params['statusCode'] = status_code_array
+            if method:
+                method_array = to_filter_array(method)
+                if method_array:
+                    params['method'] = method_array
+            if task:
+                task_array = to_filter_array(task)
+                if task_array:
+                    params['task'] = task_array
+            if task_run:
+                task_run_array = to_filter_array(task_run)
+                if task_run_array:
+                    params['taskRun'] = task_run_array
             if level:
-                level_value = format_filter_param(level)
-                if level_value:
-                    params['level'] = level_value
-            
-            # Note: Other parameters (host, status_code, method, task, task_run, type, text, path)
-            # are not documented in the Render API and are not supported
+                level_array = to_filter_array(level)
+                if level_array:
+                    params['level'] = level_array
+            if type:
+                type_array = to_filter_array(type)
+                if type_array:
+                    params['type'] = type_array
+            if text:
+                text_array = to_filter_array(text)
+                if text_array:
+                    params['text'] = text_array
+            if path:
+                path_array = to_filter_array(path)
+                if path_array:
+                    params['path'] = path_array
             
             response = requests.get(url, headers=self.headers, params=params)
             response.raise_for_status()

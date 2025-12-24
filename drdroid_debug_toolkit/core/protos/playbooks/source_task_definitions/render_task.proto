@@ -23,11 +23,19 @@ message Render {
 
   message FetchLogs {
     google.protobuf.StringValue service_id = 1;
-    google.protobuf.StringValue start_time = 2;
-    google.protobuf.StringValue end_time = 3;
+    google.protobuf.StringValue start_time = 2;  // ISO 8601 or Unix timestamp
+    google.protobuf.StringValue end_time = 3;    // ISO 8601 or Unix timestamp
     google.protobuf.Int64Value limit = 4;
-    google.protobuf.StringValue instance = 5;  // Maps to instanceId in Render API
-    google.protobuf.StringValue level = 6;      // Log level filter (e.g., "info", "error")
+    google.protobuf.StringValue instance = 5;    // Comma-separated instance IDs
+    google.protobuf.StringValue host = 6;         // Comma-separated host values
+    google.protobuf.StringValue status_code = 7;  // Comma-separated status codes
+    google.protobuf.StringValue method = 8;       // Comma-separated HTTP methods
+    google.protobuf.StringValue task = 9;        // Comma-separated task IDs
+    google.protobuf.StringValue task_run = 10;   // Comma-separated task run IDs
+    google.protobuf.StringValue level = 11;      // Comma-separated log levels
+    google.protobuf.StringValue type = 12;        // Comma-separated log types
+    google.protobuf.StringValue text = 13;        // Comma-separated text filters
+    google.protobuf.StringValue path = 14;        // Comma-separated path filters
   }
 
   enum TaskType {

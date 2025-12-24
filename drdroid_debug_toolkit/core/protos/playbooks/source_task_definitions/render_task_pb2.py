@@ -25,7 +25,7 @@ _sym_db = _symbol_database.Default()
 from google.protobuf import wrappers_pb2 as google_dot_protobuf_dot_wrappers__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n?core/protos/playbooks/source_task_definitions/render_task.proto\x12\x15\x63ore.protos.playbooks\x1a\x1egoogle/protobuf/wrappers.proto\"\xde\x08\n\x06Render\x12\x34\n\x04type\x18\x01 \x01(\x0e\x32&.core.protos.playbooks.Render.TaskType\x12\x41\n\x0clist_deploys\x18\x02 \x01(\x0b\x32).core.protos.playbooks.Render.ListDeploysH\x00\x12=\n\nget_deploy\x18\x03 \x01(\x0b\x32\'.core.protos.playbooks.Render.GetDeployH\x00\x12\x43\n\rlist_services\x18\x04 \x01(\x0b\x32*.core.protos.playbooks.Render.ListServicesH\x00\x12?\n\x0bget_service\x18\x05 \x01(\x0b\x32(.core.protos.playbooks.Render.GetServiceH\x00\x12=\n\nfetch_logs\x18\x06 \x01(\x0b\x32\'.core.protos.playbooks.Render.FetchLogsH\x00\x1a?\n\x0bListDeploys\x12\x30\n\nservice_id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1an\n\tGetDeploy\x12\x30\n\nservice_id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12/\n\tdeploy_id\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1a\x44\n\x0cListServices\x12\x34\n\x10include_previews\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.BoolValue\x1a>\n\nGetService\x12\x30\n\nservice_id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1a\xa8\x02\n\tFetchLogs\x12\x30\n\nservice_id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x30\n\nstart_time\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12.\n\x08\x65nd_time\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x05limit\x18\x04 \x01(\x0b\x32\x1b.google.protobuf.Int64Value\x12.\n\x08instance\x18\x05 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12+\n\x05level\x18\x06 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"m\n\x08TaskType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x10\n\x0cLIST_DEPLOYS\x10\x01\x12\x0e\n\nGET_DEPLOY\x10\x02\x12\x11\n\rLIST_SERVICES\x10\x03\x12\x0f\n\x0bGET_SERVICE\x10\x04\x12\x0e\n\nFETCH_LOGS\x10\x05\x42\x06\n\x04taskb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n?core/protos/playbooks/source_task_definitions/render_task.proto\x12\x15\x63ore.protos.playbooks\x1a\x1egoogle/protobuf/wrappers.proto\"\xcb\x0b\n\x06Render\x12\x34\n\x04type\x18\x01 \x01(\x0e\x32&.core.protos.playbooks.Render.TaskType\x12\x41\n\x0clist_deploys\x18\x02 \x01(\x0b\x32).core.protos.playbooks.Render.ListDeploysH\x00\x12=\n\nget_deploy\x18\x03 \x01(\x0b\x32\'.core.protos.playbooks.Render.GetDeployH\x00\x12\x43\n\rlist_services\x18\x04 \x01(\x0b\x32*.core.protos.playbooks.Render.ListServicesH\x00\x12?\n\x0bget_service\x18\x05 \x01(\x0b\x32(.core.protos.playbooks.Render.GetServiceH\x00\x12=\n\nfetch_logs\x18\x06 \x01(\x0b\x32\'.core.protos.playbooks.Render.FetchLogsH\x00\x1a?\n\x0bListDeploys\x12\x30\n\nservice_id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1an\n\tGetDeploy\x12\x30\n\nservice_id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12/\n\tdeploy_id\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1a\x44\n\x0cListServices\x12\x34\n\x10include_previews\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.BoolValue\x1a>\n\nGetService\x12\x30\n\nservice_id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1a\x95\x05\n\tFetchLogs\x12\x30\n\nservice_id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x30\n\nstart_time\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12.\n\x08\x65nd_time\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x05limit\x18\x04 \x01(\x0b\x32\x1b.google.protobuf.Int64Value\x12.\n\x08instance\x18\x05 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04host\x18\x06 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x31\n\x0bstatus_code\x18\x07 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12,\n\x06method\x18\x08 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04task\x18\t \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12.\n\x08task_run\x18\n \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12+\n\x05level\x18\x0b \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04type\x18\x0c \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04text\x18\r \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04path\x18\x0e \x01(\x0b\x32\x1c.google.protobuf.StringValue\"m\n\x08TaskType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x10\n\x0cLIST_DEPLOYS\x10\x01\x12\x0e\n\nGET_DEPLOY\x10\x02\x12\x11\n\rLIST_SERVICES\x10\x03\x12\x0f\n\x0bGET_SERVICE\x10\x04\x12\x0e\n\nFETCH_LOGS\x10\x05\x42\x06\n\x04taskb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -33,7 +33,7 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'core.protos.playbooks.sourc
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
   _globals['_RENDER']._serialized_start=123
-  _globals['_RENDER']._serialized_end=1241
+  _globals['_RENDER']._serialized_end=1606
   _globals['_RENDER_LISTDEPLOYS']._serialized_start=514
   _globals['_RENDER_LISTDEPLOYS']._serialized_end=577
   _globals['_RENDER_GETDEPLOY']._serialized_start=579
@@ -43,7 +43,7 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_RENDER_GETSERVICE']._serialized_start=761
   _globals['_RENDER_GETSERVICE']._serialized_end=823
   _globals['_RENDER_FETCHLOGS']._serialized_start=826
-  _globals['_RENDER_FETCHLOGS']._serialized_end=1122
-  _globals['_RENDER_TASKTYPE']._serialized_start=1124
-  _globals['_RENDER_TASKTYPE']._serialized_end=1233
+  _globals['_RENDER_FETCHLOGS']._serialized_end=1487
+  _globals['_RENDER_TASKTYPE']._serialized_start=1489
+  _globals['_RENDER_TASKTYPE']._serialized_end=1598
 # @@protoc_insertion_point(module_scope)

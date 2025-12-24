@@ -120,13 +120,61 @@ class RenderSourceManager(SourceManager):
                               is_optional=True),
                     FormField(key_name=StringValue(value="instance"),
                               display_name=StringValue(value="Instance ID"),
-                              description=StringValue(value='Filter logs by instance ID. Supports comma-separated values for multiple instances (e.g., "id1,id2,id3"). See Render API docs: https://api-docs.render.com/reference/list-logs'),
+                              description=StringValue(value='Filter logs by instance ID. Supports comma-separated values (e.g., "id1,id2,id3"). See Render API docs: https://api-docs.render.com/reference/list-logs'),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT,
+                              is_optional=True),
+                    FormField(key_name=StringValue(value="host"),
+                              display_name=StringValue(value="Host"),
+                              description=StringValue(value='Filter request logs by host. Supports wildcards, regex, and comma-separated values. See Render API docs: https://api-docs.render.com/reference/list-logs'),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT,
+                              is_optional=True),
+                    FormField(key_name=StringValue(value="status_code"),
+                              display_name=StringValue(value="Status Code"),
+                              description=StringValue(value='Filter request logs by status code. Supports wildcards, regex, and comma-separated values. See Render API docs: https://api-docs.render.com/reference/list-logs'),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT,
+                              is_optional=True),
+                    FormField(key_name=StringValue(value="method"),
+                              display_name=StringValue(value="HTTP Method"),
+                              description=StringValue(value='Filter request logs by HTTP method (e.g., GET, POST). Supports comma-separated values. See Render API docs: https://api-docs.render.com/reference/list-logs'),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT,
+                              is_optional=True),
+                    FormField(key_name=StringValue(value="task"),
+                              display_name=StringValue(value="Task"),
+                              description=StringValue(value='Filter logs by task(s). Supports comma-separated values. See Render API docs: https://api-docs.render.com/reference/list-logs'),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT,
+                              is_optional=True),
+                    FormField(key_name=StringValue(value="task_run"),
+                              display_name=StringValue(value="Task Run"),
+                              description=StringValue(value='Filter logs by task run ID(s). Supports comma-separated values. See Render API docs: https://api-docs.render.com/reference/list-logs'),
                               data_type=LiteralType.STRING,
                               form_field_type=FormFieldType.TEXT_FT,
                               is_optional=True),
                     FormField(key_name=StringValue(value="level"),
                               display_name=StringValue(value="Log Level"),
-                              description=StringValue(value='Filter logs by severity level (e.g., "info", "error"). Supports comma-separated values for multiple levels. See Render API docs: https://api-docs.render.com/reference/list-logs'),
+                              description=StringValue(value='Filter logs by severity level (e.g., "info", "error"). Supports wildcards, regex, and comma-separated values. See Render API docs: https://api-docs.render.com/reference/list-logs'),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT,
+                              is_optional=True),
+                    FormField(key_name=StringValue(value="type"),
+                              display_name=StringValue(value="Log Type"),
+                              description=StringValue(value='Filter logs by type (e.g., "app", "request", "build"). Supports comma-separated values. See Render API docs: https://api-docs.render.com/reference/list-logs'),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT,
+                              is_optional=True),
+                    FormField(key_name=StringValue(value="text"),
+                              display_name=StringValue(value="Text"),
+                              description=StringValue(value='Filter by log text content. Supports wildcards, regex, and comma-separated values. See Render API docs: https://api-docs.render.com/reference/list-logs'),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT,
+                              is_optional=True),
+                    FormField(key_name=StringValue(value="path"),
+                              display_name=StringValue(value="Path"),
+                              description=StringValue(value='Filter request logs by path. Supports wildcards, regex, and comma-separated values. See Render API docs: https://api-docs.render.com/reference/list-logs'),
                               data_type=LiteralType.STRING,
                               form_field_type=FormFieldType.TEXT_FT,
                               is_optional=True),
@@ -388,15 +436,24 @@ class RenderSourceManager(SourceManager):
                 values = [v.strip() for v in field_value.split(',') if v.strip()]
                 return values if values else None
             
-            # Extract supported filter parameters according to Render API docs
-            # Only instanceId and level are supported: https://api-docs.render.com/reference/list-logs
+            # Extract all filter parameters - all are supported according to Render API docs
+            # Reference: https://api-docs.render.com/reference/list-logs
             instance = parse_filter_field(task_data.instance.value if task_data.HasField("instance") else None)
+            host = parse_filter_field(task_data.host.value if task_data.HasField("host") else None)
+            status_code = parse_filter_field(task_data.status_code.value if task_data.HasField("status_code") else None)
+            method = parse_filter_field(task_data.method.value if task_data.HasField("method") else None)
+            task = parse_filter_field(task_data.task.value if task_data.HasField("task") else None)
+            task_run = parse_filter_field(task_data.task_run.value if task_data.HasField("task_run") else None)
             level = parse_filter_field(task_data.level.value if task_data.HasField("level") else None)
+            type = parse_filter_field(task_data.type.value if task_data.HasField("type") else None)
+            text = parse_filter_field(task_data.text.value if task_data.HasField("text") else None)
+            path = parse_filter_field(task_data.path.value if task_data.HasField("path") else None)
             
             api_processor = self._get_api_processor(connector_proto)
             result = api_processor.fetch_logs(
                 service_id, start_time, end_time, limit,
-                instance=instance, level=level
+                instance=instance, host=host, status_code=status_code, method=method,
+                task=task, task_run=task_run, level=level, type=type, text=text, path=path
             )
             
             # Convert result to protobuf struct
