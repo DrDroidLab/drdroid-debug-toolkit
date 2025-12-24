@@ -112,27 +112,37 @@ class RenderAPIProcessor(Processor):
             if limit:
                 params['limit'] = limit
             
-            # Add filter parameters (arrays are passed as lists, requests handles them correctly)
+            # Add filter parameters (convert lists to comma-separated strings for Render API)
+            def format_filter_param(value):
+                """Convert list or single value to comma-separated string."""
+                if not value:
+                    return None
+                if isinstance(value, list):
+                    # Filter out empty values and join with comma
+                    filtered = [str(v).strip() for v in value if v]
+                    return ','.join(filtered) if filtered else None
+                return str(value).strip() if value else None
+            
             if instance:
-                params['instance'] = instance if isinstance(instance, list) else [instance]
+                params['instance'] = format_filter_param(instance)
             if host:
-                params['host'] = host if isinstance(host, list) else [host]
+                params['host'] = format_filter_param(host)
             if status_code:
-                params['statusCode'] = status_code if isinstance(status_code, list) else [status_code]
+                params['statusCode'] = format_filter_param(status_code)
             if method:
-                params['method'] = method if isinstance(method, list) else [method]
+                params['method'] = format_filter_param(method)
             if task:
-                params['task'] = task if isinstance(task, list) else [task]
+                params['task'] = format_filter_param(task)
             if task_run:
-                params['taskRun'] = task_run if isinstance(task_run, list) else [task_run]
+                params['taskRun'] = format_filter_param(task_run)
             if level:
-                params['level'] = level if isinstance(level, list) else [level]
+                params['level'] = format_filter_param(level)
             if type:
-                params['type'] = type if isinstance(type, list) else [type]
+                params['type'] = format_filter_param(type)
             if text:
-                params['text'] = text if isinstance(text, list) else [text]
+                params['text'] = format_filter_param(text)
             if path:
-                params['path'] = path if isinstance(path, list) else [path]
+                params['path'] = format_filter_param(path)
             
             response = requests.get(url, headers=self.headers, params=params)
             response.raise_for_status()
