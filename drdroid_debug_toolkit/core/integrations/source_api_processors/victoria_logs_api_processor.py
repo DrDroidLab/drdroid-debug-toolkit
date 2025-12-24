@@ -14,15 +14,15 @@ class VictoriaLogsApiProcessor:
         self._ssl_verify = kwargs.get('SSL_VERIFY', True)
 
         # Optional custom headers (e.g., Authorization, tenant headers)
-        # Expect JSON string in MCP_SERVER_AUTH_HEADERS
-        raw_headers = kwargs.get('MCP_SERVER_AUTH_HEADERS')
+        # Expect JSON string in VICTORIA_LOGS_HEADERS
+        raw_headers = kwargs.get('VICTORIA_LOGS_HEADERS')
         self._headers: Dict[str, str] = {}
         if isinstance(raw_headers, str):
             try:
                 self._headers = json.loads(raw_headers)
             except Exception:
                 # Fallback: treat as bearer token string
-                self._headers = {'Authorization': f'Bearer {raw_headers}'}
+                self._headers = {'Authorization': f'Basic {raw_headers}'}
         elif isinstance(raw_headers, dict):
             self._headers = raw_headers
 
@@ -53,7 +53,9 @@ class VictoriaLogsApiProcessor:
         """
         url = f"{self._base_url}{path}"
         headers = {**self._headers}  # requests sets proper form content-type for dict data
+
         resp = requests.post(url, data=data, headers=headers, timeout=60, verify=self._ssl_verify)
+
         resp.raise_for_status()
         return resp
 
@@ -111,13 +113,17 @@ class VictoriaLogsApiProcessor:
         q = f"{time_clause} | field_names | limit {int(limit)}"
         return self.query_logsql(q)
 
-    def test_connection(self) -> None:
+    def test_connection(self) -> bool:
         """
         Basic connectivity check used by source manager. Raises on failure.
 
         Performs a lightweight LogsQL request to validate reachability and auth.
+
+        Returns:
+            bool: True if connection is successful, raises exception otherwise.
         """
         # Use a tiny time window and hard limit to keep it cheap.
         # Prefer passing limit as a dedicated arg per VictoriaLogs semantics
         self.query_logsql('* | limit 1', limit=1)
+        return True
 

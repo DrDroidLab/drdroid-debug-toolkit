@@ -25,7 +25,7 @@ _sym_db = _symbol_database.Default()
 from google.protobuf import wrappers_pb2 as google_dot_protobuf_dot_wrappers__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\nHcore/protos/playbooks/source_task_definitions/drd_proxy_agent_task.proto\x12\x15\x63ore.protos.playbooks\x1a\x1egoogle/protobuf/wrappers.proto\"\xf5\x01\n\rDrdProxyAgent\x12;\n\x04type\x18\x01 \x01(\x0e\x32-.core.protos.playbooks.DrdProxyAgent.TaskType\x12?\n\x07\x63ommand\x18\x02 \x01(\x0b\x32,.core.protos.playbooks.DrdProxyAgent.CommandH\x00\x1a\x38\n\x07\x43ommand\x12-\n\x07\x63ommand\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"$\n\x08TaskType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x0b\n\x07\x43OMMAND\x10\x01\x42\x06\n\x04taskb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\nHcore/protos/playbooks/source_task_definitions/drd_proxy_agent_task.proto\x12\x15\x63ore.protos.playbooks\x1a\x1egoogle/protobuf/wrappers.proto\"\xbd\x04\n\rDrdProxyAgent\x12;\n\x04type\x18\x01 \x01(\x0e\x32-.core.protos.playbooks.DrdProxyAgent.TaskType\x12?\n\x07\x63ommand\x18\x02 \x01(\x0b\x32,.core.protos.playbooks.DrdProxyAgent.CommandH\x00\x12J\n\rasset_refresh\x18\x03 \x01(\x0b\x32\x31.core.protos.playbooks.DrdProxyAgent.AssetRefreshH\x00\x1a\x38\n\x07\x43ommand\x12-\n\x07\x63ommand\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1a\xe6\x01\n\x0c\x41ssetRefresh\x12\x32\n\x0c\x63onnector_id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x34\n\x0e\x63onnector_name\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x34\n\x0e\x63onnector_type\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.UInt32Value\x12\x36\n\x10\x65xtractor_method\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"7\n\x08TaskType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x0b\n\x07\x43OMMAND\x10\x01\x12\x11\n\rASSET_REFRESH\x10\x02\x42\x06\n\x04taskb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -33,9 +33,11 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'core.protos.playbooks.sourc
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
   _globals['_DRDPROXYAGENT']._serialized_start=132
-  _globals['_DRDPROXYAGENT']._serialized_end=377
-  _globals['_DRDPROXYAGENT_COMMAND']._serialized_start=275
-  _globals['_DRDPROXYAGENT_COMMAND']._serialized_end=331
-  _globals['_DRDPROXYAGENT_TASKTYPE']._serialized_start=333
-  _globals['_DRDPROXYAGENT_TASKTYPE']._serialized_end=369
+  _globals['_DRDPROXYAGENT']._serialized_end=705
+  _globals['_DRDPROXYAGENT_COMMAND']._serialized_start=351
+  _globals['_DRDPROXYAGENT_COMMAND']._serialized_end=407
+  _globals['_DRDPROXYAGENT_ASSETREFRESH']._serialized_start=410
+  _globals['_DRDPROXYAGENT_ASSETREFRESH']._serialized_end=640
+  _globals['_DRDPROXYAGENT_TASKTYPE']._serialized_start=642
+  _globals['_DRDPROXYAGENT_TASKTYPE']._serialized_end=697
 # @@protoc_insertion_point(module_scope)

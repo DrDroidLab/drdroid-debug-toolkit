@@ -57,27 +57,20 @@ class Signoz(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
         QUERY_FIELD_NUMBER: builtins.int
-        STEP_FIELD_NUMBER: builtins.int
-        FILL_GAPS_FIELD_NUMBER: builtins.int
-        PANEL_TYPE_FIELD_NUMBER: builtins.int
+        REQUEST_TYPE_FIELD_NUMBER: builtins.int
         @property
         def query(self) -> google.protobuf.wrappers_pb2.StringValue: ...
         @property
-        def step(self) -> google.protobuf.wrappers_pb2.Int32Value: ...
-        @property
-        def fill_gaps(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
-        @property
-        def panel_type(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        def request_type(self) -> google.protobuf.wrappers_pb2.StringValue:
+            """"logs" or "traces" for v5 API requestType (maps to "raw" or "trace")"""
         def __init__(
             self,
             *,
             query: google.protobuf.wrappers_pb2.StringValue | None = ...,
-            step: google.protobuf.wrappers_pb2.Int32Value | None = ...,
-            fill_gaps: google.protobuf.wrappers_pb2.BoolValue | None = ...,
-            panel_type: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            request_type: google.protobuf.wrappers_pb2.StringValue | None = ...,
         ) -> None: ...
-        def HasField(self, field_name: typing_extensions.Literal["fill_gaps", b"fill_gaps", "panel_type", b"panel_type", "query", b"query", "step", b"step"]) -> builtins.bool: ...
-        def ClearField(self, field_name: typing_extensions.Literal["fill_gaps", b"fill_gaps", "panel_type", b"panel_type", "query", b"query", "step", b"step"]) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["query", b"query", "request_type", b"request_type"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["query", b"query", "request_type", b"request_type"]) -> None: ...
 
     @typing_extensions.final
     class BuilderQueryTask(google.protobuf.message.Message):

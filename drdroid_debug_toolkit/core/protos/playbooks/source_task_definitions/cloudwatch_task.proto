@@ -51,6 +51,31 @@ message Cloudwatch {
     google.protobuf.StringValue object_key = 2;
   }
 
+  message CostAnalysis {
+    google.protobuf.StringValue start_date = 1;
+    google.protobuf.StringValue end_date = 2;
+    google.protobuf.StringValue group_by_dimension = 3;
+    google.protobuf.StringValue group_by_tag_key = 4;
+    google.protobuf.StringValue filter_dimension = 5;
+    google.protobuf.StringValue filter_values = 6;
+    google.protobuf.StringValue filter_tag_key = 7;
+    google.protobuf.StringValue filter_tag_values = 8;
+    google.protobuf.StringValue granularity = 9;
+    google.protobuf.StringValue metrics = 10;
+  }
+
+  message DiscoverDimensions {
+    google.protobuf.StringValue start_date = 1;
+    google.protobuf.StringValue end_date = 2;
+    google.protobuf.StringValue dimensions_to_check = 3;
+    google.protobuf.Int32Value max_values_per_dimension = 4;
+    google.protobuf.DoubleValue min_cost_threshold = 5;
+    google.protobuf.BoolValue include_tags = 6;
+    google.protobuf.BoolValue sample_only = 7;
+    google.protobuf.StringValue filter_by_service = 8;
+    google.protobuf.StringValue region_filter = 9;
+  }
+
 
   enum TaskType {
     UNKNOWN = 0;
@@ -62,6 +87,8 @@ message Cloudwatch {
     ECS_GET_TASK_LOGS = 6;
     FETCH_DASHBOARD = 7;
     FETCH_S3_FILE = 8;
+    COST_ANALYSIS = 9;
+    DISCOVER_DIMENSIONS = 10;
   }
 
   TaskType type = 1;
@@ -74,5 +101,7 @@ message Cloudwatch {
     EcsGetTaskLogs ecs_get_task_logs = 7;
     FetchDashboard fetch_dashboard = 8;
     FetchS3File fetch_s3_file = 9;
+    CostAnalysis cost_analysis = 10;
+    DiscoverDimensions discover_dimensions = 11;
   }
 }

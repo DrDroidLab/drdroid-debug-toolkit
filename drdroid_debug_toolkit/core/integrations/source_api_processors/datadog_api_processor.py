@@ -761,6 +761,245 @@ class DatadogApiProcessor(Processor):
             logger.error(f"Exception occurred while fetching monitors with error: {e}")
             raise e
 
+    def query_monitors(self, query: str = None, sort: str = None):
+        """
+        Query Datadog monitors with optional filters.
+        Pagination is handled internally with reasonable defaults.
+        
+        Args:
+            query: Optional query string to filter monitors (e.g., "status:alert type:metric")
+            sort: Sort order string (e.g., "name,asc" or "status,desc")
+            
+        Returns:
+            List of monitors matching the query
+        """
+        try:
+            # Pagination defaults - handled internally
+            per_page = 100  # Reasonable default for fetching monitors
+            
+            # Use the search endpoint for query-based filtering
+            if query:
+                url = f"{self.__dd_host}/api/v1/monitor/search"
+                headers = {
+                    "DD-API-KEY": self.__dd_api_key,
+                    "DD-APPLICATION-KEY": self.__dd_app_key,
+                    "Accept": "application/json"
+                }
+                
+                # Datadog monitor search uses GET request with query parameters
+                # According to API docs: query, page, per_page, sort are all query string parameters
+                all_monitors = []
+                max_pages = 50  # Limit to prevent excessive API calls
+                
+                # Try the search endpoint - if it fails with 400, the query might be invalid
+                try:
+                    for current_page in range(0, max_pages):  # Start from 0 as per API docs
+                        params = {
+                            "query": query,
+                            "page": current_page,
+                            "per_page": per_page
+                        }
+                        if sort:
+                            params["sort"] = sort
+                        
+                        response = requests.get(url, headers=headers, params=params, timeout=EXTERNAL_CALL_TIMEOUT)
+                        
+                        # If we get a 400 error, the query syntax might be invalid
+                        if response.status_code == 400:
+                            error_detail = response.text
+                            logger.warning(f"Monitor search returned 400 for query '{query}': {error_detail}")
+                            # Return empty result instead of failing
+                            return {
+                                "monitors": [],
+                                "counts": {
+                                    "total": 0
+                                },
+                                "error": f"Invalid query syntax: {error_detail}"
+                            }
+                        
+                        response.raise_for_status()
+                        result = response.json()
+                        
+                        # Check if result has monitors
+                        if isinstance(result, dict):
+                            monitors = result.get('monitors', [])
+                            if not monitors:
+                                break  # No more monitors
+                            
+                            all_monitors.extend(monitors)
+                            
+                            # Check if there are more results
+                            counts = result.get('counts', {})
+                            total = counts.get('total', len(all_monitors))
+                            
+                            if len(all_monitors) >= total or len(monitors) < per_page:
+                                break  # Got all monitors or last page
+                        else:
+                            # Unexpected response format, return what we have
+                            break
+                    
+                    # Return in expected format
+                    return {
+                        "monitors": all_monitors,
+                        "counts": {
+                            "total": len(all_monitors)
+                        }
+                    }
+                except requests.exceptions.HTTPError as e:
+                    if e.response.status_code == 400:
+                        error_detail = e.response.text
+                        logger.warning(f"Monitor search failed with 400 for query '{query}': {error_detail}")
+                        # Return empty result instead of raising
+                        return {
+                            "monitors": [],
+                            "counts": {
+                                "total": 0
+                            },
+                            "error": f"Invalid query syntax: {error_detail}"
+                        }
+                    raise
+            else:
+                # If no query, use list_monitors (this returns all monitors)
+                configuration = self.get_connection()
+                with ApiClient(configuration) as api_client:
+                    api_instance = MonitorsApi(api_client)
+                    response = api_instance.list_monitors()
+                    
+                    # Convert to consistent format (list of monitor dicts)
+                    if hasattr(response, 'to_dict'):
+                        # If it's a Datadog API response object, convert it
+                        response_dict = response.to_dict()
+                        monitors = response_dict if isinstance(response_dict, list) else response_dict.get('monitors', [])
+                    elif isinstance(response, list):
+                        # If it's already a list, convert each monitor to dict
+                        monitors = []
+                        for monitor in response:
+                            if hasattr(monitor, 'to_dict'):
+                                monitors.append(monitor.to_dict())
+                            elif isinstance(monitor, dict):
+                                monitors.append(monitor)
+                            else:
+                                monitors.append(monitor)
+                    else:
+                        # Fallback: try to convert to dict
+                        monitors = response if isinstance(response, list) else []
+                    
+                    # Return in consistent format matching search endpoint
+                    return {
+                        "monitors": monitors,
+                        "counts": {
+                            "total": len(monitors)
+                        }
+                    }
+        except Exception as e:
+            logger.error(f"Exception occurred while querying monitors with error: {e}")
+            raise e
+
+    def create_monitor(self, monitor_definition: dict):
+        """
+        Create a new Datadog monitor.
+
+        Args:
+            monitor_definition: Dictionary containing monitor configuration with required fields:
+                - name: Name of the monitor
+                - type: Type of monitor (e.g., 'metric alert', 'query alert', 'service check', etc.)
+                - query: The monitor query
+                Optional fields:
+                - message: Message to include with notifications
+                - tags: List of tags for the monitor
+                - priority: Monitor priority (1-5)
+                - options: Additional monitor options (thresholds, notify_no_data, etc.)
+
+        Returns:
+            Dictionary containing the created monitor details
+        """
+        try:
+            url = f"{self.__dd_host}/api/v1/monitor"
+            headers = {
+                "DD-API-KEY": self.__dd_api_key,
+                "DD-APPLICATION-KEY": self.__dd_app_key,
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+
+            response = requests.post(url, headers=headers, json=monitor_definition, timeout=EXTERNAL_CALL_TIMEOUT)
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.HTTPError as e:
+            error_detail = e.response.text if e.response else str(e)
+            logger.error(f"Failed to create monitor: {error_detail}")
+            raise Exception(f"Failed to create monitor: {error_detail}")
+        except Exception as e:
+            logger.error(f"Exception occurred while creating monitor: {e}")
+            raise e
+
+    def update_monitor(self, monitor_id: int, monitor_definition: dict):
+        """
+        Update an existing Datadog monitor.
+
+        Args:
+            monitor_id: ID of the monitor to update
+            monitor_definition: Dictionary containing monitor fields to update:
+                - name: Name of the monitor
+                - type: Type of monitor
+                - query: The monitor query
+                - message: Message to include with notifications
+                - tags: List of tags for the monitor
+                - priority: Monitor priority (1-5)
+                - options: Additional monitor options
+
+        Returns:
+            Dictionary containing the updated monitor details
+        """
+        try:
+            url = f"{self.__dd_host}/api/v1/monitor/{monitor_id}"
+            headers = {
+                "DD-API-KEY": self.__dd_api_key,
+                "DD-APPLICATION-KEY": self.__dd_app_key,
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+
+            response = requests.put(url, headers=headers, json=monitor_definition, timeout=EXTERNAL_CALL_TIMEOUT)
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.HTTPError as e:
+            error_detail = e.response.text if e.response else str(e)
+            logger.error(f"Failed to update monitor {monitor_id}: {error_detail}")
+            raise Exception(f"Failed to update monitor {monitor_id}: {error_detail}")
+        except Exception as e:
+            logger.error(f"Exception occurred while updating monitor {monitor_id}: {e}")
+            raise e
+
+    def delete_monitor(self, monitor_id: int):
+        """
+        Delete a Datadog monitor.
+
+        Args:
+            monitor_id: ID of the monitor to delete
+
+        Returns:
+            Dictionary containing deletion confirmation
+        """
+        try:
+            url = f"{self.__dd_host}/api/v1/monitor/{monitor_id}"
+            headers = {
+                "DD-API-KEY": self.__dd_api_key,
+                "DD-APPLICATION-KEY": self.__dd_app_key,
+                "Accept": "application/json"
+            }
+
+            response = requests.delete(url, headers=headers, timeout=EXTERNAL_CALL_TIMEOUT)
+            response.raise_for_status()
+            return {"deleted_monitor_id": monitor_id, "success": True}
+        except requests.exceptions.HTTPError as e:
+            error_detail = e.response.text if e.response else str(e)
+            logger.error(f"Failed to delete monitor {monitor_id}: {error_detail}")
+            raise Exception(f"Failed to delete monitor {monitor_id}: {error_detail}")
+        except Exception as e:
+            logger.error(f"Exception occurred while deleting monitor {monitor_id}: {e}")
+            raise e
+
     def fetch_dashboards(self):
         try:
             configuration = self.get_connection()
@@ -768,18 +1007,20 @@ class DatadogApiProcessor(Processor):
                 api_instance = DashboardsApi(api_client)
                 response = api_instance.list_dashboards()
                 dashboard_dict = response.to_dict()
-                
-                # Convert to JSON string with datetime handling
+
                 import json
-                from datetime import datetime
-                
-                def json_serializer(obj):
-                    """JSON serializer for objects not serializable by default json code"""
-                    if isinstance(obj, datetime):
-                        return obj.isoformat()
-                    raise TypeError(f"Type {type(obj)} not serializable")
-                
-                return json.dumps(dashboard_dict, indent=2, default=json_serializer)
+
+                def convert_datetime(value):
+                    if isinstance(value, dict):
+                        return {k: convert_datetime(v) for k, v in value.items()}
+                    if isinstance(value, list):
+                        return [convert_datetime(item) for item in value]
+                    if isinstance(value, datetime):
+                        return value.isoformat()
+                    return value
+
+                cleaned_response = convert_datetime(dashboard_dict)
+                return json.dumps(cleaned_response, indent=2)
         except Exception as e:
             logger.error(f"Exception occurred while fetching dashboards with error: {e}")
             raise e
@@ -1305,3 +1546,66 @@ class DatadogApiProcessor(Processor):
         except Exception as e:
             logger.error(f"Exception occurred while fetching logs for field extraction: {e}")
             return all_logs if 'all_logs' in locals() else []
+
+def format_results_as_entries(results):
+    """
+    Transform the results into the desired format with an entries array
+    """
+    entries = []
+
+    for result in results:
+        entry = {
+            "service_name": result.get('service'),
+            "downstream_services": result.get('downstream').split(',') if result.get('downstream') else []
+        }
+
+        # Only include fields that have values
+        entry = {k: v for k, v in entry.items() if v}
+
+        entries.append(entry)
+
+    return {"entries": entries}
+
+
+def extract_services_and_downstream(account_id, model_data=None):
+    logger.info("Processing service relationships...")
+    try:
+        service_downstream_map = {}
+
+        # If model_data is provided, use it instead of querying the database
+        if model_data:
+            for service, metadata in model_data.items():
+                if service not in service_downstream_map:
+                    service_downstream_map[service] = set()
+
+                # Look for 'calls' in production environments
+                prod_env_tags = ['prod', 'production', 'prd', 'prod_env', 'production_env',
+                                 'production_environment', 'prod_environment']
+
+                for env_tag in prod_env_tags:
+                    if env_tag in metadata and 'calls' in metadata[env_tag]:
+                        downstream_services = metadata[env_tag]['calls']
+                        if downstream_services:
+                            service_downstream_map[service].update(downstream_services)
+
+        results = [
+            {'service': service, 'downstream': ','.join(sorted(downstream)) if downstream else ''}
+            for service, downstream in service_downstream_map.items()]
+
+        if results:
+            logger.info(f"Total unique services: {len(results)}")
+            service_catalog_data = format_results_as_entries(results)
+
+            return service_catalog_data
+        else:
+            logger.info("No data found matching the criteria")
+            empty_catalog = {"entries": []}
+
+        return empty_catalog
+    except Exception as e:
+        logger.error(f"Error executing query or processing results: {e}")
+        import traceback
+        traceback.print_exc()
+        empty_catalog = {"entries": []}
+
+        return empty_catalog

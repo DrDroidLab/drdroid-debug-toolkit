@@ -898,6 +898,139 @@ class NewRelicGraphQlConnector(Processor):
             raise e
         return None
 
+    def get_dashboard_variable_values(self, dashboard_guid, variable_name=None):
+        """
+        Get available values for dashboard template variables.
+        
+        Args:
+            dashboard_guid (str): The dashboard GUID to get variable values for
+            variable_name (str, optional): Specific variable name to get values for
+            
+        Returns:
+            dict: Dictionary containing dashboard variables with their values
+        """
+        try:
+            dashboard_entity_guids_query = json.dumps([dashboard_guid])
+            query = gql(f"""{{
+                            actor {{
+                                entities(guids: {dashboard_entity_guids_query}) {{
+                                ... on DashboardEntity {{
+                                        guid
+                                        name
+                                        variables {{
+                                            nrqlQuery {{
+                                                query
+                                            }}
+                                            defaultValues {{
+                                                value {{
+                                                    string
+                                                }}
+                                            }}
+                                            isMultiSelection
+                                            items {{
+                                                title
+                                                value
+                                            }}
+                                            name
+                                            replacementStrategy
+                                            options {{
+                                                ignoreTimeRange
+                                            }}
+                                            title
+                                            type
+                                        }}
+                                    }}
+                                }}
+                            }}
+                        }}""")
+
+            client = self.get_connection()
+            result = client.execute(query)
+            if result:
+                entities = result.get('actor', {}).get('entities', [])
+                if not entities or len(entities) == 0:
+                    logger.warning(f"No dashboard found with GUID: {dashboard_guid}")
+                    return {
+                        'dashboard_guid': dashboard_guid,
+                        'dashboard_name': None,
+                        'variables': {}
+                    }
+                
+                dashboard_entity = entities[0]
+                dashboard_name = dashboard_entity.get('name', '')
+                variables = dashboard_entity.get('variables', [])
+                
+                # Process variables
+                variables_dict = {}
+                for var in variables:
+                    var_name = var.get('name', '')
+                    if not var_name:
+                        continue
+                    
+                    # If variable_name is specified, filter the variables
+                    if variable_name and var_name != variable_name:
+                        continue
+                    
+                    # Extract variable information
+                    var_info = {
+                        'name': var_name,
+                        'title': var.get('title', var_name),
+                        'type': var.get('type', ''),
+                        'isMultiSelection': var.get('isMultiSelection', False),
+                        'replacementStrategy': var.get('replacementStrategy', ''),
+                        'ignoreTimeRange': var.get('options', {}).get('ignoreTimeRange', False) if var.get('options') else False,
+                    }
+                    
+                    # Extract default values
+                    default_values = var.get('defaultValues', [])
+                    if default_values:
+                        default_value_strings = []
+                        for dv in default_values:
+                            value_obj = dv.get('value', {})
+                            if value_obj and 'string' in value_obj:
+                                default_value_strings.append(value_obj['string'])
+                        if default_value_strings:
+                            var_info['default_value'] = default_value_strings[0] if len(default_value_strings) == 1 else default_value_strings
+                    
+                    # Extract items (for dropdown/list variables)
+                    items = var.get('items', [])
+                    if items:
+                        var_info['items'] = [
+                            {
+                                'title': item.get('title', ''),
+                                'value': item.get('value', '')
+                            }
+                            for item in items
+                        ]
+                    
+                    # Extract NRQL query if present
+                    nrql_query = var.get('nrqlQuery', {})
+                    if nrql_query and 'query' in nrql_query:
+                        var_info['nrql_query'] = nrql_query['query']
+                    
+                    variables_dict[var_name] = var_info
+                
+                result_dict = {
+                    'dashboard_guid': dashboard_guid,
+                    'dashboard_name': dashboard_name,
+                    'variables': variables_dict
+                }
+                
+                if variable_name:
+                    result_dict['variable_name'] = variable_name
+                
+                return result_dict
+            else:
+                logger.warning(f"No result returned for dashboard GUID: {dashboard_guid}")
+                return {
+                    'dashboard_guid': dashboard_guid,
+                    'dashboard_name': None,
+                    'variables': {}
+                }
+        except Exception as e:
+            logger.error(f"Exception occurred while getting dashboard variable values: {e}")
+            raise e
+
     def query_newrelic_relationships(self, __nr_api_key, guid):
         """Query the NewRelic GraphQL API for entity relationships"""
         query = gql("""

@@ -25,7 +25,12 @@ class GithubSourceMetadataExtractor(SourceMetadataExtractor):
             if not repos:
                 return model_data
             for repo in repos:
-                model_data[repo['name']] = repo
+                repo_name = repo['name']
+                # Fetch README content and add to metadata
+                readme_content = self.gh_processor.fetch_readme_content(repo_name)
+                if readme_content:
+                    repo['readme'] = readme_content
+                model_data[repo_name] = repo
         except Exception as e:
             logger.error(f'Error extracting Github repositories: {e}')
         if len(model_data) > 0:

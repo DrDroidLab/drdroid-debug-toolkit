@@ -1,5 +1,6 @@
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
+from sqlite3 import ProgrammingError
 
 import boto3
 import requests
@@ -89,11 +90,73 @@ class AWSBoto3ApiProcessor(Processor):
     def test_logs_describe_log_groups_permission(self):
         """Tests permission to describe CloudWatch log groups."""
         try:
+            logger.info(f"Testing CloudWatch Logs describe_log_groups permission for region: {self.region}")
             client = self.get_connection()
             client.describe_log_groups(limit=1)
             return True
         except Exception as e:
             logger.warning(f"CloudWatch Logs describe_log_groups permission check failed: {e}")
+            raise e
+
+    def test_logs_start_query_permission(self):
+        """Tests permission to start a CloudWatch Logs Insights query (logs:StartQuery)."""
+        try:
+            logger.info(f"Testing CloudWatch Logs start_query permission for region: {self.region}")
+            client = self.get_connection()
+
+            # Use a non-existent log group and a simple query to avoid reading real data.
+            end_time = int(datetime.now(timezone.utc).timestamp())
+            start_time = end_time - 300  # last 5 minutes
+
+            try:
+                start_query_response = client.start_query(
+                    logGroupName='test-log-group',
+                    startTime=start_time,
+                    endTime=end_time,
+                    queryString='fields @timestamp | limit 1',
+                )
+
+                # Best-effort: immediately stop the query if it was started successfully.
+                logger.info(f"CloudWatch Logs StartQuery permission check passed: {start_query_response}")
+                query_id = start_query_response.get('queryId')
+                if query_id:
+                    try:
+                        client.stop_query(queryId=query_id)
+                    except Exception:
+                        raise e
+
+                return True
+
+            except client.exceptions.ClientError as ce:
+                error_code = ce.response.get('Error', {}).get('Code')
+                http_status_code = ce.response.get('ResponseMetadata', {}).get('HTTPStatusCode')
+                message_lower = str(ce).lower()
+
+                # Resource not found means permissions are likely fine but the test resource doesn't exist.
+                if (
+                    error_code in ['ResourceNotFoundException', 'ResourceNotFound']
+                    or http_status_code == 404
+                    or 'resource not found' in message_lower
+                ):
+                    logger.info(
+                        "CloudWatch Logs StartQuery permission check passed "
+                        "(ignoring resource not found: "
+                        f"{error_code or http_status_code} - "
+                        f"{ce.response.get('Error', {}).get('Message', str(ce))[:100]}...)"
+                    )
+                    return True
+
+                # Explicit access denied errors should fail the permission check.
+                if error_code in ['AccessDeniedException', 'AccessDenied'] or 'accessdenied' in message_lower or 'forbidden' in message_lower:
+                    logger.warning(f"CloudWatch Logs StartQuery permission check failed due to access denied/forbidden: {ce}")
+                    raise ce
+
+                # Any other client error is unexpected, surface it.
+                logger.warning(f"CloudWatch Logs StartQuery permission check failed with unexpected ClientError: {ce}")
+                raise ce
+
+        except Exception as e:
+            logger.warning(f"CloudWatch Logs StartQuery permission check failed with unexpected error: {e}")
             raise e
 
     def test_ecs_list_clusters_permission(self):
@@ -722,3 +785,318 @@ class AWSBoto3ApiProcessor(Processor):
         except requests.RequestException as e:
             print(f"[ERROR] Failed to download file: {e}")
             return None
+
+    def test_cost_explorer_permission(self):
+        """Tests permission to access AWS Cost Explorer (ce:GetCostAndUsage)."""
+        try:
+            logger.info(f"Testing Cost Explorer permissions for region: {self.region}")
+            client = self.get_connection()
+
+            # Use a minimal test query to check permissions
+            from datetime import datetime, timedelta
+            end_date = datetime.now()
+            start_date = end_date - timedelta(days=1)
+
+            try:
+                response = client.get_cost_and_usage(
+                    TimePeriod={
+                        'Start': start_date.strftime('%Y-%m-%d'),
+                        'End': end_date.strftime('%Y-%m-%d')
+                    },
+                    Granularity='DAILY',
+                    Metrics=['UnblendedCost'],
+                    GroupBy=[{'Type': 'DIMENSION', 'Key': 'SERVICE'}]
+                )
+
+                logger.info("Cost Explorer permission check passed")
+                return True
+
+            except client.exceptions.ClientError as ce:
+                error_code = ce.response.get('Error', {}).get('Code')
+                message_lower = str(ce).lower()
+
+                # Check for explicit access denied errors
+                if error_code in ['AccessDeniedException', 'UnauthorizedOperation'] or 'access denied' in message_lower or 'unauthorized' in message_lower:
+                    logger.warning(f"Cost Explorer permission check failed due to access denied: {ce}")
+                    raise ce
+
+                # Other errors might be due to account configuration but permissions are likely OK
+                logger.info(f"Cost Explorer permission check passed (ignoring non-permission error: {error_code})")
+                return True
+
+        except Exception as e:
+            logger.warning(f"Cost Explorer permission check failed: {e}")
+            raise e
+
+    def aws_cost_get_cost_analysis(self, start_date, end_date, group_by_dimension,
+                                  group_by_tag_key=None, filter_dimension=None, filter_values=None,
+                                  filter_tag_key=None, filter_tag_values=None, granularity='DAILY',
+                                  metrics=['UnblendedCost']):
+        """
+        Analyze AWS costs by any dimension with flexible filtering.
+
+        Args:
+            start_date: Start date in YYYY-MM-DD format
+            end_date: End date in YYYY-MM-DD format
+            group_by_dimension: Dimension to group by ('SERVICE', 'USAGE_TYPE', 'INSTANCE_TYPE', 'AZ', 'TAG', etc.)
+            group_by_tag_key: Required when group_by_dimension='TAG'
+            filter_dimension: Optional dimension to filter by
+            filter_values: Optional list of values to filter by
+            filter_tag_key: Required when filter_dimension='TAG'
+            filter_tag_values: Optional list of tag values to filter by
+            granularity: Time granularity ('DAILY', 'MONTHLY', 'HOURLY')
+            metrics: List of metrics to analyze (['UnblendedCost'], ['BlendedCost'], etc.)
+
+        Returns:
+            Dict with cost analysis results
+        """
+        try:
+            from collections import defaultdict
+
+            client = self.get_connection()
+
+            # Build GroupBy parameter
+            if group_by_dimension == 'TAG':
+                if not group_by_tag_key:
+                    return {'error': 'group_by_tag_key is required when group_by_dimension="TAG"'}
+                group_by = [{'Type': 'TAG', 'Key': group_by_tag_key}]
+            else:
+                group_by = [{'Type': 'DIMENSION', 'Key': group_by_dimension}]
+
+            # Build request parameters
+            params = {
+                'TimePeriod': {'Start': start_date, 'End': end_date},
+                'Granularity': granularity,
+                'Metrics': metrics,
+                'GroupBy': group_by
+            }
+
+            # Add filter if specified
+            if filter_dimension and filter_values:
+                if filter_dimension == 'TAG':
+                    if not filter_tag_key:
+                        return {'error': 'filter_tag_key is required when filter_dimension="TAG"'}
+                    params['Filter'] = {
+                        'Tags': {
+                            'Key': filter_tag_key,
+                            'Values': filter_tag_values if filter_tag_values else filter_values
+                        }
+                    }
+                else:
+                    params['Filter'] = {
+                        'Dimensions': {
+                            'Key': filter_dimension,
+                            'Values': filter_values if isinstance(filter_values, list) else [filter_values]
+                        }
+                    }
+
+            # Execute the query
+            response = client.get_cost_and_usage(**params)
+
+            # Process and aggregate results
+            aggregated_costs = defaultdict(float)
+            daily_costs = []
+
+            for result in response.get('ResultsByTime', []):
+                date = result['TimePeriod']['Start']
+                daily_total = 0
+
+                for group in result.get('Groups', []):
+                    key = group['Keys'][0] if len(group['Keys']) == 1 else ' | '.join(group['Keys'])
+                    cost = float(group['Metrics'][metrics[0]]['Amount'])
+                    aggregated_costs[key] += cost
+                    daily_total += cost
+
+                daily_costs.append({'date': date, 'cost': daily_total})
+
+            # Sort by cost descending
+            sorted_costs = dict(sorted(aggregated_costs.items(), key=lambda x: x[1], reverse=True))
+            total_cost = sum(aggregated_costs.values())
+
+            return {
+                'success': True,
+                'period': {'start': start_date, 'end': end_date},
+                'group_by': group_by_dimension,
+                'group_by_tag_key': group_by_tag_key,
+                'filter_applied': bool(filter_dimension and filter_values),
+                'filter_dimension': filter_dimension,
+                'filter_values': filter_values,
+                'total_cost': round(total_cost, 2),
+                'cost_breakdown': {k: round(v, 2) for k, v in sorted_costs.items()},
+                'daily_costs': daily_costs,
+                'metrics_used': metrics,
+                'granularity': granularity
+            }
+
+        except Exception as e:
+            logger.error(f"Error in AWS cost analysis: {str(e)}")
+            return {'error': f"Error analyzing AWS costs: {str(e)}"}
+
+    def aws_cost_discover_dimensions(self, start_date, end_date,
+                                   dimensions_to_check=None, max_values_per_dimension=50,
+                                   min_cost_threshold=0.01, include_tags=True, sample_only=False,
+                                   filter_by_service=None, region_filter=None):
+        """
+        Discover available AWS cost dimensions and their values.
+
+        Args:
+            start_date: Start date in YYYY-MM-DD format
+            end_date: End date in YYYY-MM-DD format
+            dimensions_to_check: List of dimensions to check (None = all major ones)
+            max_values_per_dimension: Max values to return per dimension
+            min_cost_threshold: Minimum cost to include a value
+            include_tags: Whether to discover tag keys/values
+            sample_only: Return only top 10 values per dimension
+            filter_by_service: Pre-filter to specific services
+            region_filter: Pre-filter to specific regions
+
+        Returns:
+            Dict with discovered dimensions and their values
+        """
+        try:
+            from collections import defaultdict
+
+            client = self.get_connection()
+
+            # Default dimensions to check
+            if not dimensions_to_check:
+                dimensions_to_check = ['SERVICE', 'USAGE_TYPE', 'INSTANCE_TYPE', 'AZ', 'LINKED_ACCOUNT', 'REGION']
+
+            if sample_only:
+                max_values_per_dimension = 10
+
+            result = {
+                'success': True,
+                'period': {'start': start_date, 'end': end_date},
+                'dimensions': {},
+                'tags': {},
+                'discovery_settings': {
+                    'max_values_per_dimension': max_values_per_dimension,
+                    'min_cost_threshold': min_cost_threshold,
+                    'sample_only': sample_only
+                }
+            }
+
+            # Discover each dimension
+            for dimension in dimensions_to_check:
+                if dimension == 'TAG':
+                    continue  # Handle tags separately
+
+                try:
+                    # Build base parameters
+                    params = {
+                        'TimePeriod': {'Start': start_date, 'End': end_date},
+                        'Granularity': 'DAILY',
+                        'Metrics': ['UnblendedCost'],
+                        'GroupBy': [{'Type': 'DIMENSION', 'Key': dimension}]
+                    }
+
+                    # Add filters if specified
+                    if filter_by_service and dimension != 'SERVICE':
+                        params['Filter'] = {
+                            'Dimensions': {'Key': 'SERVICE', 'Values': filter_by_service}
+                        }
+                    elif region_filter and dimension not in ['REGION', 'AZ']:
+                        params['Filter'] = {
+                            'Dimensions': {'Key': 'REGION', 'Values': region_filter}
+                        }
+
+                    response = client.get_cost_and_usage(**params)
+
+                    # Aggregate dimension values
+                    dimension_costs = defaultdict(float)
+                    for time_result in response.get('ResultsByTime', []):
+                        for group in time_result.get('Groups', []):
+                            key = group['Keys'][0]
+                            if key and key.strip():
+                                cost = float(group['Metrics']['UnblendedCost']['Amount'])
+                                dimension_costs[key] += cost
+
+                    # Filter by cost threshold and limit
+                    filtered_costs = {k: v for k, v in dimension_costs.items()
+                                    if v >= min_cost_threshold}
+                    sorted_costs = dict(sorted(filtered_costs.items(),
+                                             key=lambda x: x[1], reverse=True))
+
+                    # Limit results
+                    limited_costs = dict(list(sorted_costs.items())[:max_values_per_dimension])
+
+                    result['dimensions'][dimension] = {
+                        'values': list(limited_costs.keys()),
+                        'costs': {k: round(v, 2) for k, v in limited_costs.items()},
+                        'count': len(limited_costs),
+                        'total_cost': round(sum(limited_costs.values()), 2),
+                        'truncated': len(sorted_costs) > max_values_per_dimension
+                    }
+
+                except Exception as e:
+                    logger.warning(f"Could not discover dimension {dimension}: {str(e)}")
+                    result['dimensions'][dimension] = {'error': str(e)}
+
+            # Discover tags if requested
+            if include_tags:
+                try:
+                    # Get available tag keys using get_tags
+                    tags_response = client.get_tags(
+                        TimePeriod={'Start': start_date, 'End': end_date}
+                    )
+
+                    discovered_tags = {}
+                    for tag_item in tags_response.get('Tags', []):
+                        if isinstance(tag_item, str):
+                            # Simple tag key
+                            tag_key = tag_item
+                            discovered_tags[tag_key] = []
+                        elif isinstance(tag_item, dict):
+                            # Tag with key and values
+                            tag_key = tag_item.get('Key', '')
+                            tag_values = tag_item.get('Values', [])
+                            if tag_key:
+                                discovered_tags[tag_key] = tag_values
+
+                    # Test each tag for cost data (sample the top few)
+                    tag_costs = {}
+                    for tag_key in list(discovered_tags.keys())[:5]:  # Test top 5 tags
+                        try:
+                            response = client.get_cost_and_usage(
+                                TimePeriod={'Start': start_date, 'End': end_date},
+                                Granularity='DAILY',
+                                Metrics=['UnblendedCost'],
+                                GroupBy=[{'Type': 'TAG', 'Key': tag_key}]
+                            )
+
+                            total_cost = 0
+                            unique_values = set()
+                            for time_result in response.get('ResultsByTime', []):
+                                for group in time_result.get('Groups', []):
+                                    tag_value = group['Keys'][0]
+                                    if tag_value and tag_value.strip():
+                                        cost = float(group['Metrics']['UnblendedCost']['Amount'])
+                                        total_cost += cost
+                                        unique_values.add(tag_value)
+
+                            if total_cost >= min_cost_threshold:
+                                tag_costs[tag_key] = {
+                                    'total_cost': round(total_cost, 2),
+                                    'unique_values': list(unique_values)[:10],  # Sample values
+                                    'value_count': len(unique_values)
+                                }
+
+                        except Exception as e:
+                            logger.warning(f"Could not test tag {tag_key}: {str(e)}")
+
+                    result['tags'] = {
+                        'available_tag_keys': list(discovered_tags.keys()),
+                        'tag_keys_with_cost_data': tag_costs,
+                        'total_tag_keys_discovered': len(discovered_tags)
+                    }
+
+                except Exception as e:
+                    logger.warning(f"Could not discover tags: {str(e)}")
+                    result['tags'] = {'error': str(e)}
+
+            return result
+
+        except Exception as e:
+            logger.error(f"Error in AWS cost dimension discovery: {str(e)}")
+            return {'error': f"Error discovering AWS cost dimensions: {str(e)}"}

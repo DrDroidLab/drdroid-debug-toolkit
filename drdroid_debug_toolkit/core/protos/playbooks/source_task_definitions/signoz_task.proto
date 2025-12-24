@@ -7,9 +7,7 @@ import "google/protobuf/struct.proto";
 message Signoz {
   message ClickhouseQueryTask {
     google.protobuf.StringValue query = 1;
-    google.protobuf.Int32Value step = 2;
-    google.protobuf.BoolValue fill_gaps = 3;
-    google.protobuf.StringValue panel_type = 4;
+    google.protobuf.StringValue request_type = 2;  // "logs" or "traces" for v5 API requestType (maps to "raw" or "trace")
   }
 
   message BuilderQueryTask {

@@ -3,7 +3,7 @@ import logging
 from datetime import datetime, timedelta, date
 from typing import Any
 
-from google.protobuf.wrappers_pb2 import StringValue, DoubleValue, UInt64Value, Int64Value
+from google.protobuf.wrappers_pb2 import StringValue, DoubleValue, UInt64Value, Int64Value, BoolValue
 from google.protobuf.struct_pb2 import Struct
 
 from core.integrations.source_api_processors.aws_boto_3_api_processor import AWSBoto3ApiProcessor
@@ -219,7 +219,8 @@ class CloudwatchSourceManager(SourceManager):
                               form_field_type=FormFieldType.MULTILINE_FT)
                 ],
                 'permission_checks': {
-                    'test_logs_describe_log_groups_permission': [{'client_type': 'logs'}]
+                    'test_logs_describe_log_groups_permission': [{'client_type': 'logs'}],
+                    'test_logs_start_query_permission': [{'client_type': 'logs'}]
                 }
             },
             Cloudwatch.TaskType.RDS_GET_SQL_QUERY_PERFORMANCE_STATS: {
@@ -271,7 +272,7 @@ class CloudwatchSourceManager(SourceManager):
             },
             Cloudwatch.TaskType.FETCH_S3_FILE: {
                 'executor': self.execute_fetch_s3_file,
-                'model_types': [], 
+                'model_types': [],
                 'result_type': PlaybookTaskResultType.TEXT,
                 'display_name': 'Fetch S3 File',
                 'category': 'Files',
@@ -289,6 +290,121 @@ class CloudwatchSourceManager(SourceManager):
                 ],
                 'permission_checks': {
                     'test_s3_get_object_permission': [{'client_type': 's3'}]
+                }
+            },
+            Cloudwatch.TaskType.COST_ANALYSIS: {
+                'executor': self.execute_cost_analysis,
+                'model_types': [],
+                'result_type': PlaybookTaskResultType.API_RESPONSE,
+                'display_name': 'Analyze AWS Costs',
+                'category': 'Cost Analysis',
+                'form_fields': [
+                    FormField(key_name=StringValue(value="start_date"),
+                              display_name=StringValue(value="Start Date"),
+                              description=StringValue(value="Start date in YYYY-MM-DD format"),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT),
+                    FormField(key_name=StringValue(value="end_date"),
+                              display_name=StringValue(value="End Date"),
+                              description=StringValue(value="End date in YYYY-MM-DD format"),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT),
+                    FormField(key_name=StringValue(value="group_by_dimension"),
+                              display_name=StringValue(value="Group By Dimension"),
+                              description=StringValue(value="Dimension to group by (SERVICE, USAGE_TYPE, INSTANCE_TYPE, AZ, TAG, etc.)"),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.DROPDOWN_FT,
+                              valid_values=[
+                                  Literal(type=LiteralType.STRING, string=StringValue(value="SERVICE")),
+                                  Literal(type=LiteralType.STRING, string=StringValue(value="USAGE_TYPE")),
+                                  Literal(type=LiteralType.STRING, string=StringValue(value="INSTANCE_TYPE")),
+                                  Literal(type=LiteralType.STRING, string=StringValue(value="AZ")),
+                                  Literal(type=LiteralType.STRING, string=StringValue(value="REGION")),
+                                  Literal(type=LiteralType.STRING, string=StringValue(value="LINKED_ACCOUNT")),
+                                  Literal(type=LiteralType.STRING, string=StringValue(value="TAG"))
+                              ]),
+                    FormField(key_name=StringValue(value="group_by_tag_key"),
+                              display_name=StringValue(value="Group By Tag Key"),
+                              description=StringValue(value="Required when Group By Dimension = TAG"),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT,
+                              is_optional=True),
+                    FormField(key_name=StringValue(value="filter_dimension"),
+                              display_name=StringValue(value="Filter Dimension"),
+                              description=StringValue(value="Optional dimension to filter by"),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT,
+                              is_optional=True),
+                    FormField(key_name=StringValue(value="filter_values"),
+                              display_name=StringValue(value="Filter Values"),
+                              description=StringValue(value="Optional list of values to filter by (comma-separated)"),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT,
+                              is_optional=True),
+                    FormField(key_name=StringValue(value="granularity"),
+                              display_name=StringValue(value="Time Granularity"),
+                              description=StringValue(value="Time granularity for the analysis"),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.DROPDOWN_FT,
+                              default_value=Literal(type=LiteralType.STRING, string=StringValue(value="DAILY")),
+                              valid_values=[
+                                  Literal(type=LiteralType.STRING, string=StringValue(value="DAILY")),
+                                  Literal(type=LiteralType.STRING, string=StringValue(value="MONTHLY")),
+                                  Literal(type=LiteralType.STRING, string=StringValue(value="HOURLY"))
+                              ],
+                              is_optional=True),
+                    FormField(key_name=StringValue(value="metrics"),
+                              display_name=StringValue(value="Metrics"),
+                              description=StringValue(value="List of metrics to analyze (comma-separated, e.g., UnblendedCost,BlendedCost). Default: UnblendedCost"),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT,
+                              is_optional=True),
+                ],
+                'permission_checks': {
+                    'test_cost_explorer_permission': [{'client_type': 'ce'}]
+                }
+            },
+            Cloudwatch.TaskType.DISCOVER_DIMENSIONS: {
+                'executor': self.execute_discover_dimensions,
+                'model_types': [],
+                'result_type': PlaybookTaskResultType.API_RESPONSE,
+                'display_name': 'Discover AWS Cost Dimensions',
+                'category': 'Cost Analysis',
+                'form_fields': [
+                    FormField(key_name=StringValue(value="start_date"),
+                              display_name=StringValue(value="Start Date"),
+                              description=StringValue(value="Start date in YYYY-MM-DD format"),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT),
+                    FormField(key_name=StringValue(value="end_date"),
+                              display_name=StringValue(value="End Date"),
+                              description=StringValue(value="End date in YYYY-MM-DD format"),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT),
+                    FormField(key_name=StringValue(value="max_values_per_dimension"),
+                              display_name=StringValue(value="Max Values Per Dimension"),
+                              description=StringValue(value="Maximum number of values to return per dimension"),
+                              data_type=LiteralType.LONG,
+                              default_value=Literal(type=LiteralType.LONG, long=Int64Value(value=50)),
+                              form_field_type=FormFieldType.TEXT_FT,
+                              is_optional=True),
+                    FormField(key_name=StringValue(value="min_cost_threshold"),
+                              display_name=StringValue(value="Minimum Cost Threshold"),
+                              description=StringValue(value="Minimum cost to include a value (default: 0.01)"),
+                              data_type=LiteralType.DOUBLE,
+                              default_value=Literal(type=LiteralType.DOUBLE, double=DoubleValue(value=0.01)),
+                              form_field_type=FormFieldType.TEXT_FT,
+                              is_optional=True),
+                    FormField(key_name=StringValue(value="sample_only"),
+                              display_name=StringValue(value="Sample Only"),
+                              description=StringValue(value="Return only top 10 values per dimension for quick overview"),
+                              data_type=LiteralType.BOOLEAN,
+                              default_value=Literal(type=LiteralType.BOOLEAN, boolean=BoolValue(value=False)),
+                              form_field_type=FormFieldType.CHECKBOX_FT,
+                              is_optional=True),
+                ],
+                'permission_checks': {
+                    'test_cost_explorer_permission': [{'client_type': 'ce'}]
                 }
             },
         }
@@ -358,9 +474,65 @@ class CloudwatchSourceManager(SourceManager):
             }
         ]
         self.connector_type_details = {
-            DISPLAY_NAME: "CLOUDWATCH",
+            DISPLAY_NAME: "AWS",
             CATEGORY: CLOUD_MANAGED_SERVICES,
         }
+
+    def get_resolved_task(self, global_variable_set, input_task):
+        """Override to preprocess repeated fields that might come as strings."""
+        from core.protos.playbooks.playbook_pb2 import PlaybookTask
+        from core.utils.proto_utils import proto_to_dict, dict_to_proto
+        from core.integrations.utils.executor_utils import resolve_global_variables
+        from core.protos.playbooks.playbook_commons_pb2 import PlaybookTaskResultType
+        
+        source = input_task.source
+        if not source or source == Source.UNKNOWN or source != self.source:
+            raise Exception("PlaybookSourceManager.resolve_source_task_proto:: Applicable Source not found for task")
+        source_str = Source.Name(source).lower()
+
+        task_dict = proto_to_dict(input_task)
+        source_task_dict = task_dict.get(source_str, {})
+        if not source_task_dict:
+            raise Exception(f"PlaybookSourceManager.get_source_task:: No task definition found for: {source_str}")
+
+        source_task_proto = dict_to_proto(source_task_dict, self.task_proto)
+        task_type = source_task_proto.type
+        if task_type not in self.task_type_callable_map:
+            raise Exception(f"PlaybookSourceManager.get_source_task:: Task type {task_type} not supported for "
+                            f"source: {source_str}")
+
+        task_type_name = self.task_proto.TaskType.Name(task_type).lower()
+        source_task_type_dict = source_task_dict.get(task_type_name, {})
+        if 'form_fields' not in self.task_type_callable_map[task_type]:
+            raise Exception(f"PlaybookSourceManager.get_source_task:: Form fields not found for task type: "
+                            f"{task_type_name} in {source_str} source manager")
+
+        if not source_task_type_dict and self.task_type_callable_map[task_type]['form_fields']:
+            raise Exception(f"PlaybookSourceManager.get_source_task:: No definition for task type: {task_type_name} "
+                            f"found in task")
+
+        # Resolve global variables in source_type_task_def
+        form_fields = self.task_type_callable_map[task_type]['form_fields']
+        resolved_source_task_type_dict, task_local_variable_map = resolve_global_variables(form_fields,
+                                                                                           global_variable_set,
+                                                                                           source_task_type_dict)
+
+        # Add timeseries offsets to resolved_source_type_task_def if present in timeseries task
+        if 'result_type' not in self.task_type_callable_map[task_type]:
+            raise Exception(f"PlaybookSourceManager.get_source_task:: Result type not found for task type: "
+                            f"{task_type_name} in {source_str} source manager")
+        if self.task_type_callable_map[task_type]['result_type'] == PlaybookTaskResultType.TIMESERIES and \
+                input_task.execution_configuration and input_task.execution_configuration.timeseries_offsets:
+            resolved_source_task_type_dict['timeseries_offsets'] = list(
+                input_task.execution_configuration.timeseries_offsets)
+
+        source_task_dict[task_type_name] = resolved_source_task_type_dict
+        resolved_source_task_proto = dict_to_proto(source_task_dict, self.task_proto)
+
+        task_dict[source_str] = source_task_dict
+        resolved_task: PlaybookTask = dict_to_proto(task_dict, PlaybookTask)
+
+        return resolved_task, resolved_source_task_proto, task_local_variable_map
 
     def get_connector_processor(self, cloudwatch_connector, **kwargs):
         generated_credentials = generate_credentials_dict(cloudwatch_connector.type, cloudwatch_connector.keys)
@@ -386,6 +558,25 @@ class CloudwatchSourceManager(SourceManager):
 
         # Delegate the detailed permission checking to the base class implementation
         return self.test_connector_permissions(connector, **kwargs)
+
+    def test_cost_explorer_permission(self, connector: ConnectorProto, **kwargs):
+        """
+        Test Cost Explorer permissions for cost analysis tasks.
+
+        Args:
+            connector: The CloudWatch connector proto.
+            **kwargs: Additional arguments including client_type.
+
+        Returns:
+            bool: True if permission check passes.
+        """
+        try:
+            processor = self.get_connector_processor(connector, client_type='ce', region='us-east-1')
+            # Test basic Cost Explorer permission by calling get_cost_and_usage with minimal parameters
+            return processor.test_cost_explorer_permission()
+        except Exception as e:
+            logger.warning(f"Cost Explorer permission check failed: {e}")
+            raise e
 
     ########################################## CW Metric Execution Functions ####################################
     def _fetch_single_metric_timeseries(self, cloudwatch_boto3_processor, namespace: str, metric_name: str,
@@ -981,3 +1172,132 @@ class CloudwatchSourceManager(SourceManager):
         except Exception as e:
             logger.error(f"Error executing FETCH_S3_FILE for '{cloudwatch_task.fetch_s3_file.bucket_name.value}': {e}", exc_info=True)
             raise Exception(f"Error while fetching S3 file: {e}")
+
+    ########################################## AWS Cost Analysis Functions ####################################
+    def execute_cost_analysis(self, time_range: TimeRange, cloudwatch_task: Cloudwatch,
+                              cloudwatch_connector: ConnectorProto):
+        """Execute AWS cost analysis task."""
+        try:
+            if not cloudwatch_connector:
+                raise Exception("Task execution Failed:: No Cloudwatch source found")
+
+            task = cloudwatch_task.cost_analysis
+            start_date = task.start_date.value
+            end_date = task.end_date.value
+            group_by_dimension = task.group_by_dimension.value
+
+            # Optional fields with defaults
+            group_by_tag_key = task.group_by_tag_key.value if task.HasField('group_by_tag_key') else None
+            filter_dimension = task.filter_dimension.value if task.HasField('filter_dimension') else None
+            filter_tag_key = task.filter_tag_key.value if task.HasField('filter_tag_key') else None
+            granularity = task.granularity.value if task.HasField('granularity') else 'DAILY'
+
+            # Parse comma-separated strings into lists
+            filter_values = None
+            if task.HasField('filter_values') and task.filter_values.value:
+                filter_values = [item.strip() for item in task.filter_values.value.split(',') if item.strip()]
+            
+            filter_tag_values = None
+            if task.HasField('filter_tag_values') and task.filter_tag_values.value:
+                filter_tag_values = [item.strip() for item in task.filter_tag_values.value.split(',') if item.strip()]
+            
+            if task.HasField('metrics') and task.metrics.value:
+                metrics = [item.strip() for item in task.metrics.value.split(',') if item.strip()]
+            else:
+                metrics = ['UnblendedCost']
+
+            # Get Cost Explorer processor (must use us-east-1)
+            ce_processor = self.get_connector_processor(cloudwatch_connector, client_type='ce', region='us-east-1')
+
+            logger.info(f"AWS Cost Analysis Request: start={start_date}, end={end_date}, "
+                       f"group_by={group_by_dimension}, granularity={granularity}")
+
+            # Call the API processor method
+            result = ce_processor.aws_cost_get_cost_analysis(
+                start_date=start_date,
+                end_date=end_date,
+                group_by_dimension=group_by_dimension,
+                group_by_tag_key=group_by_tag_key,
+                filter_dimension=filter_dimension,
+                filter_values=filter_values,
+                filter_tag_key=filter_tag_key,
+                filter_tag_values=filter_tag_values,
+                granularity=granularity,
+                metrics=metrics
+            )
+
+            # Convert result to proto struct
+            response_struct = dict_to_proto(result, Struct)
+            cost_output = ApiResponseResult(response_body=response_struct)
+
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                source=self.source,
+                api_response=cost_output
+            )
+
+        except Exception as e:
+            logger.error(f"Error executing AWS cost analysis: {e}", exc_info=True)
+            raise Exception(f"Error while executing AWS cost analysis: {e}")
+
+    def execute_discover_dimensions(self, time_range: TimeRange, cloudwatch_task: Cloudwatch,
+                                   cloudwatch_connector: ConnectorProto):
+        """Execute AWS cost dimensions discovery task."""
+        try:
+            if not cloudwatch_connector:
+                raise Exception("Task execution Failed:: No Cloudwatch source found")
+
+            task = cloudwatch_task.discover_dimensions
+            start_date = task.start_date.value
+            end_date = task.end_date.value
+
+            # Optional fields with defaults
+            dimensions_to_check = None
+            if task.HasField('dimensions_to_check') and task.dimensions_to_check.value:
+                dimensions_to_check = [item.strip() for item in task.dimensions_to_check.value.split(',') if item.strip()]
+            
+            max_values_per_dimension = task.max_values_per_dimension.value if task.HasField('max_values_per_dimension') else 50
+            min_cost_threshold = task.min_cost_threshold.value if task.HasField('min_cost_threshold') else 0.01
+            include_tags = task.include_tags.value if task.HasField('include_tags') else True
+            sample_only = task.sample_only.value if task.HasField('sample_only') else False
+            
+            filter_by_service = None
+            if task.HasField('filter_by_service') and task.filter_by_service.value:
+                filter_by_service = [item.strip() for item in task.filter_by_service.value.split(',') if item.strip()]
+            
+            region_filter = None
+            if task.HasField('region_filter') and task.region_filter.value:
+                region_filter = [item.strip() for item in task.region_filter.value.split(',') if item.strip()]
+
+            # Get Cost Explorer processor (must use us-east-1)
+            ce_processor = self.get_connector_processor(cloudwatch_connector, client_type='ce', region='us-east-1')
+
+            logger.info(f"AWS Discover Dimensions Request: start={start_date}, end={end_date}, "
+                       f"sample_only={sample_only}, include_tags={include_tags}")
+
+            # Call the API processor method
+            result = ce_processor.aws_cost_discover_dimensions(
+                start_date=start_date,
+                end_date=end_date,
+                dimensions_to_check=dimensions_to_check,
+                max_values_per_dimension=max_values_per_dimension,
+                min_cost_threshold=min_cost_threshold,
+                include_tags=include_tags,
+                sample_only=sample_only,
+                filter_by_service=filter_by_service,
+                region_filter=region_filter
+            )
+
+            # Convert result to proto struct
+            response_struct = dict_to_proto(result, Struct)
+            dimensions_output = ApiResponseResult(response_body=response_struct)
+
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                source=self.source,
+                api_response=dimensions_output
+            )
+
+        except Exception as e:
+            logger.error(f"Error executing AWS discover dimensions: {e}", exc_info=True)
+            raise Exception(f"Error while executing AWS discover dimensions: {e}")

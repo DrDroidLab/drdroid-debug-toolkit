@@ -448,6 +448,7 @@ class _SourceKeyTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     """VictoriaLogs specific keys (used by VictoriaLogs connector forms)"""
     VICTORIA_LOGS_HOST: _SourceKeyType.ValueType  # 155
     VICTORIA_LOGS_PORT: _SourceKeyType.ValueType  # 156
+    VICTORIA_LOGS_HEADERS: _SourceKeyType.ValueType  # 157
 
 class SourceKeyType(_SourceKeyType, metaclass=_SourceKeyTypeEnumTypeWrapper): ...
 
@@ -595,6 +596,7 @@ VICTORIA_LOGS_PROTOCOL: SourceKeyType.ValueType  # 154
 """VictoriaLogs specific keys (used by VictoriaLogs connector forms)"""
 VICTORIA_LOGS_HOST: SourceKeyType.ValueType  # 155
 VICTORIA_LOGS_PORT: SourceKeyType.ValueType  # 156
+VICTORIA_LOGS_HEADERS: SourceKeyType.ValueType  # 157
 global___SourceKeyType = SourceKeyType
 
 class _SourceModelType:
@@ -654,6 +656,14 @@ class _SourceModelTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper
     POSTGRES_TABLE: _SourceModelType.ValueType  # 702
     EKS_CLUSTER: _SourceModelType.ValueType  # 801
     """EKS Models"""
+    EKS_NAMESPACE: _SourceModelType.ValueType  # 802
+    EKS_SERVICE: _SourceModelType.ValueType  # 803
+    EKS_DEPLOYMENT: _SourceModelType.ValueType  # 804
+    EKS_INGRESS: _SourceModelType.ValueType  # 805
+    EKS_NETWORK_POLICY: _SourceModelType.ValueType  # 806
+    EKS_HPA: _SourceModelType.ValueType  # 807
+    EKS_REPLICASET: _SourceModelType.ValueType  # 808
+    EKS_STATEFULSET: _SourceModelType.ValueType  # 809
     SQL_DATABASE_CONNECTION_RAW_QUERY: _SourceModelType.ValueType  # 901
     """Sql Database Connection Models"""
     SQL_DATABASE_TABLE: _SourceModelType.ValueType  # 902
@@ -801,6 +811,14 @@ POSTGRES_QUERY: SourceModelType.ValueType  # 701
 POSTGRES_TABLE: SourceModelType.ValueType  # 702
 EKS_CLUSTER: SourceModelType.ValueType  # 801
 """EKS Models"""
+EKS_NAMESPACE: SourceModelType.ValueType  # 802
+EKS_SERVICE: SourceModelType.ValueType  # 803
+EKS_DEPLOYMENT: SourceModelType.ValueType  # 804
+EKS_INGRESS: SourceModelType.ValueType  # 805
+EKS_NETWORK_POLICY: SourceModelType.ValueType  # 806
+EKS_HPA: SourceModelType.ValueType  # 807
+EKS_REPLICASET: SourceModelType.ValueType  # 808
+EKS_STATEFULSET: SourceModelType.ValueType  # 809
 SQL_DATABASE_CONNECTION_RAW_QUERY: SourceModelType.ValueType  # 901
 """Sql Database Connection Models"""
 SQL_DATABASE_TABLE: SourceModelType.ValueType  # 902

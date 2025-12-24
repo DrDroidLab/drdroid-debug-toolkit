@@ -114,3 +114,9 @@ class EKSApiProcessor(Processor):
             elif client == 'app':
                 app_instance = kubernetes.client.AppsV1Api(api_client)
                 return app_instance
+            elif client == 'networking':
+                networking_instance = kubernetes.client.NetworkingV1Api(api_client)
+                return networking_instance
+            elif client == 'autoscaling':
+                autoscaling_instance = kubernetes.client.AutoscalingV1Api(api_client)
+                return autoscaling_instance

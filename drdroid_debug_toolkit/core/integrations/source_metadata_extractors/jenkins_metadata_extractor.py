@@ -26,6 +26,7 @@ class JenkinsSourceMetadataExtractor(SourceMetadataExtractor):
                 logger.error("Jenkins connection test failed.")
                 return model_data
 
+            logger.info("Starting Jenkins job extraction...")
             # Get all jobs recursively (including those in folders)
             all_jobs = self.jenkins_processor.get_all_jobs_recursive()
             
@@ -69,11 +70,27 @@ class JenkinsSourceMetadataExtractor(SourceMetadataExtractor):
                                 "class": job_class,
                                 "parameters": parameters
                             }
+                            
+                                # Only save actual jobs, not folders
+                            if not is_folder:
+                                # Use the full path as the model_uid to ensure uniqueness across the hierarchy
+                                print(f"Saving to DB: {job_full_path}", flush=True)
+                                
+                                # Explicitly add parent folder info
+                                if '/' in job_full_path:
+                                    path_parts = job_full_path.split('/')
+                                    parent_path = '/'.join(path_parts[:-1])
+                                    metadata = model_data[job_full_path].copy()
+                                    metadata['parent_folder'] = parent_path
+                                else:
+                                    metadata = model_data[job_full_path].copy()
+
+                            else:
+                                print(f"Skipping folder (not saving to DB): {job_full_path}", flush=True)
                     except KeyError as e:
                         logger.error(f"Missing key {e} in job: {job}")
         except Exception as e:
             logger.error(f'Error extracting Jenkins jobs: {e}')
-
         if len(model_data) > 0:
             self.create_or_update_model_metadata(model_type, model_data)
-
+        return model_data
