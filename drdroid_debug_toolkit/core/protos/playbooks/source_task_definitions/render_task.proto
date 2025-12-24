@@ -26,16 +26,8 @@ message Render {
     google.protobuf.StringValue start_time = 2;
     google.protobuf.StringValue end_time = 3;
     google.protobuf.Int64Value limit = 4;
-    google.protobuf.StringValue instance = 5;
-    google.protobuf.StringValue host = 6;
-    google.protobuf.StringValue status_code = 7;
-    google.protobuf.StringValue method = 8;
-    google.protobuf.StringValue task = 9;
-    google.protobuf.StringValue task_run = 10;
-    google.protobuf.StringValue level = 11;
-    google.protobuf.StringValue type = 12;
-    google.protobuf.StringValue text = 13;
-    google.protobuf.StringValue path = 14;
+    google.protobuf.StringValue instance = 5;  // Maps to instanceId in Render API
+    google.protobuf.StringValue level = 6;      // Log level filter (e.g., "info", "error")
   }
 
   enum TaskType {

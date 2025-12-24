@@ -67,8 +67,7 @@ class RenderAPIProcessor(Processor):
             raise Exception(f"Failed to get service: {e}")
 
     def fetch_logs(self, service_id, start_time=None, end_time=None, limit=None,
-                   instance=None, host=None, status_code=None, method=None,
-                   task=None, task_run=None, level=None, type=None, text=None, path=None):
+                   instance=None, level=None):
         """Fetch logs for a specific service."""
         try:
             # First, get the service details to extract the ownerId
@@ -112,37 +111,32 @@ class RenderAPIProcessor(Processor):
             if limit:
                 params['limit'] = limit
             
-            # Add filter parameters (convert lists to comma-separated strings for Render API)
+            # Add filter parameters according to Render API documentation
+            # Reference: https://api-docs.render.com/reference/list-logs
             def format_filter_param(value):
-                """Convert list or single value to comma-separated string."""
+                """Format filter parameter - support comma-separated strings for multiple values."""
                 if not value:
                     return None
                 if isinstance(value, list):
-                    # Filter out empty values and join with comma
+                    # Join list values with comma for comma-separated format
                     filtered = [str(v).strip() for v in value if v]
                     return ','.join(filtered) if filtered else None
                 return str(value).strip() if value else None
             
+            # instanceId - The ID of a specific instance (supports comma-separated for multiple)
             if instance:
-                params['instance'] = format_filter_param(instance)
-            if host:
-                params['host'] = format_filter_param(host)
-            if status_code:
-                params['statusCode'] = format_filter_param(status_code)
-            if method:
-                params['method'] = format_filter_param(method)
-            if task:
-                params['task'] = format_filter_param(task)
-            if task_run:
-                params['taskRun'] = format_filter_param(task_run)
+                instance_value = format_filter_param(instance)
+                if instance_value:
+                    params['instanceId'] = instance_value
+            
+            # level - The log level to filter by (e.g., info, error)
             if level:
-                params['level'] = format_filter_param(level)
-            if type:
-                params['type'] = format_filter_param(type)
-            if text:
-                params['text'] = format_filter_param(text)
-            if path:
-                params['path'] = format_filter_param(path)
+                level_value = format_filter_param(level)
+                if level_value:
+                    params['level'] = level_value
+            
+            # Note: Other parameters (host, status_code, method, task, task_run, type, text, path)
+            # are not documented in the Render API and are not supported
             
             response = requests.get(url, headers=self.headers, params=params)
             response.raise_for_status()

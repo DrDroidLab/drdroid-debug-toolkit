@@ -115,15 +115,7 @@ class Render(google.protobuf.message.Message):
         END_TIME_FIELD_NUMBER: builtins.int
         LIMIT_FIELD_NUMBER: builtins.int
         INSTANCE_FIELD_NUMBER: builtins.int
-        HOST_FIELD_NUMBER: builtins.int
-        STATUS_CODE_FIELD_NUMBER: builtins.int
-        METHOD_FIELD_NUMBER: builtins.int
-        TASK_FIELD_NUMBER: builtins.int
-        TASK_RUN_FIELD_NUMBER: builtins.int
         LEVEL_FIELD_NUMBER: builtins.int
-        TYPE_FIELD_NUMBER: builtins.int
-        TEXT_FIELD_NUMBER: builtins.int
-        PATH_FIELD_NUMBER: builtins.int
         @property
         def service_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
         @property
@@ -133,25 +125,11 @@ class Render(google.protobuf.message.Message):
         @property
         def limit(self) -> google.protobuf.wrappers_pb2.Int64Value: ...
         @property
-        def instance(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        def instance(self) -> google.protobuf.wrappers_pb2.StringValue:
+            """Maps to instanceId in Render API"""
         @property
-        def host(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-        @property
-        def status_code(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-        @property
-        def method(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-        @property
-        def task(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-        @property
-        def task_run(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-        @property
-        def level(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-        @property
-        def type(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-        @property
-        def text(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-        @property
-        def path(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        def level(self) -> google.protobuf.wrappers_pb2.StringValue:
+            """Log level filter (e.g., "info", "error")"""
         def __init__(
             self,
             *,
@@ -160,18 +138,10 @@ class Render(google.protobuf.message.Message):
             end_time: google.protobuf.wrappers_pb2.StringValue | None = ...,
             limit: google.protobuf.wrappers_pb2.Int64Value | None = ...,
             instance: google.protobuf.wrappers_pb2.StringValue | None = ...,
-            host: google.protobuf.wrappers_pb2.StringValue | None = ...,
-            status_code: google.protobuf.wrappers_pb2.StringValue | None = ...,
-            method: google.protobuf.wrappers_pb2.StringValue | None = ...,
-            task: google.protobuf.wrappers_pb2.StringValue | None = ...,
-            task_run: google.protobuf.wrappers_pb2.StringValue | None = ...,
             level: google.protobuf.wrappers_pb2.StringValue | None = ...,
-            type: google.protobuf.wrappers_pb2.StringValue | None = ...,
-            text: google.protobuf.wrappers_pb2.StringValue | None = ...,
-            path: google.protobuf.wrappers_pb2.StringValue | None = ...,
         ) -> None: ...
-        def HasField(self, field_name: typing_extensions.Literal["end_time", b"end_time", "host", b"host", "instance", b"instance", "level", b"level", "limit", b"limit", "method", b"method", "path", b"path", "service_id", b"service_id", "start_time", b"start_time", "status_code", b"status_code", "task", b"task", "task_run", b"task_run", "text", b"text", "type", b"type"]) -> builtins.bool: ...
-        def ClearField(self, field_name: typing_extensions.Literal["end_time", b"end_time", "host", b"host", "instance", b"instance", "level", b"level", "limit", b"limit", "method", b"method", "path", b"path", "service_id", b"service_id", "start_time", b"start_time", "status_code", b"status_code", "task", b"task", "task_run", b"task_run", "text", b"text", "type", b"type"]) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["end_time", b"end_time", "instance", b"instance", "level", b"level", "limit", b"limit", "service_id", b"service_id", "start_time", b"start_time"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["end_time", b"end_time", "instance", b"instance", "level", b"level", "limit", b"limit", "service_id", b"service_id", "start_time", b"start_time"]) -> None: ...
 
     TYPE_FIELD_NUMBER: builtins.int
     LIST_DEPLOYS_FIELD_NUMBER: builtins.int
