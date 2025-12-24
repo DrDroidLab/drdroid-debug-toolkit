@@ -95,61 +95,69 @@ class RenderAPIProcessor(Processor):
                 'resource': [service_id]  # resource is required and should be an array
             }
             
-            # Helper function to convert time to Unix timestamp in milliseconds
-            # Render API expects timestamps in milliseconds (not seconds)
-            def to_unix_timestamp_ms(time_value):
-                """Convert ISO 8601 string or datetime to Unix timestamp in milliseconds."""
+            # Helper function to convert time to ISO 8601 format
+            # Render API expects ISO 8601 format strings (e.g., "2006-01-02T15:04:05Z07:00")
+            def to_iso8601(time_value):
+                """Convert various time formats to ISO 8601 string."""
                 if not time_value:
                     return None
                 import datetime
                 from datetime import timezone
                 if isinstance(time_value, str):
-                    # Try parsing ISO 8601 format
+                    # If already ISO 8601 format, try to parse and normalize it
                     try:
-                        dt = datetime.datetime.fromisoformat(time_value.replace('Z', '+00:00'))
-                        return int(dt.timestamp() * 1000)  # Convert to milliseconds
+                        # Handle Z suffix
+                        time_str = time_value.replace('Z', '+00:00')
+                        dt = datetime.datetime.fromisoformat(time_str)
+                        # Ensure timezone-aware
+                        if dt.tzinfo is None:
+                            dt = dt.replace(tzinfo=timezone.utc)
+                        # Format as ISO 8601 with Z suffix
+                        return dt.strftime('%Y-%m-%dT%H:%M:%SZ')
                     except:
-                        # If parsing fails, assume it's already a timestamp
+                        # If parsing fails, try to parse as Unix timestamp
                         try:
                             ts = float(time_value)
-                            # If timestamp is less than year 2000 in seconds, assume it's already in milliseconds
-                            if ts < 946684800:  # Jan 1, 2000 in seconds
-                                return int(ts)
+                            # If timestamp is very large, assume milliseconds, else seconds
+                            if ts > 1e10:
+                                dt = datetime.datetime.fromtimestamp(ts / 1000, tz=timezone.utc)
                             else:
-                                # Assume seconds, convert to milliseconds
-                                return int(ts * 1000)
+                                dt = datetime.datetime.fromtimestamp(ts, tz=timezone.utc)
+                            return dt.strftime('%Y-%m-%dT%H:%M:%SZ')
                         except:
-                            return None
+                            # Return as-is if we can't parse it
+                            return time_value
                 elif isinstance(time_value, (int, float)):
-                    # If timestamp is less than year 2000 in seconds, assume it's already in milliseconds
-                    if time_value < 946684800:
-                        return int(time_value)
+                    # Convert Unix timestamp to ISO 8601
+                    # If timestamp is very large, assume milliseconds, else seconds
+                    if time_value > 1e10:
+                        dt = datetime.datetime.fromtimestamp(time_value / 1000, tz=timezone.utc)
                     else:
-                        # Assume seconds, convert to milliseconds
-                        return int(time_value * 1000)
+                        dt = datetime.datetime.fromtimestamp(time_value, tz=timezone.utc)
+                    return dt.strftime('%Y-%m-%dT%H:%M:%SZ')
                 return None
             
-            # Time parameters - Render API expects Unix timestamps in milliseconds
+            # Time parameters - Render API expects ISO 8601 format strings
             if start_time:
-                start_ts = to_unix_timestamp_ms(start_time)
-                if start_ts:
-                    params['startTime'] = start_ts
+                start_iso = to_iso8601(start_time)
+                if start_iso:
+                    params['startTime'] = start_iso
             else:
                 # Default: 1 hour ago
                 import datetime
                 from datetime import timezone
                 default_start = datetime.datetime.now(timezone.utc) - datetime.timedelta(hours=1)
-                params['startTime'] = int(default_start.timestamp() * 1000)  # milliseconds
+                params['startTime'] = default_start.strftime('%Y-%m-%dT%H:%M:%SZ')
             
             if end_time:
-                end_ts = to_unix_timestamp_ms(end_time)
-                if end_ts:
-                    params['endTime'] = end_ts
+                end_iso = to_iso8601(end_time)
+                if end_iso:
+                    params['endTime'] = end_iso
             else:
                 # Default: now
                 import datetime
                 from datetime import timezone
-                params['endTime'] = int(datetime.datetime.now(timezone.utc).timestamp() * 1000)  # milliseconds
+                params['endTime'] = datetime.datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
             
             if limit:
                 params['limit'] = limit
