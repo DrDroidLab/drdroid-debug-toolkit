@@ -46,7 +46,10 @@ import "core/protos/playbooks/source_task_definitions/opsgenie_task.proto";
 import "core/protos/playbooks/source_task_definitions/victoria_logs_task.proto";
 import "core/protos/playbooks/source_task_definitions/render_task.proto";
 import "core/protos/playbooks/source_task_definitions/mcp_task.proto";
+<<<<<<< HEAD
 
+=======
+>>>>>>> dacf97f3e097b309e7d79cd2c74837e886ea3a48
 
 message Variable {
   google.protobuf.StringValue name = 1;

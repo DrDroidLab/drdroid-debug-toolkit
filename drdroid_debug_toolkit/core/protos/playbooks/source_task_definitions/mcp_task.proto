@@ -27,4 +27,8 @@ message McpServer {
     ListToolsTask list_tools = 2;
     ExecuteToolTask execute_tool = 3;
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> dacf97f3e097b309e7d79cd2c74837e886ea3a48
