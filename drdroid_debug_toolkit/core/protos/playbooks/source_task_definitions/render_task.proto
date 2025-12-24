@@ -26,16 +26,16 @@ message Render {
     google.protobuf.StringValue start_time = 2;
     google.protobuf.StringValue end_time = 3;
     google.protobuf.Int64Value limit = 4;
-    repeated string instance = 5;
-    repeated string host = 6;
-    repeated string status_code = 7;
-    repeated string method = 8;
-    repeated string task = 9;
-    repeated string task_run = 10;
-    repeated string level = 11;
-    repeated string type = 12;
-    repeated string text = 13;
-    repeated string path = 14;
+    google.protobuf.StringValue instance = 5;
+    google.protobuf.StringValue host = 6;
+    google.protobuf.StringValue status_code = 7;
+    google.protobuf.StringValue method = 8;
+    google.protobuf.StringValue task = 9;
+    google.protobuf.StringValue task_run = 10;
+    google.protobuf.StringValue level = 11;
+    google.protobuf.StringValue type = 12;
+    google.protobuf.StringValue text = 13;
+    google.protobuf.StringValue path = 14;
   }
 
   enum TaskType {

@@ -120,63 +120,63 @@ class RenderSourceManager(SourceManager):
                               is_optional=True),
                     FormField(key_name=StringValue(value="instance"),
                               display_name=StringValue(value="Instance"),
-                              description=StringValue(value='Filter logs by instance ID(s) - array of strings'),
+                              description=StringValue(value='Filter logs by instance ID(s) - comma-separated values (e.g., "id1,id2,id3")'),
                               data_type=LiteralType.STRING,
-                              form_field_type=FormFieldType.STRING_ARRAY_FT,
+                              form_field_type=FormFieldType.TEXT_FT,
                               is_optional=True),
                     FormField(key_name=StringValue(value="host"),
                               display_name=StringValue(value="Host"),
-                              description=StringValue(value='Filter request logs by host - supports wildcards and regex'),
+                              description=StringValue(value='Filter request logs by host - comma-separated values, supports wildcards and regex (e.g., "host1,host2")'),
                               data_type=LiteralType.STRING,
-                              form_field_type=FormFieldType.STRING_ARRAY_FT,
+                              form_field_type=FormFieldType.TEXT_FT,
                               is_optional=True),
                     FormField(key_name=StringValue(value="status_code"),
                               display_name=StringValue(value="Status Code"),
-                              description=StringValue(value='Filter request logs by status code - supports wildcards and regex'),
+                              description=StringValue(value='Filter request logs by status code - comma-separated values, supports wildcards and regex (e.g., "200,404,500")'),
                               data_type=LiteralType.STRING,
-                              form_field_type=FormFieldType.STRING_ARRAY_FT,
+                              form_field_type=FormFieldType.TEXT_FT,
                               is_optional=True),
                     FormField(key_name=StringValue(value="method"),
                               display_name=StringValue(value="Method"),
-                              description=StringValue(value='Filter request logs by HTTP method (GET, POST, etc.)'),
+                              description=StringValue(value='Filter request logs by HTTP method - comma-separated values (e.g., "GET,POST,PUT")'),
                               data_type=LiteralType.STRING,
-                              form_field_type=FormFieldType.STRING_ARRAY_FT,
+                              form_field_type=FormFieldType.TEXT_FT,
                               is_optional=True),
                     FormField(key_name=StringValue(value="task"),
                               display_name=StringValue(value="Task"),
-                              description=StringValue(value='Filter logs by task(s)'),
+                              description=StringValue(value='Filter logs by task(s) - comma-separated values (e.g., "task1,task2")'),
                               data_type=LiteralType.STRING,
-                              form_field_type=FormFieldType.STRING_ARRAY_FT,
+                              form_field_type=FormFieldType.TEXT_FT,
                               is_optional=True),
                     FormField(key_name=StringValue(value="task_run"),
                               display_name=StringValue(value="Task Run"),
-                              description=StringValue(value='Filter logs by task run ID(s)'),
+                              description=StringValue(value='Filter logs by task run ID(s) - comma-separated values (e.g., "run1,run2")'),
                               data_type=LiteralType.STRING,
-                              form_field_type=FormFieldType.STRING_ARRAY_FT,
+                              form_field_type=FormFieldType.TEXT_FT,
                               is_optional=True),
                     FormField(key_name=StringValue(value="level"),
                               display_name=StringValue(value="Level"),
-                              description=StringValue(value='Filter logs by severity level - supports wildcards and regex'),
+                              description=StringValue(value='Filter logs by severity level - comma-separated values, supports wildcards and regex (e.g., "ERROR,WARN")'),
                               data_type=LiteralType.STRING,
-                              form_field_type=FormFieldType.STRING_ARRAY_FT,
+                              form_field_type=FormFieldType.TEXT_FT,
                               is_optional=True),
                     FormField(key_name=StringValue(value="type"),
                               display_name=StringValue(value="Type"),
-                              description=StringValue(value='Filter logs by type (app, request, build, etc.)'),
+                              description=StringValue(value='Filter logs by type - comma-separated values (e.g., "app,request,build")'),
                               data_type=LiteralType.STRING,
-                              form_field_type=FormFieldType.STRING_ARRAY_FT,
+                              form_field_type=FormFieldType.TEXT_FT,
                               is_optional=True),
                     FormField(key_name=StringValue(value="text"),
                               display_name=StringValue(value="Text"),
-                              description=StringValue(value='Filter by log text content - supports wildcards and regex'),
+                              description=StringValue(value='Filter by log text content - comma-separated values, supports wildcards and regex'),
                               data_type=LiteralType.STRING,
-                              form_field_type=FormFieldType.STRING_ARRAY_FT,
+                              form_field_type=FormFieldType.TEXT_FT,
                               is_optional=True),
                     FormField(key_name=StringValue(value="path"),
                               display_name=StringValue(value="Path"),
-                              description=StringValue(value='Filter request logs by path - supports wildcards and regex'),
+                              description=StringValue(value='Filter request logs by path - comma-separated values, supports wildcards and regex (e.g., "/api/v1,/api/v2")'),
                               data_type=LiteralType.STRING,
-                              form_field_type=FormFieldType.STRING_ARRAY_FT,
+                              form_field_type=FormFieldType.TEXT_FT,
                               is_optional=True),
                 ]
             },
@@ -427,17 +427,26 @@ class RenderSourceManager(SourceManager):
             end_time = task_data.end_time.value if task_data.end_time else None
             limit = task_data.limit.value if task_data.limit else None
             
-            # Extract filter parameters (repeated string fields)
-            instance = list(task_data.instance) if task_data.instance else None
-            host = list(task_data.host) if task_data.host else None
-            status_code = list(task_data.status_code) if task_data.status_code else None
-            method = list(task_data.method) if task_data.method else None
-            task = list(task_data.task) if task_data.task else None
-            task_run = list(task_data.task_run) if task_data.task_run else None
-            level = list(task_data.level) if task_data.level else None
-            type = list(task_data.type) if task_data.type else None
-            text = list(task_data.text) if task_data.text else None
-            path = list(task_data.path) if task_data.path else None
+            # Helper function to convert comma-separated strings to list
+            def parse_filter_field(field_value):
+                """Convert comma-separated string to list, handling None/empty."""
+                if not field_value or not isinstance(field_value, str):
+                    return None
+                # Split by comma and strip whitespace
+                values = [v.strip() for v in field_value.split(',') if v.strip()]
+                return values if values else None
+            
+            # Extract filter parameters (handle comma-separated strings from StringValue fields)
+            instance = parse_filter_field(task_data.instance.value if task_data.HasField("instance") else None)
+            host = parse_filter_field(task_data.host.value if task_data.HasField("host") else None)
+            status_code = parse_filter_field(task_data.status_code.value if task_data.HasField("status_code") else None)
+            method = parse_filter_field(task_data.method.value if task_data.HasField("method") else None)
+            task = parse_filter_field(task_data.task.value if task_data.HasField("task") else None)
+            task_run = parse_filter_field(task_data.task_run.value if task_data.HasField("task_run") else None)
+            level = parse_filter_field(task_data.level.value if task_data.HasField("level") else None)
+            type = parse_filter_field(task_data.type.value if task_data.HasField("type") else None)
+            text = parse_filter_field(task_data.text.value if task_data.HasField("text") else None)
+            path = parse_filter_field(task_data.path.value if task_data.HasField("path") else None)
             
             api_processor = self._get_api_processor(connector_proto)
             result = api_processor.fetch_logs(
