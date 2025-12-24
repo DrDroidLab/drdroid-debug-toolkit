@@ -895,6 +895,111 @@ class DatadogApiProcessor(Processor):
             logger.error(f"Exception occurred while querying monitors with error: {e}")
             raise e
 
+    def create_monitor(self, monitor_definition: dict):
+        """
+        Create a new Datadog monitor.
+
+        Args:
+            monitor_definition: Dictionary containing monitor configuration with required fields:
+                - name: Name of the monitor
+                - type: Type of monitor (e.g., 'metric alert', 'query alert', 'service check', etc.)
+                - query: The monitor query
+                Optional fields:
+                - message: Message to include with notifications
+                - tags: List of tags for the monitor
+                - priority: Monitor priority (1-5)
+                - options: Additional monitor options (thresholds, notify_no_data, etc.)
+
+        Returns:
+            Dictionary containing the created monitor details
+        """
+        try:
+            url = f"{self.__dd_host}/api/v1/monitor"
+            headers = {
+                "DD-API-KEY": self.__dd_api_key,
+                "DD-APPLICATION-KEY": self.__dd_app_key,
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+
+            response = requests.post(url, headers=headers, json=monitor_definition, timeout=EXTERNAL_CALL_TIMEOUT)
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.HTTPError as e:
+            error_detail = e.response.text if e.response else str(e)
+            logger.error(f"Failed to create monitor: {error_detail}")
+            raise Exception(f"Failed to create monitor: {error_detail}")
+        except Exception as e:
+            logger.error(f"Exception occurred while creating monitor: {e}")
+            raise e
+
+    def update_monitor(self, monitor_id: int, monitor_definition: dict):
+        """
+        Update an existing Datadog monitor.
+
+        Args:
+            monitor_id: ID of the monitor to update
+            monitor_definition: Dictionary containing monitor fields to update:
+                - name: Name of the monitor
+                - type: Type of monitor
+                - query: The monitor query
+                - message: Message to include with notifications
+                - tags: List of tags for the monitor
+                - priority: Monitor priority (1-5)
+                - options: Additional monitor options
+
+        Returns:
+            Dictionary containing the updated monitor details
+        """
+        try:
+            url = f"{self.__dd_host}/api/v1/monitor/{monitor_id}"
+            headers = {
+                "DD-API-KEY": self.__dd_api_key,
+                "DD-APPLICATION-KEY": self.__dd_app_key,
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+
+            response = requests.put(url, headers=headers, json=monitor_definition, timeout=EXTERNAL_CALL_TIMEOUT)
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.HTTPError as e:
+            error_detail = e.response.text if e.response else str(e)
+            logger.error(f"Failed to update monitor {monitor_id}: {error_detail}")
+            raise Exception(f"Failed to update monitor {monitor_id}: {error_detail}")
+        except Exception as e:
+            logger.error(f"Exception occurred while updating monitor {monitor_id}: {e}")
+            raise e
+
+    def delete_monitor(self, monitor_id: int):
+        """
+        Delete a Datadog monitor.
+
+        Args:
+            monitor_id: ID of the monitor to delete
+
+        Returns:
+            Dictionary containing deletion confirmation
+        """
+        try:
+            url = f"{self.__dd_host}/api/v1/monitor/{monitor_id}"
+            headers = {
+                "DD-API-KEY": self.__dd_api_key,
+                "DD-APPLICATION-KEY": self.__dd_app_key,
+                "Accept": "application/json"
+            }
+
+            response = requests.delete(url, headers=headers, timeout=EXTERNAL_CALL_TIMEOUT)
+            response.raise_for_status()
+            return {"deleted_monitor_id": monitor_id, "success": True}
+        except requests.exceptions.HTTPError as e:
+            error_detail = e.response.text if e.response else str(e)
+            logger.error(f"Failed to delete monitor {monitor_id}: {error_detail}")
+            raise Exception(f"Failed to delete monitor {monitor_id}: {error_detail}")
+        except Exception as e:
+            logger.error(f"Exception occurred while deleting monitor {monitor_id}: {e}")
+            raise e
+
     def fetch_dashboards(self):
         try:
             configuration = self.get_connection()
