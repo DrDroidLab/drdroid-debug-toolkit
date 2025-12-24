@@ -703,7 +703,7 @@ class SignozSourceManager(SourceManager):
                     FormField(
                         key_name=StringValue(value="fill_gaps"),
                         display_name=StringValue(value="Fill Gaps"),
-                        description=StringValue(value="Fill gaps in time series data"),
+                        description=StringValue(value="Fill gaps in time series data (deprecated, not used in v5 API)"),
                         data_type=LiteralType.BOOLEAN,
                         is_optional=True,
                         default_value=Literal(
@@ -711,32 +711,6 @@ class SignozSourceManager(SourceManager):
                             boolean=BoolValue(value=False),
                         ),
                         form_field_type=FormFieldType.CHECKBOX_FT,
-                    ),
-                    FormField(
-                        key_name=StringValue(value="panel_type"),
-                        display_name=StringValue(value="Panel Type"),
-                        description=StringValue(value="Type of visualization panel"),
-                        data_type=LiteralType.STRING,
-                        is_optional=True,
-                        default_value=Literal(
-                            type=LiteralType.STRING,
-                            string=StringValue(value="table"),
-                        ),
-                        form_field_type=FormFieldType.DROPDOWN_FT,
-                        valid_values=[
-                            Literal(
-                                type=LiteralType.STRING,
-                                string=StringValue(value="table"),
-                            ),
-                            Literal(
-                                type=LiteralType.STRING,
-                                string=StringValue(value="graph"),
-                            ),
-                            Literal(
-                                type=LiteralType.STRING,
-                                string=StringValue(value="value"),
-                            ),
-                        ],
                     ),
                     FormField(
                         key_name=StringValue(value="request_type"),
@@ -1522,48 +1496,12 @@ class SignozSourceManager(SourceManager):
             api_url = self._extract_api_url_from_connector(signoz_connector)
             metadata = self._create_metadata_with_signoz_url(api_url, "metrics", {
                 "start_time": int(time_range.time_geq * 1000),
-                "end_time": int(time_range.time_lt * 1000)
+                "end_time": int(time_range.time_lt * 1000),
+                "query": query,
+                "request_type": request_type
             })
 
-            # Extract result from v5 API response
-            # v5 API response structure: {"status": "success", "data": {"data": {"results": [{"queryName": "A", "rows": [...]}]}}}
-            query_result_item = None
-            if result and isinstance(result, dict):
-                # Check for v5 API format: result.data.data.results[0]
-                if "data" in result and isinstance(result["data"], dict):
-                    data_level = result["data"]
-                    if "data" in data_level and isinstance(data_level["data"], dict):
-                        inner_data = data_level["data"]
-                        if "results" in inner_data and isinstance(inner_data["results"], list) and len(inner_data["results"]) > 0:
-                            # Extract the first result which contains rows
-                            first_result = inner_data["results"][0]
-                            # Convert v5 format to expected format: wrap rows in table structure
-                            if "rows" in first_result:
-                                query_result_item = {
-                                    "table": {
-                                        "rows": first_result["rows"]
-                                    },
-                                    "queryName": first_result.get("queryName", "A")
-                                }
-                # Check for v4 API format: result.data.result[0]
-                elif "data" in result and "result" in result["data"]:
-                    api_results = result["data"]["result"]
-                    if isinstance(api_results, list) and len(api_results) > 0:
-                        query_result_item = api_results[0]
-                # Check for alternative formats
-                elif "result" in result:
-                    if isinstance(result["result"], list) and len(result["result"]) > 0:
-                        query_result_item = result["result"][0]
-                    elif isinstance(result["result"], dict):
-                        query_result_item = result["result"]
-
-            # Create the appropriate task result
-            if query_result_item:
-                task_result = self._create_task_result(query_result_item, "table", query, "Clickhouse Query", metadata)
-                if task_result:
-                    return task_result
-            
-            # Fallback: return entire response as API_RESPONSE if table conversion fails
+            # Return raw API response as API_RESPONSE
             try:
                 response_struct = dict_to_proto(result, Struct)
                 return PlaybookTaskResult(
