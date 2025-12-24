@@ -703,7 +703,7 @@ class SignozSourceManager(SourceManager):
                     FormField(
                         key_name=StringValue(value="fill_gaps"),
                         display_name=StringValue(value="Fill Gaps"),
-                        description=StringValue(value="Fill gaps in time series data"),
+                        description=StringValue(value="Fill gaps in time series data (deprecated, not used in v5 API)"),
                         data_type=LiteralType.BOOLEAN,
                         is_optional=True,
                         default_value=Literal(
@@ -713,28 +713,24 @@ class SignozSourceManager(SourceManager):
                         form_field_type=FormFieldType.CHECKBOX_FT,
                     ),
                     FormField(
-                        key_name=StringValue(value="panel_type"),
-                        display_name=StringValue(value="Panel Type"),
-                        description=StringValue(value="Type of visualization panel"),
+                        key_name=StringValue(value="request_type"),
+                        display_name=StringValue(value="Request Type"),
+                        description=StringValue(value="Request type for v5 API - 'logs' or 'traces'"),
                         data_type=LiteralType.STRING,
                         is_optional=True,
                         default_value=Literal(
                             type=LiteralType.STRING,
-                            string=StringValue(value="table"),
+                            string=StringValue(value="traces"),
                         ),
                         form_field_type=FormFieldType.DROPDOWN_FT,
                         valid_values=[
                             Literal(
                                 type=LiteralType.STRING,
-                                string=StringValue(value="table"),
+                                string=StringValue(value="traces"),
                             ),
                             Literal(
                                 type=LiteralType.STRING,
-                                string=StringValue(value="graph"),
-                            ),
-                            Literal(
-                                type=LiteralType.STRING,
-                                string=StringValue(value="value"),
+                                string=StringValue(value="logs"),
                             ),
                         ],
                     ),
@@ -1478,52 +1474,45 @@ class SignozSourceManager(SourceManager):
 
             task = signoz_task.clickhouse_query
             query = task.query.value
-
-            step = self._get_step_interval(time_range, task)
-            fill_gaps = task.fill_gaps.value if task.HasField("fill_gaps") else False
-            panel_type = task.panel_type.value if task.HasField("panel_type") else "table"
+            
+            # Get request_type from proto, default to "traces"
+            request_type = task.request_type.value if task.HasField("request_type") and task.request_type.value else "traces"
+            # Validate and normalize request_type
+            if request_type not in ["logs", "traces"]:
+                logger.warning(f"Invalid request_type '{request_type}', defaulting to 'traces'")
+                request_type = "traces"
 
             signoz_api_processor = self.get_connector_processor(signoz_connector)
 
-            # Convert timerange to milliseconds for Signoz API
-            from_time = int(time_range.time_geq * 1000)
-            to_time = int(time_range.time_lt * 1000)
-
-            # Prepare the query payload
-            payload = {
-                "start": from_time,
-                "end": to_time,
-                "step": step,
-                "variables": {},
-                "formatForWeb": True,
-                "compositeQuery": {
-                    "queryType": "clickhouse_sql",
-                    "panelType": panel_type,
-                    "fillGaps": fill_gaps,
-                    "chQueries": {
-                        "A": {
-                            "name": "A",
-                            "legend": "",
-                            "disabled": False,
-                            "query": query,
-                        }
-                    },
-                },
-            }
-
-            # Execute the query
-            result = signoz_api_processor.execute_signoz_query(payload)
+            # Execute the query using the new v5 API method
+            result = signoz_api_processor.signoz_query_clickhouse(
+                query=query,
+                time_geq=time_range.time_geq,
+                time_lt=time_range.time_lt,
+                request_type=request_type
+            )
 
             # Extract API URL and create metadata with SignOz URL
             api_url = self._extract_api_url_from_connector(signoz_connector)
             metadata = self._create_metadata_with_signoz_url(api_url, "metrics", {
-                "start_time": from_time,
-                "end_time": to_time,
-                "step": step
+                "start_time": int(time_range.time_geq * 1000),
+                "end_time": int(time_range.time_lt * 1000),
+                "query": query,
+                "request_type": request_type
             })
 
-            # Create the appropriate task result based on panel_type
-            return self._create_task_result(result, panel_type, query, "Clickhouse Query", metadata)
+            # Return raw API response as API_RESPONSE
+            try:
+                response_struct = dict_to_proto(result, Struct)
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.API_RESPONSE,
+                    api_response=ApiResponseResult(response_body=response_struct),
+                    source=self.source,
+                    metadata=metadata,
+                )
+            except Exception as e:
+                logger.error(f"Failed to convert result to API response: {e}", exc_info=True)
+                raise Exception(f"Failed to process Clickhouse query result: {e}") from e
         except Exception as e:
             logger.error(f"Error while executing Signoz Clickhouse query task: {e}")
             raise Exception(f"Error while executing Signoz Clickhouse query task: {e}") from e

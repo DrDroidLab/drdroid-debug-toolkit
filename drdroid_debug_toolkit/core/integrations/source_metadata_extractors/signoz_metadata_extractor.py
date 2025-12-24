@@ -119,13 +119,10 @@ class SignozSourceMetadataExtractor(SourceMetadataExtractor):
             end_time = datetime.now(timezone.utc)
             start_time = end_time - timedelta(days=30)
             
-            result = self.__signoz_api_processor.execute_clickhouse_query_tool(
+            result = self.__signoz_api_processor.signoz_query_clickhouse(
                 query=query,
                 time_geq=int(start_time.timestamp()),
-                time_lt=int(end_time.timestamp()),
-                panel_type="table",
-                fill_gaps=False,
-                step=60
+                time_lt=int(end_time.timestamp())
             )
             print("SIGNOZ LOG ATTRIBUTES", result)
             if not result or "error" in result:
