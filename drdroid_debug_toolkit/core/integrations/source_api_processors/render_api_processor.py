@@ -1,5 +1,6 @@
 import logging
 import requests
+from urllib.parse import urlencode
 from core.integrations.processor import Processor
 
 logger = logging.getLogger(__name__)
@@ -94,9 +95,10 @@ class RenderAPIProcessor(Processor):
                 'resource': [service_id]  # resource is required and should be an array
             }
             
-            # Helper function to convert time to Unix timestamp
-            def to_unix_timestamp(time_value):
-                """Convert ISO 8601 string or datetime to Unix timestamp (seconds)."""
+            # Helper function to convert time to Unix timestamp in milliseconds
+            # Render API expects timestamps in milliseconds (not seconds)
+            def to_unix_timestamp_ms(time_value):
+                """Convert ISO 8601 string or datetime to Unix timestamp in milliseconds."""
                 if not time_value:
                     return None
                 import datetime
@@ -105,20 +107,31 @@ class RenderAPIProcessor(Processor):
                     # Try parsing ISO 8601 format
                     try:
                         dt = datetime.datetime.fromisoformat(time_value.replace('Z', '+00:00'))
-                        return int(dt.timestamp())
+                        return int(dt.timestamp() * 1000)  # Convert to milliseconds
                     except:
-                        # If parsing fails, assume it's already a timestamp string
+                        # If parsing fails, assume it's already a timestamp
                         try:
-                            return int(float(time_value))
+                            ts = float(time_value)
+                            # If timestamp is less than year 2000 in seconds, assume it's already in milliseconds
+                            if ts < 946684800:  # Jan 1, 2000 in seconds
+                                return int(ts)
+                            else:
+                                # Assume seconds, convert to milliseconds
+                                return int(ts * 1000)
                         except:
                             return None
                 elif isinstance(time_value, (int, float)):
-                    return int(time_value)
+                    # If timestamp is less than year 2000 in seconds, assume it's already in milliseconds
+                    if time_value < 946684800:
+                        return int(time_value)
+                    else:
+                        # Assume seconds, convert to milliseconds
+                        return int(time_value * 1000)
                 return None
             
-            # Time parameters - Render API expects Unix timestamps (epoch seconds)
+            # Time parameters - Render API expects Unix timestamps in milliseconds
             if start_time:
-                start_ts = to_unix_timestamp(start_time)
+                start_ts = to_unix_timestamp_ms(start_time)
                 if start_ts:
                     params['startTime'] = start_ts
             else:
@@ -126,17 +139,17 @@ class RenderAPIProcessor(Processor):
                 import datetime
                 from datetime import timezone
                 default_start = datetime.datetime.now(timezone.utc) - datetime.timedelta(hours=1)
-                params['startTime'] = int(default_start.timestamp())
+                params['startTime'] = int(default_start.timestamp() * 1000)  # milliseconds
             
             if end_time:
-                end_ts = to_unix_timestamp(end_time)
+                end_ts = to_unix_timestamp_ms(end_time)
                 if end_ts:
                     params['endTime'] = end_ts
             else:
                 # Default: now
                 import datetime
                 from datetime import timezone
-                params['endTime'] = int(datetime.datetime.now(timezone.utc).timestamp())
+                params['endTime'] = int(datetime.datetime.now(timezone.utc).timestamp() * 1000)  # milliseconds
             
             if limit:
                 params['limit'] = limit
@@ -198,7 +211,23 @@ class RenderAPIProcessor(Processor):
                 if path_array:
                     params['path'] = path_array
             
-            response = requests.get(url, headers=self.headers, params=params)
+            # Use urlencode with doseq=True to properly handle arrays
+            # This creates multiple query parameters: instance=val1&instance=val2
+            # which is what the Render API expects for array parameters
+            query_string = urlencode(params, doseq=True)
+            full_url = f"{url}?{query_string}"
+            
+            logger.debug(f"Fetching logs from Render API")
+            logger.debug(f"URL: {full_url}")
+            logger.debug(f"Params dict: {params}")
+            
+            response = requests.get(full_url, headers=self.headers)
+            
+            if response.status_code != 200:
+                logger.error(f"Render API error {response.status_code}: {response.text}")
+                logger.error(f"Request URL: {full_url}")
+                logger.error(f"Request params: {params}")
+            
             response.raise_for_status()
             return response.json()
             
