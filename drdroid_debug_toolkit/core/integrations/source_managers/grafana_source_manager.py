@@ -430,6 +430,14 @@ class GrafanaSourceManager(SourceManager):
                     ),
                 ],
             },
+            Grafana.TaskType.FETCH_ALERT_RULES: {
+                "executor": self.execute_fetch_alert_rules,
+                "model_types": [],
+                "result_type": PlaybookTaskResultType.API_RESPONSE,
+                "display_name": "Fetch Alert Rules from Grafana",
+                "category": "Alerts",
+                "form_fields": [],
+            },
         }
         self.connector_form_configs = [
             {
@@ -937,6 +945,86 @@ class GrafanaSourceManager(SourceManager):
             return PlaybookTaskResult(
                 type=PlaybookTaskResultType.TEXT,
                 text=TextResult(output=StringValue(value=f"Error executing dashboard variables task: {str(e)}")),
+                source=self.source,
+                metadata=metadata
+            )
+
+    def execute_fetch_alert_rules(self, time_range: TimeRange, grafana_task: Grafana,
+                                  grafana_connector: ConnectorProto):
+        # Precompute metadata for all return paths
+        time_params = self._get_grafana_time_params(time_range)
+        metadata = self._create_metadata_with_grafana_url(grafana_connector, "alerting", {
+            **time_params,
+            "orgId": "1"
+        }) if grafana_connector else None
+
+        try:
+            if not grafana_connector:
+                response_data = {
+                    "error": "Task execution Failed:: No Grafana source found",
+                    "alert_rules": [],
+                    "count": 0
+                }
+                response_struct = Struct()
+                response_struct.update(response_data)
+                output = ApiResponseResult(response_body=response_struct)
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.API_RESPONSE,
+                    api_response=output,
+                    source=self.source,
+                    metadata=metadata
+                )
+
+            grafana_api_processor = self.get_connector_processor(grafana_connector)
+
+            print(
+                f"Playbook Task Downstream Request: Type -> Grafana FETCH_ALERT_RULES",
+                flush=True,
+            )
+
+            alert_rules = grafana_api_processor.fetch_alert_rules()
+
+            # Convert the alert rules to a structured response
+            # Handle both empty/None cases and successful responses
+            if not alert_rules:
+                response_data = {
+                    "alert_rules": [],
+                    "count": 0
+                }
+            else:
+                response_data = {
+                    "alert_rules": alert_rules,
+                    "count": len(alert_rules) if isinstance(alert_rules, list) else 1
+                }
+
+            # Ensure we have a proper Struct instance
+            if isinstance(response_data, dict):
+                response_struct = Struct()
+                response_struct.update(response_data)
+            else:
+                response_struct = dict_to_proto(response_data, Struct)
+
+            output = ApiResponseResult(response_body=response_struct)
+
+            task_result = PlaybookTaskResult(source=self.source, type=PlaybookTaskResultType.API_RESPONSE,
+                                             api_response=output, metadata=metadata)
+            return task_result
+        except Exception as e:
+            logger.error(f"Error while executing Grafana fetch alert rules task: {e}")
+
+            # Return error as API_RESPONSE
+            response_data = {
+                "error": f"Error executing fetch alert rules task: {str(e)}",
+                "alert_rules": [],
+                "count": 0
+            }
+            response_struct = Struct()
+            response_struct.update(response_data)
+            output = ApiResponseResult(response_body=response_struct)
+
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                api_response=output,
                 source=self.source,
                 metadata=metadata
             )
