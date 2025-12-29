@@ -2857,7 +2857,7 @@ class NewRelicSourceManager(SourceManager):
 
             # Fetch all alert conditions (pagination handled internally)
             all_conditions = []
-            cursor = None
+            cursor = None  # None will be converted to 'null' in the processor
             
             while True:
                 conditions_result = nr_gql_processor.get_all_conditions(cursor)
