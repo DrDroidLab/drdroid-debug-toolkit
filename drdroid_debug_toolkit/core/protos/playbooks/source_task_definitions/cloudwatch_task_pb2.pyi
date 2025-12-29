@@ -40,6 +40,7 @@ class Cloudwatch(google.protobuf.message.Message):
         FETCH_S3_FILE: Cloudwatch._TaskType.ValueType  # 8
         COST_ANALYSIS: Cloudwatch._TaskType.ValueType  # 9
         DISCOVER_DIMENSIONS: Cloudwatch._TaskType.ValueType  # 10
+        FETCH_ALARMS: Cloudwatch._TaskType.ValueType  # 11
 
     class TaskType(_TaskType, metaclass=_TaskTypeEnumTypeWrapper): ...
     UNKNOWN: Cloudwatch.TaskType.ValueType  # 0
@@ -53,6 +54,7 @@ class Cloudwatch(google.protobuf.message.Message):
     FETCH_S3_FILE: Cloudwatch.TaskType.ValueType  # 8
     COST_ANALYSIS: Cloudwatch.TaskType.ValueType  # 9
     DISCOVER_DIMENSIONS: Cloudwatch.TaskType.ValueType  # 10
+    FETCH_ALARMS: Cloudwatch.TaskType.ValueType  # 11
 
     @typing_extensions.final
     class EcsListClusters(google.protobuf.message.Message):
@@ -334,6 +336,14 @@ class Cloudwatch(google.protobuf.message.Message):
         def HasField(self, field_name: typing_extensions.Literal["dimensions_to_check", b"dimensions_to_check", "end_date", b"end_date", "filter_by_service", b"filter_by_service", "include_tags", b"include_tags", "max_values_per_dimension", b"max_values_per_dimension", "min_cost_threshold", b"min_cost_threshold", "region_filter", b"region_filter", "sample_only", b"sample_only", "start_date", b"start_date"]) -> builtins.bool: ...
         def ClearField(self, field_name: typing_extensions.Literal["dimensions_to_check", b"dimensions_to_check", "end_date", b"end_date", "filter_by_service", b"filter_by_service", "include_tags", b"include_tags", "max_values_per_dimension", b"max_values_per_dimension", "min_cost_threshold", b"min_cost_threshold", "region_filter", b"region_filter", "sample_only", b"sample_only", "start_date", b"start_date"]) -> None: ...
 
+    @typing_extensions.final
+    class FetchAlarms(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        def __init__(
+            self,
+        ) -> None: ...
+
     TYPE_FIELD_NUMBER: builtins.int
     METRIC_EXECUTION_FIELD_NUMBER: builtins.int
     FILTER_LOG_EVENTS_FIELD_NUMBER: builtins.int
@@ -345,6 +355,7 @@ class Cloudwatch(google.protobuf.message.Message):
     FETCH_S3_FILE_FIELD_NUMBER: builtins.int
     COST_ANALYSIS_FIELD_NUMBER: builtins.int
     DISCOVER_DIMENSIONS_FIELD_NUMBER: builtins.int
+    FETCH_ALARMS_FIELD_NUMBER: builtins.int
     type: global___Cloudwatch.TaskType.ValueType
     @property
     def metric_execution(self) -> global___Cloudwatch.MetricExecution: ...
@@ -366,6 +377,8 @@ class Cloudwatch(google.protobuf.message.Message):
     def cost_analysis(self) -> global___Cloudwatch.CostAnalysis: ...
     @property
     def discover_dimensions(self) -> global___Cloudwatch.DiscoverDimensions: ...
+    @property
+    def fetch_alarms(self) -> global___Cloudwatch.FetchAlarms: ...
     def __init__(
         self,
         *,
@@ -380,9 +393,10 @@ class Cloudwatch(google.protobuf.message.Message):
         fetch_s3_file: global___Cloudwatch.FetchS3File | None = ...,
         cost_analysis: global___Cloudwatch.CostAnalysis | None = ...,
         discover_dimensions: global___Cloudwatch.DiscoverDimensions | None = ...,
+        fetch_alarms: global___Cloudwatch.FetchAlarms | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["cost_analysis", b"cost_analysis", "discover_dimensions", b"discover_dimensions", "ecs_get_task_logs", b"ecs_get_task_logs", "ecs_list_clusters", b"ecs_list_clusters", "ecs_list_tasks", b"ecs_list_tasks", "fetch_dashboard", b"fetch_dashboard", "fetch_s3_file", b"fetch_s3_file", "filter_log_events", b"filter_log_events", "metric_execution", b"metric_execution", "rds_get_sql_query_performance_stats", b"rds_get_sql_query_performance_stats", "task", b"task"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["cost_analysis", b"cost_analysis", "discover_dimensions", b"discover_dimensions", "ecs_get_task_logs", b"ecs_get_task_logs", "ecs_list_clusters", b"ecs_list_clusters", "ecs_list_tasks", b"ecs_list_tasks", "fetch_dashboard", b"fetch_dashboard", "fetch_s3_file", b"fetch_s3_file", "filter_log_events", b"filter_log_events", "metric_execution", b"metric_execution", "rds_get_sql_query_performance_stats", b"rds_get_sql_query_performance_stats", "task", b"task", "type", b"type"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing_extensions.Literal["task", b"task"]) -> typing_extensions.Literal["metric_execution", "filter_log_events", "rds_get_sql_query_performance_stats", "ecs_list_clusters", "ecs_list_tasks", "ecs_get_task_logs", "fetch_dashboard", "fetch_s3_file", "cost_analysis", "discover_dimensions"] | None: ...
+    def HasField(self, field_name: typing_extensions.Literal["cost_analysis", b"cost_analysis", "discover_dimensions", b"discover_dimensions", "ecs_get_task_logs", b"ecs_get_task_logs", "ecs_list_clusters", b"ecs_list_clusters", "ecs_list_tasks", b"ecs_list_tasks", "fetch_alarms", b"fetch_alarms", "fetch_dashboard", b"fetch_dashboard", "fetch_s3_file", b"fetch_s3_file", "filter_log_events", b"filter_log_events", "metric_execution", b"metric_execution", "rds_get_sql_query_performance_stats", b"rds_get_sql_query_performance_stats", "task", b"task"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["cost_analysis", b"cost_analysis", "discover_dimensions", b"discover_dimensions", "ecs_get_task_logs", b"ecs_get_task_logs", "ecs_list_clusters", b"ecs_list_clusters", "ecs_list_tasks", b"ecs_list_tasks", "fetch_alarms", b"fetch_alarms", "fetch_dashboard", b"fetch_dashboard", "fetch_s3_file", b"fetch_s3_file", "filter_log_events", b"filter_log_events", "metric_execution", b"metric_execution", "rds_get_sql_query_performance_stats", b"rds_get_sql_query_performance_stats", "task", b"task", "type", b"type"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing_extensions.Literal["task", b"task"]) -> typing_extensions.Literal["metric_execution", "filter_log_events", "rds_get_sql_query_performance_stats", "ecs_list_clusters", "ecs_list_tasks", "ecs_get_task_logs", "fetch_dashboard", "fetch_s3_file", "cost_analysis", "discover_dimensions", "fetch_alarms"] | None: ...
 
 global___Cloudwatch = Cloudwatch

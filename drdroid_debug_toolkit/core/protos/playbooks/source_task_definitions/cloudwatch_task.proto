@@ -76,6 +76,8 @@ message Cloudwatch {
     google.protobuf.StringValue region_filter = 9;
   }
 
+  message FetchAlarms {
+  }
 
   enum TaskType {
     UNKNOWN = 0;
@@ -89,6 +91,7 @@ message Cloudwatch {
     FETCH_S3_FILE = 8;
     COST_ANALYSIS = 9;
     DISCOVER_DIMENSIONS = 10;
+    FETCH_ALARMS = 11;
   }
 
   TaskType type = 1;
@@ -103,5 +106,6 @@ message Cloudwatch {
     FetchS3File fetch_s3_file = 9;
     CostAnalysis cost_analysis = 10;
     DiscoverDimensions discover_dimensions = 11;
+    FetchAlarms fetch_alarms = 12;
   }
 }
