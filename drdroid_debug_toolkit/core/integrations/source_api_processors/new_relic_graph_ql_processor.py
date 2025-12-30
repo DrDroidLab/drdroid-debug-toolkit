@@ -377,13 +377,15 @@ class NewRelicGraphQlConnector(Processor):
             raise e
         return None
 
-    def execute_nrql_query(self, query, account_id=None):
+    def execute_nrql_query(self, nrql_query, account_id=None):
         if not account_id:
             account_id = self.nr_account_id
+        # Escape double quotes and backslashes in NRQL query for GraphQL string embedding
+        escaped_query = nrql_query.replace('\\', '\\\\').replace('"', '\\"')
         query = gql(f"""{{
                                 actor {{
                                     account(id: {account_id}) {{
-                                        nrql(query: "{query}") {{
+                                        nrql(query: "{escaped_query}") {{
                                             metadata {{
                                                 eventTypes
                                                 facets
