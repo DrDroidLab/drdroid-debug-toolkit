@@ -40,6 +40,10 @@ class SourceMetadataExtractorFacade:
             raise ValueError(f'No metadata extractor found for connector type: {connector_type}')
         return self._map[connector_type]
 
+    def get_metadata_extractor_class(self, connector_type: Source):
+        """Alias for get_connector_metadata_extractor_class for backward compatibility."""
+        return self.get_connector_metadata_extractor_class(connector_type)
+
 
 source_metadata_extractor_facade = SourceMetadataExtractorFacade()
 source_metadata_extractor_facade.register(Source.DATADOG, DatadogSourceMetadataExtractor)
