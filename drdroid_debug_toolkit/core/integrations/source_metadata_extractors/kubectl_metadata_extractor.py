@@ -85,8 +85,6 @@ class KubernetesMetadataExtractor(SourceMetadataExtractor):
 
                 model_data[namespaced_name] = item
 
-                model_data[namespaced_name] = item
-
         except Exception as e:
             logger.error(f"Error extracting Kubernetes services: {e}")
         if len(model_data) > 0:
@@ -177,8 +175,6 @@ class KubernetesMetadataExtractor(SourceMetadataExtractor):
 
                 model_data[namespaced_name] = item
 
-                model_data[namespaced_name] = item
-
         except Exception as e:
             logger.error(f"Error extracting Kubernetes network policies: {e}")
         if len(model_data) > 0:
@@ -206,8 +202,6 @@ class KubernetesMetadataExtractor(SourceMetadataExtractor):
                     continue
 
                 namespaced_name = f"{hpa_namespace}/{hpa_name}"
-
-                model_data[namespaced_name] = item
 
                 model_data[namespaced_name] = item
 
