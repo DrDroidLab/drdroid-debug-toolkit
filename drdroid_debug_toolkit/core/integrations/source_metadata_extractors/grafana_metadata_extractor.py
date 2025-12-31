@@ -62,6 +62,8 @@ class GrafanaSourceMetadataExtractor(SourceMetadataExtractor):
         model_type = SourceModelType.GRAFANA_PROMETHEUS_DATASOURCE
         try:
             all_data_sources = self.__grafana_api_processor.fetch_data_sources()
+            if not all_data_sources:
+                return
             all_promql_data_sources = [ds for ds in all_data_sources if
                                        ds['type'] == 'prometheus' or ds['type'] == 'influxdb']
         except Exception as e:
@@ -82,6 +84,8 @@ class GrafanaSourceMetadataExtractor(SourceMetadataExtractor):
         model_type = SourceModelType.GRAFANA_LOKI_DATASOURCE
         try:
             all_data_sources = self.__grafana_api_processor.fetch_data_sources()
+            if not all_data_sources:
+                return
             all_loki_data_sources = [ds for ds in all_data_sources if ds['type'] == 'loki']
         except Exception as e:
             logger.error(f'Error fetching grafana loki data sources: {e}')
