@@ -121,6 +121,10 @@ class GrafanaApiProcessor(Processor):
             response = requests.get(url, headers=self.headers, verify=self.__ssl_verify)
             if response and response.status_code == 200:
                 return response.json()
+            elif response and response.status_code == 404:
+                # Alerting API not available (older Grafana version or alerting not enabled)
+                logger.info("Grafana alerting API not available (404) - alerting may not be enabled")
+                return None
             else:
                 raise Exception(
                     f"Failed to fetch alert rules. Status Code: {response.status_code}. Response Text: {response.text}")
