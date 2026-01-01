@@ -29,6 +29,7 @@ from core.protos.playbooks.source_task_definitions.grafana_task_pb2 import Grafa
 from core.protos.ui_definition_pb2 import FormField, FormFieldType
 from core.protos.base_pb2 import Source, SourceKeyType
 from core.utils.credentilal_utils import generate_credentials_dict, get_connector_key_type_string, DISPLAY_NAME, CATEGORY, APPLICATION_MONITORING
+from core.utils.logql_utils import cleanup_logql_query, LogQLValidationError
 from core.utils.proto_utils import dict_to_proto, proto_to_dict
 
 logger = logging.getLogger(__name__)
@@ -2355,6 +2356,24 @@ class GrafanaSourceManager(SourceManager):
 
         return queries
 
+    def _cleanup_logql_query(self, query: str) -> str:
+        """
+        Clean up and validate a LogQL query using the shared utility.
+
+        This handles:
+        - Double-encoded quotes
+        - Unicode/smart quotes
+        - Whitespace/newlines
+        - Empty selector validation
+        """
+        try:
+            return cleanup_logql_query(query, validate=True)
+        except LogQLValidationError as e:
+            # Log the validation error but don't raise - let Loki return the proper error
+            logger.warning(f"LogQL query validation warning: {e}")
+            # Still return the cleaned query without validation
+            return cleanup_logql_query(query, validate=False)
+
     def execute_loki_datasource_log_query(self, time_range: TimeRange, grafana_task: Grafana,
                                          grafana_connector: ConnectorProto):
         """Executes a LogQL query against a Loki datasource."""
@@ -2368,7 +2387,8 @@ class GrafanaSourceManager(SourceManager):
 
             task = grafana_task.loki_datasource_log_query
             datasource_uid = task.datasource_uid.value
-            logql_query = task.logql_query.value
+            # Clean up the query - remove extra whitespace/newlines
+            logql_query = self._cleanup_logql_query(task.logql_query.value)
             max_lines = task.max_lines.value if task.max_lines and task.max_lines.value else 1000
             direction = task.direction.value if task.direction and task.direction.value else "backward"
 

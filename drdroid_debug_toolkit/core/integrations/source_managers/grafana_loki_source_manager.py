@@ -1,8 +1,13 @@
+import logging
+import re
 from datetime import datetime, timedelta
 
 from google.protobuf.wrappers_pb2 import StringValue, UInt64Value, Int64Value, BoolValue
 
 from core.integrations.source_api_processors.grafana_loki_api_processor import GrafanaLokiApiProcessor
+from core.utils.logql_utils import cleanup_logql_query, LogQLValidationError
+
+logger = logging.getLogger(__name__)
 from core.integrations.source_manager import SourceManager
 from core.protos.base_pb2 import TimeRange, Source, SourceKeyType
 from core.protos.connectors.connector_pb2 import Connector as ConnectorProto
@@ -166,6 +171,24 @@ class GrafanaLokiSourceManager(SourceManager):
         generated_credentials = generate_credentials_dict(grafana_loki_connector.type, grafana_loki_connector.keys)
         return GrafanaLokiApiProcessor(**generated_credentials)
 
+    def _cleanup_logql_query(self, query: str) -> str:
+        """
+        Clean up and validate a LogQL query using the shared utility.
+
+        This handles:
+        - Double-encoded quotes
+        - Unicode/smart quotes
+        - Whitespace/newlines
+        - Empty selector validation
+        """
+        try:
+            return cleanup_logql_query(query, validate=True)
+        except LogQLValidationError as e:
+            # Log the validation error but don't raise - let Loki return the proper error
+            logger.warning(f"LogQL query validation warning: {e}")
+            # Still return the cleaned query without validation
+            return cleanup_logql_query(query, validate=False)
+
     def execute_query_logs(self, time_range: TimeRange, grafana_loki_task: GrafanaLoki,
                            grafana_loki_connector: ConnectorProto):
         try:
@@ -187,7 +210,8 @@ class GrafanaLokiSourceManager(SourceManager):
             start_time = evaluation_time.isoformat() + "Z"
             end_time = current_datetime.isoformat() + "Z"
 
-            query = task.query.value
+            # Clean up the query - remove extra whitespace/newlines
+            query = self._cleanup_logql_query(task.query.value)
 
             limit = task.limit.value if task.limit.value else 2000
 
