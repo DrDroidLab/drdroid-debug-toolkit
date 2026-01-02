@@ -1082,6 +1082,14 @@ class SignozSourceManager(SourceManager):
                     ),
                 ],
             },
+            Signoz.TaskType.FETCH_ALERT_RULES: {
+                "executor": self.execute_fetch_alert_rules,
+                "model_types": [],
+                "result_type": PlaybookTaskResultType.API_RESPONSE,
+                "display_name": "Fetch Alert Rules from Signoz",
+                "category": "Alerts",
+                "form_fields": [],
+            },
         }
         self.connector_form_configs = [
             {
@@ -2868,6 +2876,114 @@ class SignozSourceManager(SourceManager):
             return PlaybookTaskResult(
                 type=PlaybookTaskResultType.API_RESPONSE,
                 text=TextResult(output=StringValue(value=f"Error executing fetch traces task: {e}")),
+                source=self.source,
+                metadata=metadata,
+            )
+
+    def execute_fetch_alert_rules(
+        self,
+        time_range: TimeRange,
+        signoz_task: Signoz,
+        signoz_connector: ConnectorProto,
+    ) -> PlaybookTaskResult:
+        """Execute fetch alert rules task to get all alert rule configurations from Signoz."""
+        try:
+            if not signoz_connector:
+                response_data = {
+                    "error": "Task execution Failed:: No Signoz source found",
+                    "alert_rules": [],
+                    "count": 0
+                }
+                response_struct = Struct()
+                response_struct.update(response_data)
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.API_RESPONSE,
+                    api_response=ApiResponseResult(response_body=response_struct),
+                    source=self.source
+                )
+
+            signoz_api_processor = self.get_connector_processor(signoz_connector)
+
+            print(
+                f"Playbook Task Downstream Request: Type -> Signoz FETCH_ALERT_RULES",
+                flush=True,
+            )
+
+            alert_rules = signoz_api_processor.fetch_alert_rules()
+
+            # Convert the alert rules to a structured response
+            # Handle both empty/None cases and successful responses
+            if not alert_rules:
+                response_data = {
+                    "alert_rules": [],
+                    "count": 0
+                }
+            else:
+                # Handle different response formats
+                if isinstance(alert_rules, list):
+                    response_data = {
+                        "alert_rules": alert_rules,
+                        "count": len(alert_rules)
+                    }
+                elif isinstance(alert_rules, dict):
+                    # If response is a dict, check for common keys
+                    rules_list = alert_rules.get("data", alert_rules.get("rules", alert_rules.get("alert_rules", [])))
+                    if isinstance(rules_list, list):
+                        response_data = {
+                            "alert_rules": rules_list,
+                            "count": len(rules_list)
+                        }
+                    else:
+                        # If it's a dict but not a list, wrap it
+                        response_data = {
+                            "alert_rules": [alert_rules],
+                            "count": 1,
+                            "raw_response": alert_rules
+                        }
+                else:
+                    response_data = {
+                        "alert_rules": [],
+                        "count": 0,
+                        "raw_response": alert_rules
+                    }
+
+            # Extract API URL and create metadata with SignOz URL
+            api_url = self._extract_api_url_from_connector(signoz_connector)
+            metadata = self._create_metadata_with_signoz_url(api_url, "alert_rules", {})
+
+            # Ensure we have a proper Struct instance
+            if isinstance(response_data, dict):
+                response_struct = Struct()
+                response_struct.update(response_data)
+            else:
+                response_struct = dict_to_proto(response_data, Struct)
+
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                api_response=ApiResponseResult(response_body=response_struct),
+                source=self.source,
+                metadata=metadata,
+            )
+
+        except Exception as e:
+            logger.error(f"Error while executing Signoz fetch alert rules task: {e}", exc_info=True)
+            
+            # Return error as API_RESPONSE
+            response_data = {
+                "error": f"Error executing fetch alert rules task: {str(e)}",
+                "alert_rules": [],
+                "count": 0
+            }
+            response_struct = Struct()
+            response_struct.update(response_data)
+
+            # Extract API URL and create metadata with SignOz URL for error case
+            api_url = self._extract_api_url_from_connector(signoz_connector) if signoz_connector else None
+            metadata = self._create_metadata_with_signoz_url(api_url, "alert_rules", {}) if api_url else None
+
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                api_response=ApiResponseResult(response_body=response_struct),
                 source=self.source,
                 metadata=metadata,
             )

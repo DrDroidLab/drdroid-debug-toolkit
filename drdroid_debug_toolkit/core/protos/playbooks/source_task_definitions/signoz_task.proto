@@ -68,6 +68,9 @@ message Signoz {
     google.protobuf.Int32Value limit = 5;                 // Limit number of traces
   }
 
+  message FetchAlertRulesTask {
+  }
+
   enum TaskType {
     UNKNOWN = 0;
     CLICKHOUSE_QUERY = 1;
@@ -80,6 +83,7 @@ message Signoz {
     FETCH_LOGS = 8;
     FETCH_LOGS_FOR_TRACE = 9;
     FETCH_TRACES = 10;
+    FETCH_ALERT_RULES = 11;
   }
 
   TaskType type = 1;
@@ -94,5 +98,6 @@ message Signoz {
     FetchLogsTask fetch_logs = 9;
     FetchLogsForTraceTask fetch_logs_for_trace = 10;
     FetchTracesTask fetch_traces = 11;
+    FetchAlertRulesTask fetch_alert_rules = 12;
   }
 } 
