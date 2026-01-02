@@ -211,6 +211,14 @@ class CoralogixSourceManager(SourceManager):
                         form_field_type=FormFieldType.TYPING_DROPDOWN_FT,
                     ),
                 ],
+            },
+            Coralogix.TaskType.FETCH_ALERT_DEFS: {
+                "executor": self.execute_fetch_alert_defs,
+                "model_types": [],
+                "result_type": PlaybookTaskResultType.API_RESPONSE,
+                "display_name": "Fetch Alert Definitions from Coralogix",
+                "category": "Alerts",
+                "form_fields": [],
             }
         }
         
@@ -1208,6 +1216,119 @@ class CoralogixSourceManager(SourceManager):
                 type=PlaybookTaskResultType.TEXT,
                 text=TextResult(output=StringValue(value=f"Error executing Coralogix fetch dashboard variables task: {str(e)}")),
                 metadata=metadata
+            )
+
+    def execute_fetch_alert_defs(self, time_range: TimeRange, coralogix_task: Coralogix, coralogix_connector: ConnectorProto):
+        """
+        Execute fetch alert definitions task to get all alert rule configurations from Coralogix.
+        
+        Args:
+            time_range: Time range (not used for this task)
+            coralogix_task: The Coralogix task
+            coralogix_connector: The Coralogix connector to use
+            
+        Returns:
+            A PlaybookTaskResult containing alert definitions as API response
+        """
+        try:
+            if not coralogix_connector:
+                response_data = {
+                    "error": "Task execution Failed:: No Coralogix source found",
+                    "alert_defs": [],
+                    "count": 0
+                }
+                response_struct = Struct()
+                response_struct.update(response_data)
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.API_RESPONSE,
+                    api_response=ApiResponseResult(response_body=response_struct),
+                    source=self.source
+                )
+
+            coralogix_api_processor = self.get_connector_processor(coralogix_connector)
+
+            print(
+                f"Playbook Task Downstream Request: Type -> Coralogix FETCH_ALERT_DEFS",
+                flush=True,
+            )
+
+            alert_defs = coralogix_api_processor.fetch_alert_defs()
+
+            # Convert the alert definitions to a structured response
+            # Handle both empty/None cases and successful responses
+            if not alert_defs:
+                response_data = {
+                    "alert_defs": [],
+                    "count": 0
+                }
+            else:
+                # Handle different response formats
+                if isinstance(alert_defs, list):
+                    response_data = {
+                        "alert_defs": alert_defs,
+                        "count": len(alert_defs)
+                    }
+                elif isinstance(alert_defs, dict):
+                    # If response is a dict, check for common keys
+                    defs_list = alert_defs.get("data", alert_defs.get("definitions", alert_defs.get("alert_defs", [])))
+                    if isinstance(defs_list, list):
+                        response_data = {
+                            "alert_defs": defs_list,
+                            "count": len(defs_list)
+                        }
+                    else:
+                        # If it's a dict but not a list, wrap it
+                        response_data = {
+                            "alert_defs": [alert_defs],
+                            "count": 1,
+                            "raw_response": alert_defs
+                        }
+                else:
+                    response_data = {
+                        "alert_defs": [],
+                        "count": 0,
+                        "raw_response": alert_defs
+                    }
+
+            # Extract domain and create metadata with Coralogix URL
+            domain = self._extract_domain_from_connector(coralogix_connector)
+            metadata = self._create_metadata_with_coralogix_url(domain, "FETCH_ALERT_DEFS", {})
+
+            # Ensure we have a proper Struct instance
+            if isinstance(response_data, dict):
+                response_struct = Struct()
+                response_struct.update(response_data)
+            else:
+                response_struct = dict_to_proto(response_data, Struct)
+
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                api_response=ApiResponseResult(response_body=response_struct),
+                source=self.source,
+                metadata=metadata,
+            )
+
+        except Exception as e:
+            logger.error(f"Error while executing Coralogix fetch alert definitions task: {e}", exc_info=True)
+            
+            # Return error as API_RESPONSE
+            response_data = {
+                "error": f"Error executing fetch alert definitions task: {str(e)}",
+                "alert_defs": [],
+                "count": 0
+            }
+            response_struct = Struct()
+            response_struct.update(response_data)
+
+            # Extract domain and create metadata with Coralogix URL for error case
+            domain = self._extract_domain_from_connector(coralogix_connector) if coralogix_connector else None
+            metadata = self._create_metadata_with_coralogix_url(domain, "FETCH_ALERT_DEFS", {}) if domain else None
+
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                api_response=ApiResponseResult(response_body=response_struct),
+                source=self.source,
+                metadata=metadata,
             )
 
     def _extract_dashboard_variables(self, dashboard_dict: dict, dashboard_id: str, processor=None) -> dict:

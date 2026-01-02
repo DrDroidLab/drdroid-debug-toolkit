@@ -25,7 +25,7 @@ _sym_db = _symbol_database.Default()
 from google.protobuf import wrappers_pb2 as google_dot_protobuf_dot_wrappers__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\nBcore/protos/playbooks/source_task_definitions/coralogix_task.proto\x12\x15\x63ore.protos.playbooks\x1a\x1egoogle/protobuf/wrappers.proto\"\xb2\x0b\n\tCoralogix\x12\x37\n\x04type\x18\x01 \x01(\x0e\x32).core.protos.playbooks.Coralogix.TaskType\x12\x44\n\nfetch_logs\x18\x02 \x01(\x0b\x32..core.protos.playbooks.Coralogix.FetchLogsTaskH\x00\x12J\n\rfetch_metrics\x18\x03 \x01(\x0b\x32\x31.core.protos.playbooks.Coralogix.FetchMetricsTaskH\x00\x12]\n\x17\x66\x65tch_dashboard_widgets\x18\x04 \x01(\x0b\x32:.core.protos.playbooks.Coralogix.FetchDashboardWidgetsTaskH\x00\x12\x61\n\x19\x66\x65tch_dashboard_variables\x18\x05 \x01(\x0b\x32<.core.protos.playbooks.Coralogix.FetchDashboardVariablesTaskH\x00\x12W\n\x14\x66\x65tch_index_mappings\x18\x06 \x01(\x0b\x32\x37.core.protos.playbooks.Coralogix.FetchIndexMappingsTaskH\x00\x1a\xc9\x01\n\rFetchLogsTask\x12+\n\x05query\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12/\n\tfrom_time\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12-\n\x07to_time\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12+\n\x05limit\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.UInt64Value\x1a\xe7\x01\n\x19\x46\x65tchDashboardWidgetsTask\x12\x32\n\x0c\x64\x61shboard_id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x30\n\nwidget_ids\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04step\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.UInt64Value\x12\x38\n\x12template_variables\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1aQ\n\x1b\x46\x65tchDashboardVariablesTask\x12\x32\n\x0c\x64\x61shboard_id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1a\xcb\x01\n\x10\x46\x65tchMetricsTask\x12+\n\x05query\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12/\n\tfrom_time\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12-\n\x07to_time\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04step\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1aM\n\x16\x46\x65tchIndexMappingsTask\x12\x33\n\rindex_pattern\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"\x90\x01\n\x08TaskType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x0e\n\nFETCH_LOGS\x10\x01\x12\x11\n\rFETCH_METRICS\x10\x02\x12\x1b\n\x17\x46\x45TCH_DASHBOARD_WIDGETS\x10\x03\x12\x1d\n\x19\x46\x45TCH_DASHBOARD_VARIABLES\x10\x04\x12\x18\n\x14\x46\x45TCH_INDEX_MAPPINGS\x10\x05\x42\x06\n\x04taskb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\nBcore/protos/playbooks/source_task_definitions/coralogix_task.proto\x12\x15\x63ore.protos.playbooks\x1a\x1egoogle/protobuf/wrappers.proto\"\xaf\x0c\n\tCoralogix\x12\x37\n\x04type\x18\x01 \x01(\x0e\x32).core.protos.playbooks.Coralogix.TaskType\x12\x44\n\nfetch_logs\x18\x02 \x01(\x0b\x32..core.protos.playbooks.Coralogix.FetchLogsTaskH\x00\x12J\n\rfetch_metrics\x18\x03 \x01(\x0b\x32\x31.core.protos.playbooks.Coralogix.FetchMetricsTaskH\x00\x12]\n\x17\x66\x65tch_dashboard_widgets\x18\x04 \x01(\x0b\x32:.core.protos.playbooks.Coralogix.FetchDashboardWidgetsTaskH\x00\x12\x61\n\x19\x66\x65tch_dashboard_variables\x18\x05 \x01(\x0b\x32<.core.protos.playbooks.Coralogix.FetchDashboardVariablesTaskH\x00\x12W\n\x14\x66\x65tch_index_mappings\x18\x06 \x01(\x0b\x32\x37.core.protos.playbooks.Coralogix.FetchIndexMappingsTaskH\x00\x12O\n\x10\x66\x65tch_alert_defs\x18\x07 \x01(\x0b\x32\x33.core.protos.playbooks.Coralogix.FetchAlertDefsTaskH\x00\x1a\xc9\x01\n\rFetchLogsTask\x12+\n\x05query\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12/\n\tfrom_time\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12-\n\x07to_time\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12+\n\x05limit\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.UInt64Value\x1a\xe7\x01\n\x19\x46\x65tchDashboardWidgetsTask\x12\x32\n\x0c\x64\x61shboard_id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x30\n\nwidget_ids\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04step\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.UInt64Value\x12\x38\n\x12template_variables\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1aQ\n\x1b\x46\x65tchDashboardVariablesTask\x12\x32\n\x0c\x64\x61shboard_id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1a\xcb\x01\n\x10\x46\x65tchMetricsTask\x12+\n\x05query\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12/\n\tfrom_time\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12-\n\x07to_time\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04step\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1aM\n\x16\x46\x65tchIndexMappingsTask\x12\x33\n\rindex_pattern\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1a\x14\n\x12\x46\x65tchAlertDefsTask\"\xa6\x01\n\x08TaskType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x0e\n\nFETCH_LOGS\x10\x01\x12\x11\n\rFETCH_METRICS\x10\x02\x12\x1b\n\x17\x46\x45TCH_DASHBOARD_WIDGETS\x10\x03\x12\x1d\n\x19\x46\x45TCH_DASHBOARD_VARIABLES\x10\x04\x12\x18\n\x14\x46\x45TCH_INDEX_MAPPINGS\x10\x05\x12\x14\n\x10\x46\x45TCH_ALERT_DEFS\x10\x06\x42\x06\n\x04taskb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -33,17 +33,19 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'core.protos.playbooks.sourc
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
   _globals['_CORALOGIX']._serialized_start=126
-  _globals['_CORALOGIX']._serialized_end=1584
-  _globals['_CORALOGIX_FETCHLOGSTASK']._serialized_start=626
-  _globals['_CORALOGIX_FETCHLOGSTASK']._serialized_end=827
-  _globals['_CORALOGIX_FETCHDASHBOARDWIDGETSTASK']._serialized_start=830
-  _globals['_CORALOGIX_FETCHDASHBOARDWIDGETSTASK']._serialized_end=1061
-  _globals['_CORALOGIX_FETCHDASHBOARDVARIABLESTASK']._serialized_start=1063
-  _globals['_CORALOGIX_FETCHDASHBOARDVARIABLESTASK']._serialized_end=1144
-  _globals['_CORALOGIX_FETCHMETRICSTASK']._serialized_start=1147
-  _globals['_CORALOGIX_FETCHMETRICSTASK']._serialized_end=1350
-  _globals['_CORALOGIX_FETCHINDEXMAPPINGSTASK']._serialized_start=1352
-  _globals['_CORALOGIX_FETCHINDEXMAPPINGSTASK']._serialized_end=1429
-  _globals['_CORALOGIX_TASKTYPE']._serialized_start=1432
-  _globals['_CORALOGIX_TASKTYPE']._serialized_end=1576
+  _globals['_CORALOGIX']._serialized_end=1709
+  _globals['_CORALOGIX_FETCHLOGSTASK']._serialized_start=707
+  _globals['_CORALOGIX_FETCHLOGSTASK']._serialized_end=908
+  _globals['_CORALOGIX_FETCHDASHBOARDWIDGETSTASK']._serialized_start=911
+  _globals['_CORALOGIX_FETCHDASHBOARDWIDGETSTASK']._serialized_end=1142
+  _globals['_CORALOGIX_FETCHDASHBOARDVARIABLESTASK']._serialized_start=1144
+  _globals['_CORALOGIX_FETCHDASHBOARDVARIABLESTASK']._serialized_end=1225
+  _globals['_CORALOGIX_FETCHMETRICSTASK']._serialized_start=1228
+  _globals['_CORALOGIX_FETCHMETRICSTASK']._serialized_end=1431
+  _globals['_CORALOGIX_FETCHINDEXMAPPINGSTASK']._serialized_start=1433
+  _globals['_CORALOGIX_FETCHINDEXMAPPINGSTASK']._serialized_end=1510
+  _globals['_CORALOGIX_FETCHALERTDEFSTASK']._serialized_start=1512
+  _globals['_CORALOGIX_FETCHALERTDEFSTASK']._serialized_end=1532
+  _globals['_CORALOGIX_TASKTYPE']._serialized_start=1535
+  _globals['_CORALOGIX_TASKTYPE']._serialized_end=1701
 # @@protoc_insertion_point(module_scope)

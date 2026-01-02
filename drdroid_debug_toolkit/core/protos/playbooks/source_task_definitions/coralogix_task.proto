@@ -33,6 +33,9 @@ message Coralogix {
     google.protobuf.StringValue index_pattern = 1;
   }
 
+  message FetchAlertDefsTask {
+  }
+
   enum TaskType {
     UNKNOWN = 0;
     FETCH_LOGS = 1;
@@ -40,6 +43,7 @@ message Coralogix {
     FETCH_DASHBOARD_WIDGETS = 3;
     FETCH_DASHBOARD_VARIABLES = 4;
     FETCH_INDEX_MAPPINGS = 5;
+    FETCH_ALERT_DEFS = 6;
   }
 
   TaskType type = 1;
@@ -49,5 +53,6 @@ message Coralogix {
     FetchDashboardWidgetsTask fetch_dashboard_widgets = 4;
     FetchDashboardVariablesTask fetch_dashboard_variables = 5;
     FetchIndexMappingsTask fetch_index_mappings = 6;
+    FetchAlertDefsTask fetch_alert_defs = 7;
   }
 }
