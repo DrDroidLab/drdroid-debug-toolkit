@@ -57,6 +57,9 @@ message Grafana {
     google.protobuf.StringValue direction = 4;
   }
 
+  message FetchAlertRulesTask {
+  }
+
   enum TaskType {
     UNKNOWN = 0;
     PROMQL_METRIC_EXECUTION = 1;
@@ -66,6 +69,7 @@ message Grafana {
     FETCH_DASHBOARD_VARIABLE_LABEL_VALUES = 5;
     FETCH_DASHBOARD_VARIABLES = 6;
     LOKI_DATASOURCE_LOG_QUERY = 7;
+    FETCH_ALERT_RULES = 8;
   }
 
   TaskType type = 1;
@@ -77,5 +81,6 @@ message Grafana {
     FetchDashboardVariableLabelValuesTask fetch_dashboard_variable_label_values = 7;
     FetchDashboardVariablesTask fetch_dashboard_variables = 8;
     LokiDatasourceLogQueryTask loki_datasource_log_query = 9;
+    FetchAlertRulesTask fetch_alert_rules = 10;
   }
 }

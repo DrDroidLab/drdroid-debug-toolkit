@@ -446,6 +446,24 @@ class SignozApiProcessor(Processor):
             logger.error(f"Exception when fetching alert details: {e}")
             raise e
     
+    def fetch_alert_rules(self):
+        """Fetch all alert rule configurations from Signoz"""
+        try:
+            logger.debug(f"Fetching alert rules from: {self.signoz_api_url}/api/v1/rules")
+            logger.debug(f"Using headers: {self.headers}")
+            
+            response = requests.get(
+                f"{self.signoz_api_url}/api/v1/rules", 
+                headers=self.headers,
+                timeout=30
+            )
+            
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            logger.error(f"Exception when fetching alert rules: {e}")
+            raise e
+    
     def query_metrics(self, time_range: TimeRange, query, step=None, aggregation=None):
         """Query metrics from Signoz ClickhouseDB"""
         try:

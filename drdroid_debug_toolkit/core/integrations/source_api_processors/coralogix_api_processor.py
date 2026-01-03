@@ -1,6 +1,7 @@
 import logging
 import requests
 import json
+import subprocess
 from datetime import datetime, timedelta
 from core.integrations.processor import Processor
 
@@ -763,3 +764,75 @@ class CoralogixApiProcessor(Processor):
         except Exception as e:
             logger.warning(f"Failed to parse time string '{time_str}', using as-is: {e}")
             return time_str
+
+    def fetch_alert_defs(self):
+        """
+        Fetch all alert definition configurations from Coralogix using gRPC API.
+        
+        Uses grpcurl to call the gRPC service:
+        com.coralogixapis.alerts.v3.AlertDefsService/ListAlertDefs
+        
+        Returns:
+            dict: API response containing alert definitions
+        """
+        try:
+            # Extract the domain from endpoint (e.g., https://api.eu2.coralogix.com -> api.eu2.coralogix.com)
+            endpoint_url = self.__endpoint
+            if endpoint_url.startswith('http://'):
+                endpoint_url = endpoint_url[7:]
+            elif endpoint_url.startswith('https://'):
+                endpoint_url = endpoint_url[8:]
+            
+            # Remove trailing slash and any path
+            domain = endpoint_url.split('/')[0]
+            
+            # Determine the gRPC host (usually api.coralogix.com or api.eu2.coralogix.com)
+            # If domain contains 'eu2', use api.eu2.coralogix.com, otherwise use api.coralogix.com
+            if 'eu2' in domain.lower() or 'eu' in domain.lower():
+                grpc_host = 'api.eu2.coralogix.com'
+            else:
+                grpc_host = 'api.coralogix.com'
+            
+            logger.debug(f"Fetching alert definitions from Coralogix gRPC: {grpc_host}:443")
+            
+            # Build grpcurl command
+            service_method = "com.coralogixapis.alerts.v3.AlertDefsService/ListAlertDefs"
+            
+            # Use grpcurl via subprocess
+            cmd = [
+                'grpcurl',
+                '-H', f'Authorization: Bearer {self.__api_key}',
+                '-d', '',  # Empty data for ListAlertDefs
+                f'{grpc_host}:443',
+                service_method
+            ]
+            
+            try:
+                result = subprocess.run(
+                    cmd,
+                    capture_output=True,
+                    text=True,
+                    timeout=30,
+                    check=True
+                )
+                
+                # Parse JSON response from grpcurl
+                response_json = json.loads(result.stdout)
+                logger.info(f"Successfully fetched alert definitions from Coralogix")
+                return response_json
+                
+            except subprocess.CalledProcessError as e:
+                error_msg = f"grpcurl command failed: {e.stderr}"
+                logger.error(error_msg)
+                raise Exception(f"Failed to fetch alert definitions from Coralogix gRPC API: {error_msg}")
+            except subprocess.TimeoutExpired:
+                raise Exception("Timeout while fetching alert definitions from Coralogix gRPC API")
+            except json.JSONDecodeError as e:
+                logger.error(f"Failed to parse grpcurl response as JSON: {e}")
+                raise Exception(f"Invalid JSON response from Coralogix gRPC API: {e}")
+            except FileNotFoundError:
+                raise Exception("grpcurl not found. Please install grpcurl to use the alert definitions API: https://github.com/fullstorydev/grpcurl")
+                
+        except Exception as e:
+            logger.error(f"Exception occurred while fetching alert definitions: {e}")
+            raise e

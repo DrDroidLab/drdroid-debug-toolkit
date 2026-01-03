@@ -33,6 +33,7 @@ class Coralogix(google.protobuf.message.Message):
         FETCH_DASHBOARD_WIDGETS: Coralogix._TaskType.ValueType  # 3
         FETCH_DASHBOARD_VARIABLES: Coralogix._TaskType.ValueType  # 4
         FETCH_INDEX_MAPPINGS: Coralogix._TaskType.ValueType  # 5
+        FETCH_ALERT_DEFS: Coralogix._TaskType.ValueType  # 6
 
     class TaskType(_TaskType, metaclass=_TaskTypeEnumTypeWrapper): ...
     UNKNOWN: Coralogix.TaskType.ValueType  # 0
@@ -41,6 +42,7 @@ class Coralogix(google.protobuf.message.Message):
     FETCH_DASHBOARD_WIDGETS: Coralogix.TaskType.ValueType  # 3
     FETCH_DASHBOARD_VARIABLES: Coralogix.TaskType.ValueType  # 4
     FETCH_INDEX_MAPPINGS: Coralogix.TaskType.ValueType  # 5
+    FETCH_ALERT_DEFS: Coralogix.TaskType.ValueType  # 6
 
     @typing_extensions.final
     class FetchLogsTask(google.protobuf.message.Message):
@@ -155,12 +157,21 @@ class Coralogix(google.protobuf.message.Message):
         def HasField(self, field_name: typing_extensions.Literal["index_pattern", b"index_pattern"]) -> builtins.bool: ...
         def ClearField(self, field_name: typing_extensions.Literal["index_pattern", b"index_pattern"]) -> None: ...
 
+    @typing_extensions.final
+    class FetchAlertDefsTask(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        def __init__(
+            self,
+        ) -> None: ...
+
     TYPE_FIELD_NUMBER: builtins.int
     FETCH_LOGS_FIELD_NUMBER: builtins.int
     FETCH_METRICS_FIELD_NUMBER: builtins.int
     FETCH_DASHBOARD_WIDGETS_FIELD_NUMBER: builtins.int
     FETCH_DASHBOARD_VARIABLES_FIELD_NUMBER: builtins.int
     FETCH_INDEX_MAPPINGS_FIELD_NUMBER: builtins.int
+    FETCH_ALERT_DEFS_FIELD_NUMBER: builtins.int
     type: global___Coralogix.TaskType.ValueType
     @property
     def fetch_logs(self) -> global___Coralogix.FetchLogsTask: ...
@@ -172,6 +183,8 @@ class Coralogix(google.protobuf.message.Message):
     def fetch_dashboard_variables(self) -> global___Coralogix.FetchDashboardVariablesTask: ...
     @property
     def fetch_index_mappings(self) -> global___Coralogix.FetchIndexMappingsTask: ...
+    @property
+    def fetch_alert_defs(self) -> global___Coralogix.FetchAlertDefsTask: ...
     def __init__(
         self,
         *,
@@ -181,9 +194,10 @@ class Coralogix(google.protobuf.message.Message):
         fetch_dashboard_widgets: global___Coralogix.FetchDashboardWidgetsTask | None = ...,
         fetch_dashboard_variables: global___Coralogix.FetchDashboardVariablesTask | None = ...,
         fetch_index_mappings: global___Coralogix.FetchIndexMappingsTask | None = ...,
+        fetch_alert_defs: global___Coralogix.FetchAlertDefsTask | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["fetch_dashboard_variables", b"fetch_dashboard_variables", "fetch_dashboard_widgets", b"fetch_dashboard_widgets", "fetch_index_mappings", b"fetch_index_mappings", "fetch_logs", b"fetch_logs", "fetch_metrics", b"fetch_metrics", "task", b"task"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["fetch_dashboard_variables", b"fetch_dashboard_variables", "fetch_dashboard_widgets", b"fetch_dashboard_widgets", "fetch_index_mappings", b"fetch_index_mappings", "fetch_logs", b"fetch_logs", "fetch_metrics", b"fetch_metrics", "task", b"task", "type", b"type"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing_extensions.Literal["task", b"task"]) -> typing_extensions.Literal["fetch_logs", "fetch_metrics", "fetch_dashboard_widgets", "fetch_dashboard_variables", "fetch_index_mappings"] | None: ...
+    def HasField(self, field_name: typing_extensions.Literal["fetch_alert_defs", b"fetch_alert_defs", "fetch_dashboard_variables", b"fetch_dashboard_variables", "fetch_dashboard_widgets", b"fetch_dashboard_widgets", "fetch_index_mappings", b"fetch_index_mappings", "fetch_logs", b"fetch_logs", "fetch_metrics", b"fetch_metrics", "task", b"task"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["fetch_alert_defs", b"fetch_alert_defs", "fetch_dashboard_variables", b"fetch_dashboard_variables", "fetch_dashboard_widgets", b"fetch_dashboard_widgets", "fetch_index_mappings", b"fetch_index_mappings", "fetch_logs", b"fetch_logs", "fetch_metrics", b"fetch_metrics", "task", b"task", "type", b"type"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing_extensions.Literal["task", b"task"]) -> typing_extensions.Literal["fetch_logs", "fetch_metrics", "fetch_dashboard_widgets", "fetch_dashboard_variables", "fetch_index_mappings", "fetch_alert_defs"] | None: ...
 
 global___Coralogix = Coralogix

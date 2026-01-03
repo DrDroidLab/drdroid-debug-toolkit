@@ -407,6 +407,14 @@ class CloudwatchSourceManager(SourceManager):
                     'test_cost_explorer_permission': [{'client_type': 'ce'}]
                 }
             },
+            Cloudwatch.TaskType.FETCH_ALARMS: {
+                'executor': self.execute_fetch_alarms,
+                'model_types': [],
+                'result_type': PlaybookTaskResultType.API_RESPONSE,
+                'display_name': 'Fetch Alarm Configurations from CloudWatch',
+                'category': 'Alerts',
+                'form_fields': [],
+            },
         }
         self.connector_form_configs = [
             {
@@ -1301,3 +1309,73 @@ class CloudwatchSourceManager(SourceManager):
         except Exception as e:
             logger.error(f"Error executing AWS discover dimensions: {e}", exc_info=True)
             raise Exception(f"Error while executing AWS discover dimensions: {e}")
+
+    def execute_fetch_alarms(self, time_range: TimeRange, cloudwatch_task: Cloudwatch,
+                            cloudwatch_connector: ConnectorProto):
+        """Execute fetch CloudWatch alarms task."""
+        try:
+            if not cloudwatch_connector:
+                response_data = {
+                    "error": "Task execution Failed:: No CloudWatch source found",
+                    "alarms": {},
+                    "count": 0
+                }
+                response_struct = Struct()
+                response_struct.update(response_data)
+                output = ApiResponseResult(response_body=response_struct)
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.API_RESPONSE,
+                    api_response=output,
+                    source=self.source
+                )
+
+            # Get CloudWatch processor
+            cloudwatch_processor = self.get_connector_processor(cloudwatch_connector, client_type='cloudwatch')
+
+            logger.info("Fetching all CloudWatch alarms")
+
+            # Call the API processor method
+            alarms_result = cloudwatch_processor.cloudwatch_describe_all_alarms()
+
+            # Convert result to structured response
+            response_data = {
+                "alarms": alarms_result,
+                "count": len(alarms_result.get('MetricAlarms', [])) + len(alarms_result.get('CompositeAlarms', []))
+            }
+
+            # Convert datetime objects to ISO strings recursively
+            response_data = convert_datetime_recursive(response_data)
+
+            # Ensure we have a proper Struct instance
+            if isinstance(response_data, dict):
+                response_struct = Struct()
+                response_struct.update(response_data)
+            else:
+                response_struct = dict_to_proto(response_data, Struct)
+
+            output = ApiResponseResult(response_body=response_struct)
+
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                source=self.source,
+                api_response=output
+            )
+
+        except Exception as e:
+            logger.error(f"Error executing fetch CloudWatch alarms: {e}", exc_info=True)
+            
+            # Return error as API_RESPONSE
+            response_data = {
+                "error": f"Error executing fetch CloudWatch alarms task: {str(e)}",
+                "alarms": {},
+                "count": 0
+            }
+            response_struct = Struct()
+            response_struct.update(response_data)
+            output = ApiResponseResult(response_body=response_struct)
+
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                api_response=output,
+                source=self.source
+            )

@@ -270,6 +270,14 @@ class NewRelicSourceManager(SourceManager):
                               is_optional=True),
                 ]
             },
+            NewRelic.TaskType.FETCH_ALERT_CONDITIONS: {
+                'executor': self.execute_fetch_alert_conditions,
+                'model_types': [],
+                'result_type': PlaybookTaskResultType.API_RESPONSE,
+                'display_name': 'Fetch Alert Conditions from New Relic',
+                'category': 'Alerts',
+                'form_fields': [],
+            },
         }
 
         self.connector_form_configs = [
@@ -2802,6 +2810,118 @@ class NewRelicSourceManager(SourceManager):
                 api_response=ApiResponseResult(
                     response_status=UInt64Value(value=500),
                     response_body=error_struct
+                ),
+                source=self.source
+            )
+
+    def execute_fetch_alert_conditions(self, time_range: TimeRange, nr_task: NewRelic,
+                                      nr_connector: ConnectorProto):
+        """
+        Execute a task to fetch all alert conditions (alert rule configurations) from New Relic.
+        
+        Args:
+            time_range: The time range (not used for this task)
+            nr_task: The New Relic task
+            nr_connector: The New Relic connector to use
+            
+        Returns:
+            A PlaybookTaskResult containing alert conditions as API response
+        """
+        try:
+            if not nr_connector:
+                from google.protobuf.struct_pb2 import Struct
+                from google.protobuf.wrappers_pb2 import UInt64Value
+                
+                response_data = {
+                    "error": "Task execution Failed:: No New Relic source found",
+                    "conditions": [],
+                    "count": 0
+                }
+                response_struct = Struct()
+                response_struct.update(response_data)
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.API_RESPONSE,
+                    api_response=ApiResponseResult(
+                        response_status=UInt64Value(value=500),
+                        response_body=response_struct
+                    ),
+                    source=self.source
+                )
+
+            nr_gql_processor = self.get_connector_processor(nr_connector)
+
+            print(
+                f"Playbook Task Downstream Request: Type -> New Relic FETCH_ALERT_CONDITIONS",
+                flush=True,
+            )
+
+            # Fetch all alert conditions (pagination handled internally)
+            all_conditions = []
+            cursor = None  # None will be converted to 'null' in the processor
+            
+            while True:
+                conditions_result = nr_gql_processor.get_all_conditions(cursor)
+                if not conditions_result:
+                    break
+                
+                conditions = conditions_result.get('nrqlConditions', [])
+                if conditions:
+                    all_conditions.extend(conditions)
+                
+                # Check if there are more pages
+                next_cursor = conditions_result.get('nextCursor')
+                if not next_cursor or next_cursor == 'null':
+                    break
+                
+                cursor = next_cursor
+
+            # Convert response data to structured response
+            response_data = {
+                "conditions": all_conditions,
+                "count": len(all_conditions),
+                "total_count": conditions_result.get('totalCount', len(all_conditions)) if conditions_result else len(all_conditions)
+            }
+
+            # Import required modules
+            from google.protobuf.struct_pb2 import Struct
+            from google.protobuf.wrappers_pb2 import UInt64Value
+            from core.utils.proto_utils import dict_to_proto
+
+            # Convert response data to Struct
+            if isinstance(response_data, dict):
+                response_struct = Struct()
+                response_struct.update(response_data)
+            else:
+                response_struct = dict_to_proto(response_data, Struct)
+
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                api_response=ApiResponseResult(
+                    response_status=UInt64Value(value=200),
+                    response_body=response_struct
+                ),
+                source=self.source
+            )
+
+        except Exception as e:
+            logger.error(f"Error while executing fetch alert conditions task: {e}", exc_info=True)
+            from google.protobuf.struct_pb2 import Struct
+            from google.protobuf.wrappers_pb2 import UInt64Value
+            
+            # Return error as API_RESPONSE
+            response_data = {
+                "error": f"Error executing fetch alert conditions task: {str(e)}",
+                "conditions": [],
+                "count": 0
+            }
+            response_struct = Struct()
+            response_struct.update(response_data)
+
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                api_response=ApiResponseResult(
+                    response_status=UInt64Value(value=500),
+                    response_body=response_struct
                 ),
                 source=self.source
             )

@@ -453,7 +453,9 @@ class NewRelicGraphQlConnector(Processor):
         return None
 
     def get_all_conditions(self, cursor):
-        if cursor is not None and cursor != 'null':
+        if cursor is None:
+            cursor = 'null'
+        elif cursor != 'null':
             cursor = f'"{cursor}"'
         query = gql(f"""{{
                             actor {{
