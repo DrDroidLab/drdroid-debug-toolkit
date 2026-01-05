@@ -638,14 +638,16 @@ class SignozApiProcessor(Processor):
         return 60  # default
 
     def _parse_duration(self, duration_str):
-        """Parse duration string like '2h', '90m' into milliseconds."""
+        """Parse duration string like '2d', '2h', '90m' into milliseconds."""
         if not duration_str or not isinstance(duration_str, str):
             return None
-        match = re.match(r"^(\d+)([hm])$", duration_str.strip().lower())
+        match = re.match(r"^(\d+)([dhm])$", duration_str.strip().lower())
         if match:
             value, unit = match.groups()
             value = int(value)
-            if unit == "h":
+            if unit == "d":
+                return value * 24 * 60 * 60 * 1000
+            elif unit == "h":
                 return value * 60 * 60 * 1000
             elif unit == "m":
                 return value * 60 * 1000
