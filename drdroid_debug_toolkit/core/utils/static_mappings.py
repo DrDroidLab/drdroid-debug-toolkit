@@ -374,6 +374,17 @@ integrations_connector_type_connector_keys_map = {
         [
             SourceKeyType.GITHUB_TOKEN,
             SourceKeyType.GITHUB_ORG,
+        ],
+        [
+            SourceKeyType.GITHUB_APP_ID,
+            SourceKeyType.GITHUB_APP_PRIVATE_KEY,
+            SourceKeyType.GITHUB_APP_INSTALLATION_ID,
+        ],
+        [
+            SourceKeyType.GITHUB_APP_ID,
+            SourceKeyType.GITHUB_APP_PRIVATE_KEY,
+            SourceKeyType.GITHUB_APP_INSTALLATION_ID,
+            SourceKeyType.GITHUB_ORG,
         ]
     ],
     Source.JENKINS: [

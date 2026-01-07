@@ -240,6 +240,49 @@ class GithubSourceManager(SourceManager):
                         is_optional=False
                     )
                 }
+            },
+            {
+                "name": StringValue(value="GitHub App Authentication"),
+                "description": StringValue(value="Connect to GitHub using a GitHub App. This provides more granular permissions and is recommended for production environments."),
+                "form_fields": {
+                    SourceKeyType.GITHUB_APP_ID: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.GITHUB_APP_ID)),
+                        display_name=StringValue(value="GitHub App ID"),
+                        description=StringValue(value='e.g. "123456"'),
+                        helper_text=StringValue(value="Enter your GitHub App ID (found in your GitHub App settings)"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False
+                    ),
+                    SourceKeyType.GITHUB_APP_PRIVATE_KEY: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.GITHUB_APP_PRIVATE_KEY)),
+                        display_name=StringValue(value="GitHub App Private Key"),
+                        description=StringValue(value='e.g. "-----BEGIN RSA PRIVATE KEY-----\\n...\\n-----END RSA PRIVATE KEY-----"'),
+                        helper_text=StringValue(value="Enter your GitHub App's private key in PEM format (downloaded from GitHub App settings)"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False,
+                        is_sensitive=True
+                    ),
+                    SourceKeyType.GITHUB_APP_INSTALLATION_ID: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.GITHUB_APP_INSTALLATION_ID)),
+                        display_name=StringValue(value="GitHub App Installation ID"),
+                        description=StringValue(value='e.g. "12345678"'),
+                        helper_text=StringValue(value="Enter the Installation ID for your GitHub App (obtained after installing the app on an organization/account)"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False
+                    ),
+                    SourceKeyType.GITHUB_ORG: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.GITHUB_ORG)),
+                        display_name=StringValue(value="GitHub Organization (Optional)"),
+                        description=StringValue(value='e.g. "my-org", "acme-corp"'),
+                        helper_text=StringValue(value="Enter the GitHub organization name if the app is installed on an organization. Leave empty if installed on a user account."),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=True
+                    )
+                }
             }
         ]
         self.connector_type_details = {
@@ -249,7 +292,25 @@ class GithubSourceManager(SourceManager):
 
     def get_connector_processor(self, github_connector, **kwargs):
         generated_credentials = generate_credentials_dict(github_connector.type, github_connector.keys)
-        return GithubAPIProcessor(**generated_credentials)
+        
+        # Check if using GitHub App authentication
+        has_app_keys = any(
+            key.key_type in [
+                SourceKeyType.GITHUB_APP_ID,
+                SourceKeyType.GITHUB_APP_PRIVATE_KEY,
+                SourceKeyType.GITHUB_APP_INSTALLATION_ID
+            ]
+            for key in github_connector.keys
+        )
+        
+        if has_app_keys:
+            # Import GitHub App API Processor
+            from core.integrations.source_api_processors.github_app_api_processor import GithubAppAPIProcessor
+            return GithubAppAPIProcessor(**generated_credentials)
+        else:
+            # Traditional PAT-based processor
+            from core.integrations.source_api_processors.github_api_processor import GithubAPIProcessor
+            return GithubAPIProcessor(**generated_credentials)
 
     def fetch_related_commits(self, time_range: TimeRange, github_task: Github,
                               github_connector: ConnectorProto):
@@ -432,3 +493,40 @@ class GithubSourceManager(SourceManager):
             )
         except Exception as e:
             raise Exception(f"Error while executing Github fetch_recent_merges task: {e}")
+
+    @staticmethod
+    def validate_connector(connector: ConnectorProto) -> bool:
+        from core.integrations.source_facade import source_facade as playbook_source_facade
+        if connector.is_proxy_enabled.value:
+            return True
+        keys = connector.keys
+        all_ck_types = [ck.key_type for ck in keys if ck.key.value]
+        all_ck_types = list(set(all_ck_types))
+        
+        # Check for GitHub App keys
+        has_app_keys = any(
+            key_type in [
+                SourceKeyType.GITHUB_APP_ID,
+                SourceKeyType.GITHUB_APP_PRIVATE_KEY,
+                SourceKeyType.GITHUB_APP_INSTALLATION_ID
+            ]
+            for key_type in all_ck_types
+        )
+        
+        if has_app_keys:
+            # Validate GitHub App keys
+            required_app_keys = [
+                SourceKeyType.GITHUB_APP_ID,
+                SourceKeyType.GITHUB_APP_PRIVATE_KEY,
+                SourceKeyType.GITHUB_APP_INSTALLATION_ID
+            ]
+            return all(key_type in all_ck_types for key_type in required_app_keys)
+        else:
+            # Validate PAT keys
+            required_key_types = playbook_source_facade.get_connector_required_keys(connector.type)
+            all_keys_found = False
+            for rkt in required_key_types:
+                if set(rkt) <= set(all_ck_types):
+                    all_keys_found = True
+                    break
+            return all_keys_found
