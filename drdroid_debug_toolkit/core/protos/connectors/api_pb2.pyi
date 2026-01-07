@@ -2270,6 +2270,7 @@ class GetConnectorKeysResponse(google.protobuf.message.Message):
     MESSAGE_FIELD_NUMBER: builtins.int
     CONNECTOR_FIELD_NUMBER: builtins.int
     CONNECTOR_KEYS_FIELD_NUMBER: builtins.int
+    SELECTED_FORM_CONFIG_INDEX_FIELD_NUMBER: builtins.int
     @property
     def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
     @property
@@ -2278,6 +2279,10 @@ class GetConnectorKeysResponse(google.protobuf.message.Message):
     def connector(self) -> core.protos.connectors.connector_pb2.Connector: ...
     @property
     def connector_keys(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[core.protos.connectors.connector_pb2.ConnectorKey]: ...
+    @property
+    def selected_form_config_index(self) -> google.protobuf.wrappers_pb2.UInt32Value:
+        """Index of the form config that matches existing keys"""
+
     def __init__(
         self,
         *,
@@ -2285,9 +2290,10 @@ class GetConnectorKeysResponse(google.protobuf.message.Message):
         message: Global___Message | None = ...,
         connector: core.protos.connectors.connector_pb2.Connector | None = ...,
         connector_keys: collections.abc.Iterable[core.protos.connectors.connector_pb2.ConnectorKey] | None = ...,
+        selected_form_config_index: google.protobuf.wrappers_pb2.UInt32Value | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["connector", b"connector", "message", b"message", "success", b"success"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["connector", b"connector", "connector_keys", b"connector_keys", "message", b"message", "success", b"success"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["connector", b"connector", "message", b"message", "selected_form_config_index", b"selected_form_config_index", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["connector", b"connector", "connector_keys", b"connector_keys", "message", b"message", "selected_form_config_index", b"selected_form_config_index", "success", b"success"]) -> None: ...
 
 Global___GetConnectorKeysResponse: typing_extensions.TypeAlias = GetConnectorKeysResponse
 
