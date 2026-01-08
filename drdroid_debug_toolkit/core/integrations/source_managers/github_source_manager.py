@@ -243,7 +243,7 @@ class GithubSourceManager(SourceManager):
             },
             {
                 "name": StringValue(value="GitHub App Authentication"),
-                "description": StringValue(value="Connect to GitHub using a GitHub App. This provides more granular permissions and is recommended for production environments."),
+                "description": StringValue(value="Connect to GitHub using a GitHub App. This provides more granular permissions and is recommended for production environments. Note: The GitHub App Private Key is configured as a service-level environment variable (GITHUB_APP_PRIVATE_KEY) and is not stored per connector."),
                 "form_fields": {
                     SourceKeyType.GITHUB_APP_ID: FormField(
                         key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.GITHUB_APP_ID)),
@@ -254,16 +254,9 @@ class GithubSourceManager(SourceManager):
                         form_field_type=FormFieldType.TEXT_FT,
                         is_optional=False
                     ),
-                    SourceKeyType.GITHUB_APP_PRIVATE_KEY: FormField(
-                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.GITHUB_APP_PRIVATE_KEY)),
-                        display_name=StringValue(value="GitHub App Private Key"),
-                        description=StringValue(value='e.g. "-----BEGIN RSA PRIVATE KEY-----\\n...\\n-----END RSA PRIVATE KEY-----"'),
-                        helper_text=StringValue(value="Enter your GitHub App's private key in PEM format (downloaded from GitHub App settings)"),
-                        data_type=LiteralType.STRING,
-                        form_field_type=FormFieldType.TEXT_FT,
-                        is_optional=False,
-                        is_sensitive=True
-                    ),
+                    # Note: GITHUB_APP_PRIVATE_KEY is NOT shown in the form
+                    # It is retrieved from service settings (GITHUB_APP_PRIVATE_KEY) when needed
+                    # This is a service-level secret, same for all installations
                     SourceKeyType.GITHUB_APP_INSTALLATION_ID: FormField(
                         key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.GITHUB_APP_INSTALLATION_ID)),
                         display_name=StringValue(value="GitHub App Installation ID"),
@@ -294,10 +287,10 @@ class GithubSourceManager(SourceManager):
         generated_credentials = generate_credentials_dict(github_connector.type, github_connector.keys)
         
         # Check if using GitHub App authentication
+        # Note: We don't check for GITHUB_APP_PRIVATE_KEY as it's not stored in DB
         has_app_keys = any(
             key.key_type in [
                 SourceKeyType.GITHUB_APP_ID,
-                SourceKeyType.GITHUB_APP_PRIVATE_KEY,
                 SourceKeyType.GITHUB_APP_INSTALLATION_ID
             ]
             for key in github_connector.keys
@@ -539,10 +532,10 @@ class GithubSourceManager(SourceManager):
         all_ck_types = list(set(all_ck_types))
         
         # Check for GitHub App keys
+        # Note: We don't check for GITHUB_APP_PRIVATE_KEY as it's not stored in DB
         has_app_keys = any(
             key_type in [
                 SourceKeyType.GITHUB_APP_ID,
-                SourceKeyType.GITHUB_APP_PRIVATE_KEY,
                 SourceKeyType.GITHUB_APP_INSTALLATION_ID
             ]
             for key_type in all_ck_types
@@ -550,9 +543,9 @@ class GithubSourceManager(SourceManager):
         
         if has_app_keys:
             # Validate GitHub App keys
+            # Note: GITHUB_APP_PRIVATE_KEY is NOT stored in DB - retrieved from settings
             required_app_keys = [
                 SourceKeyType.GITHUB_APP_ID,
-                SourceKeyType.GITHUB_APP_PRIVATE_KEY,
                 SourceKeyType.GITHUB_APP_INSTALLATION_ID
             ]
             return all(key_type in all_ck_types for key_type in required_app_keys)
