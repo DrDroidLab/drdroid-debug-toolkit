@@ -83,13 +83,23 @@ class GithubAppAPIProcessor(Processor):
     def _get_auth_headers(self):
         """Get authorization headers with installation token."""
         token = self._get_installation_token()
-        return {'Authorization': f'Bearer {token}'}
+        return {
+            'Authorization': f'Bearer {token}',
+            'Accept': 'application/vnd.github+json',
+            'X-GitHub-Api-Version': '2022-11-28'
+        }
 
     def _get_commit_before_timestamp(self, repo, file_path, timestamp):
         """Find the latest commit affecting the file before the given timestamp."""
         try:
             headers = self._get_auth_headers()
-            commits_url = f"https://api.github.com/repos/{self.org}/{repo}/commits?path={file_path}"
+            # Handle repo format: if repo contains '/', use it directly, otherwise use org/repo
+            if '/' in repo:
+                repo_path = repo
+            else:
+                repo_path = f'{self.org}/{repo}'
+            
+            commits_url = f"{self.base_url}/repos/{repo_path}/commits?path={file_path}"
             response = requests.get(commits_url, headers=headers, timeout=EXTERNAL_CALL_TIMEOUT)
             response.raise_for_status()
             commits = response.json()
@@ -265,38 +275,74 @@ class GithubAppAPIProcessor(Processor):
         return None
 
     def list_all_repos(self):
+        """List all repositories accessible to the installation."""
         try:
-            page = 1
-            # If org is provided, use orgs endpoint, otherwise use installation endpoint
-            if self.org:
-                repo_url = f'https://api.github.com/orgs/{self.org}/repos'
-            else:
-                repo_url = f'https://api.github.com/installation/repositories'
+            # For GitHub Apps, use the installation repositories endpoint
+            # This returns ALL repos the app has access to, regardless of org/user
+            url = f'{self.base_url}/installation/repositories'
             headers = self._get_auth_headers()
+            
             all_repos = []
+            page = 1
             while True:
-                data = {'page': page, 'per_page': 100}
-                response = requests.request("GET", repo_url, headers=headers, params=data)
-                if response:
-                    if response.status_code == 200:
-                        if self.org:
+                params = {'page': page, 'per_page': 100}
+                response = requests.get(url, headers=headers, params=params, timeout=EXTERNAL_CALL_TIMEOUT)
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    repos = data.get('repositories', [])
+                    if not repos:
+                        break
+                    all_repos.extend(repos)
+                    
+                    # Check if there are more pages
+                    if len(repos) < 100:
+                        break
+                    page += 1
+                elif response.status_code == 404:
+                    # Fallback: try org/user repos endpoint if installation endpoint doesn't work
+                    logger.warning("GithubAppAPIProcessor.list_all_repos:: Installation repos endpoint returned 404, trying org/user endpoint")
+                    
+                    # Try to get installation info to determine account type
+                    if not self.org:
+                        # If org not set, we can't use fallback
+                        logger.error("GithubAppAPIProcessor.list_all_repos:: Cannot use fallback - org not specified")
+                        break
+                    
+                    # List repos for the org/user
+                    fallback_url = f'{self.base_url}/orgs/{self.org}/repos'
+                    page = 1
+                    while True:
+                        params = {'page': page, 'per_page': 100}
+                        response = requests.get(fallback_url, headers=headers, params=params, timeout=EXTERNAL_CALL_TIMEOUT)
+                        
+                        if response.status_code == 200:
                             repos = response.json()
-                        else:
-                            repos = response.json().get('repositories', [])
-                        if len(repos) > 0:
+                            if not repos:
+                                break
                             all_repos.extend(repos)
+                            
+                            if len(repos) < 100:
+                                break
                             page += 1
-                            continue
-                    else:
-                        logger.error(f"GithubAppAPIProcessor.list_all_repos:: Error occurred while fetching github repos "
-                                     f"in {self.org if self.org else 'installation'} with status_code: {response.status_code} and response: "
-                                     f"{response.text}")
-                break
+                        else:
+                            logger.error(f"GithubAppAPIProcessor.list_all_repos:: Fallback endpoint error: {response.status_code} - {response.text}")
+                            break
+                    break
+                else:
+                    logger.error(
+                        f"GithubAppAPIProcessor.list_all_repos:: Error occurred while fetching github repos "
+                        f"with status_code: {response.status_code} and response: {response.text}"
+                    )
+                    break
+            
             return all_repos
         except Exception as e:
-            logger.error(f"GithubAppAPIProcessor.list_all_repos:: Exception occurred while fetching github repos "
-                         f"in {self.org if self.org else 'installation'} with error: {e}")
-        return None
+            logger.error(
+                f"GithubAppAPIProcessor.list_all_repos:: Exception occurred while fetching github repos "
+                f"with error: {e}"
+            )
+        return []
 
     def get_commit_sha(self, repo, commit_sha):
         try:
@@ -318,26 +364,35 @@ class GithubAppAPIProcessor(Processor):
 
     def fetch_file(self, repo, file_path, timestamp=None):
         try:
-            payload = {}
             headers = self._get_auth_headers()
-            # if timestamp is passed, fetch from that timestamp else fetch latest file version
-            # Worst case always fall to latest file version
-            file_url = f'https://api.github.com/repos/{self.org}/{repo}/contents/{file_path}'
+            
+            # Handle repo format: if repo contains '/', use it directly, otherwise use org/repo
+            if '/' in repo:
+                # Repo is in format 'owner/repo', use it directly
+                repo_path = repo
+            else:
+                # Repo is just the name, prepend org
+                repo_path = f'{self.org}/{repo}'
+            
+            file_url = f'{self.base_url}/repos/{repo_path}/contents/{file_path}'
+            
             if timestamp:
-                commit_sha = self._get_commit_before_timestamp(repo, file_path, timestamp)
+                commit_sha = self._get_commit_before_timestamp(repo.split('/')[-1] if '/' in repo else repo, file_path, timestamp)
                 if commit_sha:
-                    file_url = f'https://api.github.com/repos/{self.org}/{repo}/contents/{file_path}?ref={commit_sha}'
-            response = requests.request("GET", file_url, headers=headers, data=payload, timeout=EXTERNAL_CALL_TIMEOUT)
+                    file_url = f'{self.base_url}/repos/{repo_path}/contents/{file_path}?ref={commit_sha}'
+            
+            response = requests.request("GET", file_url, headers=headers, timeout=EXTERNAL_CALL_TIMEOUT)
             if response:
                 if response.status_code == 200:
                     return response.json()
                 else:
-                    logger.error(f"GithubAppAPIProcessor.fetch_file:: Error occurred while fetching github file details "
-                                 f"for file: {file_path} in {self.org}/{repo} with status_code: "
-                                 f"{response.status_code} and response: {response.text}")
+                    error_msg = f"Error occurred while fetching github file details for file: {file_path} in {repo_path} with status_code: {response.status_code}"
+                    if response.status_code == 404:
+                        error_msg += f" - Repository {repo_path} may not exist or may not be accessible. Check if the repo name is correct and the GitHub App installation has access to it."
+                    logger.error(f"GithubAppAPIProcessor.fetch_file:: {error_msg} and response: {response.text}")
         except Exception as e:
             logger.error(f"GithubAppAPIProcessor.fetch_file:: Exception occurred while fetching github file details for "
-                         f"file: {file_path} in {self.org}/{repo} with error: {e}")
+                         f"file: {file_path} in repo {repo} with error: {e}")
         return None
 
     def fetch_readme_content(self, repo):
@@ -636,34 +691,43 @@ class GithubAppAPIProcessor(Processor):
         return None
 
     def list_all_members(self):
+        """List all organization members (if org is set)."""
+        if not self.org:
+            logger.warning("GithubAppAPIProcessor.list_all_members:: Organization is required for listing members")
+            return []
+    
         try:
-            if not self.org:
-                logger.warning("GithubAppAPIProcessor.list_all_members:: Organization is required for listing members")
-                return None
             page = 1
-            repo_url = f'https://api.github.com/orgs/{self.org}/members'
+            repo_url = f'{self.base_url}/orgs/{self.org}/members'
             headers = self._get_auth_headers()
             all_members = []
+            
             while True:
-                data = {'page': page, 'per_page': 100}
-                response = requests.request("GET", repo_url, headers=headers, params=data)
-                if response:
-                    if response.status_code == 200:
-                        if len(response.json()) > 0:
-                            all_members.extend(response.json())
-                            page += 1
-                            continue
+                params = {'page': page, 'per_page': 100}
+                response = requests.get(repo_url, headers=headers, params=params, timeout=EXTERNAL_CALL_TIMEOUT)
+                
+                if response.status_code == 200:
+                    members = response.json()
+                    if len(members) > 0:
+                        all_members.extend(members)
+                        page += 1
+                        continue
                     else:
-                        logger.error(
-                            f"GithubAppAPIProcessor.list_all_members:: Error occurred while fetching github members "
-                            f"in {self.org} with status_code: {response.status_code} and response: "
-                            f"{response.text}")
-                break
+                        break
+                else:
+                    logger.error(
+                        f"GithubAppAPIProcessor.list_all_members:: Error occurred while fetching github members "
+                        f"in {self.org} with status_code: {response.status_code} and response: "
+                        f"{response.text}"
+                    )
+                    break
             return all_members
         except Exception as e:
-            logger.error(f"GithubAppAPIProcessor.list_all_members:: Exception occurred while fetching github repos "
-                         f"in {self.org} with error: {e}")
-        return None
+            logger.error(
+                f"GithubAppAPIProcessor.list_all_members:: Exception occurred while fetching github members "
+                f"in {self.org} with error: {e}"
+            )
+        return []
 
     # Author: (VG), some code is repetitive. Please bear with it. I will refactor it later.
     def create_pull_request(self, repo, title, head, base, body, files_to_update, commit_message, committer_name,

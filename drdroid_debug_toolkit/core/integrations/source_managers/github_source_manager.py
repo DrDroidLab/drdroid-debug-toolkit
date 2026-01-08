@@ -358,10 +358,43 @@ class GithubSourceManager(SourceManager):
             timestamp = task.timestamp if task.timestamp != 0 else None
             processor = self.get_connector_processor(github_connector)
             all_repos = processor.list_all_repos()
-            all_repo_names = [repo['name'] for repo in all_repos]
-            if repo not in all_repo_names:
-                raise Exception(f"Repository {repo} not found")
+            
+            # Validate repo exists (handle None/empty list from list_all_repos)
+            # If validation fails, still try the API call - repo might be accessible but not in list
+            if all_repos:
+                all_repo_names = [r.get('name', '') for r in all_repos if r and r.get('name')]
+                all_repo_full_names = [r.get('full_name', '') for r in all_repos if r and r.get('full_name')]
+                
+                # Check both name and full_name
+                repo_found = repo in all_repo_names or repo in all_repo_full_names
+                if not repo_found:
+                    # Also check if repo matches the end of any full_name (e.g., "repo" matches "owner/repo")
+                    for full_name in all_repo_full_names:
+                        if full_name and full_name.endswith(f'/{repo}'):
+                            repo_found = True
+                            break
+                    
+                    if not repo_found:
+                        # Log warning but don't fail - repo might still be accessible
+                        logger.warning(f"Repository {repo} not found in accessible repos list ({len(all_repos)} repos), attempting fetch anyway")
+            # If all_repos is None or empty, skip validation and let the API call handle it
+            
+            # Validate file_path is provided
+            if not file_path or not file_path.strip():
+                raise Exception(f"File path is required. Please provide a valid file path.")
+            
             file_details = processor.fetch_file(repo, file_path, timestamp=timestamp)
+            if not file_details:
+                raise Exception(f"Failed to fetch file {file_path} from repository {repo}. Repository may not exist or may not be accessible. Check if the repository name is correct and the GitHub App has access to it.")
+            
+            # Check if response is a list (directory contents) instead of a dict (file)
+            if isinstance(file_details, list):
+                raise Exception(f"Path '{file_path}' is a directory, not a file. Please provide a specific file path. Directory contains: {', '.join([item.get('name', 'unknown') for item in file_details[:10]])}")
+            
+            # Ensure file_details is a dict
+            if not isinstance(file_details, dict):
+                raise Exception(f"Unexpected response format from GitHub API. Expected a file object, got: {type(file_details)}")
+            
             response_struct = dict_to_proto(file_details, Struct)
             file_output = ApiResponseResult(response_body=response_struct)
             return PlaybookTaskResult(
@@ -385,9 +418,10 @@ class GithubSourceManager(SourceManager):
             branch = task.branch.value if task.branch.value else None
             processor = self.get_connector_processor(github_connector)
             all_repos = processor.list_all_repos()
-            all_repo_names = [repo['name'] for repo in all_repos]
-            if repo not in all_repo_names:
-                raise Exception(f"Repository {repo} not found")
+            if all_repos:
+                all_repo_names = [r.get('name', '') for r in all_repos if r and r.get('name')]
+                if repo not in all_repo_names:
+                    raise Exception(f"Repository {repo} not found")
             file_details = processor.update_file(repo=repo, file_path=file_path, content=content, sha=sha,
                                                  committer_name=committer_name, committer_email=committer_email,
                                                  branch_name=branch)
@@ -447,9 +481,10 @@ class GithubSourceManager(SourceManager):
 
             processor = self.get_connector_processor(github_connector)
             all_repos = processor.list_all_repos()
-            all_repo_names = [repo['name'] for repo in all_repos]
-            if repo not in all_repo_names:
-                raise Exception(f"Repository {repo} not found")
+            if all_repos:
+                all_repo_names = [r.get('name', '') for r in all_repos if r and r.get('name')]
+                if repo not in all_repo_names:
+                    raise Exception(f"Repository {repo} not found")
 
             pr_details = processor.create_pull_request(repo=repo, title=title, body=body, head=head_branch,
                                                        base=base_branch,
