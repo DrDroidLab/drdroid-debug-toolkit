@@ -5,3 +5,9 @@ env/
 simple_test.py
 test_simple.py
 
+drdroid_debug_toolkit.egg-info/dependency_links.txt
+drdroid_debug_toolkit.egg-info/entry_points.txt
+drdroid_debug_toolkit.egg-info/PKG-INFO
+drdroid_debug_toolkit.egg-info/requires.txt
+drdroid_debug_toolkit.egg-info/SOURCES.txt
+drdroid_debug_toolkit.egg-info/top_level.txt

@@ -506,6 +506,9 @@ enum SourceModelType {
   //Github Models
   GITHUB_REPOSITORY = 2601;
   GITHUB_MEMBER = 2602;
+  GITHUB_COMMIT = 2603;
+  GITHUB_PR = 2604;
+  GITHUB_RELEASE = 2605;
 
   // Jira Models
   JIRA_PROJECT = 2701;

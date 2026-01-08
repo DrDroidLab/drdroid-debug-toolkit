@@ -628,3 +628,214 @@ class GithubAPIProcessor(Processor):
         except Exception as e:
             logger.error(f"Error in create_pull_request for {repo}: {e}")
             return {"error": str(e)}
+
+    # ==================== Recent Changes API Methods ====================
+
+    def list_recent_commits(self, repo, since=None, until=None, per_page=100):
+        """
+        List recent commits for a repository.
+
+        Args:
+            repo: Repository name
+            since: ISO 8601 timestamp to get commits after (optional)
+            until: ISO 8601 timestamp to get commits before (optional)
+            per_page: Number of commits per page (default 100, max 100)
+
+        Returns:
+            list: List of commit objects with metadata
+        """
+        try:
+            all_commits = []
+            page = 1
+            headers = {'Authorization': f'Bearer {self.__api_key}'}
+
+            while True:
+                commits_url = f'{self.base_url}/repos/{self.org}/{repo}/commits'
+                params = {'page': page, 'per_page': per_page}
+                if since:
+                    params['since'] = since
+                if until:
+                    params['until'] = until
+
+                response = requests.get(commits_url, headers=headers, params=params, timeout=EXTERNAL_CALL_TIMEOUT)
+                if response.status_code == 200:
+                    commits = response.json()
+                    if not commits:
+                        break
+                    all_commits.extend(commits)
+                    if len(commits) < per_page:
+                        break
+                    page += 1
+                else:
+                    logger.error(f"GithubAPIProcessor.list_recent_commits:: Error fetching commits for {self.org}/{repo} "
+                                 f"with status_code: {response.status_code} and response: {response.text}")
+                    break
+
+            return all_commits
+        except Exception as e:
+            logger.error(f"GithubAPIProcessor.list_recent_commits:: Exception occurred for {self.org}/{repo}: {e}")
+            return []
+
+    def list_pull_requests(self, repo, state='all', sort='updated', direction='desc', per_page=100):
+        """
+        List pull requests for a repository.
+
+        Args:
+            repo: Repository name
+            state: PR state ('open', 'closed', 'all')
+            sort: Sort by ('created', 'updated', 'popularity', 'long-running')
+            direction: Sort direction ('asc', 'desc')
+            per_page: Number of PRs per page (default 100, max 100)
+
+        Returns:
+            list: List of pull request objects with metadata
+        """
+        try:
+            all_prs = []
+            page = 1
+            headers = {'Authorization': f'Bearer {self.__api_key}'}
+
+            while True:
+                prs_url = f'{self.base_url}/repos/{self.org}/{repo}/pulls'
+                params = {
+                    'state': state,
+                    'sort': sort,
+                    'direction': direction,
+                    'page': page,
+                    'per_page': per_page
+                }
+
+                response = requests.get(prs_url, headers=headers, params=params, timeout=EXTERNAL_CALL_TIMEOUT)
+                if response.status_code == 200:
+                    prs = response.json()
+                    if not prs:
+                        break
+                    all_prs.extend(prs)
+                    if len(prs) < per_page:
+                        break
+                    page += 1
+                else:
+                    logger.error(f"GithubAPIProcessor.list_pull_requests:: Error fetching PRs for {self.org}/{repo} "
+                                 f"with status_code: {response.status_code} and response: {response.text}")
+                    break
+
+            return all_prs
+        except Exception as e:
+            logger.error(f"GithubAPIProcessor.list_pull_requests:: Exception occurred for {self.org}/{repo}: {e}")
+            return []
+
+    def get_pull_request(self, repo, pr_number):
+        """
+        Get a specific pull request by number.
+
+        Args:
+            repo: Repository name
+            pr_number: Pull request number
+
+        Returns:
+            dict: Pull request object with metadata, or None if not found
+        """
+        try:
+            headers = {'Authorization': f'Bearer {self.__api_key}'}
+            pr_url = f'{self.base_url}/repos/{self.org}/{repo}/pulls/{pr_number}'
+
+            response = requests.get(pr_url, headers=headers, timeout=EXTERNAL_CALL_TIMEOUT)
+            if response.status_code == 200:
+                return response.json()
+            else:
+                logger.error(f"GithubAPIProcessor.get_pull_request:: Error fetching PR #{pr_number} for {self.org}/{repo} "
+                             f"with status_code: {response.status_code} and response: {response.text}")
+                return None
+        except Exception as e:
+            logger.error(f"GithubAPIProcessor.get_pull_request:: Exception occurred for PR #{pr_number} in {self.org}/{repo}: {e}")
+            return None
+
+    def list_releases(self, repo, per_page=100):
+        """
+        List releases for a repository.
+
+        Args:
+            repo: Repository name
+            per_page: Number of releases per page (default 100, max 100)
+
+        Returns:
+            list: List of release objects with metadata
+        """
+        try:
+            all_releases = []
+            page = 1
+            headers = {'Authorization': f'Bearer {self.__api_key}'}
+
+            while True:
+                releases_url = f'{self.base_url}/repos/{self.org}/{repo}/releases'
+                params = {'page': page, 'per_page': per_page}
+
+                response = requests.get(releases_url, headers=headers, params=params, timeout=EXTERNAL_CALL_TIMEOUT)
+                if response.status_code == 200:
+                    releases = response.json()
+                    if not releases:
+                        break
+                    all_releases.extend(releases)
+                    if len(releases) < per_page:
+                        break
+                    page += 1
+                else:
+                    logger.error(f"GithubAPIProcessor.list_releases:: Error fetching releases for {self.org}/{repo} "
+                                 f"with status_code: {response.status_code} and response: {response.text}")
+                    break
+
+            return all_releases
+        except Exception as e:
+            logger.error(f"GithubAPIProcessor.list_releases:: Exception occurred for {self.org}/{repo}: {e}")
+            return []
+
+    def get_release(self, repo, release_id):
+        """
+        Get a specific release by ID.
+
+        Args:
+            repo: Repository name
+            release_id: Release ID
+
+        Returns:
+            dict: Release object with metadata, or None if not found
+        """
+        try:
+            headers = {'Authorization': f'Bearer {self.__api_key}'}
+            release_url = f'{self.base_url}/repos/{self.org}/{repo}/releases/{release_id}'
+
+            response = requests.get(release_url, headers=headers, timeout=EXTERNAL_CALL_TIMEOUT)
+            if response.status_code == 200:
+                return response.json()
+            else:
+                logger.error(f"GithubAPIProcessor.get_release:: Error fetching release {release_id} for {self.org}/{repo} "
+                             f"with status_code: {response.status_code} and response: {response.text}")
+                return None
+        except Exception as e:
+            logger.error(f"GithubAPIProcessor.get_release:: Exception occurred for release {release_id} in {self.org}/{repo}: {e}")
+            return None
+
+    def get_repository_info(self, repo):
+        """
+        Get detailed information about a repository.
+
+        Args:
+            repo: Repository name
+
+        Returns:
+            dict: Repository object with metadata, or None if not found
+        """
+        try:
+            headers = {'Authorization': f'Bearer {self.__api_key}'}
+            repo_url = f'{self.base_url}/repos/{self.org}/{repo}'
+
+            response = requests.get(repo_url, headers=headers, timeout=EXTERNAL_CALL_TIMEOUT)
+            if response.status_code == 200:
+                return response.json()
+            else:
+                logger.error(f"GithubAPIProcessor.get_repository_info:: Error fetching repo info for {self.org}/{repo} "
+                             f"with status_code: {response.status_code} and response: {response.text}")
+                return None
+        except Exception as e:
+            logger.error(f"GithubAPIProcessor.get_repository_info:: Exception occurred for {self.org}/{repo}: {e}")
+            return None
