@@ -586,6 +586,7 @@ message GetConnectorKeysResponse {
   Message message = 2;
   Connector connector = 3;
   repeated ConnectorKey connector_keys = 4;
+  google.protobuf.UInt32Value selected_form_config_index = 5;  // Index of the form config that matches existing keys
 }
 
 

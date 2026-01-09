@@ -363,6 +363,12 @@ enum SourceKeyType {
   VICTORIA_LOGS_PORT = 156;
   VICTORIA_LOGS_HEADERS = 157;
 
+  // GitHub App specific keys
+  GITHUB_APP_ID = 158;
+  GITHUB_APP_PRIVATE_KEY = 159;
+  GITHUB_APP_INSTALLATION_ID = 160;
+  GITHUB_APP_ACCESS_TOKEN = 161;  // Cached installation token (internal use)
+
 }
 
 enum SourceModelType {
