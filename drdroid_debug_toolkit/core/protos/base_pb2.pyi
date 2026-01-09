@@ -968,6 +968,50 @@ ALERT_OPS: Context.ValueType  # 13
 ALERT_MIDDLEWARE: Context.ValueType  # 14
 Global___Context: typing_extensions.TypeAlias = Context
 
+class _RecentArtifactType:
+    ValueType = typing.NewType("ValueType", builtins.int)
+    V: typing_extensions.TypeAlias = ValueType
+
+class _RecentArtifactTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_RecentArtifactType.ValueType], builtins.type):
+    DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+    RA_UNKNOWN: _RecentArtifactType.ValueType  # 0
+    RA_GITHUB_REPO: _RecentArtifactType.ValueType  # 1
+    """GitHub Artifacts"""
+    RA_GITHUB_COMMIT: _RecentArtifactType.ValueType  # 2
+    RA_GITHUB_PR: _RecentArtifactType.ValueType  # 3
+    RA_GITHUB_RELEASE: _RecentArtifactType.ValueType  # 4
+    RA_GITLAB_REPO: _RecentArtifactType.ValueType  # 101
+    """GitLab Artifacts (future)"""
+    RA_GITLAB_COMMIT: _RecentArtifactType.ValueType  # 102
+    RA_GITLAB_MR: _RecentArtifactType.ValueType  # 103
+    RA_GITLAB_RELEASE: _RecentArtifactType.ValueType  # 104
+    RA_BITBUCKET_REPO: _RecentArtifactType.ValueType  # 201
+    """Bitbucket Artifacts (future)"""
+    RA_BITBUCKET_COMMIT: _RecentArtifactType.ValueType  # 202
+    RA_BITBUCKET_PR: _RecentArtifactType.ValueType  # 203
+
+class RecentArtifactType(_RecentArtifactType, metaclass=_RecentArtifactTypeEnumTypeWrapper):
+    """Recent Artifact Types for recent_changes tracking
+    These are used to categorize different types of artifacts tracked in the recent_changes table
+    """
+
+RA_UNKNOWN: RecentArtifactType.ValueType  # 0
+RA_GITHUB_REPO: RecentArtifactType.ValueType  # 1
+"""GitHub Artifacts"""
+RA_GITHUB_COMMIT: RecentArtifactType.ValueType  # 2
+RA_GITHUB_PR: RecentArtifactType.ValueType  # 3
+RA_GITHUB_RELEASE: RecentArtifactType.ValueType  # 4
+RA_GITLAB_REPO: RecentArtifactType.ValueType  # 101
+"""GitLab Artifacts (future)"""
+RA_GITLAB_COMMIT: RecentArtifactType.ValueType  # 102
+RA_GITLAB_MR: RecentArtifactType.ValueType  # 103
+RA_GITLAB_RELEASE: RecentArtifactType.ValueType  # 104
+RA_BITBUCKET_REPO: RecentArtifactType.ValueType  # 201
+"""Bitbucket Artifacts (future)"""
+RA_BITBUCKET_COMMIT: RecentArtifactType.ValueType  # 202
+RA_BITBUCKET_PR: RecentArtifactType.ValueType  # 203
+Global___RecentArtifactType: typing_extensions.TypeAlias = RecentArtifactType
+
 @typing.final
 class TimeRange(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor

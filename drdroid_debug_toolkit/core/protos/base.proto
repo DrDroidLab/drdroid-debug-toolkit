@@ -678,3 +678,26 @@ message KeyValue {
   string key = 1;
   Value value = 2;
 }
+
+// Recent Artifact Types for recent_changes tracking
+// These are used to categorize different types of artifacts tracked in the recent_changes table
+enum RecentArtifactType {
+  RA_UNKNOWN = 0;
+
+  // GitHub Artifacts
+  RA_GITHUB_REPO = 1;
+  RA_GITHUB_COMMIT = 2;
+  RA_GITHUB_PR = 3;
+  RA_GITHUB_RELEASE = 4;
+
+  // GitLab Artifacts (future)
+  RA_GITLAB_REPO = 101;
+  RA_GITLAB_COMMIT = 102;
+  RA_GITLAB_MR = 103;
+  RA_GITLAB_RELEASE = 104;
+
+  // Bitbucket Artifacts (future)
+  RA_BITBUCKET_REPO = 201;
+  RA_BITBUCKET_COMMIT = 202;
+  RA_BITBUCKET_PR = 203;
+}
