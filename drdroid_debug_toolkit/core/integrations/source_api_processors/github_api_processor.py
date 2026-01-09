@@ -839,3 +839,199 @@ class GithubAPIProcessor(Processor):
         except Exception as e:
             logger.error(f"GithubAPIProcessor.get_repository_info:: Exception occurred for {self.org}/{repo}: {e}")
             return None
+
+    def get_commit_files(self, repo, commit_sha):
+        """
+        Get the files changed in a specific commit.
+
+        Args:
+            repo: Repository name
+            commit_sha: Commit SHA
+
+        Returns:
+            list: List of file objects with {'path': str, 'change': str}
+                  where change is 'added', 'deleted', or 'modified'
+        """
+        try:
+            headers = {'Authorization': f'Bearer {self.__api_key}'}
+            commit_url = f'{self.base_url}/repos/{self.org}/{repo}/commits/{commit_sha}'
+
+            response = requests.get(commit_url, headers=headers, timeout=EXTERNAL_CALL_TIMEOUT)
+            if response.status_code == 200:
+                commit_data = response.json()
+                files = []
+                for file in commit_data.get('files', []):
+                    status = file.get('status', 'modified')
+                    # Map GitHub status to our simplified change types
+                    if status == 'added':
+                        change = 'added'
+                    elif status == 'removed':
+                        change = 'deleted'
+                    else:
+                        change = 'modified'
+                    files.append({
+                        'path': file.get('filename', ''),
+                        'change': change
+                    })
+                return files
+            else:
+                logger.error(f"GithubAPIProcessor.get_commit_files:: Error fetching commit {commit_sha} for {self.org}/{repo} "
+                             f"with status_code: {response.status_code}")
+                return []
+        except Exception as e:
+            logger.error(f"GithubAPIProcessor.get_commit_files:: Exception occurred for {self.org}/{repo}: {e}")
+            return []
+
+    def get_commit_comments(self, repo, commit_sha):
+        """
+        Get comments on a specific commit.
+
+        Args:
+            repo: Repository name
+            commit_sha: Commit SHA
+
+        Returns:
+            list: List of comment objects with {'timestamp': str, 'author': str, 'markdown': str}
+        """
+        try:
+            headers = {'Authorization': f'Bearer {self.__api_key}'}
+            comments_url = f'{self.base_url}/repos/{self.org}/{repo}/commits/{commit_sha}/comments'
+
+            response = requests.get(comments_url, headers=headers, timeout=EXTERNAL_CALL_TIMEOUT)
+            if response.status_code == 200:
+                raw_comments = response.json()
+                comments = []
+                for comment in raw_comments:
+                    comments.append({
+                        'timestamp': comment.get('created_at', ''),
+                        'author': comment.get('user', {}).get('login', ''),
+                        'markdown': comment.get('body', '')
+                    })
+                return comments
+            else:
+                logger.error(f"GithubAPIProcessor.get_commit_comments:: Error fetching comments for commit {commit_sha} "
+                             f"in {self.org}/{repo} with status_code: {response.status_code}")
+                return []
+        except Exception as e:
+            logger.error(f"GithubAPIProcessor.get_commit_comments:: Exception occurred for {self.org}/{repo}: {e}")
+            return []
+
+    def get_pr_files(self, repo, pr_number):
+        """
+        Get the files changed in a specific pull request.
+
+        Args:
+            repo: Repository name
+            pr_number: Pull request number
+
+        Returns:
+            list: List of file objects with {'path': str, 'change': str}
+                  where change is 'added', 'deleted', or 'modified'
+        """
+        try:
+            headers = {'Authorization': f'Bearer {self.__api_key}'}
+            files_url = f'{self.base_url}/repos/{self.org}/{repo}/pulls/{pr_number}/files'
+            all_files = []
+            page = 1
+
+            while True:
+                params = {'page': page, 'per_page': 100}
+                response = requests.get(files_url, headers=headers, params=params, timeout=EXTERNAL_CALL_TIMEOUT)
+                if response.status_code == 200:
+                    raw_files = response.json()
+                    if not raw_files:
+                        break
+                    for file in raw_files:
+                        status = file.get('status', 'modified')
+                        if status == 'added':
+                            change = 'added'
+                        elif status == 'removed':
+                            change = 'deleted'
+                        else:
+                            change = 'modified'
+                        all_files.append({
+                            'path': file.get('filename', ''),
+                            'change': change
+                        })
+                    if len(raw_files) < 100:
+                        break
+                    page += 1
+                else:
+                    logger.error(f"GithubAPIProcessor.get_pr_files:: Error fetching files for PR #{pr_number} "
+                                 f"in {self.org}/{repo} with status_code: {response.status_code}")
+                    break
+
+            return all_files
+        except Exception as e:
+            logger.error(f"GithubAPIProcessor.get_pr_files:: Exception occurred for {self.org}/{repo}: {e}")
+            return []
+
+    def get_pr_comments(self, repo, pr_number):
+        """
+        Get all comments on a pull request (both issue comments and review comments).
+
+        Args:
+            repo: Repository name
+            pr_number: Pull request number
+
+        Returns:
+            list: List of comment objects with {'timestamp': str, 'author': str, 'markdown': str}
+        """
+        try:
+            headers = {'Authorization': f'Bearer {self.__api_key}'}
+            all_comments = []
+
+            # Get issue comments (general PR comments)
+            issue_comments_url = f'{self.base_url}/repos/{self.org}/{repo}/issues/{pr_number}/comments'
+            page = 1
+            while True:
+                params = {'page': page, 'per_page': 100}
+                response = requests.get(issue_comments_url, headers=headers, params=params, timeout=EXTERNAL_CALL_TIMEOUT)
+                if response.status_code == 200:
+                    raw_comments = response.json()
+                    if not raw_comments:
+                        break
+                    for comment in raw_comments:
+                        all_comments.append({
+                            'timestamp': comment.get('created_at', ''),
+                            'author': comment.get('user', {}).get('login', ''),
+                            'markdown': comment.get('body', '')
+                        })
+                    if len(raw_comments) < 100:
+                        break
+                    page += 1
+                else:
+                    logger.error(f"GithubAPIProcessor.get_pr_comments:: Error fetching issue comments for PR #{pr_number} "
+                                 f"in {self.org}/{repo} with status_code: {response.status_code}")
+                    break
+
+            # Get review comments (code-specific comments)
+            review_comments_url = f'{self.base_url}/repos/{self.org}/{repo}/pulls/{pr_number}/comments'
+            page = 1
+            while True:
+                params = {'page': page, 'per_page': 100}
+                response = requests.get(review_comments_url, headers=headers, params=params, timeout=EXTERNAL_CALL_TIMEOUT)
+                if response.status_code == 200:
+                    raw_comments = response.json()
+                    if not raw_comments:
+                        break
+                    for comment in raw_comments:
+                        all_comments.append({
+                            'timestamp': comment.get('created_at', ''),
+                            'author': comment.get('user', {}).get('login', ''),
+                            'markdown': comment.get('body', '')
+                        })
+                    if len(raw_comments) < 100:
+                        break
+                    page += 1
+                else:
+                    logger.error(f"GithubAPIProcessor.get_pr_comments:: Error fetching review comments for PR #{pr_number} "
+                                 f"in {self.org}/{repo} with status_code: {response.status_code}")
+                    break
+
+            # Sort by timestamp
+            all_comments.sort(key=lambda x: x.get('timestamp', ''))
+            return all_comments
+        except Exception as e:
+            logger.error(f"GithubAPIProcessor.get_pr_comments:: Exception occurred for {self.org}/{repo}: {e}")
+            return []
