@@ -240,6 +240,42 @@ class GithubSourceManager(SourceManager):
                         is_optional=False
                     )
                 }
+            },
+            {
+                "name": StringValue(value="GitHub App Authentication"),
+                "description": StringValue(value="Connect to GitHub using a GitHub App. This provides more granular permissions and is recommended for production environments. Note: The GitHub App Private Key is configured as a service-level environment variable (GITHUB_APP_PRIVATE_KEY) and is not stored per connector."),
+                "form_fields": {
+                    SourceKeyType.GITHUB_APP_ID: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.GITHUB_APP_ID)),
+                        display_name=StringValue(value="GitHub App ID"),
+                        description=StringValue(value='e.g. "123456"'),
+                        helper_text=StringValue(value="Enter your GitHub App ID (found in your GitHub App settings)"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False
+                    ),
+                    # Note: GITHUB_APP_PRIVATE_KEY is NOT shown in the form
+                    # It is retrieved from service settings (GITHUB_APP_PRIVATE_KEY) when needed
+                    # This is a service-level secret, same for all installations
+                    SourceKeyType.GITHUB_APP_INSTALLATION_ID: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.GITHUB_APP_INSTALLATION_ID)),
+                        display_name=StringValue(value="GitHub App Installation ID"),
+                        description=StringValue(value='e.g. "12345678"'),
+                        helper_text=StringValue(value="Enter the Installation ID for your GitHub App (obtained after installing the app on an organization/account)"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False
+                    ),
+                    SourceKeyType.GITHUB_ORG: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.GITHUB_ORG)),
+                        display_name=StringValue(value="GitHub Organization (Optional)"),
+                        description=StringValue(value='e.g. "my-org", "acme-corp"'),
+                        helper_text=StringValue(value="Enter the GitHub organization name if the app is installed on an organization. Leave empty if installed on a user account."),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=True
+                    )
+                }
             }
         ]
         self.connector_type_details = {
@@ -249,7 +285,25 @@ class GithubSourceManager(SourceManager):
 
     def get_connector_processor(self, github_connector, **kwargs):
         generated_credentials = generate_credentials_dict(github_connector.type, github_connector.keys)
-        return GithubAPIProcessor(**generated_credentials)
+        
+        # Check if using GitHub App authentication
+        # Note: We don't check for GITHUB_APP_PRIVATE_KEY as it's not stored in DB
+        has_app_keys = any(
+            key.key_type in [
+                SourceKeyType.GITHUB_APP_ID,
+                SourceKeyType.GITHUB_APP_INSTALLATION_ID
+            ]
+            for key in github_connector.keys
+        )
+        
+        if has_app_keys:
+            # Import GitHub App API Processor
+            from core.integrations.source_api_processors.github_app_api_processor import GithubAppAPIProcessor
+            return GithubAppAPIProcessor(**generated_credentials)
+        else:
+            # Traditional PAT-based processor
+            from core.integrations.source_api_processors.github_api_processor import GithubAPIProcessor
+            return GithubAPIProcessor(**generated_credentials)
 
     def fetch_related_commits(self, time_range: TimeRange, github_task: Github,
                               github_connector: ConnectorProto):
@@ -297,10 +351,43 @@ class GithubSourceManager(SourceManager):
             timestamp = task.timestamp if task.timestamp != 0 else None
             processor = self.get_connector_processor(github_connector)
             all_repos = processor.list_all_repos()
-            all_repo_names = [repo['name'] for repo in all_repos]
-            if repo not in all_repo_names:
-                raise Exception(f"Repository {repo} not found")
+            
+            # Validate repo exists (handle None/empty list from list_all_repos)
+            # If validation fails, still try the API call - repo might be accessible but not in list
+            if all_repos:
+                all_repo_names = [r.get('name', '') for r in all_repos if r and r.get('name')]
+                all_repo_full_names = [r.get('full_name', '') for r in all_repos if r and r.get('full_name')]
+                
+                # Check both name and full_name
+                repo_found = repo in all_repo_names or repo in all_repo_full_names
+                if not repo_found:
+                    # Also check if repo matches the end of any full_name (e.g., "repo" matches "owner/repo")
+                    for full_name in all_repo_full_names:
+                        if full_name and full_name.endswith(f'/{repo}'):
+                            repo_found = True
+                            break
+                    
+                    if not repo_found:
+                        # Log warning but don't fail - repo might still be accessible
+                        logger.warning(f"Repository {repo} not found in accessible repos list ({len(all_repos)} repos), attempting fetch anyway")
+            # If all_repos is None or empty, skip validation and let the API call handle it
+            
+            # Validate file_path is provided
+            if not file_path or not file_path.strip():
+                raise Exception(f"File path is required. Please provide a valid file path.")
+            
             file_details = processor.fetch_file(repo, file_path, timestamp=timestamp)
+            if not file_details:
+                raise Exception(f"Failed to fetch file {file_path} from repository {repo}. Repository may not exist or may not be accessible. Check if the repository name is correct and the GitHub App has access to it.")
+            
+            # Check if response is a list (directory contents) instead of a dict (file)
+            if isinstance(file_details, list):
+                raise Exception(f"Path '{file_path}' is a directory, not a file. Please provide a specific file path. Directory contains: {', '.join([item.get('name', 'unknown') for item in file_details[:10]])}")
+            
+            # Ensure file_details is a dict
+            if not isinstance(file_details, dict):
+                raise Exception(f"Unexpected response format from GitHub API. Expected a file object, got: {type(file_details)}")
+            
             response_struct = dict_to_proto(file_details, Struct)
             file_output = ApiResponseResult(response_body=response_struct)
             return PlaybookTaskResult(
@@ -324,9 +411,10 @@ class GithubSourceManager(SourceManager):
             branch = task.branch.value if task.branch.value else None
             processor = self.get_connector_processor(github_connector)
             all_repos = processor.list_all_repos()
-            all_repo_names = [repo['name'] for repo in all_repos]
-            if repo not in all_repo_names:
-                raise Exception(f"Repository {repo} not found")
+            if all_repos:
+                all_repo_names = [r.get('name', '') for r in all_repos if r and r.get('name')]
+                if repo not in all_repo_names:
+                    raise Exception(f"Repository {repo} not found")
             file_details = processor.update_file(repo=repo, file_path=file_path, content=content, sha=sha,
                                                  committer_name=committer_name, committer_email=committer_email,
                                                  branch_name=branch)
@@ -386,9 +474,10 @@ class GithubSourceManager(SourceManager):
 
             processor = self.get_connector_processor(github_connector)
             all_repos = processor.list_all_repos()
-            all_repo_names = [repo['name'] for repo in all_repos]
-            if repo not in all_repo_names:
-                raise Exception(f"Repository {repo} not found")
+            if all_repos:
+                all_repo_names = [r.get('name', '') for r in all_repos if r and r.get('name')]
+                if repo not in all_repo_names:
+                    raise Exception(f"Repository {repo} not found")
 
             pr_details = processor.create_pull_request(repo=repo, title=title, body=body, head=head_branch,
                                                        base=base_branch,
@@ -432,3 +521,40 @@ class GithubSourceManager(SourceManager):
             )
         except Exception as e:
             raise Exception(f"Error while executing Github fetch_recent_merges task: {e}")
+
+    @staticmethod
+    def validate_connector(connector: ConnectorProto) -> bool:
+        from core.integrations.source_facade import source_facade as playbook_source_facade
+        if connector.is_proxy_enabled.value:
+            return True
+        keys = connector.keys
+        all_ck_types = [ck.key_type for ck in keys if ck.key.value]
+        all_ck_types = list(set(all_ck_types))
+        
+        # Check for GitHub App keys
+        # Note: We don't check for GITHUB_APP_PRIVATE_KEY as it's not stored in DB
+        has_app_keys = any(
+            key_type in [
+                SourceKeyType.GITHUB_APP_ID,
+                SourceKeyType.GITHUB_APP_INSTALLATION_ID
+            ]
+            for key_type in all_ck_types
+        )
+        
+        if has_app_keys:
+            # Validate GitHub App keys
+            # Note: GITHUB_APP_PRIVATE_KEY is NOT stored in DB - retrieved from settings
+            required_app_keys = [
+                SourceKeyType.GITHUB_APP_ID,
+                SourceKeyType.GITHUB_APP_INSTALLATION_ID
+            ]
+            return all(key_type in all_ck_types for key_type in required_app_keys)
+        else:
+            # Validate PAT keys
+            required_key_types = playbook_source_facade.get_connector_required_keys(connector.type)
+            all_keys_found = False
+            for rkt in required_key_types:
+                if set(rkt) <= set(all_ck_types):
+                    all_keys_found = True
+                    break
+            return all_keys_found

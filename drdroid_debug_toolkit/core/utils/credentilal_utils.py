@@ -341,11 +341,29 @@ def generate_credentials_dict(connector_type, connector_keys):
             if conn_key.key_type == SourceKeyType.LINEAR_API_KEY:
                 credentials_dict['api_key'] = conn_key.key.value
     elif connector_type == Source.GITHUB:
+        # Check if using App or PAT
+        has_app_id = False
         for conn_key in connector_keys:
-            if conn_key.key_type == SourceKeyType.GITHUB_TOKEN:
-                credentials_dict['api_key'] = conn_key.key.value
+            if conn_key.key_type == SourceKeyType.GITHUB_APP_ID:
+                credentials_dict['app_id'] = conn_key.key.value
+                has_app_id = True
+            if conn_key.key_type == SourceKeyType.GITHUB_APP_INSTALLATION_ID:
+                credentials_dict['installation_id'] = conn_key.key.value
             if conn_key.key_type == SourceKeyType.GITHUB_ORG:
                 credentials_dict['org'] = conn_key.key.value
+
+        if has_app_id:
+            # Note: private_key is NOT stored in DB - retrieve from settings
+            # This is a service-level secret, same for all installations
+            private_key = getattr(settings, 'GITHUB_APP_PRIVATE_KEY', None)
+            if private_key:
+                credentials_dict['private_key'] = private_key
+        else:  # Fallback to PAT if no app ID is provided
+            for conn_key in connector_keys:
+                if conn_key.key_type == SourceKeyType.GITHUB_TOKEN:
+                    credentials_dict['api_key'] = conn_key.key.value
+                if conn_key.key_type == SourceKeyType.GITHUB_ORG:
+                    credentials_dict['org'] = conn_key.key.value
     elif connector_type == Source.GITHUB_ACTIONS:
         for conn_key in connector_keys:
             if conn_key.key_type == SourceKeyType.GITHUB_ACTIONS_TOKEN:
