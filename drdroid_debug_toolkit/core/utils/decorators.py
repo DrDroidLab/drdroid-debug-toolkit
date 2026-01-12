@@ -73,7 +73,7 @@ def api_auth_check(func):
         bearer, auth_token = request_headers['Authorization'].split(' ')
         if bearer != 'Bearer':
             return JsonResponse({'error': 'Invalid Authorization header'}, status=401)
-        drd_proxy_api_token = settings.DRD_CLOUD_API_TOKEN
+        drd_proxy_api_token = getattr(settings, 'DRD_CLOUD_API_TOKEN', None)
         if drd_proxy_api_token is None:
             return JsonResponse({'error': 'API token is not set'}, status=401)
         if auth_token != drd_proxy_api_token:

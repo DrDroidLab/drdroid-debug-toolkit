@@ -11,7 +11,7 @@ def build_absolute_uri(request, location, protocol=None, enabled=False):
     the case where request is None.
     """
     if not protocol:
-        protocol = settings.SITE_DEFAULT_HTTP_PROTOCOL
+        protocol = getattr(settings, 'SITE_DEFAULT_HTTP_PROTOCOL', None)
 
     if request is None:
         if not enabled:

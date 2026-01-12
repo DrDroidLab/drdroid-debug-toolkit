@@ -788,7 +788,7 @@ def credential_yaml_to_connector_proto(connector_name, credential_yaml, connecto
         ))
     elif c_type == 'KUBERNETES':
         c_source = Source.KUBERNETES
-        if not settings.NATIVE_KUBERNETES_API_MODE:
+        if not getattr(settings, 'NATIVE_KUBERNETES_API_MODE', None):
             if 'cluster_name' not in credential_yaml or 'cluster_api_server' not in credential_yaml or 'cluster_token' not in credential_yaml:
                 raise Exception(
                     f'Cluster Name, Api Server or Token, or database not found in credential yaml for kubernetes source in connector: {connector_name}')
