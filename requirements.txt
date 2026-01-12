@@ -22,6 +22,13 @@ botocore>=1.37.0
 azure-identity>=1.16.0
 azure-mgmt-loganalytics>=12.0.0
 azure-monitor-query>=1.3.0
+azure-mgmt-resource>=23.0.0
+azure-mgmt-containerservice>=20.0.0
+azure-mgmt-compute>=30.0.0
+azure-mgmt-storage>=21.0.0
+azure-mgmt-sql>=3.0.0
+azure-mgmt-cosmosdb>=9.0.0
+azure-mgmt-monitor>=6.0.0
 
 # Datadog api client
 datadog-api-client==2.15.0
