@@ -19,7 +19,7 @@ class KubectlApiProcessor(Processor):
         self.__api_server = api_server
         self.__token = token
         self.__ca_cert = None
-        self.native_connection_mode = settings.NATIVE_KUBERNETES_API_MODE
+        self.native_connection_mode = getattr(settings, 'NATIVE_KUBERNETES_API_MODE', None)
         if not self.native_connection_mode and (not api_server or not token):
             raise ValueError("Kubernetes API server and token are required for KubectlApiProcessor")
         if ssl_ca_cert_path:

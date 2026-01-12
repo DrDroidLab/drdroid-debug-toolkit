@@ -15,13 +15,16 @@ logger = logging.getLogger(__name__)
 
 
 def generate_aws_access_secret_session_key(aws_assumed_role_arn, aws_drd_cloud_role_arn):
-    default_session = boto3.setup_default_session(aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-                                                  aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-                                                  region_name=settings.AWS_REGION)
+    aws_access_key_id = getattr(settings, 'AWS_ACCESS_KEY_ID', None)
+    aws_secret_access_key = getattr(settings, 'AWS_SECRET_ACCESS_KEY', None)
+    aws_region = getattr(settings, 'AWS_REGION', None)
+    default_session = boto3.setup_default_session(aws_access_key_id=aws_access_key_id,
+                                                  aws_secret_access_key=aws_secret_access_key,
+                                                  region_name=aws_region)
     uuid = str(current_milli_time())
     role_session_name = "drd_session" + uuid
-    sts_client = boto3.client('sts', aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-                              aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY, region_name=settings.AWS_REGION)
+    sts_client = boto3.client('sts', aws_access_key_id=aws_access_key_id,
+                              aws_secret_access_key=aws_secret_access_key, region_name=aws_region)
 
     assumed_role = sts_client.assume_role(
         RoleArn=aws_drd_cloud_role_arn,
