@@ -434,8 +434,9 @@ class GithubSourceManager(SourceManager):
             task = github_task.fetch_recent_commits
             repo = task.repo.value
             branch = task.branch.value
-            time_since = format_to_github_timestamp(time_range.time_geq)
-            time_until = format_to_github_timestamp(time_range.time_lt)
+            # Only include time filters if they're actually set (non-zero)
+            time_since = format_to_github_timestamp(time_range.time_geq) if time_range.time_geq > 0 else None
+            time_until = format_to_github_timestamp(time_range.time_lt) if time_range.time_lt > 0 else None
             author = task.author.value if task.author.value else None
             recent_commits = self.get_connector_processor(github_connector).get_branch_commits(repo, branch, time_since,
                                                                                                time_until, author)
