@@ -5,9 +5,13 @@ Example usage of the DroidSpace SDK
 This file demonstrates how to use the SDK with Grafana and Signoz integrations.
 """
 
+import os
+os.environ['DJANGO_SETTINGS_MODULE'] = 'settings_stub'
+
 import json
 from datetime import datetime, timedelta
-from drdroid_sdk import DroidSDK, ConfigurationError, ConnectionError, TaskExecutionError
+from drdroid_debug_toolkit import DroidSDK, ConfigurationError, ConnectionError
+from drdroid_debug_toolkit.exceptions import TaskExecutionError
 
 
 def main():
