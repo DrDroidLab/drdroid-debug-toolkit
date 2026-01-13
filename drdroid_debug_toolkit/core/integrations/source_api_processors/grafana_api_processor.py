@@ -13,7 +13,10 @@ class GrafanaApiProcessor(Processor):
     client = None
 
     def __init__(self, grafana_host, grafana_api_key, ssl_verify='true'):
-        self.__host = grafana_host
+        # Clean the host URL: remove hash fragments (#...) and trailing slashes
+        # Hash fragments are only used by browsers for frontend routing and shouldn't be in API URLs
+        cleaned_host = grafana_host.split('#')[0].rstrip('/') if grafana_host else grafana_host
+        self.__host = cleaned_host
         self.__api_key = grafana_api_key
         self.__ssl_verify = False if ssl_verify and ssl_verify.lower() == 'false' else True
         self.headers = {
@@ -117,45 +120,71 @@ class GrafanaApiProcessor(Processor):
 
     def fetch_alert_rules(self):
         """
-        Fetches alert rules from Grafana using two different APIs:
+        Fetches alert rules from Grafana using multiple API endpoints:
         1. Ruler API (/api/ruler/grafana/api/v1/rules) - Returns all alert rules including UI-created ones
-        2. Provisioning API (/api/v1/provisioning/alert-rules) - Returns only provisioned rules (fallback)
+        2. Alternative Ruler API (/api/ruler/api/v1/rules) - Alternative path for some Grafana setups
+        3. Provisioning API (/api/v1/provisioning/alert-rules) - Returns only provisioned rules (fallback)
         """
-        try:
-            # First try the Ruler API which returns all alert rules (including UI-created)
-            url = '{}/api/ruler/grafana/api/v1/rules'.format(self.__host)
-            response = requests.get(url, headers=self.headers, verify=self.__ssl_verify)
-            if response and response.status_code == 200:
-                ruler_data = response.json()
-                # Ruler API returns rules grouped by namespace/folder
-                # Flatten the structure to return a list of all rules
-                alert_rules = []
-                for namespace, groups in ruler_data.items():
-                    for group in groups:
-                        group_name = group.get('name', '')
-                        for rule in group.get('rules', []):
-                            rule['namespace'] = namespace
-                            rule['group'] = group_name
-                            alert_rules.append(rule)
-                if alert_rules:
-                    return alert_rules
-                # If ruler API returns empty, try provisioning API as fallback
-            
-            # Fallback to Provisioning API (only returns provisioned rules)
-            url = '{}/api/v1/provisioning/alert-rules'.format(self.__host)
-            response = requests.get(url, headers=self.headers, verify=self.__ssl_verify)
-            if response and response.status_code == 200:
-                return response.json()
-            elif response and response.status_code == 404:
-                # Alerting API not available (older Grafana version or alerting not enabled)
-                logger.info("Grafana alerting API not available (404) - alerting may not be enabled")
-                return None
-            else:
-                raise Exception(
-                    f"Failed to fetch alert rules. Status Code: {response.status_code}. Response Text: {response.text}")
-        except Exception as e:
-            logger.error(f"Exception occurred while fetching grafana alert rules with error: {e}")
-            raise e
+        endpoints_to_try = [
+            ('/api/ruler/grafana/api/v1/rules', 'Ruler API (grafana namespace)'),
+            ('/api/ruler/api/v1/rules', 'Ruler API (default)'),
+            ('/api/v1/provisioning/alert-rules', 'Provisioning API'),
+        ]
+        
+        for endpoint_path, endpoint_name in endpoints_to_try:
+            try:
+                url = '{}{}'.format(self.__host, endpoint_path)
+                logger.debug(f"Trying {endpoint_name} at URL: {url}")
+                response = requests.get(url, headers=self.headers, verify=self.__ssl_verify, timeout=20)
+                
+                if response and response.status_code == 200:
+                    data = response.json()
+                    
+                    # Ruler API returns rules grouped by namespace/folder
+                    if isinstance(data, dict):
+                        alert_rules = []
+                        for namespace, groups in data.items():
+                            if isinstance(groups, list):
+                                for group in groups:
+                                    group_name = group.get('name', '')
+                                    for rule in group.get('rules', []):
+                                        rule['namespace'] = namespace
+                                        rule['group'] = group_name
+                                        alert_rules.append(rule)
+                        if alert_rules:
+                            logger.info(f"Successfully fetched {len(alert_rules)} alert rules using {endpoint_name}")
+                            return alert_rules
+                        else:
+                            logger.debug(f"{endpoint_name} returned empty result, trying next endpoint")
+                            continue
+                    else:
+                        # Provisioning API returns a list directly
+                        if isinstance(data, list) and data:
+                            logger.info(f"Successfully fetched {len(data)} alert rules using {endpoint_name}")
+                            return data
+                        else:
+                            logger.debug(f"{endpoint_name} returned empty result, trying next endpoint")
+                            continue
+                
+                elif response and response.status_code == 404:
+                    logger.debug(f"{endpoint_name} returned 404, trying next endpoint")
+                    continue
+                else:
+                    status_code = response.status_code if response else None
+                    error_text = response.text if response else "No response"
+                    logger.warning(f"{endpoint_name} failed with status {status_code}: {error_text}")
+                    continue
+                    
+            except requests.exceptions.RequestException as e:
+                logger.warning(f"Exception while trying {endpoint_name}: {e}")
+                continue
+            except Exception as e:
+                logger.warning(f"Unexpected error while trying {endpoint_name}: {e}")
+                continue
+        
+        # If all endpoints failed, return None (alerting may not be enabled)
+        logger.info("All alert rule API endpoints returned 404 or failed - alerting may not be enabled or configured")
+        return None
 
     def fetch_dashboard_variable_label_values(self, promql_datasource_uid, label_name, metric_match_filter=None, time_range: TimeRange = None):
         try:
