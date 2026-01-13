@@ -1258,4 +1258,5 @@ message ProxyAgentApiToken {
   Connector primary_agent_connector = 7;
   google.protobuf.BoolValue is_latest_version = 8;
   google.protobuf.BoolValue is_kubernetes = 9;
+  google.protobuf.Struct metadata = 10;
 }

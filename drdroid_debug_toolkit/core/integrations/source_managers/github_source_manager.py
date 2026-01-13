@@ -434,11 +434,27 @@ class GithubSourceManager(SourceManager):
             task = github_task.fetch_recent_commits
             repo = task.repo.value
             branch = task.branch.value
-            time_since = format_to_github_timestamp(time_range.time_geq)
-            time_until = format_to_github_timestamp(time_range.time_lt)
+            # Only include time filters if they're actually set (non-zero)
+            time_since = format_to_github_timestamp(time_range.time_geq) if time_range.time_geq > 0 else None
+            time_until = format_to_github_timestamp(time_range.time_lt) if time_range.time_lt > 0 else None
             author = task.author.value if task.author.value else None
+            
+            logger.info(f"Fetching recent commits for repo: {repo}, branch: {branch}, time_since: {time_since}, time_until: {time_until}, author: {author}")
+            
             recent_commits = self.get_connector_processor(github_connector).get_branch_commits(repo, branch, time_since,
                                                                                                time_until, author)
+            
+            if recent_commits is None:
+                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT, text=TextResult(output=StringValue(
+                    value=f"Failed to fetch commits from Github for repo: {repo}, branch: {branch}. The repository may not exist, the branch may not exist, or there may be an authentication issue.")), source=self.source)
+            
+            if not recent_commits or len(recent_commits) == 0:
+                time_filter_msg = ""
+                if time_since or time_until:
+                    time_filter_msg = f" within the specified time range"
+                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT, text=TextResult(output=StringValue(
+                    value=f"No commits found for repo: {repo}, branch: {branch}{time_filter_msg}. Try removing time filters or checking if the branch has any commits.")), source=self.source)
+            
             response_struct = dict_to_proto({"recent_commits": recent_commits}, Struct)
             commit_output = ApiResponseResult(response_body=response_struct)
             return PlaybookTaskResult(

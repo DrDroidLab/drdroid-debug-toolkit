@@ -4907,6 +4907,7 @@ class ProxyAgentApiToken(google.protobuf.message.Message):
     PRIMARY_AGENT_CONNECTOR_FIELD_NUMBER: builtins.int
     IS_LATEST_VERSION_FIELD_NUMBER: builtins.int
     IS_KUBERNETES_FIELD_NUMBER: builtins.int
+    METADATA_FIELD_NUMBER: builtins.int
     key: builtins.str
     created_by: builtins.str
     @property
@@ -4923,6 +4924,8 @@ class ProxyAgentApiToken(google.protobuf.message.Message):
     def is_latest_version(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
     @property
     def is_kubernetes(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def metadata(self) -> google.protobuf.struct_pb2.Struct: ...
     def __init__(
         self,
         *,
@@ -4935,8 +4938,9 @@ class ProxyAgentApiToken(google.protobuf.message.Message):
         primary_agent_connector: core.protos.connectors.connector_pb2.Connector | None = ...,
         is_latest_version: google.protobuf.wrappers_pb2.BoolValue | None = ...,
         is_kubernetes: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        metadata: google.protobuf.struct_pb2.Struct | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["connector", b"connector", "created_at", b"created_at", "is_active", b"is_active", "is_backup", b"is_backup", "is_kubernetes", b"is_kubernetes", "is_latest_version", b"is_latest_version", "primary_agent_connector", b"primary_agent_connector"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["connector", b"connector", "created_at", b"created_at", "created_by", b"created_by", "is_active", b"is_active", "is_backup", b"is_backup", "is_kubernetes", b"is_kubernetes", "is_latest_version", b"is_latest_version", "key", b"key", "primary_agent_connector", b"primary_agent_connector"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["connector", b"connector", "created_at", b"created_at", "is_active", b"is_active", "is_backup", b"is_backup", "is_kubernetes", b"is_kubernetes", "is_latest_version", b"is_latest_version", "metadata", b"metadata", "primary_agent_connector", b"primary_agent_connector"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["connector", b"connector", "created_at", b"created_at", "created_by", b"created_by", "is_active", b"is_active", "is_backup", b"is_backup", "is_kubernetes", b"is_kubernetes", "is_latest_version", b"is_latest_version", "key", b"key", "metadata", b"metadata", "primary_agent_connector", b"primary_agent_connector"]) -> None: ...
 
 Global___ProxyAgentApiToken: typing_extensions.TypeAlias = ProxyAgentApiToken
