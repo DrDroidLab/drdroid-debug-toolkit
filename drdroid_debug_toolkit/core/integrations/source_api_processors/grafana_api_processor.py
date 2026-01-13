@@ -116,7 +116,32 @@ class GrafanaApiProcessor(Processor):
             raise e
 
     def fetch_alert_rules(self):
+        """
+        Fetches alert rules from Grafana using two different APIs:
+        1. Ruler API (/api/ruler/grafana/api/v1/rules) - Returns all alert rules including UI-created ones
+        2. Provisioning API (/api/v1/provisioning/alert-rules) - Returns only provisioned rules (fallback)
+        """
         try:
+            # First try the Ruler API which returns all alert rules (including UI-created)
+            url = '{}/api/ruler/grafana/api/v1/rules'.format(self.__host)
+            response = requests.get(url, headers=self.headers, verify=self.__ssl_verify)
+            if response and response.status_code == 200:
+                ruler_data = response.json()
+                # Ruler API returns rules grouped by namespace/folder
+                # Flatten the structure to return a list of all rules
+                alert_rules = []
+                for namespace, groups in ruler_data.items():
+                    for group in groups:
+                        group_name = group.get('name', '')
+                        for rule in group.get('rules', []):
+                            rule['namespace'] = namespace
+                            rule['group'] = group_name
+                            alert_rules.append(rule)
+                if alert_rules:
+                    return alert_rules
+                # If ruler API returns empty, try provisioning API as fallback
+            
+            # Fallback to Provisioning API (only returns provisioned rules)
             url = '{}/api/v1/provisioning/alert-rules'.format(self.__host)
             response = requests.get(url, headers=self.headers, verify=self.__ssl_verify)
             if response and response.status_code == 200:
