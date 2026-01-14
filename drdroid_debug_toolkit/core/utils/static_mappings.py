@@ -436,7 +436,13 @@ integrations_connector_type_connector_keys_map = {
             SourceKeyType.SIGNOZ_API_TOKEN,
             SourceKeyType.SIGNOZ_API_URL,
         ]
-    ]
+    ],
+    Source.METABASE: [
+        [
+            SourceKeyType.METABASE_URL,
+            SourceKeyType.METABASE_API_KEY,
+        ]
+    ],
 }
 integrations_connector_type_display_name_map = {
     Source.SLACK: 'SLACK',
@@ -478,6 +484,7 @@ integrations_connector_type_display_name_map = {
     Source.ROLLBAR: 'ROLLBAR',
     Source.POSTHOG: 'POSTHOG',
     Source.SIGNOZ: 'SIGNOZ',
+    Source.METABASE: 'METABASE',
 }
 
 model_type_display_name_maps = {
@@ -549,6 +556,7 @@ masked_keys_types = [SourceKeyType.DATADOG_APP_KEY,
                      SourceKeyType.KUBERNETES_CLUSTER_CERTIFICATE_AUTHORITY_DATA,
                      SourceKeyType.REMOTE_SERVER_PEM,
                      SourceKeyType.POSTHOG_API_KEY,
+                     SourceKeyType.METABASE_API_KEY,
                      ]
 
 
