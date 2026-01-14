@@ -28,6 +28,9 @@ azure-mgmt-storage>=21.0.0
 azure-mgmt-sql>=3.0.0
 azure-mgmt-cosmosdb>=9.0.0
 azure-mgmt-monitor>=6.0.0
+azure-mgmt-rdbms>=10.0.0
+azure-mgmt-redis>=14.0.0
+azure-core>=1.33.0
 
 # Datadog api client
 datadog-api-client==2.15.0
