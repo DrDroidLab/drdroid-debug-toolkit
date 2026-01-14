@@ -458,6 +458,12 @@ def generate_credentials_dict(connector_type, connector_keys):
                 credentials_dict['mcp_server_base_url'] = conn_key.key.value
             elif conn_key.key_type == SourceKeyType.MCP_SERVER_AUTH_HEADERS:
                 credentials_dict['mcp_server_auth_headers'] = conn_key.key.value
+    elif connector_type == Source.METABASE:
+        for conn_key in connector_keys:
+            if conn_key.key_type == SourceKeyType.METABASE_URL:
+                credentials_dict['metabase_url'] = conn_key.key.value
+            elif conn_key.key_type == SourceKeyType.METABASE_API_KEY:
+                credentials_dict['metabase_api_key'] = conn_key.key.value
     else:
         return None
     return credentials_dict
@@ -1059,6 +1065,18 @@ def credential_yaml_to_connector_proto(connector_name, credential_yaml, connecto
                 key_type=SourceKeyType.MCP_SERVER_AUTH_HEADERS,
                 key=StringValue(value=credential_yaml['mcp_server_auth_headers'])
             ))
+    elif c_type == 'METABASE':
+        if 'metabase_url' not in credential_yaml or 'metabase_api_key' not in credential_yaml:
+            raise Exception(f'Metabase URL or API key not found in credential yaml for metabase source in connector: {connector_name}')
+        c_source = Source.METABASE
+        c_keys.append(ConnectorKey(
+            key_type=SourceKeyType.METABASE_URL,
+            key=StringValue(value=credential_yaml['metabase_url'])
+        ))
+        c_keys.append(ConnectorKey(
+            key_type=SourceKeyType.METABASE_API_KEY,
+            key=StringValue(value=credential_yaml['metabase_api_key'])
+        ))
     else:
         raise Exception(f'Invalid type in credential yaml for connector: {connector_name}')
     

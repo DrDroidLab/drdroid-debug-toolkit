@@ -164,6 +164,7 @@ enum Source {
   RENDER = 75;
   MCP_SERVER = 76;
   VICTORIA_LOGS=77;
+  METABASE = 78;
 }
 
 enum SourceKeyType {
@@ -368,6 +369,10 @@ enum SourceKeyType {
   GITHUB_APP_PRIVATE_KEY = 159;
   GITHUB_APP_INSTALLATION_ID = 160;
   GITHUB_APP_ACCESS_TOKEN = 161;  // Cached installation token (internal use)
+
+  // Metabase specific keys
+  METABASE_URL = 162;
+  METABASE_API_KEY = 163;
 
 }
 
