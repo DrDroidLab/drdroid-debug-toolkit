@@ -216,6 +216,7 @@ class _SourceEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTyp
     RENDER: _Source.ValueType  # 75
     MCP_SERVER: _Source.ValueType  # 76
     VICTORIA_LOGS: _Source.ValueType  # 77
+    METABASE: _Source.ValueType  # 78
 
 class Source(_Source, metaclass=_SourceEnumTypeWrapper): ...
 
@@ -297,6 +298,7 @@ CORALOGIX: Source.ValueType  # 74
 RENDER: Source.ValueType  # 75
 MCP_SERVER: Source.ValueType  # 76
 VICTORIA_LOGS: Source.ValueType  # 77
+METABASE: Source.ValueType  # 78
 Global___Source: typing_extensions.TypeAlias = Source
 
 class _SourceKeyType:
@@ -456,6 +458,9 @@ class _SourceKeyTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     GITHUB_APP_INSTALLATION_ID: _SourceKeyType.ValueType  # 160
     GITHUB_APP_ACCESS_TOKEN: _SourceKeyType.ValueType  # 161
     """Cached installation token (internal use)"""
+    METABASE_URL: _SourceKeyType.ValueType  # 162
+    """Metabase specific keys"""
+    METABASE_API_KEY: _SourceKeyType.ValueType  # 163
 
 class SourceKeyType(_SourceKeyType, metaclass=_SourceKeyTypeEnumTypeWrapper): ...
 
@@ -610,6 +615,9 @@ GITHUB_APP_PRIVATE_KEY: SourceKeyType.ValueType  # 159
 GITHUB_APP_INSTALLATION_ID: SourceKeyType.ValueType  # 160
 GITHUB_APP_ACCESS_TOKEN: SourceKeyType.ValueType  # 161
 """Cached installation token (internal use)"""
+METABASE_URL: SourceKeyType.ValueType  # 162
+"""Metabase specific keys"""
+METABASE_API_KEY: SourceKeyType.ValueType  # 163
 Global___SourceKeyType: typing_extensions.TypeAlias = SourceKeyType
 
 class _SourceModelType:
@@ -683,6 +691,35 @@ class _SourceModelTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper
     AZURE_WORKSPACE: _SourceModelType.ValueType  # 1001
     """Azure Models"""
     AZURE_RESOURCE: _SourceModelType.ValueType  # 1002
+    AZURE_AKS_CLUSTER: _SourceModelType.ValueType  # 1003
+    """Azure AKS Models"""
+    AZURE_AKS_NAMESPACE: _SourceModelType.ValueType  # 1004
+    AZURE_AKS_DEPLOYMENT: _SourceModelType.ValueType  # 1005
+    AZURE_AKS_SERVICE: _SourceModelType.ValueType  # 1006
+    AZURE_AKS_INGRESS: _SourceModelType.ValueType  # 1007
+    AZURE_AKS_NETWORK_POLICY: _SourceModelType.ValueType  # 1008
+    AZURE_AKS_HPA: _SourceModelType.ValueType  # 1009
+    AZURE_AKS_REPLICASET: _SourceModelType.ValueType  # 1010
+    AZURE_AKS_STATEFULSET: _SourceModelType.ValueType  # 1011
+    AZURE_VIRTUAL_MACHINE: _SourceModelType.ValueType  # 1012
+    """Azure Compute Models"""
+    AZURE_VMSS: _SourceModelType.ValueType  # 1013
+    AZURE_STORAGE_ACCOUNT: _SourceModelType.ValueType  # 1014
+    """Azure Storage Models"""
+    AZURE_BLOB_CONTAINER: _SourceModelType.ValueType  # 1015
+    AZURE_SQL_SERVER: _SourceModelType.ValueType  # 1016
+    """Azure Database Models"""
+    AZURE_SQL_DATABASE: _SourceModelType.ValueType  # 1017
+    AZURE_COSMOS_ACCOUNT: _SourceModelType.ValueType  # 1018
+    AZURE_POSTGRES_SERVER: _SourceModelType.ValueType  # 1019
+    AZURE_POSTGRES_DATABASE: _SourceModelType.ValueType  # 1020
+    AZURE_METRIC_ALERT: _SourceModelType.ValueType  # 1021
+    """Azure Monitoring Models"""
+    AZURE_ACTION_GROUP: _SourceModelType.ValueType  # 1022
+    AZURE_RESOURCE_GROUP: _SourceModelType.ValueType  # 1023
+    """Azure Resource Group"""
+    AZURE_REDIS_CACHE: _SourceModelType.ValueType  # 1024
+    """Azure Redis Cache"""
     SSH_SERVER: _SourceModelType.ValueType  # 1100
     """Remote Server Models"""
     SSH_USER: _SourceModelType.ValueType  # 1101
@@ -698,6 +735,29 @@ class _SourceModelTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper
     GKE_HPA: _SourceModelType.ValueType  # 1307
     GKE_REPLICASET: _SourceModelType.ValueType  # 1308
     GKE_STATEFULSET: _SourceModelType.ValueType  # 1309
+    GCP_COMPUTE_INSTANCE: _SourceModelType.ValueType  # 1310
+    """GCP Infrastructure Models (non-GKE)"""
+    GCP_INSTANCE_GROUP: _SourceModelType.ValueType  # 1311
+    GCP_STORAGE_BUCKET: _SourceModelType.ValueType  # 1312
+    GCP_CLOUD_SQL_INSTANCE: _SourceModelType.ValueType  # 1313
+    GCP_CLOUD_SQL_DATABASE: _SourceModelType.ValueType  # 1314
+    GCP_MEMORYSTORE_REDIS: _SourceModelType.ValueType  # 1315
+    GCP_ALERT_POLICY: _SourceModelType.ValueType  # 1316
+    GCP_NOTIFICATION_CHANNEL: _SourceModelType.ValueType  # 1317
+    GCP_CLOUD_FUNCTION: _SourceModelType.ValueType  # 1318
+    GCP_CLOUD_RUN_SERVICE: _SourceModelType.ValueType  # 1319
+    GCP_PUBSUB_TOPIC: _SourceModelType.ValueType  # 1320
+    GCP_PUBSUB_SUBSCRIPTION: _SourceModelType.ValueType  # 1321
+    GCP_BIGQUERY_DATASET: _SourceModelType.ValueType  # 1322
+    GCP_BIGQUERY_TABLE: _SourceModelType.ValueType  # 1323
+    GCP_VPC_NETWORK: _SourceModelType.ValueType  # 1324
+    GCP_SUBNETWORK: _SourceModelType.ValueType  # 1325
+    GCP_FIREWALL_RULE: _SourceModelType.ValueType  # 1326
+    GCP_LOAD_BALANCER: _SourceModelType.ValueType  # 1327
+    GCP_SECRET: _SourceModelType.ValueType  # 1328
+    GCP_SERVICE_ACCOUNT: _SourceModelType.ValueType  # 1329
+    GCP_LOG_SINK: _SourceModelType.ValueType  # 1330
+    GCP_LOG_METRIC: _SourceModelType.ValueType  # 1331
     MS_TEAMS_CHANNEL: _SourceModelType.ValueType  # 1401
     """MS TEAMS Models"""
     PAGERDUTY_INCIDENT: _SourceModelType.ValueType  # 1501
@@ -838,6 +898,35 @@ SQL_DATABASE_TABLE: SourceModelType.ValueType  # 902
 AZURE_WORKSPACE: SourceModelType.ValueType  # 1001
 """Azure Models"""
 AZURE_RESOURCE: SourceModelType.ValueType  # 1002
+AZURE_AKS_CLUSTER: SourceModelType.ValueType  # 1003
+"""Azure AKS Models"""
+AZURE_AKS_NAMESPACE: SourceModelType.ValueType  # 1004
+AZURE_AKS_DEPLOYMENT: SourceModelType.ValueType  # 1005
+AZURE_AKS_SERVICE: SourceModelType.ValueType  # 1006
+AZURE_AKS_INGRESS: SourceModelType.ValueType  # 1007
+AZURE_AKS_NETWORK_POLICY: SourceModelType.ValueType  # 1008
+AZURE_AKS_HPA: SourceModelType.ValueType  # 1009
+AZURE_AKS_REPLICASET: SourceModelType.ValueType  # 1010
+AZURE_AKS_STATEFULSET: SourceModelType.ValueType  # 1011
+AZURE_VIRTUAL_MACHINE: SourceModelType.ValueType  # 1012
+"""Azure Compute Models"""
+AZURE_VMSS: SourceModelType.ValueType  # 1013
+AZURE_STORAGE_ACCOUNT: SourceModelType.ValueType  # 1014
+"""Azure Storage Models"""
+AZURE_BLOB_CONTAINER: SourceModelType.ValueType  # 1015
+AZURE_SQL_SERVER: SourceModelType.ValueType  # 1016
+"""Azure Database Models"""
+AZURE_SQL_DATABASE: SourceModelType.ValueType  # 1017
+AZURE_COSMOS_ACCOUNT: SourceModelType.ValueType  # 1018
+AZURE_POSTGRES_SERVER: SourceModelType.ValueType  # 1019
+AZURE_POSTGRES_DATABASE: SourceModelType.ValueType  # 1020
+AZURE_METRIC_ALERT: SourceModelType.ValueType  # 1021
+"""Azure Monitoring Models"""
+AZURE_ACTION_GROUP: SourceModelType.ValueType  # 1022
+AZURE_RESOURCE_GROUP: SourceModelType.ValueType  # 1023
+"""Azure Resource Group"""
+AZURE_REDIS_CACHE: SourceModelType.ValueType  # 1024
+"""Azure Redis Cache"""
 SSH_SERVER: SourceModelType.ValueType  # 1100
 """Remote Server Models"""
 SSH_USER: SourceModelType.ValueType  # 1101
@@ -853,6 +942,29 @@ GKE_NETWORK_POLICY: SourceModelType.ValueType  # 1306
 GKE_HPA: SourceModelType.ValueType  # 1307
 GKE_REPLICASET: SourceModelType.ValueType  # 1308
 GKE_STATEFULSET: SourceModelType.ValueType  # 1309
+GCP_COMPUTE_INSTANCE: SourceModelType.ValueType  # 1310
+"""GCP Infrastructure Models (non-GKE)"""
+GCP_INSTANCE_GROUP: SourceModelType.ValueType  # 1311
+GCP_STORAGE_BUCKET: SourceModelType.ValueType  # 1312
+GCP_CLOUD_SQL_INSTANCE: SourceModelType.ValueType  # 1313
+GCP_CLOUD_SQL_DATABASE: SourceModelType.ValueType  # 1314
+GCP_MEMORYSTORE_REDIS: SourceModelType.ValueType  # 1315
+GCP_ALERT_POLICY: SourceModelType.ValueType  # 1316
+GCP_NOTIFICATION_CHANNEL: SourceModelType.ValueType  # 1317
+GCP_CLOUD_FUNCTION: SourceModelType.ValueType  # 1318
+GCP_CLOUD_RUN_SERVICE: SourceModelType.ValueType  # 1319
+GCP_PUBSUB_TOPIC: SourceModelType.ValueType  # 1320
+GCP_PUBSUB_SUBSCRIPTION: SourceModelType.ValueType  # 1321
+GCP_BIGQUERY_DATASET: SourceModelType.ValueType  # 1322
+GCP_BIGQUERY_TABLE: SourceModelType.ValueType  # 1323
+GCP_VPC_NETWORK: SourceModelType.ValueType  # 1324
+GCP_SUBNETWORK: SourceModelType.ValueType  # 1325
+GCP_FIREWALL_RULE: SourceModelType.ValueType  # 1326
+GCP_LOAD_BALANCER: SourceModelType.ValueType  # 1327
+GCP_SECRET: SourceModelType.ValueType  # 1328
+GCP_SERVICE_ACCOUNT: SourceModelType.ValueType  # 1329
+GCP_LOG_SINK: SourceModelType.ValueType  # 1330
+GCP_LOG_METRIC: SourceModelType.ValueType  # 1331
 MS_TEAMS_CHANNEL: SourceModelType.ValueType  # 1401
 """MS TEAMS Models"""
 PAGERDUTY_INCIDENT: SourceModelType.ValueType  # 1501
