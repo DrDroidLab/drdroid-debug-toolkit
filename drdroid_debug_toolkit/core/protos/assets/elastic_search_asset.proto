@@ -1,0 +1,61 @@
+syntax = "proto3";
+package core.protos.connectors;
+
+import "google/protobuf/wrappers.proto";
+import "core/protos/base.proto";
+
+message ElasticSearchIndexAssetModel {
+  google.protobuf.StringValue index = 1;
+}
+
+message ElasticSearchIndexAssetOptions {
+  repeated string indexes = 1;
+}
+
+message ElasticSearchServiceAssetModel {
+  google.protobuf.StringValue service_name = 1;
+  repeated google.protobuf.StringValue downstream_services = 2;
+  repeated google.protobuf.StringValue resources = 3;
+}
+
+message ElasticSearchServiceAssetOptions {
+  repeated string service_names = 1;
+}
+
+message ElasticSearchDashboardAssetModel {
+  google.protobuf.StringValue dashboard_name = 1;
+  google.protobuf.StringValue dashboard_id = 2;
+}
+
+message ElasticSearchDashboardAssetOptions {
+  repeated string dashboard_ids = 1;
+}
+
+message ElasticSearchIndexPatternAssetModel {
+  google.protobuf.StringValue index_pattern_id = 1;
+  google.protobuf.StringValue title = 2;
+  google.protobuf.StringValue time_field_name = 3;
+  google.protobuf.StringValue name = 4;
+  google.protobuf.StringValue mappings = 5;
+}
+
+message ElasticSearchIndexPatternAssetOptions {
+  repeated string index_pattern_ids = 1;
+}
+
+message ElasticSearchAssetModel {
+  google.protobuf.UInt64Value id = 1;
+  Source connector_type = 2;
+  SourceModelType type = 3;
+  sfixed64 last_updated = 4;
+  oneof asset {
+    ElasticSearchIndexAssetModel elastic_search_index = 5;
+    ElasticSearchServiceAssetModel elastic_search_service = 6;
+    ElasticSearchDashboardAssetModel elastic_search_dashboard = 7;
+    ElasticSearchIndexPatternAssetModel elastic_search_index_pattern = 8;
+  }
+}
+
+message ElasticSearchAssets {
+  repeated ElasticSearchAssetModel assets = 1;
+}
