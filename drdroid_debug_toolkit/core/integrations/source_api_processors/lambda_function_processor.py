@@ -17,7 +17,8 @@ class LambdaFunctionProcessor(Processor):
         self.__requirements = requirements
         self.__function_definition = function_definition
 
-    def install_packages(self, packages):
+    @staticmethod
+    def install_packages(packages):
         for package in packages:
             try:
                 subprocess.check_call([sys.executable, "-m", "pip", "install", package])
