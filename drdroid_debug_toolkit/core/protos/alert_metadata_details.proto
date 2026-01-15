@@ -1,0 +1,9 @@
+syntax = "proto3";
+package core.protos;
+
+import "core/protos/alert_metadata_details_commons.proto";
+
+message AlertMetadataDetails {
+    AlertStatus alert_status = 1;
+    AlertSeverity alert_severity = 2;
+}
