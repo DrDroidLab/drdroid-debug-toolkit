@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "drdroid-debug-toolkit"
 version = "1.0.0"
-description = "A Python SDK for integrating with monitoring and observability platforms"
+description = "Integration toolkit for DrDroid platform with 40+ service integrations"
 readme = "README.md"
 license = {text = "MIT"}
 authors = [
@@ -37,9 +37,6 @@ dependencies = [
     "kubernetes>=26.0.0",
     "boto3>=1.37.0",
     "botocore>=1.37.0",
-    "azure-identity>=1.16.0",
-    "azure-mgmt-loganalytics>=12.0.0",
-    "azure-monitor-query>=1.3.0",
     "grpcio-tools==1.70.0",
     "google-auth>=2.35.0",
     "google-api-python-client>=2.146.0",
@@ -74,9 +71,6 @@ Homepage = "https://github.com/DrDroidLab/drdroid-debug-toolkit"
 Documentation = "https://github.com/DrDroidLab/drdroid-debug-toolkit/blob/main/README.md"
 Repository = "https://github.com/DrDroidLab/drdroid-debug-toolkit"
 "Bug Tracker" = "https://github.com/DrDroidLab/drdroid-debug-toolkit/issues"
-
-[project.scripts]
-drdroid-debug-toolkit = "drdroid_debug_toolkit.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
