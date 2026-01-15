@@ -1,23 +1,22 @@
+"""
+Azure API Processor using az CLI instead of Azure SDK.
+
+Reduces dependency overhead by using Azure CLI for all Azure operations
+while keeping the kubernetes package for AKS K8s API calls.
+"""
 import logging
 import os
 import tempfile
-import base64
 from datetime import timedelta, datetime, timezone
-
-from azure.identity import DefaultAzureCredential, ClientSecretCredential
-from azure.mgmt.loganalytics import LogAnalyticsManagementClient
-from azure.monitor.query import LogsQueryClient, MetricsQueryClient
-from azure.mgmt.resource import ResourceManagementClient
-from azure.mgmt.containerservice import ContainerServiceClient
-from azure.mgmt.compute import ComputeManagementClient
-from azure.mgmt.storage import StorageManagementClient
-from azure.mgmt.sql import SqlManagementClient
-from azure.mgmt.cosmosdb import CosmosDBManagementClient
-from azure.mgmt.monitor import MonitorManagementClient
-from azure.mgmt.rdbms.postgresql_flexibleservers import PostgreSQLManagementClient
-from azure.mgmt.redis import RedisManagementClient
+from typing import List, Dict, Any, Optional
 
 from core.integrations.processor import Processor
+from core.integrations.utils.cli_executor import (
+    AzureCLIExecutor,
+    CLIExecutionError,
+    CLINotFoundError,
+    CLITimeoutError
+)
 
 logger = logging.getLogger(__name__)
 
@@ -30,23 +29,8 @@ except ImportError:
     logger.warning("kubernetes package not installed - AKS K8s API methods will not be available")
 
 
-def query_response_to_dict(response):
-    """
-    Function to convert query response tables to dictionaries.
-    """
-    result = {}
-    for table in response.tables:
-        result[table.name] = []
-        for row in table.rows:
-            row_dict = {}
-            for i, column in enumerate(table.columns):
-                row_dict[column] = str(row[i])
-            result[table.name].append(row_dict)
-    return result
-
-
 class AzureApiProcessor(Processor):
-    client = None
+    """Azure API processor using az CLI instead of SDK."""
 
     def __init__(self, subscription_id, tenant_id, client_id, client_secret):
         self.__subscription_id = subscription_id
@@ -57,65 +41,49 @@ class AzureApiProcessor(Processor):
         if not self.__client_id or not self.__client_secret or not self.__tenant_id:
             raise Exception("Azure Connection Error:: Missing client_id, client_secret, or tenant_id")
 
-    def get_credentials(self):
-        """
-        Function to fetch Azure credentials using client_id, client_secret, and tenant_id.
-        """
-        os.environ['AZURE_CLIENT_ID'] = self.__client_id
-        os.environ['AZURE_CLIENT_SECRET'] = self.__client_secret
-        os.environ['AZURE_TENANT_ID'] = self.__tenant_id
-        credential = DefaultAzureCredential()
-        return credential 
+        self._cli = AzureCLIExecutor(
+            subscription_id=subscription_id,
+            tenant_id=tenant_id,
+            client_id=client_id,
+            client_secret=client_secret
+        )
 
     def test_connection(self):
         try:
-            credentials = self.get_credentials()
-            if not credentials:
-                logger.error("Azure Connection Error:: Failed to get credentials")
-                raise Exception("Azure Connection Error:: Failed to get credentials")
-            log_analytics_client = LogAnalyticsManagementClient(credentials, self.__subscription_id)
-            workspaces = log_analytics_client.workspaces.list()
-            if not workspaces:
-                raise Exception("Azure Connection Error:: No Workspaces Found")
-            az_workspaces = []
-            for workspace in workspaces:
-                az_workspaces.append(workspace.as_dict())
-            if len(az_workspaces) > 0:
+            workspaces = self.fetch_workspaces()
+            if workspaces and len(workspaces) > 0:
                 return True
             else:
                 raise Exception("Azure Connection Error:: No Workspaces Found")
         except Exception as e:
             raise e
 
-    def fetch_workspaces(self):
+    def fetch_workspaces(self) -> Optional[List[Dict[str, Any]]]:
+        """Fetch all Log Analytics workspaces."""
         try:
-            credentials = self.get_credentials()
-            if not credentials:
-                logger.error("Azure Connection Error:: Failed to get credentials")
-                return None
-            log_analytics_client = LogAnalyticsManagementClient(credentials, self.__subscription_id)
-            workspaces = log_analytics_client.workspaces.list()
-            if not workspaces:
-                logger.error("Azure Connection Error:: No Workspaces Found")
-                return None
-            return [workspace.as_dict() for workspace in workspaces]
+            result = self._cli.execute_az_command([
+                "monitor", "log-analytics", "workspace", "list",
+                "--subscription", self.__subscription_id
+            ])
+            return result if isinstance(result, list) else []
+        except CLIExecutionError as e:
+            logger.error(f"Failed to fetch workspaces: {e.stderr}")
+            return None
         except Exception as e:
             logger.error(f"Failed to fetch workspaces with error: {e}")
             return None
 
-    def fetch_resources(self):
+    def fetch_resources(self) -> Optional[List[Dict[str, Any]]]:
+        """Fetch resources that produce metrics."""
         try:
-            credentials = self.get_credentials()
-            if not credentials:
-                logger.error("Azure Connection Error:: Failed to get credentials")
+            result = self._cli.execute_az_command([
+                "resource", "list",
+                "--subscription", self.__subscription_id
+            ])
+
+            if not isinstance(result, list):
                 return None
-            resource_client = ResourceManagementClient(credentials, self.__subscription_id)
-            metrics_client = MetricsQueryClient(credentials)
-            resources = resource_client.resources.list()
-            if not resources:
-                logger.error("Azure Connection Error:: No Resources Found")
-                return None
-            
+
             # Only include resources that actually produce metrics
             metric_producing_types = [
                 "Microsoft.Compute/virtualMachines",
@@ -127,160 +95,176 @@ class AzureApiProcessor(Processor):
                 "Microsoft.Web/sites",
                 "Microsoft.Insights/components"
             ]
-            # valid_resources = [
-            #     resource.as_dict() for resource in resources
-            #     if resource.type in metric_producing_types
-            # ]
-            valid_resources = []
-            for resource in resources:
-                if resource.type in metric_producing_types:
-                    resource_dict = resource.as_dict()
 
-                    # Get resource metrics
-                    resource_id = resource.id
+            valid_resources = []
+            for resource in result:
+                if resource.get('type') in metric_producing_types:
+                    resource_id = resource.get('id')
+                    # Get metric definitions for the resource
                     try:
-                        metric_names = metrics_client.list_metric_definitions(resource_id)
-                        metric_names = [metric.name for metric in metric_names]
+                        metrics_result = self._cli.execute_az_command([
+                            "monitor", "metrics", "list-definitions",
+                            "--resource", resource_id
+                        ])
+                        metric_names = [m.get('name', {}).get('value') for m in metrics_result] if isinstance(metrics_result, list) else []
                     except Exception as e:
-                        logger.error(f"Failed to fetch metrics for resource {resource_id} with error: {e}")
+                        logger.error(f"Failed to fetch metrics for resource {resource_id}: {e}")
                         metric_names = []
 
-                    resource_dict["available_metrics"] = {"metric_names": metric_names}
-                    valid_resources.append(resource_dict)
+                    resource["available_metrics"] = {"metric_names": metric_names}
+                    valid_resources.append(resource)
+
             return valid_resources
+        except CLIExecutionError as e:
+            logger.error(f"Failed to fetch resources: {e.stderr}")
+            return None
         except Exception as e:
             logger.error(f"Failed to fetch resources with error: {e}")
             return None
 
-    def query_log_analytics(self, workspace_id, query, timespan=timedelta(hours=4)):
+    def query_log_analytics(self, workspace_id: str, query: str, timespan=timedelta(hours=4)) -> Optional[Dict[str, Any]]:
+        """Query Log Analytics workspace."""
         try:
-            credentials = self.get_credentials()
-            if not credentials:
-                logger.error("Azure Connection Error:: Failed to get credentials")
-                return None
-            client = LogsQueryClient(credentials)
-            response = client.query_workspace(workspace_id, query, timespan=timespan)
-            if not response:
-                logger.error(f"Failed to query log analytics with error: {response.text}")
-                return None
-            results = query_response_to_dict(response)
-            return results
+            # Convert timespan to ISO 8601 duration format
+            total_seconds = int(timespan.total_seconds())
+            hours = total_seconds // 3600
+            timespan_str = f"PT{hours}H" if hours > 0 else f"PT{total_seconds}S"
+
+            result = self._cli.execute_az_command([
+                "monitor", "log-analytics", "query",
+                "--workspace", workspace_id,
+                "--analytics-query", query,
+                "--timespan", timespan_str
+            ])
+
+            # Convert to expected format
+            if isinstance(result, list):
+                return {"PrimaryResult": result}
+            return result
+        except CLIExecutionError as e:
+            logger.error(f"Failed to query log analytics: {e.stderr}")
+            return None
         except Exception as e:
             logger.error(f"Failed to query log analytics with error: {e}")
             return None
 
-
-    # Vidushee was here
-    def query_metrics(self, resource_id, time_range, metric_names="Percentage CPU", aggregation="Average", granularity=300): # placeholer metric name
-        """
-        Function to fetch metrics from Azure Monitor.
-        
-        Parameters:
-            resource_id (str): The Azure resource ID to fetch metrics for.
-            metric_names (str): The names of the metric to retrieve.
-            timespan (timedelta): The time range for fetching metrics.
-            aggregation (str): The type of aggregation (e.g., 'Average', 'Total', 'Count', etc.).
-        
-        Returns:
-            dict: A dictionary containing the retrieved metrics.
-        """
+    def query_metrics(self, resource_id: str, time_range, metric_names="Percentage CPU",
+                      aggregation="Average", granularity=300) -> Optional[Dict[str, Any]]:
+        """Fetch metrics from Azure Monitor."""
         try:
-            credentials = self.get_credentials()
-            if not credentials:
-                logger.error("Azure Connection Error:: Failed to get credentials")
-                return None
-    
-            # Create Metrics Query Client
-            client = MetricsQueryClient(credentials)
-            # Convert Unix timestamps (in seconds) to datetime
-            from_tr = datetime.fromtimestamp(time_range.time_geq, tz=timezone.utc)  # Convert start time to datetime
-            to_tr = datetime.fromtimestamp(time_range.time_lt, tz=timezone.utc)  # Convert end time to datetime
+            # Convert Unix timestamps to ISO format
+            from_tr = datetime.fromtimestamp(time_range.time_geq, tz=timezone.utc)
+            to_tr = datetime.fromtimestamp(time_range.time_lt, tz=timezone.utc)
 
-            # total_seconds = (to_tr - from_tr).total_seconds()
-            # Compute granularity dynamically (max 12 points)
-            # granularity_seconds = total_seconds / 12  # Each interval should be total duration / 12
-            # Convert to ISO 8601 duration string
-            # if granularity_seconds < 60:
-            #     granularity = f"PT{int(granularity_seconds)}S"  # Seconds
-            # elif granularity_seconds < 3600:
-            #     granularity = f"PT{int(granularity_seconds / 60)}M"  # Minutes
-            # else:
-            #     granularity = f"PT{int(granularity_seconds / 3600)}H"  # Hours
-
-            # Ensure metric_names is always a list
+            # Ensure metric_names is a list
             if isinstance(metric_names, str):
-                metric_names = [m.strip() for m in metric_names.split(",")]  # Split by comma if needed
+                metric_names = [m.strip() for m in metric_names.split(",")]
 
-            # Fetch metrics
-            response = client.query_resource(
-                resource_uri=resource_id,
-                metric_names=metric_names,
-                timespan=(from_tr, to_tr),
-                granularity=timedelta(seconds=granularity),
-                aggregations=[aggregation],
-            )
-            
-            # Convert response to a dictionary
-            if not response:
-                logger.error(f"Failed to fetch metrics with error: {response.text}")
+            # Convert granularity to ISO 8601 duration
+            if granularity < 60:
+                interval = f"PT{granularity}S"
+            elif granularity < 3600:
+                interval = f"PT{granularity // 60}M"
+            else:
+                interval = f"PT{granularity // 3600}H"
+
+            result = self._cli.execute_az_command([
+                "monitor", "metrics", "list",
+                "--resource", resource_id,
+                "--metrics", ",".join(metric_names),
+                "--start-time", from_tr.isoformat(),
+                "--end-time", to_tr.isoformat(),
+                "--interval", interval,
+                "--aggregation", aggregation
+            ])
+
+            if not result:
                 return None
 
+            # Convert to expected format
             results = {}
-            for metric in response.metrics:
-                results[metric.name] = [
-                    {
-                        "timestamp": data.timestamp.isoformat(),
-                        "value": data.total if aggregation == "Total" else data.average
-                    }
-                    for data in metric.timeseries[0].data
-                ]
+            metrics_data = result.get('value', []) if isinstance(result, dict) else result
+            for metric in metrics_data:
+                metric_name = metric.get('name', {}).get('value', 'Unknown')
+                timeseries = metric.get('timeseries', [])
+                if timeseries:
+                    data_points = timeseries[0].get('data', [])
+                    results[metric_name] = [
+                        {
+                            "timestamp": dp.get('timeStamp'),
+                            "value": dp.get('total') if aggregation == "Total" else dp.get('average')
+                        }
+                        for dp in data_points
+                    ]
 
             return results
-
+        except CLIExecutionError as e:
+            logger.error(f"Failed to fetch metrics: {e.stderr}")
+            return None
         except Exception as e:
             logger.error(f"Failed to fetch metrics with error: {e}")
             return None
 
     # ==================== AKS (Azure Kubernetes Service) Methods ====================
 
-    def aks_list_clusters(self):
+    def aks_list_clusters(self) -> Optional[List[Dict[str, Any]]]:
         """List all AKS clusters in the subscription."""
         try:
-            credentials = self.get_credentials()
-            if not credentials:
-                logger.error("Azure Connection Error:: Failed to get credentials")
-                return None
-            container_client = ContainerServiceClient(credentials, self.__subscription_id)
-            clusters = container_client.managed_clusters.list()
-            return [cluster.as_dict() for cluster in clusters]
+            result = self._cli.execute_az_command([
+                "aks", "list",
+                "--subscription", self.__subscription_id
+            ])
+            return result if isinstance(result, list) else []
+        except CLIExecutionError as e:
+            logger.error(f"Failed to list AKS clusters: {e.stderr}")
+            return None
         except Exception as e:
             logger.error(f"Failed to list AKS clusters with error: {e}")
             return None
 
-    def aks_get_cluster(self, resource_group: str, cluster_name: str):
+    def aks_get_cluster(self, resource_group: str, cluster_name: str) -> Optional[Dict[str, Any]]:
         """Get details of a specific AKS cluster."""
         try:
-            credentials = self.get_credentials()
-            if not credentials:
-                return None
-            container_client = ContainerServiceClient(credentials, self.__subscription_id)
-            cluster = container_client.managed_clusters.get(resource_group, cluster_name)
-            return cluster.as_dict()
+            result = self._cli.execute_az_command([
+                "aks", "show",
+                "--resource-group", resource_group,
+                "--name", cluster_name
+            ])
+            return result if isinstance(result, dict) else None
+        except CLIExecutionError as e:
+            logger.error(f"Failed to get AKS cluster {cluster_name}: {e.stderr}")
+            return None
         except Exception as e:
             logger.error(f"Failed to get AKS cluster {cluster_name}: {e}")
             return None
 
-    def aks_get_credentials(self, resource_group: str, cluster_name: str):
+    def aks_get_credentials(self, resource_group: str, cluster_name: str) -> Optional[bytes]:
         """Get kubeconfig credentials for an AKS cluster."""
         try:
-            credentials = self.get_credentials()
-            if not credentials:
-                return None
-            container_client = ContainerServiceClient(credentials, self.__subscription_id)
-            creds = container_client.managed_clusters.list_cluster_admin_credentials(
-                resource_group, cluster_name)
-            if creds.kubeconfigs:
-                return creds.kubeconfigs[0].value
+            # Create a temp file to store kubeconfig
+            with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.yaml') as f:
+                kubeconfig_path = f.name
+
+            # Get credentials and save to temp file
+            self._cli.execute_az_command([
+                "aks", "get-credentials",
+                "--resource-group", resource_group,
+                "--name", cluster_name,
+                "--file", kubeconfig_path,
+                "--admin",
+                "--overwrite-existing"
+            ], parse_json=False)
+
+            # Read the kubeconfig file
+            with open(kubeconfig_path, 'rb') as f:
+                kubeconfig_bytes = f.read()
+
+            # Clean up
+            os.unlink(kubeconfig_path)
+
+            return kubeconfig_bytes
+        except CLIExecutionError as e:
+            logger.error(f"Failed to get AKS credentials for {cluster_name}: {e.stderr}")
             return None
         except Exception as e:
             logger.error(f"Failed to get AKS credentials for {cluster_name}: {e}")
@@ -309,7 +293,7 @@ class AzureApiProcessor(Processor):
             logger.error(f"Error creating K8s client: {e}")
             return None
 
-    def aks_list_namespaces(self, resource_group: str, cluster_name: str):
+    def aks_list_namespaces(self, resource_group: str, cluster_name: str) -> Optional[List[Dict[str, Any]]]:
         """List namespaces in an AKS cluster."""
         try:
             kubeconfig = self.aks_get_credentials(resource_group, cluster_name)
@@ -325,7 +309,7 @@ class AzureApiProcessor(Processor):
             logger.error(f"Failed to list namespaces in AKS cluster {cluster_name}: {e}")
             return None
 
-    def aks_list_deployments(self, resource_group: str, cluster_name: str, namespace: str = None):
+    def aks_list_deployments(self, resource_group: str, cluster_name: str, namespace: str = None) -> Optional[List[Dict[str, Any]]]:
         """List deployments in an AKS cluster."""
         try:
             kubeconfig = self.aks_get_credentials(resource_group, cluster_name)
@@ -344,7 +328,7 @@ class AzureApiProcessor(Processor):
             logger.error(f"Failed to list deployments in AKS cluster {cluster_name}: {e}")
             return None
 
-    def aks_list_services(self, resource_group: str, cluster_name: str, namespace: str = None):
+    def aks_list_services(self, resource_group: str, cluster_name: str, namespace: str = None) -> Optional[List[Dict[str, Any]]]:
         """List services in an AKS cluster."""
         try:
             kubeconfig = self.aks_get_credentials(resource_group, cluster_name)
@@ -363,7 +347,7 @@ class AzureApiProcessor(Processor):
             logger.error(f"Failed to list services in AKS cluster {cluster_name}: {e}")
             return None
 
-    def aks_list_ingresses(self, resource_group: str, cluster_name: str, namespace: str = None):
+    def aks_list_ingresses(self, resource_group: str, cluster_name: str, namespace: str = None) -> Optional[List[Dict[str, Any]]]:
         """List ingresses in an AKS cluster."""
         try:
             kubeconfig = self.aks_get_credentials(resource_group, cluster_name)
@@ -382,7 +366,7 @@ class AzureApiProcessor(Processor):
             logger.error(f"Failed to list ingresses in AKS cluster {cluster_name}: {e}")
             return None
 
-    def aks_list_hpas(self, resource_group: str, cluster_name: str, namespace: str = None):
+    def aks_list_hpas(self, resource_group: str, cluster_name: str, namespace: str = None) -> Optional[List[Dict[str, Any]]]:
         """List horizontal pod autoscalers in an AKS cluster."""
         try:
             kubeconfig = self.aks_get_credentials(resource_group, cluster_name)
@@ -401,7 +385,7 @@ class AzureApiProcessor(Processor):
             logger.error(f"Failed to list HPAs in AKS cluster {cluster_name}: {e}")
             return None
 
-    def aks_list_statefulsets(self, resource_group: str, cluster_name: str, namespace: str = None):
+    def aks_list_statefulsets(self, resource_group: str, cluster_name: str, namespace: str = None) -> Optional[List[Dict[str, Any]]]:
         """List stateful sets in an AKS cluster."""
         try:
             kubeconfig = self.aks_get_credentials(resource_group, cluster_name)
@@ -420,7 +404,7 @@ class AzureApiProcessor(Processor):
             logger.error(f"Failed to list StatefulSets in AKS cluster {cluster_name}: {e}")
             return None
 
-    def aks_list_replicasets(self, resource_group: str, cluster_name: str, namespace: str = None):
+    def aks_list_replicasets(self, resource_group: str, cluster_name: str, namespace: str = None) -> Optional[List[Dict[str, Any]]]:
         """List replica sets in an AKS cluster."""
         try:
             kubeconfig = self.aks_get_credentials(resource_group, cluster_name)
@@ -439,7 +423,7 @@ class AzureApiProcessor(Processor):
             logger.error(f"Failed to list ReplicaSets in AKS cluster {cluster_name}: {e}")
             return None
 
-    def aks_list_network_policies(self, resource_group: str, cluster_name: str, namespace: str = None):
+    def aks_list_network_policies(self, resource_group: str, cluster_name: str, namespace: str = None) -> Optional[List[Dict[str, Any]]]:
         """List network policies in an AKS cluster."""
         try:
             kubeconfig = self.aks_get_credentials(resource_group, cluster_name)
@@ -460,223 +444,252 @@ class AzureApiProcessor(Processor):
 
     # ==================== Azure Compute Methods ====================
 
-    def compute_list_vms(self, resource_group: str = None):
+    def compute_list_vms(self, resource_group: str = None) -> Optional[List[Dict[str, Any]]]:
         """List all virtual machines in the subscription or resource group."""
         try:
-            credentials = self.get_credentials()
-            if not credentials:
-                return None
-            compute_client = ComputeManagementClient(credentials, self.__subscription_id)
             if resource_group:
-                vms = compute_client.virtual_machines.list(resource_group)
+                result = self._cli.execute_az_command([
+                    "vm", "list",
+                    "--resource-group", resource_group
+                ])
             else:
-                vms = compute_client.virtual_machines.list_all()
-            return [vm.as_dict() for vm in vms]
+                result = self._cli.execute_az_command(["vm", "list"])
+            return result if isinstance(result, list) else []
+        except CLIExecutionError as e:
+            logger.error(f"Failed to list VMs: {e.stderr}")
+            return None
         except Exception as e:
             logger.error(f"Failed to list VMs: {e}")
             return None
 
-    def compute_get_vm_instance_view(self, resource_group: str, vm_name: str):
+    def compute_get_vm_instance_view(self, resource_group: str, vm_name: str) -> Optional[Dict[str, Any]]:
         """Get VM instance view (running state, etc.)."""
         try:
-            credentials = self.get_credentials()
-            if not credentials:
-                return None
-            compute_client = ComputeManagementClient(credentials, self.__subscription_id)
-            instance_view = compute_client.virtual_machines.instance_view(resource_group, vm_name)
-            return instance_view.as_dict()
+            result = self._cli.execute_az_command([
+                "vm", "get-instance-view",
+                "--resource-group", resource_group,
+                "--name", vm_name
+            ])
+            return result if isinstance(result, dict) else None
+        except CLIExecutionError as e:
+            logger.error(f"Failed to get VM instance view for {vm_name}: {e.stderr}")
+            return None
         except Exception as e:
             logger.error(f"Failed to get VM instance view for {vm_name}: {e}")
             return None
 
-    def compute_list_vmss(self, resource_group: str = None):
+    def compute_list_vmss(self, resource_group: str = None) -> Optional[List[Dict[str, Any]]]:
         """List all VM scale sets in the subscription or resource group."""
         try:
-            credentials = self.get_credentials()
-            if not credentials:
-                return None
-            compute_client = ComputeManagementClient(credentials, self.__subscription_id)
             if resource_group:
-                vmss_list = compute_client.virtual_machine_scale_sets.list(resource_group)
+                result = self._cli.execute_az_command([
+                    "vmss", "list",
+                    "--resource-group", resource_group
+                ])
             else:
-                vmss_list = compute_client.virtual_machine_scale_sets.list_all()
-            return [vmss.as_dict() for vmss in vmss_list]
+                result = self._cli.execute_az_command(["vmss", "list"])
+            return result if isinstance(result, list) else []
+        except CLIExecutionError as e:
+            logger.error(f"Failed to list VMSS: {e.stderr}")
+            return None
         except Exception as e:
             logger.error(f"Failed to list VMSS: {e}")
             return None
 
     # ==================== Azure Storage Methods ====================
 
-    def storage_list_accounts(self, resource_group: str = None):
+    def storage_list_accounts(self, resource_group: str = None) -> Optional[List[Dict[str, Any]]]:
         """List all storage accounts in the subscription or resource group."""
         try:
-            credentials = self.get_credentials()
-            if not credentials:
-                return None
-            storage_client = StorageManagementClient(credentials, self.__subscription_id)
             if resource_group:
-                accounts = storage_client.storage_accounts.list_by_resource_group(resource_group)
+                result = self._cli.execute_az_command([
+                    "storage", "account", "list",
+                    "--resource-group", resource_group
+                ])
             else:
-                accounts = storage_client.storage_accounts.list()
-            return [account.as_dict() for account in accounts]
+                result = self._cli.execute_az_command(["storage", "account", "list"])
+            return result if isinstance(result, list) else []
+        except CLIExecutionError as e:
+            logger.error(f"Failed to list storage accounts: {e.stderr}")
+            return None
         except Exception as e:
             logger.error(f"Failed to list storage accounts: {e}")
             return None
 
-    def storage_list_blob_containers(self, resource_group: str, account_name: str):
+    def storage_list_blob_containers(self, resource_group: str, account_name: str) -> Optional[List[Dict[str, Any]]]:
         """List blob containers in a storage account."""
         try:
-            credentials = self.get_credentials()
-            if not credentials:
-                return None
-            storage_client = StorageManagementClient(credentials, self.__subscription_id)
-            containers = storage_client.blob_containers.list(resource_group, account_name)
-            return [container.as_dict() for container in containers]
+            result = self._cli.execute_az_command([
+                "storage", "container", "list",
+                "--account-name", account_name,
+                "--auth-mode", "login"
+            ])
+            return result if isinstance(result, list) else []
+        except CLIExecutionError as e:
+            logger.error(f"Failed to list blob containers for {account_name}: {e.stderr}")
+            return None
         except Exception as e:
             logger.error(f"Failed to list blob containers for {account_name}: {e}")
             return None
 
     # ==================== Azure SQL Database Methods ====================
 
-    def sql_list_servers(self, resource_group: str = None):
+    def sql_list_servers(self, resource_group: str = None) -> Optional[List[Dict[str, Any]]]:
         """List all SQL servers in the subscription or resource group."""
         try:
-            credentials = self.get_credentials()
-            if not credentials:
-                return None
-            sql_client = SqlManagementClient(credentials, self.__subscription_id)
             if resource_group:
-                servers = sql_client.servers.list_by_resource_group(resource_group)
+                result = self._cli.execute_az_command([
+                    "sql", "server", "list",
+                    "--resource-group", resource_group
+                ])
             else:
-                servers = sql_client.servers.list()
-            return [server.as_dict() for server in servers]
+                result = self._cli.execute_az_command(["sql", "server", "list"])
+            return result if isinstance(result, list) else []
+        except CLIExecutionError as e:
+            logger.error(f"Failed to list SQL servers: {e.stderr}")
+            return None
         except Exception as e:
             logger.error(f"Failed to list SQL servers: {e}")
             return None
 
-    def sql_list_databases(self, resource_group: str, server_name: str):
+    def sql_list_databases(self, resource_group: str, server_name: str) -> Optional[List[Dict[str, Any]]]:
         """List all databases in a SQL server."""
         try:
-            credentials = self.get_credentials()
-            if not credentials:
-                return None
-            sql_client = SqlManagementClient(credentials, self.__subscription_id)
-            databases = sql_client.databases.list_by_server(resource_group, server_name)
-            return [db.as_dict() for db in databases]
+            result = self._cli.execute_az_command([
+                "sql", "db", "list",
+                "--resource-group", resource_group,
+                "--server", server_name
+            ])
+            return result if isinstance(result, list) else []
+        except CLIExecutionError as e:
+            logger.error(f"Failed to list SQL databases for {server_name}: {e.stderr}")
+            return None
         except Exception as e:
             logger.error(f"Failed to list SQL databases for {server_name}: {e}")
             return None
 
     # ==================== Azure Cosmos DB Methods ====================
 
-    def cosmos_list_accounts(self, resource_group: str = None):
+    def cosmos_list_accounts(self, resource_group: str = None) -> Optional[List[Dict[str, Any]]]:
         """List all Cosmos DB accounts in the subscription or resource group."""
         try:
-            credentials = self.get_credentials()
-            if not credentials:
-                return None
-            cosmos_client = CosmosDBManagementClient(credentials, self.__subscription_id)
             if resource_group:
-                accounts = cosmos_client.database_accounts.list_by_resource_group(resource_group)
+                result = self._cli.execute_az_command([
+                    "cosmosdb", "list",
+                    "--resource-group", resource_group
+                ])
             else:
-                accounts = cosmos_client.database_accounts.list()
-            return [account.as_dict() for account in accounts]
+                result = self._cli.execute_az_command(["cosmosdb", "list"])
+            return result if isinstance(result, list) else []
+        except CLIExecutionError as e:
+            logger.error(f"Failed to list Cosmos DB accounts: {e.stderr}")
+            return None
         except Exception as e:
             logger.error(f"Failed to list Cosmos DB accounts: {e}")
             return None
 
     # ==================== Azure Monitor Methods ====================
 
-    def monitor_list_metric_alerts(self, resource_group: str = None):
+    def monitor_list_metric_alerts(self, resource_group: str = None) -> Optional[List[Dict[str, Any]]]:
         """List all metric alerts in the subscription or resource group."""
         try:
-            credentials = self.get_credentials()
-            if not credentials:
-                return None
-            monitor_client = MonitorManagementClient(credentials, self.__subscription_id)
             if resource_group:
-                alerts = monitor_client.metric_alerts.list_by_resource_group(resource_group)
+                result = self._cli.execute_az_command([
+                    "monitor", "metrics", "alert", "list",
+                    "--resource-group", resource_group
+                ])
             else:
-                alerts = monitor_client.metric_alerts.list_by_subscription()
-            return [alert.as_dict() for alert in alerts]
+                result = self._cli.execute_az_command(["monitor", "metrics", "alert", "list"])
+            return result if isinstance(result, list) else []
+        except CLIExecutionError as e:
+            logger.error(f"Failed to list metric alerts: {e.stderr}")
+            return None
         except Exception as e:
             logger.error(f"Failed to list metric alerts: {e}")
             return None
 
-    def monitor_list_action_groups(self, resource_group: str = None):
+    def monitor_list_action_groups(self, resource_group: str = None) -> Optional[List[Dict[str, Any]]]:
         """List all action groups in the subscription or resource group."""
         try:
-            credentials = self.get_credentials()
-            if not credentials:
-                return None
-            monitor_client = MonitorManagementClient(credentials, self.__subscription_id)
             if resource_group:
-                groups = monitor_client.action_groups.list_by_resource_group(resource_group)
+                result = self._cli.execute_az_command([
+                    "monitor", "action-group", "list",
+                    "--resource-group", resource_group
+                ])
             else:
-                groups = monitor_client.action_groups.list_by_subscription_id()
-            return [group.as_dict() for group in groups]
+                result = self._cli.execute_az_command(["monitor", "action-group", "list"])
+            return result if isinstance(result, list) else []
+        except CLIExecutionError as e:
+            logger.error(f"Failed to list action groups: {e.stderr}")
+            return None
         except Exception as e:
             logger.error(f"Failed to list action groups: {e}")
             return None
 
-    def list_resource_groups(self):
+    def list_resource_groups(self) -> Optional[List[Dict[str, Any]]]:
         """List all resource groups in the subscription."""
         try:
-            credentials = self.get_credentials()
-            if not credentials:
-                return None
-            resource_client = ResourceManagementClient(credentials, self.__subscription_id)
-            groups = resource_client.resource_groups.list()
-            return [rg.as_dict() for rg in groups]
+            result = self._cli.execute_az_command(["group", "list"])
+            return result if isinstance(result, list) else []
+        except CLIExecutionError as e:
+            logger.error(f"Failed to list resource groups: {e.stderr}")
+            return None
         except Exception as e:
             logger.error(f"Failed to list resource groups: {e}")
             return None
 
     # ==================== PostgreSQL Flexible Server Methods ====================
 
-    def postgres_flexible_list_servers(self, resource_group: str = None):
+    def postgres_flexible_list_servers(self, resource_group: str = None) -> Optional[List[Dict[str, Any]]]:
         """List all PostgreSQL Flexible Servers in the subscription or resource group."""
         try:
-            credentials = self.get_credentials()
-            if not credentials:
-                return None
-            postgres_client = PostgreSQLManagementClient(credentials, self.__subscription_id)
             if resource_group:
-                servers = postgres_client.servers.list_by_resource_group(resource_group)
+                result = self._cli.execute_az_command([
+                    "postgres", "flexible-server", "list",
+                    "--resource-group", resource_group
+                ])
             else:
-                servers = postgres_client.servers.list()
-            return [server.as_dict() for server in servers]
+                result = self._cli.execute_az_command(["postgres", "flexible-server", "list"])
+            return result if isinstance(result, list) else []
+        except CLIExecutionError as e:
+            logger.error(f"Failed to list PostgreSQL Flexible Servers: {e.stderr}")
+            return None
         except Exception as e:
             logger.error(f"Failed to list PostgreSQL Flexible Servers: {e}")
             return None
 
-    def postgres_flexible_list_databases(self, resource_group: str, server_name: str):
+    def postgres_flexible_list_databases(self, resource_group: str, server_name: str) -> Optional[List[Dict[str, Any]]]:
         """List all databases in a PostgreSQL Flexible Server."""
         try:
-            credentials = self.get_credentials()
-            if not credentials:
-                return None
-            postgres_client = PostgreSQLManagementClient(credentials, self.__subscription_id)
-            databases = postgres_client.databases.list_by_server(resource_group, server_name)
-            return [db.as_dict() for db in databases]
+            result = self._cli.execute_az_command([
+                "postgres", "flexible-server", "db", "list",
+                "--resource-group", resource_group,
+                "--server-name", server_name
+            ])
+            return result if isinstance(result, list) else []
+        except CLIExecutionError as e:
+            logger.error(f"Failed to list databases for PostgreSQL server {server_name}: {e.stderr}")
+            return None
         except Exception as e:
             logger.error(f"Failed to list databases for PostgreSQL server {server_name}: {e}")
             return None
 
     # ==================== Redis Cache Methods ====================
 
-    def redis_list_caches(self, resource_group: str = None):
+    def redis_list_caches(self, resource_group: str = None) -> Optional[List[Dict[str, Any]]]:
         """List all Redis Caches in the subscription or resource group."""
         try:
-            credentials = self.get_credentials()
-            if not credentials:
-                return None
-            redis_client = RedisManagementClient(credentials, self.__subscription_id)
             if resource_group:
-                caches = redis_client.redis.list_by_resource_group(resource_group)
+                result = self._cli.execute_az_command([
+                    "redis", "list",
+                    "--resource-group", resource_group
+                ])
             else:
-                caches = redis_client.redis.list_by_subscription()
-            return [cache.as_dict() for cache in caches]
+                result = self._cli.execute_az_command(["redis", "list"])
+            return result if isinstance(result, list) else []
+        except CLIExecutionError as e:
+            logger.error(f"Failed to list Redis Caches: {e.stderr}")
+            return None
         except Exception as e:
             logger.error(f"Failed to list Redis Caches: {e}")
             return None
