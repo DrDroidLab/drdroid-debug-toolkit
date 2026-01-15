@@ -3,7 +3,7 @@ from google.protobuf.wrappers_pb2 import StringValue, UInt64Value, BoolValue, In
 from google.protobuf.struct_pb2 import Struct
 
 
-from integrations.source_api_processors.ops_genie_api_processor import OpsGenieApiProcessor
+from core.integrations.source_api_processors.ops_genie_api_processor import OpsGenieApiProcessor
 from core.integrations.source_manager import SourceManager
 from drdroid_debug_toolkit.core.protos.base_pb2 import Source
 from drdroid_debug_toolkit.core.protos.base_pb2 import SourceKeyType
