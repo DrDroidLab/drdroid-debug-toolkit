@@ -1,4 +1,5 @@
 import logging
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from core.integrations.source_metadata_extractor import SourceMetadataExtractor
 from core.integrations.source_api_processors.github_api_processor import GithubAPIProcessor
@@ -24,13 +25,33 @@ class GithubSourceMetadataExtractor(SourceMetadataExtractor):
             repos = self.gh_processor.list_all_repos()
             if not repos:
                 return model_data
-            for repo in repos:
+            
+            total_repos = len(repos)
+            logger.info(f'📦 Found {total_repos} repositories. Fetching README contents in parallel...')
+            
+            def fetch_repo_with_readme(repo):
+                """Fetch README for a single repo."""
                 repo_name = repo['name']
-                # Fetch README content and add to metadata
-                readme_content = self.gh_processor.fetch_readme_content(repo_name)
-                if readme_content:
-                    repo['readme'] = readme_content
-                model_data[repo_name] = repo
+                try:
+                    readme_content = self.gh_processor.fetch_readme_content(repo_name)
+                    if readme_content:
+                        repo['readme'] = readme_content
+                except Exception as e:
+                    logger.error(f'Error fetching README for repo {repo_name}: {e}')
+                return repo
+            
+            # Process repos in parallel with ThreadPoolExecutor
+            processed_count = 0
+            with ThreadPoolExecutor(max_workers=10) as executor:
+                futures = {executor.submit(fetch_repo_with_readme, repo): repo for repo in repos}
+                for future in as_completed(futures):
+                    processed_count += 1
+                    if processed_count % 20 == 0 or processed_count == total_repos:
+                        logger.info(f'⏳ Processed {processed_count}/{total_repos} repos ({processed_count * 100 // total_repos}%)')
+                    
+                    repo = future.result()
+                    model_data[repo['name']] = repo
+                    
         except Exception as e:
             logger.error(f'Error extracting Github repositories: {e}')
         if len(model_data) > 0:
