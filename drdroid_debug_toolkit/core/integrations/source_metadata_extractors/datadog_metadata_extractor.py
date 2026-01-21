@@ -1,11 +1,11 @@
 import json
 import logging
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from core.integrations.source_metadata_extractor import SourceMetadataExtractor
 from core.integrations.source_api_processors.datadog_api_processor import DatadogApiProcessor, extract_services_and_downstream
 from core.protos.base_pb2 import Source, SourceModelType
 from core.utils.logging_utils import log_function_call
-import json
 
 logger = logging.getLogger(__name__)
 
@@ -22,9 +22,12 @@ class DatadogSourceMetadataExtractor(SourceMetadataExtractor):
         model_data = {}
         prod_env_tags = ['prod', 'production', 'prd', 'prod_env', 'production_env', 'production_environment',
                          'prod_environment']
+        logger.info(f'🔍 Fetching service maps for {len(prod_env_tags)} environment tags...')
         for tag in prod_env_tags:
             try:
+                logger.info(f'  📡 Fetching services for env tag: {tag}')
                 services = self.__dd_api_processor.fetch_service_map(tag)
+                logger.info(f'  ✓ Found {len(services) if services else 0} services for env: {tag}')
             except Exception as e:
                 logger.error(f'Error fetching datadog services for env: {tag} - {e}')
                 continue
@@ -34,34 +37,55 @@ class DatadogSourceMetadataExtractor(SourceMetadataExtractor):
                 service_metadata = model_data.get(service, {})
                 service_metadata[tag] = metadata
                 model_data[service] = service_metadata
+        logger.info(f'📋 Total unique services found across all envs: {len(model_data)}')
         try:
+            logger.info(f'🔍 Fetching all Datadog metrics list...')
             all_metrics = self.__dd_api_processor.fetch_metrics().get('data', [])
+            logger.info(f'📊 Found {len(all_metrics)} total metrics to process')
         except Exception as e:
             logger.error(f'Error fetching datadog metrics: {e}')
             all_metrics = []
         if not all_metrics:
-            logger.info(f'Extracted {len(model_data)} datadog services. Starting processing service relationships...')
+            logger.info(f'Extracted {len(model_data)} datadog services. No metrics found, skipping metric processing.')
+            logger.info(f'Starting processing service relationships...')
             extract_services_and_downstream(self.account_id, model_data)
             if len(model_data) > 0:
                 self.create_or_update_model_metadata(model_type, model_data)
             return model_data
-        logger.info(f'Extracted {len(model_data)} datadog services. Starting processing metrics...')
+        logger.info(f'Extracted {len(model_data)} datadog services. Starting processing {len(all_metrics)} metrics in parallel...')
         service_metric_map = {}
-        for mt in all_metrics:
+        total_metrics = len(all_metrics)
+        
+        def fetch_metric_with_tags(mt):
+            """Fetch tags for a single metric."""
             try:
-                tags = self.__dd_api_processor.fetch_metric_tags(mt['id']).get('data', {}).get('attributes', {}).get(
-                    'tags', [])
+                tags = self._DatadogSourceMetadataExtractor__dd_api_processor.fetch_metric_tags(mt['id']).get('data', {}).get('attributes', {}).get('tags', [])
             except Exception as e:
                 logger.error(f'Error fetching datadog metric tags for metric: {mt["id"]} - {e}')
                 tags = []
-            family = mt['id'].split('.')[0]
-            for tag in tags:
-                if tag.startswith('service:'):
-                    service = tag.split(':')[1]
-                    metrics = service_metric_map.get(service, [])
-                    essential_tags = [tag for tag in tags if tag.startswith('env:') or tag.startswith('service:')]
-                    metrics.append({'id': mt['id'], 'type': mt['type'], 'family': family, 'tags': essential_tags})
-                    service_metric_map[service] = metrics
+            return {'metric': mt, 'tags': tags}
+        
+        # Process metrics in parallel with ThreadPoolExecutor
+        processed_count = 0
+        with ThreadPoolExecutor(max_workers=10) as executor:
+            futures = {executor.submit(fetch_metric_with_tags, mt): mt for mt in all_metrics}
+            for future in as_completed(futures):
+                processed_count += 1
+                if processed_count % 100 == 0 or processed_count == total_metrics:
+                    logger.info(f'⏳ Processed {processed_count}/{total_metrics} metrics ({processed_count * 100 // total_metrics}%)')
+                
+                result = future.result()
+                mt = result['metric']
+                tags = result['tags']
+                family = mt['id'].split('.')[0]
+                for tag in tags:
+                    if tag.startswith('service:'):
+                        service = tag.split(':')[1]
+                        metrics = service_metric_map.get(service, [])
+                        essential_tags = [t for t in tags if t.startswith('env:') or t.startswith('service:')]
+                        metrics.append({'id': mt['id'], 'type': mt['type'], 'family': family, 'tags': essential_tags})
+                        service_metric_map[service] = metrics
+        logger.info(f'✅ Finished processing all {total_metrics} metrics. Found metrics for {len(service_metric_map)} services.')
         for service, metrics in service_metric_map.items():
             service_model_data = model_data.get(service, {})
             service_model_data['metrics'] = metrics
