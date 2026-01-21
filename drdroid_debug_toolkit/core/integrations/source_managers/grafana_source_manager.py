@@ -1256,7 +1256,7 @@ class GrafanaSourceManager(SourceManager):
         return resolved_string
 
     def _resolve_target_datasource(
-            self, target_datasource: Union[dict, str, None], dashboard_datasource: Union[dict, None],
+            self, target_datasource: Union[dict, str, None], dashboard_datasource: Union[dict, str, None],
             template_vars_dict: dict, panel_id, datasource_name_to_uid_map: dict, time_range: TimeRange = None, host_url: str = None
     ) -> Union[dict, None]:
         """Resolves the datasource for a target, handling variables and defaults."""
@@ -1269,9 +1269,20 @@ class GrafanaSourceManager(SourceManager):
             datasource_value_to_resolve = target_datasource
         elif target_datasource is None or (isinstance(target_datasource, dict) and not target_datasource.get("uid")):
             # Use dashboard default datasource if target is null/empty
-            if dashboard_datasource and dashboard_datasource.get("uid"):
-                datasource_value_to_resolve = dashboard_datasource["uid"]
-            else:
+            # Handle dashboard_datasource being a string (e.g., "prometheus", "-- Grafana --")
+            if dashboard_datasource:
+                if isinstance(dashboard_datasource, str):
+                    # Skip special Grafana placeholders
+                    if dashboard_datasource.startswith("--") and dashboard_datasource.endswith("--"):
+                        logger.info(
+                            f"Skipping target in panel {panel_id} due to special Grafana datasource: {dashboard_datasource}")
+                        return None
+                    # Use the string value directly for resolution
+                    datasource_value_to_resolve = dashboard_datasource
+                elif isinstance(dashboard_datasource, dict) and dashboard_datasource.get("uid"):
+                    datasource_value_to_resolve = dashboard_datasource["uid"]
+
+            if not datasource_value_to_resolve:
                 logger.warning(
                     f"Target in panel {panel_id} has no datasource and no dashboard default datasource found.")
                 return None  # Cannot proceed without a datasource
