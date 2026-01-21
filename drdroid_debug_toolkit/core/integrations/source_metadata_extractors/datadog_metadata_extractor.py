@@ -22,9 +22,12 @@ class DatadogSourceMetadataExtractor(SourceMetadataExtractor):
         model_data = {}
         prod_env_tags = ['prod', 'production', 'prd', 'prod_env', 'production_env', 'production_environment',
                          'prod_environment']
+        logger.info(f'🔍 Fetching service maps for {len(prod_env_tags)} environment tags...')
         for tag in prod_env_tags:
             try:
+                logger.info(f'  📡 Fetching services for env tag: {tag}')
                 services = self.__dd_api_processor.fetch_service_map(tag)
+                logger.info(f'  ✓ Found {len(services) if services else 0} services for env: {tag}')
             except Exception as e:
                 logger.error(f'Error fetching datadog services for env: {tag} - {e}')
                 continue
@@ -34,20 +37,28 @@ class DatadogSourceMetadataExtractor(SourceMetadataExtractor):
                 service_metadata = model_data.get(service, {})
                 service_metadata[tag] = metadata
                 model_data[service] = service_metadata
+        logger.info(f'📋 Total unique services found across all envs: {len(model_data)}')
         try:
+            logger.info(f'🔍 Fetching all Datadog metrics list...')
             all_metrics = self.__dd_api_processor.fetch_metrics().get('data', [])
+            logger.info(f'📊 Found {len(all_metrics)} total metrics to process')
         except Exception as e:
             logger.error(f'Error fetching datadog metrics: {e}')
             all_metrics = []
         if not all_metrics:
-            logger.info(f'Extracted {len(model_data)} datadog services. Starting processing service relationships...')
+            logger.info(f'Extracted {len(model_data)} datadog services. No metrics found, skipping metric processing.')
+            logger.info(f'Starting processing service relationships...')
             extract_services_and_downstream(self.account_id, model_data)
             if len(model_data) > 0:
                 self.create_or_update_model_metadata(model_type, model_data)
             return model_data
-        logger.info(f'Extracted {len(model_data)} datadog services. Starting processing metrics...')
+        logger.info(f'Extracted {len(model_data)} datadog services. Starting processing {len(all_metrics)} metrics (this may take a while)...')
         service_metric_map = {}
-        for mt in all_metrics:
+        total_metrics = len(all_metrics)
+        for idx, mt in enumerate(all_metrics):
+            # Log progress every 50 metrics or at key milestones
+            if idx % 50 == 0 or idx == total_metrics - 1:
+                logger.info(f'⏳ Processing metric {idx + 1}/{total_metrics} ({(idx + 1) * 100 // total_metrics}%): {mt["id"][:50]}...')
             try:
                 tags = self.__dd_api_processor.fetch_metric_tags(mt['id']).get('data', {}).get('attributes', {}).get(
                     'tags', [])
@@ -62,6 +73,7 @@ class DatadogSourceMetadataExtractor(SourceMetadataExtractor):
                     essential_tags = [tag for tag in tags if tag.startswith('env:') or tag.startswith('service:')]
                     metrics.append({'id': mt['id'], 'type': mt['type'], 'family': family, 'tags': essential_tags})
                     service_metric_map[service] = metrics
+        logger.info(f'✅ Finished processing all {total_metrics} metrics. Found metrics for {len(service_metric_map)} services.')
         for service, metrics in service_metric_map.items():
             service_model_data = model_data.get(service, {})
             service_model_data['metrics'] = metrics
