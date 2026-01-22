@@ -124,14 +124,35 @@ class SignozSourceMetadataExtractor(SourceMetadataExtractor):
                 time_geq=int(start_time.timestamp()),
                 time_lt=int(end_time.timestamp())
             )
-            print("SIGNOZ LOG ATTRIBUTES", result)
+            logger.debug(f"SigNoz log attributes response: {result}")
             if not result or "error" in result:
                 logger.error(f"Failed to execute log attributes query: {result}")
                 return model_data
             
             # Parse the results and store all attributes in a single row
             all_attributes = []
-            if result.get("data", {}).get("result"):
+            # Handle new response format: data.data.results[].rows[]
+            results_data = result.get("data", {}).get("data", {}).get("results", [])
+            if results_data:
+                for query_result in results_data:
+                    rows = query_result.get("rows", [])
+                    for row in rows:
+                        row_data = row.get("data", {})
+                        if isinstance(row_data, dict):
+                            attr_key = row_data.get("attr_key")
+                            attr_type = row_data.get("attr_type")
+                            source = row_data.get("source")
+
+                            if attr_key and attr_type and source:
+                                attribute_info = {
+                                    "attribute_key": attr_key,
+                                    "attribute_type": attr_type,
+                                    "source": source,
+                                    "description": f"Log {source} attribute of type {attr_type}"
+                                }
+                                all_attributes.append(attribute_info)
+            # Fallback to old format: data.result[].table.rows[]
+            elif result.get("data", {}).get("result"):
                 for item in result["data"]["result"]:
                     table = item.get("table", {})
                     rows = table.get("rows", [])
@@ -141,7 +162,7 @@ class SignozSourceMetadataExtractor(SourceMetadataExtractor):
                             attr_key = row_data.get("attr_key")
                             attr_type = row_data.get("attr_type")
                             source = row_data.get("source")
-                            
+
                             if attr_key and attr_type and source:
                                 attribute_info = {
                                     "attribute_key": attr_key,
