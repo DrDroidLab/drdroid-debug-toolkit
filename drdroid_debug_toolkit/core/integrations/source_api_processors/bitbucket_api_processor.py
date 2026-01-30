@@ -240,6 +240,97 @@ class BitbucketAPIProcessor(Processor):
             logger.error(f"BitbucketAPIProcessor.get_commit_diff:: Exception: {e}")
             return None
 
+    def list_recent_commits(self, repo, branch="main", since=None, until=None, per_page=100):
+        """
+        List recent commits for a repository with optional date filtering.
+
+        Bitbucket's commits API does not support a 'since' query parameter,
+        so this method paginates and stops early once commits fall before
+        the since date (commits are returned in reverse chronological order).
+
+        Args:
+            repo: Repository slug
+            branch: Branch name (default "main")
+            since: ISO 8601 timestamp - only return commits after this date (optional)
+            until: ISO 8601 timestamp - only return commits before this date (optional)
+            per_page: Number of commits per page (default 100, max 100)
+
+        Returns:
+            list: List of commit objects
+        """
+        try:
+            from datetime import datetime, timezone
+
+            since_dt = None
+            if since:
+                since_dt = datetime.fromisoformat(since.replace('Z', '+00:00'))
+
+            until_dt = None
+            if until:
+                until_dt = datetime.fromisoformat(until.replace('Z', '+00:00'))
+
+            all_commits = []
+            url = f"{self.BASE_URL}/repositories/{self.workspace}/{repo}/commits/{branch}"
+            params = {"pagelen": min(per_page, 100)}
+            headers = self._get_headers()
+
+            while url:
+                response = requests.get(url, headers=headers, params=params, timeout=EXTERNAL_CALL_TIMEOUT)
+                if response.status_code != 200:
+                    logger.error(f"BitbucketAPIProcessor.list_recent_commits:: Error fetching commits for "
+                                 f"{self.workspace}/{repo}: status={response.status_code}")
+                    break
+
+                data = response.json()
+                commits = data.get("values", [])
+                if not commits:
+                    break
+
+                stop_paging = False
+                for commit in commits:
+                    commit_date_str = commit.get("date", "")
+                    if commit_date_str:
+                        try:
+                            commit_dt = datetime.fromisoformat(commit_date_str.replace('Z', '+00:00'))
+                        except (ValueError, TypeError):
+                            commit_dt = None
+                    else:
+                        commit_dt = None
+
+                    # Skip commits after 'until'
+                    if until_dt and commit_dt and commit_dt > until_dt:
+                        continue
+
+                    # Stop once we reach commits before 'since'
+                    if since_dt and commit_dt and commit_dt < since_dt:
+                        stop_paging = True
+                        break
+
+                    all_commits.append(commit)
+                    if len(all_commits) >= per_page:
+                        stop_paging = True
+                        break
+
+                if stop_paging:
+                    break
+
+                url = data.get("next")
+                params = None  # Only use params for first request
+
+            return all_commits
+        except Exception as e:
+            logger.error(f"BitbucketAPIProcessor.list_recent_commits:: Exception: {e}")
+            return []
+
+    def get_commit_comments(self, repo, commit_sha):
+        """Get comments on a commit."""
+        try:
+            url = f"{self.BASE_URL}/repositories/{self.workspace}/{repo}/commit/{commit_sha}/comments"
+            return self._paginate(url)
+        except Exception as e:
+            logger.error(f"BitbucketAPIProcessor.get_commit_comments:: Exception: {e}")
+            return []
+
     def get_commit_diffstat(self, repo, commit_sha):
         """Get the diffstat (changed files) for a commit."""
         try:
@@ -249,8 +340,10 @@ class BitbucketAPIProcessor(Processor):
             # Normalize to GitHub-like format
             files = []
             for item in diffstat:
+                new_file = item.get("new") or {}
+                old_file = item.get("old") or {}
                 files.append({
-                    "filename": item.get("new", {}).get("path") or item.get("old", {}).get("path"),
+                    "filename": new_file.get("path") or old_file.get("path"),
                     "status": item.get("status"),
                     "lines_added": item.get("lines_added", 0),
                     "lines_removed": item.get("lines_removed", 0),
@@ -354,8 +447,10 @@ class BitbucketAPIProcessor(Processor):
             # Normalize to GitHub-like format
             files = []
             for item in diffstat:
+                new_file = item.get("new") or {}
+                old_file = item.get("old") or {}
                 files.append({
-                    "filename": item.get("new", {}).get("path") or item.get("old", {}).get("path"),
+                    "filename": new_file.get("path") or old_file.get("path"),
                     "status": item.get("status"),
                     "lines_added": item.get("lines_added", 0),
                     "lines_removed": item.get("lines_removed", 0),
