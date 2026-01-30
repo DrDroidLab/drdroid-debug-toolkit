@@ -618,6 +618,9 @@ enum SourceModelType {
 
   // VictoriaLogs Models
   VICTORIA_LOGS_FIELD = 9001;
+
+  // MCP Server Models
+  MCP_TOOLS = 9101;
 }
 
 message EventKey {
