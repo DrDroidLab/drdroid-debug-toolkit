@@ -485,6 +485,24 @@ class BitbucketAPIProcessor(Processor):
             logger.error(f"BitbucketAPIProcessor.list_tags:: Exception: {e}")
             return []
 
+    def list_repositories(self):
+        """List all repositories in the workspace."""
+        try:
+            url = f"{self.BASE_URL}/repositories/{self.workspace}"
+            return self._paginate(url)
+        except Exception as e:
+            logger.error(f"BitbucketAPIProcessor.list_repositories:: Exception: {e}")
+            return []
+
+    def list_workspace_members(self):
+        """List all members in the workspace."""
+        try:
+            url = f"{self.BASE_URL}/workspaces/{self.workspace}/members"
+            return self._paginate(url)
+        except Exception as e:
+            logger.error(f"BitbucketAPIProcessor.list_workspace_members:: Exception: {e}")
+            return []
+
     def get_workspace_info(self):
         """Get workspace information."""
         try:

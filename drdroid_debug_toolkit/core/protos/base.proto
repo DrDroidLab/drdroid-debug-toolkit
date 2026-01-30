@@ -618,6 +618,10 @@ enum SourceModelType {
 
   // VictoriaLogs Models
   VICTORIA_LOGS_FIELD = 9001;
+
+  // Bitbucket Models
+  BITBUCKET_REPOSITORY = 9101;
+  BITBUCKET_WORKSPACE_MEMBER = 9102;
 }
 
 message EventKey {
