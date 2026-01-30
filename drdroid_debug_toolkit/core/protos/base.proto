@@ -621,6 +621,11 @@ enum SourceModelType {
 
   // MCP Server Models
   MCP_TOOLS = 9101;
+
+  // Linear Models
+  LINEAR_TEAMS = 9201;
+  LINEAR_USERS = 9202;
+  LINEAR_PROJECTS = 9203;
 }
 
 message EventKey {
