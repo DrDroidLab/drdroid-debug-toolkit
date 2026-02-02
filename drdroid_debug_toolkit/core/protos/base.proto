@@ -619,9 +619,12 @@ enum SourceModelType {
   // VictoriaLogs Models
   VICTORIA_LOGS_FIELD = 9001;
 
+  // MCP Server Models
+  MCP_TOOLS = 9101;
+
   // Bitbucket Models
-  BITBUCKET_REPOSITORY = 9101;
-  BITBUCKET_WORKSPACE_MEMBER = 9102;
+  BITBUCKET_REPOSITORY = 9201;
+  BITBUCKET_WORKSPACE_MEMBER = 9202;
 }
 
 message EventKey {
