@@ -450,6 +450,9 @@ class SourceModelType(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     CORALOGIX_INDEX_MAPPING: _ClassVar[SourceModelType]
     VICTORIA_LOGS_FIELD: _ClassVar[SourceModelType]
     MCP_TOOLS: _ClassVar[SourceModelType]
+    LINEAR_TEAMS: _ClassVar[SourceModelType]
+    LINEAR_USERS: _ClassVar[SourceModelType]
+    LINEAR_PROJECTS: _ClassVar[SourceModelType]
 
 class Context(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     __slots__ = ()
@@ -906,6 +909,9 @@ CORALOGIX_DASHBOARD: SourceModelType
 CORALOGIX_INDEX_MAPPING: SourceModelType
 VICTORIA_LOGS_FIELD: SourceModelType
 MCP_TOOLS: SourceModelType
+LINEAR_TEAMS: SourceModelType
+LINEAR_USERS: SourceModelType
+LINEAR_PROJECTS: SourceModelType
 UNKNOWN_C: Context
 EVENT: Context
 MONITOR_TRANSACTION: Context
