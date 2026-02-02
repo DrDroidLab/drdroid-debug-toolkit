@@ -443,6 +443,17 @@ integrations_connector_type_connector_keys_map = {
             SourceKeyType.METABASE_API_KEY,
         ]
     ],
+    Source.BITBUCKET: [
+        [
+            SourceKeyType.BITBUCKET_API_KEY,
+            SourceKeyType.BITBUCKET_WORKSPACE,
+        ],
+        [
+            SourceKeyType.BITBUCKET_API_KEY,
+            SourceKeyType.BITBUCKET_WORKSPACE,
+            SourceKeyType.BITBUCKET_REPO,
+        ]
+    ],
 }
 integrations_connector_type_display_name_map = {
     Source.SLACK: 'SLACK',
@@ -485,6 +496,7 @@ integrations_connector_type_display_name_map = {
     Source.POSTHOG: 'POSTHOG',
     Source.SIGNOZ: 'SIGNOZ',
     Source.METABASE: 'METABASE',
+    Source.BITBUCKET: 'BITBUCKET',
 }
 
 model_type_display_name_maps = {
@@ -557,6 +569,7 @@ masked_keys_types = [SourceKeyType.DATADOG_APP_KEY,
                      SourceKeyType.REMOTE_SERVER_PEM,
                      SourceKeyType.POSTHOG_API_KEY,
                      SourceKeyType.METABASE_API_KEY,
+                     SourceKeyType.BITBUCKET_API_KEY,
                      ]
 
 

@@ -29,6 +29,7 @@ import "core/protos/assets/posthog_asset.proto";
 import "core/protos/assets/sql_database_asset.proto";
 import "core/protos/assets/mongodb_asset.proto";
 import "core/protos/assets/coralogix_asset.proto";
+import "core/protos/assets/bitbucket_asset.proto";
 
 message ConnectorModelTypeOptions {
   SourceModelType model_type = 1;
@@ -78,6 +79,9 @@ message ConnectorModelTypeOptions {
     ElasticSearchIndexPatternAssetOptions elastic_search_index_pattern_model_options = 61;
     ElasticSearchServiceAssetOptions elastic_search_service_model_options = 62;
     GrafanaDatasourceAssetOptions grafana_loki_datasource_model_options = 63;
+    // Bitbucket options
+    BitbucketRepositoryAssetOptions bitbucket_repository_model_options = 64;
+    BitbucketWorkspaceMemberAssetOptions bitbucket_workspace_member_model_options = 65;
   }
 }
 
@@ -109,6 +113,8 @@ message AccountConnectorAssets {
     SqlAssets sql = 24;
     SignozAssets signoz = 25;
     CoralogixAssets coralogix = 26;
+    // Bitbucket assets
+    BitbucketAssets bitbucket = 27;
   }
 }
 
@@ -160,5 +166,8 @@ message AccountConnectorAssetsModelFilters {
     ElasticSearchDashboardAssetOptions elastic_search_dashboard_model_filters = 62;
     ElasticSearchIndexPatternAssetOptions elastic_search_index_pattern_model_filters = 63;
     GrafanaDatasourceAssetOptions grafana_loki_datasource_model_filters = 72;
+    // Bitbucket filters
+    BitbucketRepositoryAssetOptions bitbucket_repository_model_filters = 73;
+    BitbucketWorkspaceMemberAssetOptions bitbucket_workspace_member_model_filters = 74;
   }
 }

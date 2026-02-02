@@ -628,6 +628,10 @@ enum SourceModelType {
   LINEAR_TEAMS = 9201;
   LINEAR_USERS = 9202;
   LINEAR_PROJECTS = 9203;
+
+  // Bitbucket Models
+  BITBUCKET_REPOSITORY = 9301;
+  BITBUCKET_WORKSPACE_MEMBER = 9302;
 }
 
 message EventKey {

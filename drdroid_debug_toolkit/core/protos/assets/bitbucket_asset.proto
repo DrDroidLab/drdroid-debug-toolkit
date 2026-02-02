@@ -1,0 +1,52 @@
+syntax = "proto3";
+package core.protos.connectors;
+
+import "google/protobuf/wrappers.proto";
+import "core/protos/base.proto";
+
+message BitbucketRepositoryAssetModel {
+  google.protobuf.StringValue slug = 1;
+  google.protobuf.StringValue name = 2;
+  google.protobuf.StringValue full_name = 3;
+  google.protobuf.StringValue html_url = 4;
+  google.protobuf.StringValue description = 5;
+  google.protobuf.BoolValue is_private = 6;
+  google.protobuf.StringValue owner = 7;
+}
+
+message BitbucketWorkspaceMemberAssetModel {
+  google.protobuf.StringValue display_name = 1;
+  google.protobuf.StringValue uuid = 2;
+  google.protobuf.StringValue nickname = 3;
+}
+
+message BitbucketRepositoryAssetOptions {
+  message BitbucketRepository {
+    google.protobuf.StringValue slug = 1;
+  }
+
+  repeated BitbucketRepository repositories = 1;
+}
+
+message BitbucketWorkspaceMemberAssetOptions {
+  message BitbucketWorkspaceMember {
+    google.protobuf.StringValue display_name = 1;
+  }
+
+  repeated BitbucketWorkspaceMember members = 1;
+}
+
+message BitbucketAssetModel {
+  google.protobuf.UInt64Value id = 1;
+  Source connector_type = 2;
+  SourceModelType type = 3;
+  sfixed64 last_updated = 4;
+  oneof asset {
+    BitbucketRepositoryAssetModel bitbucket_repository = 5;
+    BitbucketWorkspaceMemberAssetModel bitbucket_workspace_member = 6;
+  }
+}
+
+message BitbucketAssets {
+  repeated BitbucketAssetModel assets = 1;
+}
