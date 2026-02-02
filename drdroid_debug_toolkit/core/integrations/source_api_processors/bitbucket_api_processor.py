@@ -34,6 +34,9 @@ class BitbucketAPIProcessor(Processor):
         """Handle Bitbucket pagination using 'next' URL."""
         results = []
         headers = self._get_headers()
+        if params is None:
+            params = {}
+        params.setdefault("pagelen", 100)
 
         while url:
             try:
