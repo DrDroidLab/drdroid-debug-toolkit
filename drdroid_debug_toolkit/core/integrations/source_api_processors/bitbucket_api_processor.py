@@ -412,15 +412,18 @@ class BitbucketAPIProcessor(Processor):
             logger.error(f"BitbucketAPIProcessor.create_branch:: Exception: {e}")
             return None
 
-    def list_pull_requests(self, repo, state="OPEN"):
+    def list_pull_requests(self, repo, state="OPEN", since=None):
         """
         List pull requests.
 
         state: OPEN, MERGED, DECLINED, SUPERSEDED
+        since: ISO 8601 timestamp - only return PRs updated after this date (optional)
         """
         try:
             url = f"{self.BASE_URL}/repositories/{self.workspace}/{repo}/pullrequests"
-            params = {"state": state}
+            params = {"state": state, "sort": "-updated_on"}
+            if since:
+                params["q"] = f'updated_on>"{since}"'
             return self._paginate(url, params)
         except Exception as e:
             logger.error(f"BitbucketAPIProcessor.list_pull_requests:: Exception: {e}")
