@@ -421,9 +421,9 @@ class BitbucketAPIProcessor(Processor):
         """
         try:
             url = f"{self.BASE_URL}/repositories/{self.workspace}/{repo}/pullrequests"
-            params = {"state": state, "sort": "-updated_on"}
+            params = {"state": state, "sort": "-updated_on", "pagelen": 50}
             if since:
-                params["q"] = f'updated_on>"{since}"'
+                params["q"] = f'updated_on>{since}'
             return self._paginate(url, params)
         except Exception as e:
             logger.error(f"BitbucketAPIProcessor.list_pull_requests:: Exception: {e}")
