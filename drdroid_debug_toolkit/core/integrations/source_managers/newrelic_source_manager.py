@@ -950,6 +950,48 @@ class NewRelicSourceManager(SourceManager):
         
         return table
 
+    def _convert_nrql_aggregate_to_table(self, response: dict, nrql_expression: str, metric_name: str) -> PlaybookTaskResult:
+        """Converts a non-timeseries NRQL aggregate response to a TABLE result."""
+        from google.protobuf.wrappers_pb2 import StringValue, UInt64Value
+
+        results = response.get('results', [])
+        if not results:
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.TEXT,
+                text=TextResult(output=StringValue(
+                    value=f"No data returned from New Relic for nrql expression: {nrql_expression}")),
+                source=self.source)
+
+        table_rows = []
+        for result in results:
+            if not isinstance(result, dict):
+                continue
+
+            table_columns = []
+            for key, val in result.items():
+                table_columns.append(
+                    TableResult.TableColumn(
+                        name=StringValue(value=key),
+                        value=StringValue(value=str(val))
+                    )
+                )
+            if table_columns:
+                table_rows.append(TableResult.TableRow(columns=table_columns))
+
+        table = TableResult(
+            raw_query=StringValue(value=nrql_expression),
+            total_count=UInt64Value(value=len(table_rows)),
+            limit=UInt64Value(value=20),
+            offset=UInt64Value(value=0),
+            rows=table_rows
+        )
+
+        return PlaybookTaskResult(
+            type=PlaybookTaskResultType.TABLE,
+            table=table,
+            source=self.source
+        )
+
     def execute_entity_application_apm_metric_execution(self, time_range: TimeRange, nr_task: NewRelic,
                                                         nr_connector: ConnectorProto):
         try:
@@ -1512,23 +1554,8 @@ class NewRelicSourceManager(SourceManager):
 
             timeseries_offsets = None  # task.timeseries_offsets
 
-            # Parse the NRQL expression
             nrql_expression = task.widget_nrql_expression.value
-
-            # Strip any trailing whitespace or newlines to avoid syntax errors
-            nrql_expression = nrql_expression.strip()
-
-            if 'timeseries' not in nrql_expression.lower():
-                logger.info("Invalid NRQL expression. TIMESERIES is missing in the NRQL expression")
-                nrql_expression = nrql_expression + ' TIMESERIES LIMIT'
-            if 'limit max timeseries' in nrql_expression.lower():
-                nrql_expression = re.sub('limit max timeseries', 'TIMESERIES 5 MINUTE', nrql_expression,
-                                         flags=re.IGNORECASE)
-            if 'since' not in nrql_expression.lower():
-                time_since = time_range.time_geq
-                time_until = time_range.time_lt
-                total_seconds = (time_until - time_since)
-                nrql_expression = nrql_expression + f' SINCE {total_seconds} SECONDS AGO'
+            nrql_expression, has_timeseries = self._prepare_nrql(nrql_expression, time_range)
 
             nr_gql_processor = self.get_connector_processor(nr_connector)
             response = nr_gql_processor.execute_nrql_query(nrql_expression)
@@ -1537,6 +1564,9 @@ class NewRelicSourceManager(SourceManager):
                                           text=TextResult(output=StringValue(
                                               value=f"No data returned from New Relic for nrql expression: {nrql_expression}")),
                                           source=self.source)
+
+            if not has_timeseries:
+                return self._convert_nrql_aggregate_to_table(response, nrql_expression, metric_name)
 
             labeled_metric_timeseries_list = []
 
@@ -1668,19 +1698,7 @@ class NewRelicSourceManager(SourceManager):
             timeseries_offsets = task.timeseries_offsets
 
             nrql_expression = task.nrql_expression.value
-            nrql_expression = nrql_expression.strip()
-            if 'timeseries' not in nrql_expression.lower():
-                logger.info("Invalid NRQL expression. TIMESERIES is missing in the NRQL expression")
-                nrql_expression = nrql_expression + ' TIMESERIES LIMIT'
-
-            if 'limit max timeseries' in nrql_expression.lower():
-                nrql_expression = re.sub('limit max timeseries', 'TIMESERIES 5 MINUTE', nrql_expression,
-                                         flags=re.IGNORECASE)
-            if 'since' not in nrql_expression.lower():
-                time_since = time_range.time_geq
-                time_until = time_range.time_lt
-                total_seconds = (time_until - time_since)
-                nrql_expression = nrql_expression + f' SINCE {total_seconds} SECONDS AGO'
+            nrql_expression, has_timeseries = self._prepare_nrql(nrql_expression, time_range)
 
             nr_gql_processor = self.get_connector_processor(nr_connector)
 
@@ -1694,6 +1712,9 @@ class NewRelicSourceManager(SourceManager):
                                           text=TextResult(output=StringValue(
                                               value=f"No data returned from New Relic for nrql expression: {nrql_expression}")),
                                           source=self.source)
+
+            if not has_timeseries:
+                return self._convert_nrql_aggregate_to_table(response, nrql_expression, metric_name)
 
             labeled_metric_timeseries_list = []
 
@@ -2063,6 +2084,77 @@ class NewRelicSourceManager(SourceManager):
             raise Exception(f"No widgets found{filter_msg} in dashboard '{dashboard_name}'")
 
         return matching_widgets
+
+    def _prepare_nrql(self, nrql_expression: str, time_range: TimeRange) -> tuple[str, bool]:
+        """
+        Prepares an NRQL query for execution by standardizing time range clauses
+        and conditionally handling TIMESERIES based on the original query.
+
+        Args:
+            nrql_expression: The original NRQL query.
+            time_range: The TimeRange object specifying the desired start and end times.
+
+        Returns:
+            A tuple of (prepared_nrql, has_timeseries) where has_timeseries indicates
+            whether the query is a timeseries query.
+        """
+        nrql_expression = nrql_expression.strip()
+
+        # 1. Detect if original query has TIMESERIES
+        has_timeseries = bool(re.search(r'\bTIMESERIES\b', nrql_expression, re.IGNORECASE))
+
+        # 2. Calculate desired time range in milliseconds
+        start_ms = time_range.time_geq * 1000
+        end_ms = time_range.time_lt * 1000
+        total_seconds = time_range.time_lt - time_range.time_geq
+        if total_seconds <= 0:
+            end_ms = int(datetime.now(tz=pytz.UTC).timestamp() * 1000)
+            start_ms = end_ms - 3600 * 1000
+            total_seconds = 3600
+            logger.warning(
+                f"Invalid time range provided (start >= end). Defaulting to last 1 hour. Original NRQL: {nrql_expression}")
+
+        calculated_time_range_clause = f'SINCE {start_ms} UNTIL {end_ms}'
+
+        # 3. Extract and remove COMPARE WITH clause
+        compare_with_clause = ''
+        compare_with_match = re.search(
+            r'(\bCOMPARE\s+WITH\s+(.*?)(?=\b(?:LIMIT|TIMESERIES|FACET|$)))',
+            nrql_expression, flags=re.IGNORECASE | re.DOTALL
+        )
+        if compare_with_match:
+            compare_with_clause = ' ' + compare_with_match.group(1).strip()
+            nrql_expression = nrql_expression[:compare_with_match.start(0)] + nrql_expression[compare_with_match.end(0):]
+            nrql_expression = nrql_expression.strip()
+
+        # 4. Remove existing SINCE, UNTIL clauses
+        nrql_expression = re.sub(
+            r'\bSINCE\s+(.*?)(?=\b(?:UNTIL|COMPARE|LIMIT|TIMESERIES|FACET|$))',
+            '', nrql_expression, flags=re.IGNORECASE | re.DOTALL
+        ).strip()
+        nrql_expression = re.sub(
+            r'\bUNTIL\s+(.*?)(?=\b(?:COMPARE|LIMIT|TIMESERIES|FACET|$))',
+            '', nrql_expression, flags=re.IGNORECASE | re.DOTALL
+        ).strip()
+
+        # 5. Remove existing TIMESERIES clause (if present)
+        nrql_expression = re.sub(
+            r'(?:\bLIMIT\s+MAX\s+)?\bTIMESERIES(?:\s+MAX|\s+AUTO|\s+\d+\s+\w+)?',
+            '', nrql_expression, flags=re.IGNORECASE
+        ).strip()
+
+        # 6. Append clauses in correct NRQL order
+        nrql_expression += f' {calculated_time_range_clause}'
+        if compare_with_clause:
+            nrql_expression += compare_with_clause
+        if has_timeseries:
+            bucket_size = calculate_timeseries_bucket_size(total_seconds)
+            nrql_expression += f' TIMESERIES {bucket_size} SECONDS'
+
+        # Clean up multiple spaces
+        nrql_expression = re.sub(r'\s+', ' ', nrql_expression).strip()
+
+        return nrql_expression, has_timeseries
 
     def _prepare_widget_nrql(self, nrql_expression: str, time_range: TimeRange) -> str:
         """
