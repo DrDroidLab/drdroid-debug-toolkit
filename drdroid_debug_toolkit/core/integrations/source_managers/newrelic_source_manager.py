@@ -497,11 +497,11 @@ class NewRelicSourceManager(SourceManager):
 
         # 3. Remove existing time range clauses (SINCE, UNTIL)
         nrql_expression = re.sub(
-            r'\bSINCE\s+(.*?)(?=\b(?:UNTIL|LIMIT|TIMESERIES|FACET|$))',
+            r'\bSINCE\s+(.*?)(?=\b(?:UNTIL|LIMIT|TIMESERIES|FACET)|\s*$)',
             '', nrql_expression, flags=re.IGNORECASE | re.DOTALL
         ).strip()
         nrql_expression = re.sub(
-            r'\bUNTIL\s+(.*?)(?=\b(?:LIMIT|TIMESERIES|FACET|$))',
+            r'\bUNTIL\s+(.*?)(?=\b(?:LIMIT|TIMESERIES|FACET)|\s*$)',
             '', nrql_expression, flags=re.IGNORECASE | re.DOTALL
         ).strip()
 
@@ -562,11 +562,11 @@ class NewRelicSourceManager(SourceManager):
 
         # 3. Remove existing time range clauses (SINCE, UNTIL)
         nrql_expression = re.sub(
-            r'\bSINCE\s+(.*?)(?=\b(?:UNTIL|LIMIT|TIMESERIES|FACET|$))',
+            r'\bSINCE\s+(.*?)(?=\b(?:UNTIL|LIMIT|TIMESERIES|FACET)|\s*$)',
             '', nrql_expression, flags=re.IGNORECASE | re.DOTALL
         ).strip()
         nrql_expression = re.sub(
-            r'\bUNTIL\s+(.*?)(?=\b(?:LIMIT|TIMESERIES|FACET|$))',
+            r'\bUNTIL\s+(.*?)(?=\b(?:LIMIT|TIMESERIES|FACET)|\s*$)',
             '', nrql_expression, flags=re.IGNORECASE | re.DOTALL
         ).strip()
 
@@ -2119,7 +2119,7 @@ class NewRelicSourceManager(SourceManager):
         # 3. Extract and remove COMPARE WITH clause
         compare_with_clause = ''
         compare_with_match = re.search(
-            r'(\bCOMPARE\s+WITH\s+(.*?)(?=\b(?:LIMIT|TIMESERIES|FACET|$)))',
+            r'(\bCOMPARE\s+WITH\s+(.*?)(?=\b(?:LIMIT|TIMESERIES|FACET)|\s*$))',
             nrql_expression, flags=re.IGNORECASE | re.DOTALL
         )
         if compare_with_match:
@@ -2129,11 +2129,11 @@ class NewRelicSourceManager(SourceManager):
 
         # 4. Remove existing SINCE, UNTIL clauses
         nrql_expression = re.sub(
-            r'\bSINCE\s+(.*?)(?=\b(?:UNTIL|COMPARE|LIMIT|TIMESERIES|FACET|$))',
+            r'\bSINCE\s+(.*?)(?=\b(?:UNTIL|COMPARE|LIMIT|TIMESERIES|FACET)|\s*$)',
             '', nrql_expression, flags=re.IGNORECASE | re.DOTALL
         ).strip()
         nrql_expression = re.sub(
-            r'\bUNTIL\s+(.*?)(?=\b(?:COMPARE|LIMIT|TIMESERIES|FACET|$))',
+            r'\bUNTIL\s+(.*?)(?=\b(?:COMPARE|LIMIT|TIMESERIES|FACET)|\s*$)',
             '', nrql_expression, flags=re.IGNORECASE | re.DOTALL
         ).strip()
 
@@ -2191,7 +2191,7 @@ class NewRelicSourceManager(SourceManager):
         # 3. Extract and remove COMPARE WITH clause
         compare_with_clause = ''
         compare_with_match = re.search(
-            r'(\bCOMPARE\s+WITH\s+(.*?)(?=\b(?:LIMIT|TIMESERIES|FACET|$)))',
+            r'(\bCOMPARE\s+WITH\s+(.*?)(?=\b(?:LIMIT|TIMESERIES|FACET)|\s*$))',
             nrql_expression, flags=re.IGNORECASE | re.DOTALL
         )
         if compare_with_match:
@@ -2205,11 +2205,11 @@ class NewRelicSourceManager(SourceManager):
         # 4. Remove existing time range clauses (SINCE, UNTIL)
         # This regex handles various formats like 'X minutes ago', 'today', 'now', timestamps, etc.
         nrql_expression = re.sub(
-            r'\bSINCE\s+(.*?)(?=\b(?:UNTIL|COMPARE|LIMIT|TIMESERIES|FACET|$))',
+            r'\bSINCE\s+(.*?)(?=\b(?:UNTIL|COMPARE|LIMIT|TIMESERIES|FACET)|\s*$)',
             '', nrql_expression, flags=re.IGNORECASE | re.DOTALL
         ).strip()
         nrql_expression = re.sub(
-            r'\bUNTIL\s+(.*?)(?=\b(?:COMPARE|LIMIT|TIMESERIES|FACET|$))',
+            r'\bUNTIL\s+(.*?)(?=\b(?:COMPARE|LIMIT|TIMESERIES|FACET)|\s*$)',
             '', nrql_expression, flags=re.IGNORECASE | re.DOTALL
         ).strip()
         # COMPARE WITH removal is handled above by extracting it first
