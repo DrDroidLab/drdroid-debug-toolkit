@@ -1854,11 +1854,12 @@ class NewRelicSourceManager(SourceManager):
             if timeseries_offsets:
                 offsets = [offset for offset in timeseries_offsets]
                 for offset in offsets:
-                    adjusted_start_time = time_range.time_geq - offset
-                    adjusted_end_time = time_range.time_lt - offset
-                    total_seconds = adjusted_end_time - adjusted_start_time
+                    adjusted_start_ms = (time_range.time_geq - offset) * 1000
+                    adjusted_end_ms = (time_range.time_lt - offset) * 1000
                     adjusted_nrql_expression = re.sub(
-                        r'SINCE\s+\d+\s+SECONDS\s+AGO', f'SINCE {total_seconds} SECONDS AGO', nrql_expression)
+                        r'SINCE\s+\d+\s+UNTIL\s+\d+',
+                        f'SINCE {adjusted_start_ms} UNTIL {adjusted_end_ms}',
+                        nrql_expression)
 
                     print(
                         "Playbook Task Downstream Request: Type -> {}, Account -> {}, Nrql_Expression -> {}, "
