@@ -81,6 +81,7 @@ class _DefaultSourceMetadataExtractor:
                 
             drd_cloud_host = self.api_host
             drd_cloud_api_token = self.api_token
+            refresh_id = self.request_id  # Stable ID for this refresh; same for all batches of this run
             asset_metadata_models = []
             for model_uid, metadata in collected_models.items():
                 for k, v in metadata.items():
@@ -92,14 +93,30 @@ class _DefaultSourceMetadataExtractor:
                     'metadata': metadata
                 })
                 if len(asset_metadata_models) >= 100:
-                    requests.post(f'{drd_cloud_host}/connectors/proxy/connector/metadata/register',
-                                  headers={'Authorization': f'Bearer {drd_cloud_api_token}'},
-                                  json={'connector': {'name': self.connector_name}, 'assets': asset_metadata_models})
+                    requests.post(
+                        f'{drd_cloud_host}/connectors/proxy/connector/metadata/register',
+                        headers={'Authorization': f'Bearer {drd_cloud_api_token}'},
+                        json={
+                            'connector': {'name': self.connector_name},
+                            'assets': asset_metadata_models,
+                            'refresh_id': refresh_id,
+                            'has_more': True,
+                            'model_type': model_type,
+                        },
+                    )
                     asset_metadata_models = []
             if len(asset_metadata_models) > 0:
-                requests.post(f'{drd_cloud_host}/connectors/proxy/connector/metadata/register',
-                              headers={'Authorization': f'Bearer {drd_cloud_api_token}'},
-                              json={'connector': {'name': self.connector_name}, 'assets': asset_metadata_models})
+                requests.post(
+                    f'{drd_cloud_host}/connectors/proxy/connector/metadata/register',
+                    headers={'Authorization': f'Bearer {drd_cloud_api_token}'},
+                    json={
+                        'connector': {'name': self.connector_name},
+                        'assets': asset_metadata_models,
+                        'refresh_id': refresh_id,
+                        'has_more': False,
+                        'model_type': model_type,
+                    },
+                )
         except Exception as e:
             logger.error(f'Error creating or updating model_type: {model_type} with error: {e}')
 
