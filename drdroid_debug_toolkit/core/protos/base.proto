@@ -357,6 +357,7 @@ enum SourceKeyType {
   
   MCP_SERVER_BASE_URL = 150;
   MCP_SERVER_AUTH_HEADERS = 151;
+  MCP_SERVER_PASS_USER_EMAIL = 164;
 
   // VictoriaLogs specific keys (used by VictoriaLogs connector forms)
   VICTORIA_LOGS_PROTOCOL = 154;
