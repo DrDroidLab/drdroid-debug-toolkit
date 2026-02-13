@@ -10,7 +10,6 @@ from core.protos.connectors.connector_pb2 import Connector as ConnectorProto
 from core.protos.literal_pb2 import LiteralType, Literal
 from core.protos.playbooks.playbook_commons_pb2 import PlaybookTaskResult, PlaybookTaskResultType, ApiResponseResult, \
     TextResult
-from core.protos.playbooks.playbook_pb2 import PlaybookTask
 from core.protos.playbooks.source_task_definitions.metabase_task_pb2 import Metabase
 from core.protos.ui_definition_pb2 import FormField, FormFieldType
 from core.utils.credentilal_utils import generate_credentials_dict, get_connector_key_type_string, DISPLAY_NAME, \
@@ -46,7 +45,7 @@ class MetabaseSourceManager(SourceManager):
                         display_name=StringValue(value="Alert ID"),
                         description=StringValue(value='e.g. 1, 42'),
                         helper_text=StringValue(value='Enter the Metabase alert ID'),
-                        data_type=LiteralType.STRING,
+                        data_type=LiteralType.LONG,
                         form_field_type=FormFieldType.TEXT_FT
                     ),
                 ]
@@ -63,7 +62,7 @@ class MetabaseSourceManager(SourceManager):
                         display_name=StringValue(value="Card ID"),
                         description=StringValue(value='e.g. 1, 42'),
                         helper_text=StringValue(value='Enter the card/question ID to alert on'),
-                        data_type=LiteralType.STRING,
+                        data_type=LiteralType.LONG,
                         form_field_type=FormFieldType.TEXT_FT
                     ),
                     FormField(
@@ -118,7 +117,7 @@ class MetabaseSourceManager(SourceManager):
                         display_name=StringValue(value="Alert ID"),
                         description=StringValue(value='e.g. 1, 42'),
                         helper_text=StringValue(value='Enter the Metabase alert ID'),
-                        data_type=LiteralType.STRING,
+                        data_type=LiteralType.LONG,
                         form_field_type=FormFieldType.TEXT_FT
                     ),
                     FormField(
@@ -143,7 +142,7 @@ class MetabaseSourceManager(SourceManager):
                         display_name=StringValue(value="Alert ID"),
                         description=StringValue(value='e.g. 1, 42'),
                         helper_text=StringValue(value='Enter the Metabase alert ID to delete'),
-                        data_type=LiteralType.STRING,
+                        data_type=LiteralType.LONG,
                         form_field_type=FormFieldType.TEXT_FT
                     ),
                 ]
@@ -168,7 +167,7 @@ class MetabaseSourceManager(SourceManager):
                         display_name=StringValue(value="Pulse ID"),
                         description=StringValue(value='e.g. 1, 42'),
                         helper_text=StringValue(value='Enter the Metabase pulse ID'),
-                        data_type=LiteralType.STRING,
+                        data_type=LiteralType.LONG,
                         form_field_type=FormFieldType.TEXT_FT
                     ),
                 ]
@@ -193,7 +192,7 @@ class MetabaseSourceManager(SourceManager):
                         display_name=StringValue(value="Dashboard ID"),
                         description=StringValue(value='e.g. 1, 42'),
                         helper_text=StringValue(value='Enter dashboard ID (optional)'),
-                        data_type=LiteralType.STRING,
+                        data_type=LiteralType.LONG,
                         form_field_type=FormFieldType.TEXT_FT,
                         is_optional=True
                     ),
@@ -202,7 +201,7 @@ class MetabaseSourceManager(SourceManager):
                         display_name=StringValue(value="Collection ID"),
                         description=StringValue(value='e.g. 1, 42'),
                         helper_text=StringValue(value='Enter collection ID (optional)'),
-                        data_type=LiteralType.STRING,
+                        data_type=LiteralType.LONG,
                         form_field_type=FormFieldType.TEXT_FT,
                         is_optional=True
                     ),
@@ -245,7 +244,7 @@ class MetabaseSourceManager(SourceManager):
                         display_name=StringValue(value="Pulse ID"),
                         description=StringValue(value='e.g. 1, 42'),
                         helper_text=StringValue(value='Enter the Metabase pulse ID'),
-                        data_type=LiteralType.STRING,
+                        data_type=LiteralType.LONG,
                         form_field_type=FormFieldType.TEXT_FT
                     ),
                     FormField(
@@ -270,7 +269,7 @@ class MetabaseSourceManager(SourceManager):
                         display_name=StringValue(value="Pulse ID"),
                         description=StringValue(value='e.g. 1, 42'),
                         helper_text=StringValue(value='Enter the Metabase pulse ID to delete'),
-                        data_type=LiteralType.STRING,
+                        data_type=LiteralType.LONG,
                         form_field_type=FormFieldType.TEXT_FT
                     ),
                 ]
@@ -322,25 +321,6 @@ class MetabaseSourceManager(SourceManager):
         except Exception as e:
             logger.error(f"Error testing Metabase connection: {e}")
             return False, str(e)
-
-    _ID_FIELDS = {'alert_id', 'pulse_id', 'card_id', 'dashboard_id', 'collection_id'}
-
-    @staticmethod
-    def _coerce_id_fields(d):
-        for key, value in list(d.items()):
-            if key in MetabaseSourceManager._ID_FIELDS and isinstance(value, (int, float)):
-                d[key] = str(int(value))
-            elif isinstance(value, dict):
-                MetabaseSourceManager._coerce_id_fields(value)
-
-    def get_resolved_task(self, global_variable_set, input_task):
-        task_dict = proto_to_dict(input_task)
-        source_task_dict = task_dict.get('metabase', {})
-        if source_task_dict:
-            self._coerce_id_fields(source_task_dict)
-            task_dict['metabase'] = source_task_dict
-            input_task = dict_to_proto(task_dict, PlaybookTask)
-        return super().get_resolved_task(global_variable_set, input_task)
 
     # Alert executors
 
@@ -422,7 +402,7 @@ class MetabaseSourceManager(SourceManager):
                 )
 
             payload = {
-                "card": {"id": int(card_id)},
+                "card": {"id": card_id},
                 "alert_condition": alert_condition,
             }
 
@@ -600,9 +580,9 @@ class MetabaseSourceManager(SourceManager):
             payload = {"name": name}
 
             if task.HasField('dashboard_id'):
-                payload["dashboard_id"] = int(task.dashboard_id.value)
+                payload["dashboard_id"] = task.dashboard_id.value
             if task.HasField('collection_id'):
-                payload["collection_id"] = int(task.collection_id.value)
+                payload["collection_id"] = task.collection_id.value
             if task.HasField('skip_if_empty'):
                 payload["skip_if_empty"] = task.skip_if_empty.value
 

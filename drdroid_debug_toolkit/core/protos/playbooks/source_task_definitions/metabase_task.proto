@@ -22,11 +22,11 @@ message Metabase {
   message ListAlerts {}
 
   message GetAlert {
-    google.protobuf.StringValue alert_id = 1;
+    google.protobuf.Int64Value alert_id = 1;
   }
 
   message CreateAlert {
-    google.protobuf.StringValue card_id = 1;
+    google.protobuf.Int64Value card_id = 1;
     google.protobuf.StringValue alert_condition = 2;
     optional google.protobuf.BoolValue alert_above_goal = 3;
     optional google.protobuf.BoolValue alert_first_only = 4;
@@ -34,36 +34,36 @@ message Metabase {
   }
 
   message UpdateAlert {
-    google.protobuf.StringValue alert_id = 1;
+    google.protobuf.Int64Value alert_id = 1;
     google.protobuf.Struct updates = 2;
   }
 
   message DeleteAlert {
-    google.protobuf.StringValue alert_id = 1;
+    google.protobuf.Int64Value alert_id = 1;
   }
 
   message ListPulses {}
 
   message GetPulse {
-    google.protobuf.StringValue pulse_id = 1;
+    google.protobuf.Int64Value pulse_id = 1;
   }
 
   message CreatePulse {
     google.protobuf.StringValue name = 1;
-    optional google.protobuf.StringValue dashboard_id = 2;
-    optional google.protobuf.StringValue collection_id = 3;
+    optional google.protobuf.Int64Value dashboard_id = 2;
+    optional google.protobuf.Int64Value collection_id = 3;
     google.protobuf.Struct cards = 4;
     google.protobuf.Struct channels = 5;
     optional google.protobuf.BoolValue skip_if_empty = 6;
   }
 
   message UpdatePulse {
-    google.protobuf.StringValue pulse_id = 1;
+    google.protobuf.Int64Value pulse_id = 1;
     google.protobuf.Struct updates = 2;
   }
 
   message DeletePulse {
-    google.protobuf.StringValue pulse_id = 1;
+    google.protobuf.Int64Value pulse_id = 1;
   }
 
   TaskType type = 1;
