@@ -10,6 +10,7 @@ from core.protos.connectors.connector_pb2 import Connector as ConnectorProto
 from core.protos.literal_pb2 import LiteralType, Literal
 from core.protos.playbooks.playbook_commons_pb2 import PlaybookTaskResult, PlaybookTaskResultType, ApiResponseResult, \
     TextResult
+from core.protos.playbooks.playbook_pb2 import PlaybookTask
 from core.protos.playbooks.source_task_definitions.metabase_task_pb2 import Metabase
 from core.protos.ui_definition_pb2 import FormField, FormFieldType
 from core.utils.credentilal_utils import generate_credentials_dict, get_connector_key_type_string, DISPLAY_NAME, \
@@ -321,6 +322,25 @@ class MetabaseSourceManager(SourceManager):
         except Exception as e:
             logger.error(f"Error testing Metabase connection: {e}")
             return False, str(e)
+
+    _ID_FIELDS = {'alert_id', 'pulse_id', 'card_id', 'dashboard_id', 'collection_id'}
+
+    @staticmethod
+    def _coerce_id_fields(d):
+        for key, value in list(d.items()):
+            if key in MetabaseSourceManager._ID_FIELDS and isinstance(value, (int, float)):
+                d[key] = str(int(value))
+            elif isinstance(value, dict):
+                MetabaseSourceManager._coerce_id_fields(value)
+
+    def get_resolved_task(self, global_variable_set, input_task):
+        task_dict = proto_to_dict(input_task)
+        source_task_dict = task_dict.get('metabase', {})
+        if source_task_dict:
+            self._coerce_id_fields(source_task_dict)
+            task_dict['metabase'] = source_task_dict
+            input_task = dict_to_proto(task_dict, PlaybookTask)
+        return super().get_resolved_task(global_variable_set, input_task)
 
     # Alert executors
 
