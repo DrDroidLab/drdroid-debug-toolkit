@@ -1,0 +1,10 @@
+syntax = "proto3";
+package core.protos.auto_investigation_rule;
+
+import "google/protobuf/wrappers.proto";
+
+message AutoInvestigationCronScheduleRule {
+  google.protobuf.StringValue rule = 1;
+  google.protobuf.StringValue timezone = 2;
+  google.protobuf.StringValue slack_channel_id = 3;
+}

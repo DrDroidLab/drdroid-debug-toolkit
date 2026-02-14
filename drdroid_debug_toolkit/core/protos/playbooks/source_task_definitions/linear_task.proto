@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+package core.protos.playbooks;
+
+import "google/protobuf/wrappers.proto";
+
+message Linear {
+  enum TaskType {
+    UNKNOWN = 0;
+    CREATE_ISSUE = 1;
+    ASSIGN_ISSUE = 2;
+    GET_USERS = 3;
+    GET_ISSUE = 4;
+    SEARCH_ISSUES = 5;
+    ADD_COMMENT = 6;
+    GET_TEAMS = 7;
+    GET_WORKFLOW_STATES = 8;
+  }
+
+  message CreateIssue {
+    google.protobuf.StringValue team_id = 1;
+    google.protobuf.StringValue title = 2;
+    google.protobuf.StringValue description = 3;
+    optional google.protobuf.StringValue priority = 4;
+    optional google.protobuf.StringValue labels = 5;
+    optional google.protobuf.StringValue assignee_id = 6;
+    optional google.protobuf.StringValue state_id = 7;
+  }
+
+  message AssignIssue {
+    google.protobuf.StringValue issue_id = 1;
+    google.protobuf.StringValue assignee_id = 2;
+  }
+
+  message GetUsers {
+    optional google.protobuf.StringValue query = 1;
+  }
+
+  message GetIssue {
+    google.protobuf.StringValue issue_id = 1;
+  }
+
+  message SearchIssues {
+    optional google.protobuf.StringValue query = 1;
+  }
+
+  message AddComment {
+    google.protobuf.StringValue issue_id = 1;
+    google.protobuf.StringValue comment_text = 2;
+  }
+
+  message GetTeams {}
+
+  message GetWorkflowStates {
+    optional google.protobuf.StringValue team_id = 1;
+  }
+
+  TaskType type = 1;
+  oneof task {
+    CreateIssue create_issue = 2;
+    AssignIssue assign_issue = 3;
+    GetUsers get_users = 4;
+    GetIssue get_issue = 5;
+    SearchIssues search_issues = 6;
+    AddComment add_comment = 7;
+    GetTeams get_teams = 8;
+    GetWorkflowStates get_workflow_states = 9;
+  }
+}

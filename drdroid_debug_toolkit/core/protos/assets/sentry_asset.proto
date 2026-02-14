@@ -1,0 +1,32 @@
+syntax = "proto3";
+package core.protos.connectors;
+
+import "google/protobuf/wrappers.proto";
+import "core/protos/connectors/connector.proto";
+import "core/protos/base.proto";
+
+message SentryProjectAssetModel {
+  google.protobuf.StringValue id = 1;
+  google.protobuf.StringValue slug = 2;
+  google.protobuf.StringValue name = 3;
+  google.protobuf.StringValue platform = 4;
+  google.protobuf.StringValue organization_slug = 5;
+}
+
+message SentryProjectAssetOptions {
+  repeated string slugs = 1;
+}
+
+message SentryAssetModel {
+  google.protobuf.UInt64Value id = 1;
+  core.protos.Source connector_type = 2;
+  core.protos.SourceModelType type = 3;
+  sfixed64 last_updated = 4;
+  oneof asset {
+    SentryProjectAssetModel sentry_project = 101;
+  }
+}
+
+message SentryAssets {
+  repeated SentryAssetModel assets = 1;
+}

@@ -1,0 +1,71 @@
+syntax = "proto3";
+package core.protos.auto_investigation_rule;
+
+import "google/protobuf/wrappers.proto";
+
+import "core/protos/auto_investigation_rule/rules/cron_schedule.proto";
+import "core/protos/alert_ops.proto";
+
+message AutoInvestigationRule {
+  enum RuleType {
+    UNKNOWN = 0;
+    CRON_RULE = 1;
+  }
+  RuleType rule_type = 1;
+
+  google.protobuf.UInt64Value id = 2;
+  google.protobuf.StringValue name = 3;
+  google.protobuf.StringValue user_input_prompt = 4;
+  google.protobuf.BoolValue is_active = 5;
+  google.protobuf.UInt64Value created_at = 6;
+  google.protobuf.StringValue created_by = 7;
+  sfixed64 last_scheduled_at = 8;
+  core.protos.ScheduleNotificationMetadata notification_metadata = 10;
+  core.protos.ScheduleSummaryMetadata summary_metadata = 11;
+  repeated google.protobuf.UInt64Value playbook_ids = 12;
+
+  oneof rule {
+    AutoInvestigationCronScheduleRule cron_rule = 9;
+  }
+}
+
+///////////////////// Auto Investigation Rule Update Ops Proto /////////////////////
+message UpdateAutoInvestigationRuleOp {
+  enum Op {
+    UNKNOWN = 0;
+    UPDATE_AUTO_INVESTIGATION_RULE_NAME = 1;
+    UPDATE_AUTO_INVESTIGATION_RULE_STATUS = 2;
+    UPDATE_AUTO_INVESTIGATION_RULE = 3;
+    UPDATE_NOTIFICATION_METADATA = 4;
+    UPDATE_SUMMARY_METADATA = 5;
+  }
+
+  message UpdateAutoInvestigationRuleName {
+    google.protobuf.StringValue name = 1;
+  }
+
+  message UpdateAutoInvestigationRuleStatus {
+    google.protobuf.BoolValue is_active = 1;
+  }
+
+  message UpdateAutoInvestigationRule {
+    AutoInvestigationRule auto_investigation_rule = 1;
+  }
+
+  message UpdateNotificationMetadata {
+    ScheduleNotificationMetadata notification_metadata = 1;
+  }
+
+  message UpdateSummaryMetadata {
+    ScheduleSummaryMetadata summary_metadata = 1;
+  }
+
+  Op op = 1;
+  oneof update {
+    UpdateAutoInvestigationRuleName update_auto_investigation_rule_name = 2;
+    UpdateAutoInvestigationRuleStatus update_auto_investigation_rule_status = 3;
+    UpdateAutoInvestigationRule update_auto_investigation_rule = 4;
+    UpdateNotificationMetadata update_notification_metadata = 5;
+    UpdateSummaryMetadata update_summary_metadata = 6;
+  }
+}

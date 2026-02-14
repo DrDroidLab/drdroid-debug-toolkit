@@ -54,6 +54,7 @@ enum Op {
   NOT_IN = 8;
   IS_NULL = 9;
   EXISTS = 10;
+  CONTAINS = 11;
 
   AND = 20;
   OR = 21;

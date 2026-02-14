@@ -24,29 +24,78 @@ _sym_db = _symbol_database.Default()
 
 from google.protobuf import wrappers_pb2 as google_dot_protobuf_dot_wrappers__pb2
 from core.protos import base_pb2 as core_dot_protos_dot_base__pb2
+from core.protos.connectors import connector_pb2 as core_dot_protos_dot_connectors_dot_connector__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\"core/protos/assets/gke_asset.proto\x12\x16\x63ore.protos.connectors\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x16\x63ore/protos/base.proto\"k\n\nGkeCommand\x12*\n\x04type\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x31\n\x0b\x64\x65scription\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"H\n\x0cGkeNamespace\x12*\n\x04name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x0c\n\x04pods\x18\x02 \x03(\t\"r\n\nGkeCluster\x12*\n\x04name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x38\n\nnamespaces\x18\x02 \x03(\x0b\x32$.core.protos.connectors.GkeNamespace\"o\n\x0bZoneCluster\x12*\n\x04zone\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x34\n\x08\x63lusters\x18\x02 \x03(\x0b\x32\".core.protos.connectors.GkeCluster\"\xae\x01\n\x14GkeClusterAssetModel\x12*\n\x04zone\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x34\n\x08\x63lusters\x18\x02 \x03(\x0b\x32\".core.protos.connectors.GkeCluster\x12\x34\n\x08\x63ommands\x18\x03 \x03(\x0b\x32\".core.protos.connectors.GkeCommand\"L\n\x16GkeClusterAssetOptions\x12\x32\n\x05zones\x18\x01 \x03(\x0b\x32#.core.protos.connectors.ZoneCluster\"\xf6\x01\n\rGkeAssetModel\x12(\n\x02id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.UInt64Value\x12+\n\x0e\x63onnector_type\x18\x02 \x01(\x0e\x32\x13.core.protos.Source\x12*\n\x04type\x18\x03 \x01(\x0e\x32\x1c.core.protos.SourceModelType\x12\x14\n\x0clast_updated\x18\x04 \x01(\x10\x12\x43\n\x0bgke_cluster\x18\x05 \x01(\x0b\x32,.core.protos.connectors.GkeClusterAssetModelH\x00\x42\x07\n\x05\x61sset\"B\n\tGkeAssets\x12\x35\n\x06\x61ssets\x18\x01 \x03(\x0b\x32%.core.protos.connectors.GkeAssetModelb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\"core/protos/assets/gke_asset.proto\x12\x16\x63ore.protos.connectors\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x16\x63ore/protos/base.proto\x1a&core/protos/connectors/connector.proto\"k\n\nGkeCommand\x12*\n\x04type\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x31\n\x0b\x64\x65scription\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"H\n\x0cGkeNamespace\x12*\n\x04name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x0c\n\x04pods\x18\x02 \x03(\t\"r\n\nGkeCluster\x12*\n\x04name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x38\n\nnamespaces\x18\x02 \x03(\x0b\x32$.core.protos.connectors.GkeNamespace\"o\n\x0bZoneCluster\x12*\n\x04zone\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x34\n\x08\x63lusters\x18\x02 \x03(\x0b\x32\".core.protos.connectors.GkeCluster\"\xae\x01\n\x14GkeClusterAssetModel\x12*\n\x04zone\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x34\n\x08\x63lusters\x18\x02 \x03(\x0b\x32\".core.protos.connectors.GkeCluster\x12\x34\n\x08\x63ommands\x18\x03 \x03(\x0b\x32\".core.protos.connectors.GkeCommand\"\xfb\x01\n\x16GkeNamespaceAssetModel\x12*\n\x04name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04zone\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12-\n\x07\x63luster\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12,\n\x06status\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12,\n\x06labels\x18\x05 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"\xd9\x02\n\x14GkeServiceAssetModel\x12*\n\x04name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12/\n\tnamespace\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04zone\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12-\n\x07\x63luster\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04type\x18\x05 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x30\n\ncluster_ip\x18\x06 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12+\n\x05ports\x18\x07 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"\xb3\x02\n\x17GkeDeploymentAssetModel\x12*\n\x04name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12/\n\tnamespace\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04zone\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12-\n\x07\x63luster\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12.\n\x08replicas\x18\x05 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x30\n\ncontainers\x18\x06 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"\xd2\x02\n\x14GkeIngressAssetModel\x12*\n\x04name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12/\n\tnamespace\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04zone\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12-\n\x07\x63luster\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04host\x18\x05 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12+\n\x05paths\x18\x06 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12)\n\x03tls\x18\x07 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"\xf1\x02\n\x1aGkeNetworkPolicyAssetModel\x12*\n\x04name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12/\n\tnamespace\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04zone\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12-\n\x07\x63luster\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x32\n\x0cpod_selector\x18\x05 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x33\n\ringress_rules\x18\x06 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x32\n\x0c\x65gress_rules\x18\x07 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"\xca\x03\n\x10GkeHpaAssetModel\x12*\n\x04name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12/\n\tnamespace\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04zone\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12-\n\x07\x63luster\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12/\n\treference\x18\x05 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x32\n\x0cmin_replicas\x18\x06 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x32\n\x0cmax_replicas\x18\x07 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x36\n\x10\x63urrent_replicas\x18\x08 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12-\n\x07metrics\x18\t \x01(\x0b\x32\x1c.google.protobuf.StringValue\"\xf1\x02\n\x17GkeReplicasetAssetModel\x12*\n\x04name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12/\n\tnamespace\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04zone\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12-\n\x07\x63luster\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x36\n\x10\x64\x65sired_replicas\x18\x05 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x36\n\x10\x63urrent_replicas\x18\x06 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12.\n\x08selector\x18\x07 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"\x9d\x03\n\x18GkeStatefulsetAssetModel\x12*\n\x04name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12/\n\tnamespace\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04zone\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12-\n\x07\x63luster\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12.\n\x08replicas\x18\x05 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x32\n\x0cservice_name\x18\x06 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x33\n\rvolume_claims\x18\x07 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x30\n\ncontainers\x18\x08 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"L\n\x16GkeClusterAssetOptions\x12\x32\n\x05zones\x18\x01 \x03(\x0b\x32#.core.protos.connectors.ZoneCluster\"Z\n\x18GkeNamespaceAssetOptions\x12>\n\nnamespaces\x18\x01 \x03(\x0b\x32*.core.protos.connectors.GkeNamespaceOption\"T\n\x16GkeServiceAssetOptions\x12:\n\x08services\x18\x01 \x03(\x0b\x32(.core.protos.connectors.GkeServiceOption\"]\n\x19GkeDeploymentAssetOptions\x12@\n\x0b\x64\x65ployments\x18\x01 \x03(\x0b\x32+.core.protos.connectors.GkeDeploymentOption\"U\n\x16GkeIngressAssetOptions\x12;\n\tingresses\x18\x01 \x03(\x0b\x32(.core.protos.connectors.GkeIngressOption\"h\n\x1cGkeNetworkPolicyAssetOptions\x12H\n\x10network_policies\x18\x01 \x03(\x0b\x32..core.protos.connectors.GkeNetworkPolicyOption\"S\n\x12GkeHpaAssetOptions\x12=\n\x0fpod_autoscalers\x18\x01 \x03(\x0b\x32$.core.protos.connectors.GkeHpaOption\"]\n\x19GkeReplicasetAssetOptions\x12@\n\x0breplicasets\x18\x01 \x03(\x0b\x32+.core.protos.connectors.GkeReplicasetOption\"`\n\x1aGkeStatefulsetAssetOptions\x12\x42\n\x0cstatefulsets\x18\x01 \x03(\x0b\x32,.core.protos.connectors.GkeStatefulsetOption\"\x9b\x01\n\x12GkeNamespaceOption\x12*\n\x04name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04zone\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12-\n\x07\x63luster\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"\xca\x01\n\x10GkeServiceOption\x12*\n\x04name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12/\n\tnamespace\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04zone\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12-\n\x07\x63luster\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"\xcd\x01\n\x13GkeDeploymentOption\x12*\n\x04name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12/\n\tnamespace\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04zone\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12-\n\x07\x63luster\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"\xca\x01\n\x10GkeIngressOption\x12*\n\x04name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12/\n\tnamespace\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04zone\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12-\n\x07\x63luster\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"\xd0\x01\n\x16GkeNetworkPolicyOption\x12*\n\x04name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12/\n\tnamespace\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04zone\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12-\n\x07\x63luster\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"\xc6\x01\n\x0cGkeHpaOption\x12*\n\x04name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12/\n\tnamespace\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04zone\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12-\n\x07\x63luster\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"\xcd\x01\n\x13GkeReplicasetOption\x12*\n\x04name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12/\n\tnamespace\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04zone\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12-\n\x07\x63luster\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"\xce\x01\n\x14GkeStatefulsetOption\x12*\n\x04name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12/\n\tnamespace\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04zone\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12-\n\x07\x63luster\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"\xbb\x06\n\rGkeAssetModel\x12(\n\x02id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.UInt64Value\x12+\n\x0e\x63onnector_type\x18\x02 \x01(\x0e\x32\x13.core.protos.Source\x12*\n\x04type\x18\x03 \x01(\x0e\x32\x1c.core.protos.SourceModelType\x12\x14\n\x0clast_updated\x18\x04 \x01(\x10\x12\x43\n\x0bgke_cluster\x18\x05 \x01(\x0b\x32,.core.protos.connectors.GkeClusterAssetModelH\x00\x12G\n\rgke_namespace\x18\x06 \x01(\x0b\x32..core.protos.connectors.GkeNamespaceAssetModelH\x00\x12\x43\n\x0bgke_service\x18\x07 \x01(\x0b\x32,.core.protos.connectors.GkeServiceAssetModelH\x00\x12I\n\x0egke_deployment\x18\x08 \x01(\x0b\x32/.core.protos.connectors.GkeDeploymentAssetModelH\x00\x12\x43\n\x0bgke_ingress\x18\t \x01(\x0b\x32,.core.protos.connectors.GkeIngressAssetModelH\x00\x12P\n\x12gke_network_policy\x18\n \x01(\x0b\x32\x32.core.protos.connectors.GkeNetworkPolicyAssetModelH\x00\x12;\n\x07gke_hpa\x18\x0b \x01(\x0b\x32(.core.protos.connectors.GkeHpaAssetModelH\x00\x12I\n\x0egke_replicaset\x18\x0c \x01(\x0b\x32/.core.protos.connectors.GkeReplicasetAssetModelH\x00\x12K\n\x0fgke_statefulset\x18\r \x01(\x0b\x32\x30.core.protos.connectors.GkeStatefulsetAssetModelH\x00\x42\x07\n\x05\x61sset\"B\n\tGkeAssets\x12\x35\n\x06\x61ssets\x18\x01 \x03(\x0b\x32%.core.protos.connectors.GkeAssetModelb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'core.protos.assets.gke_asset_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_GKECOMMAND']._serialized_start=118
-  _globals['_GKECOMMAND']._serialized_end=225
-  _globals['_GKENAMESPACE']._serialized_start=227
-  _globals['_GKENAMESPACE']._serialized_end=299
-  _globals['_GKECLUSTER']._serialized_start=301
-  _globals['_GKECLUSTER']._serialized_end=415
-  _globals['_ZONECLUSTER']._serialized_start=417
-  _globals['_ZONECLUSTER']._serialized_end=528
-  _globals['_GKECLUSTERASSETMODEL']._serialized_start=531
-  _globals['_GKECLUSTERASSETMODEL']._serialized_end=705
-  _globals['_GKECLUSTERASSETOPTIONS']._serialized_start=707
-  _globals['_GKECLUSTERASSETOPTIONS']._serialized_end=783
-  _globals['_GKEASSETMODEL']._serialized_start=786
-  _globals['_GKEASSETMODEL']._serialized_end=1032
-  _globals['_GKEASSETS']._serialized_start=1034
-  _globals['_GKEASSETS']._serialized_end=1100
+  _globals['_GKECOMMAND']._serialized_start=158
+  _globals['_GKECOMMAND']._serialized_end=265
+  _globals['_GKENAMESPACE']._serialized_start=267
+  _globals['_GKENAMESPACE']._serialized_end=339
+  _globals['_GKECLUSTER']._serialized_start=341
+  _globals['_GKECLUSTER']._serialized_end=455
+  _globals['_ZONECLUSTER']._serialized_start=457
+  _globals['_ZONECLUSTER']._serialized_end=568
+  _globals['_GKECLUSTERASSETMODEL']._serialized_start=571
+  _globals['_GKECLUSTERASSETMODEL']._serialized_end=745
+  _globals['_GKENAMESPACEASSETMODEL']._serialized_start=748
+  _globals['_GKENAMESPACEASSETMODEL']._serialized_end=999
+  _globals['_GKESERVICEASSETMODEL']._serialized_start=1002
+  _globals['_GKESERVICEASSETMODEL']._serialized_end=1347
+  _globals['_GKEDEPLOYMENTASSETMODEL']._serialized_start=1350
+  _globals['_GKEDEPLOYMENTASSETMODEL']._serialized_end=1657
+  _globals['_GKEINGRESSASSETMODEL']._serialized_start=1660
+  _globals['_GKEINGRESSASSETMODEL']._serialized_end=1998
+  _globals['_GKENETWORKPOLICYASSETMODEL']._serialized_start=2001
+  _globals['_GKENETWORKPOLICYASSETMODEL']._serialized_end=2370
+  _globals['_GKEHPAASSETMODEL']._serialized_start=2373
+  _globals['_GKEHPAASSETMODEL']._serialized_end=2831
+  _globals['_GKEREPLICASETASSETMODEL']._serialized_start=2834
+  _globals['_GKEREPLICASETASSETMODEL']._serialized_end=3203
+  _globals['_GKESTATEFULSETASSETMODEL']._serialized_start=3206
+  _globals['_GKESTATEFULSETASSETMODEL']._serialized_end=3619
+  _globals['_GKECLUSTERASSETOPTIONS']._serialized_start=3621
+  _globals['_GKECLUSTERASSETOPTIONS']._serialized_end=3697
+  _globals['_GKENAMESPACEASSETOPTIONS']._serialized_start=3699
+  _globals['_GKENAMESPACEASSETOPTIONS']._serialized_end=3789
+  _globals['_GKESERVICEASSETOPTIONS']._serialized_start=3791
+  _globals['_GKESERVICEASSETOPTIONS']._serialized_end=3875
+  _globals['_GKEDEPLOYMENTASSETOPTIONS']._serialized_start=3877
+  _globals['_GKEDEPLOYMENTASSETOPTIONS']._serialized_end=3970
+  _globals['_GKEINGRESSASSETOPTIONS']._serialized_start=3972
+  _globals['_GKEINGRESSASSETOPTIONS']._serialized_end=4057
+  _globals['_GKENETWORKPOLICYASSETOPTIONS']._serialized_start=4059
+  _globals['_GKENETWORKPOLICYASSETOPTIONS']._serialized_end=4163
+  _globals['_GKEHPAASSETOPTIONS']._serialized_start=4165
+  _globals['_GKEHPAASSETOPTIONS']._serialized_end=4248
+  _globals['_GKEREPLICASETASSETOPTIONS']._serialized_start=4250
+  _globals['_GKEREPLICASETASSETOPTIONS']._serialized_end=4343
+  _globals['_GKESTATEFULSETASSETOPTIONS']._serialized_start=4345
+  _globals['_GKESTATEFULSETASSETOPTIONS']._serialized_end=4441
+  _globals['_GKENAMESPACEOPTION']._serialized_start=4444
+  _globals['_GKENAMESPACEOPTION']._serialized_end=4599
+  _globals['_GKESERVICEOPTION']._serialized_start=4602
+  _globals['_GKESERVICEOPTION']._serialized_end=4804
+  _globals['_GKEDEPLOYMENTOPTION']._serialized_start=4807
+  _globals['_GKEDEPLOYMENTOPTION']._serialized_end=5012
+  _globals['_GKEINGRESSOPTION']._serialized_start=5015
+  _globals['_GKEINGRESSOPTION']._serialized_end=5217
+  _globals['_GKENETWORKPOLICYOPTION']._serialized_start=5220
+  _globals['_GKENETWORKPOLICYOPTION']._serialized_end=5428
+  _globals['_GKEHPAOPTION']._serialized_start=5431
+  _globals['_GKEHPAOPTION']._serialized_end=5629
+  _globals['_GKEREPLICASETOPTION']._serialized_start=5632
+  _globals['_GKEREPLICASETOPTION']._serialized_end=5837
+  _globals['_GKESTATEFULSETOPTION']._serialized_start=5840
+  _globals['_GKESTATEFULSETOPTION']._serialized_end=6046
+  _globals['_GKEASSETMODEL']._serialized_start=6049
+  _globals['_GKEASSETMODEL']._serialized_end=6876
+  _globals['_GKEASSETS']._serialized_start=6878
+  _globals['_GKEASSETS']._serialized_end=6944
 # @@protoc_insertion_point(module_scope)

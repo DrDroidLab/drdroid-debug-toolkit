@@ -1,0 +1,84 @@
+syntax = "proto3";
+package core.protos.playbooks.folders;
+
+import "google/protobuf/wrappers.proto";
+
+import "core/protos/playbooks/playbook.proto";
+import "core/protos/connectors/api.proto";
+import "core/protos/playbooks/folders/folder.proto";
+
+message GetFoldersRequest  {
+    core.protos.connectors.Meta meta = 1;
+    repeated google.protobuf.UInt64Value folder_ids = 2;
+    google.protobuf.StringValue folder_name = 3;
+    google.protobuf.BoolValue high_level_only = 4;
+}
+
+message GetFoldersResponse  {
+    core.protos.connectors.Meta meta = 1;
+    google.protobuf.BoolValue success = 2;
+    core.protos.connectors.Message message = 3;
+    repeated Folder folders = 4;
+}
+
+message CreateFolderRequest  {
+    core.protos.connectors.Meta meta = 1;
+    Folder folder = 2;
+}
+
+message CreateFolderResponse  {
+    core.protos.connectors.Meta meta = 1;
+    google.protobuf.BoolValue success = 2;
+    core.protos.connectors.Message message = 3;
+    Folder folder = 4;
+}
+
+message UpdateFolderRequest  {
+    core.protos.connectors.Meta meta = 1;
+    google.protobuf.UInt64Value folder_id = 2;
+    repeated UpdateFolderOp update_folder_ops = 3;
+}
+
+message UpdateFolderResponse  {
+    core.protos.connectors.Meta meta = 1;
+    google.protobuf.BoolValue success = 2;
+    core.protos.connectors.Message message = 3;
+    Folder folder = 4;
+}
+
+message GetFolderPlaybooksRequest {
+    core.protos.connectors.Meta meta = 1;
+    google.protobuf.UInt64Value folder_id = 2;
+}
+
+message GetFolderPlaybooksResponse {
+    core.protos.connectors.Meta meta = 1;
+    google.protobuf.BoolValue success = 2;
+    core.protos.connectors.Message message = 3;
+    repeated core.protos.playbooks.Playbook playbooks = 4;
+}
+
+message GetSubfoldersRequest {
+    core.protos.connectors.Meta meta = 1;
+    google.protobuf.UInt64Value parent_folder_id = 2;
+}
+
+message GetSubfoldersResponse {
+    core.protos.connectors.Meta meta = 1;
+    google.protobuf.BoolValue success = 2;
+    core.protos.connectors.Message message = 3;
+    repeated Folder subfolders = 4;
+}
+
+message MovePlaybookRequest {
+    core.protos.connectors.Meta meta = 1;
+    google.protobuf.UInt64Value playbook_id = 2;
+    google.protobuf.UInt64Value new_folder_id = 3;
+}
+
+message MovePlaybookResponse {
+    core.protos.connectors.Meta meta = 1;
+    google.protobuf.BoolValue success = 2;
+    core.protos.connectors.Message message = 3;
+    core.protos.playbooks.Playbook playbook = 4;
+}

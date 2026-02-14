@@ -1,0 +1,46 @@
+syntax = "proto3";
+package core.protos.playbooks.folders;
+
+import "google/protobuf/wrappers.proto";
+
+message Folder {
+    google.protobuf.UInt64Value id = 1;
+    google.protobuf.StringValue name = 2;
+    google.protobuf.StringValue description = 3;
+    google.protobuf.BoolValue is_active = 4;
+    google.protobuf.StringValue created_by = 5;
+    sfixed64 created_at = 6;
+    sfixed64 updated_at = 7;
+    google.protobuf.UInt64Value playbook_count = 8;
+    google.protobuf.UInt64Value parent_id = 9;
+}
+
+// CRUD protos
+message UpdateFolderOp {
+    enum Op {
+      UNKNOWN = 0;
+      UPDATE_STATUS = 2;
+      UPDATE_FOLDER = 3;
+      MOVE_LOCATION = 4;
+    }
+  
+    message UpdateFolder {
+      Folder folder = 1;
+    }
+  
+    message UpdateStatus {
+      google.protobuf.BoolValue is_active = 1;
+      google.protobuf.BoolValue delete_playbooks = 2;
+    }
+
+    message MoveLocation {
+      google.protobuf.UInt64Value parent_id = 1;
+    }
+  
+    Op op = 1;
+    oneof update {
+      UpdateFolder update_folder = 101;
+      UpdateStatus update_status = 102;
+      MoveLocation move_location = 103;
+    }
+}

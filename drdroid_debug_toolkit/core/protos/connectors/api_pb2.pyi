@@ -4942,3 +4942,142 @@ class ProxyAgentApiToken(google.protobuf.message.Message):
     def ClearField(self, field_name: typing_extensions.Literal["connector", b"connector", "created_at", b"created_at", "created_by", b"created_by", "is_active", b"is_active", "is_backup", b"is_backup", "is_kubernetes", b"is_kubernetes", "is_latest_version", b"is_latest_version", "key", b"key", "metadata", b"metadata", "primary_agent_connector", b"primary_agent_connector"]) -> None: ...
 
 global___ProxyAgentApiToken = ProxyAgentApiToken
+
+@typing_extensions.final
+class GetRecentCommitsRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    def __init__(
+        self,
+    ) -> None: ...
+
+global___GetRecentCommitsRequest = GetRecentCommitsRequest
+
+@typing_extensions.final
+class GetRecentCommitsResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    @typing_extensions.final
+    class Commit(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        SHA_FIELD_NUMBER: builtins.int
+        COMMIT_DATE_FIELD_NUMBER: builtins.int
+        @property
+        def sha(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def commit_date(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        def __init__(
+            self,
+            *,
+            sha: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            commit_date: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["commit_date", b"commit_date", "sha", b"sha"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["commit_date", b"commit_date", "sha", b"sha"]) -> None: ...
+
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    COMMITS_FIELD_NUMBER: builtins.int
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def commits(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___GetRecentCommitsResponse.Commit]: ...
+    def __init__(
+        self,
+        *,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        commits: collections.abc.Iterable[global___GetRecentCommitsResponse.Commit] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["commits", b"commits", "message", b"message", "success", b"success"]) -> None: ...
+
+global___GetRecentCommitsResponse = GetRecentCommitsResponse
+
+@typing_extensions.final
+class GithubAppInstallRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    def __init__(
+        self,
+    ) -> None: ...
+
+global___GithubAppInstallRequest = GithubAppInstallRequest
+
+@typing_extensions.final
+class GithubAppInstallResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SUCCESS_FIELD_NUMBER: builtins.int
+    INSTALL_URL_FIELD_NUMBER: builtins.int
+    SESSION_ID_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def install_url(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    @property
+    def session_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    def __init__(
+        self,
+        *,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        install_url: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        session_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        message: global___Message | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["install_url", b"install_url", "message", b"message", "session_id", b"session_id", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["install_url", b"install_url", "message", b"message", "session_id", b"session_id", "success", b"success"]) -> None: ...
+
+global___GithubAppInstallResponse = GithubAppInstallResponse
+
+@typing_extensions.final
+class GithubAppCreateConnectorFromInstallationRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    INSTALLATION_ID_FIELD_NUMBER: builtins.int
+    ORG_NAME_FIELD_NUMBER: builtins.int
+    @property
+    def installation_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    @property
+    def org_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    def __init__(
+        self,
+        *,
+        installation_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        org_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["installation_id", b"installation_id", "org_name", b"org_name"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["installation_id", b"installation_id", "org_name", b"org_name"]) -> None: ...
+
+global___GithubAppCreateConnectorFromInstallationRequest = GithubAppCreateConnectorFromInstallationRequest
+
+@typing_extensions.final
+class GithubAppCreateConnectorFromInstallationResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SUCCESS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    CONNECTOR_ID_FIELD_NUMBER: builtins.int
+    @property
+    def success(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def message(self) -> global___Message: ...
+    @property
+    def connector_id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+    def __init__(
+        self,
+        *,
+        success: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        message: global___Message | None = ...,
+        connector_id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["connector_id", b"connector_id", "message", b"message", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["connector_id", b"connector_id", "message", b"message", "success", b"success"]) -> None: ...
+
+global___GithubAppCreateConnectorFromInstallationResponse = GithubAppCreateConnectorFromInstallationResponse

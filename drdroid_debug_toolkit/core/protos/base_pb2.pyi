@@ -109,6 +109,7 @@ class _OpEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWra
     NOT_IN: _Op.ValueType  # 8
     IS_NULL: _Op.ValueType  # 9
     EXISTS: _Op.ValueType  # 10
+    CONTAINS: _Op.ValueType  # 11
     AND: _Op.ValueType  # 20
     OR: _Op.ValueType  # 21
     NOT: _Op.ValueType  # 22
@@ -126,6 +127,7 @@ IN: Op.ValueType  # 7
 NOT_IN: Op.ValueType  # 8
 IS_NULL: Op.ValueType  # 9
 EXISTS: Op.ValueType  # 10
+CONTAINS: Op.ValueType  # 11
 AND: Op.ValueType  # 20
 OR: Op.ValueType  # 21
 NOT: Op.ValueType  # 22

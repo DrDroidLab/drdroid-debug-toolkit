@@ -1,0 +1,22 @@
+syntax = "proto3";
+package core.protos.playbooks;
+
+import "google/protobuf/wrappers.proto";
+
+message ConfluenceCloud {
+  message FetchDocumentContent {
+    google.protobuf.StringValue id = 1;
+    google.protobuf.StringValue space_key = 2;
+    google.protobuf.StringValue title = 3;
+  }
+
+  enum TaskType {
+    UNKNOWN = 0;
+    FETCH_DOCUMENT_CONTENT = 1;
+  }
+
+  TaskType type = 1;
+  oneof task {
+    FetchDocumentContent fetch_document_content = 2;
+  }
+}

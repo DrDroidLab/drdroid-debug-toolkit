@@ -1,0 +1,82 @@
+syntax = "proto3";
+package core.protos.connectors;
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/struct.proto";
+import "core/protos/base.proto";
+import "core/protos/connectors/connector.proto";
+
+// Simple Linear asset model using google.protobuf.Struct for flexible JSON storage
+// This avoids complex proto definitions and allows flattened JSON display
+
+message LinearTeamAssetModel {
+  google.protobuf.StringValue id = 1;
+  google.protobuf.StringValue name = 2;
+  google.protobuf.StringValue key = 3;  // Team key like "ENG"
+  google.protobuf.StringValue description = 4;
+  google.protobuf.Struct metadata = 5;  // Additional fields
+}
+
+message LinearUserAssetModel {
+  google.protobuf.StringValue id = 1;
+  google.protobuf.StringValue name = 2;
+  google.protobuf.StringValue email = 3;
+  google.protobuf.StringValue display_name = 4;
+  google.protobuf.BoolValue active = 5;
+  repeated LinearTeamReference teams = 6;  // Teams this user belongs to
+  google.protobuf.Struct metadata = 7;  // Additional fields
+}
+
+message LinearProjectAssetModel {
+  google.protobuf.StringValue id = 1;
+  google.protobuf.StringValue name = 2;
+  google.protobuf.StringValue description = 3;
+  google.protobuf.StringValue state = 4;
+  repeated LinearTeamReference teams = 5;  // Teams this project belongs to
+  google.protobuf.Struct metadata = 6;  // Additional fields
+}
+
+// Reference to a team (for team associations)
+message LinearTeamReference {
+  google.protobuf.StringValue id = 1;
+  google.protobuf.StringValue name = 2;
+}
+
+// Container for a single Linear asset
+message LinearAssetModel {
+  google.protobuf.UInt64Value id = 1;
+  core.protos.Source connector_type = 2;
+  core.protos.SourceModelType type = 3;
+  int64 last_updated = 4;
+  // Display name for the asset (team name, user name, or project name)
+  google.protobuf.StringValue name = 5;
+  // Linear resource ID (team id, user id, or project id)
+  google.protobuf.StringValue linear_id = 6;
+  oneof linear {
+    LinearTeamAssetModel linear_team = 10;
+    LinearUserAssetModel linear_user = 11;
+    LinearProjectAssetModel linear_project = 12;
+  }
+}
+
+// Container for all Linear assets
+message LinearAssets {
+  repeated LinearAssetModel assets = 1;
+}
+
+// Filter options for Linear assets
+message LinearTeamAssetOptions {
+  repeated string team_ids = 1;
+  repeated string team_names = 2;
+}
+
+message LinearUserAssetOptions {
+  repeated string user_ids = 1;
+  repeated string team_ids = 2;  // Filter by team membership
+}
+
+message LinearProjectAssetOptions {
+  repeated string project_ids = 1;
+  repeated string team_ids = 2;  // Filter by team association
+  repeated string states = 3;  // Filter by project state
+}

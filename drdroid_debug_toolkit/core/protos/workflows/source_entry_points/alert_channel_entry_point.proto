@@ -1,0 +1,13 @@
+syntax = "proto3";
+package core.protos.workflows;
+
+import "google/protobuf/wrappers.proto";
+import "core/protos/base.proto";
+
+
+message AlertSourceEntryPoint {
+  google.protobuf.StringValue alert_channel_uid = 1;
+  google.protobuf.StringValue alert_channel_name = 2;
+  google.protobuf.StringValue alert_type = 3;
+  google.protobuf.StringValue alert_filter_string = 4;
+}

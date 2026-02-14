@@ -1,0 +1,34 @@
+syntax = "proto3";
+package core.protos.playbooks;
+
+import "google/protobuf/wrappers.proto";
+
+message Rollbar {
+  message FetchItemInfo {
+    google.protobuf.StringValue item_id = 1;
+  }
+
+  message FetchOccurrences {
+    google.protobuf.StringValue item_id = 1;
+    google.protobuf.Int32Value limit = 2;
+  }
+
+  message FetchRecentErrors {
+    google.protobuf.StringValue environment = 1;
+    google.protobuf.Int32Value limit = 2;
+  }
+
+  enum TaskType {
+    UNKNOWN = 0;
+    FETCH_ITEM_INFO = 1;
+    FETCH_OCCURRENCES = 2;
+    FETCH_RECENT_ERRORS = 3;
+  }
+
+  TaskType type = 1;
+  oneof task {
+    FetchItemInfo fetch_item_info = 2;
+    FetchOccurrences fetch_occurrences = 3;
+    FetchRecentErrors fetch_recent_errors = 4;
+  }
+}
