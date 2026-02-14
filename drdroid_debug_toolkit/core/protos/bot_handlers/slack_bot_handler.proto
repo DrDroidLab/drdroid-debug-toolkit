@@ -1,0 +1,15 @@
+syntax = "proto3";
+package core.protos.bot_handlers;
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/struct.proto";
+import "core/protos/base.proto";
+import "core/protos/connectors/connector.proto";
+import "core/protos/assets/asset.proto";
+import "core/protos/connectors/api.proto";
+
+enum EventType {
+  UNKNOWN_ET = 0;
+  OAUTH_CALLBACK = 1;
+  EVENT_CALLBACK = 2;
+}

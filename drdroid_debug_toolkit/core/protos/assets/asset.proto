@@ -5,9 +5,8 @@ import "core/protos/base.proto";
 import "google/protobuf/wrappers.proto";
 import "google/protobuf/struct.proto";
 import "core/protos/connectors/connector.proto";
-import "core/protos/assets/cloudwatch_asset.proto";
-import "core/protos/assets/grafana_asset.proto";
 import "core/protos/assets/clickhouse_asset.proto";
+import "core/protos/assets/grafana_asset.proto";
 import "core/protos/assets/slack_asset.proto";
 import "core/protos/assets/newrelic_asset.proto";
 import "core/protos/assets/datadog_asset.proto";
@@ -18,17 +17,22 @@ import "core/protos/assets/bash_asset.proto";
 import "core/protos/assets/gke_asset.proto";
 import "core/protos/assets/elastic_search_asset.proto";
 import "core/protos/assets/gcm_asset.proto";
-import "core/protos/assets/open_search_asset.proto";
+import "core/protos/assets/cloudwatch_asset.proto";
 import "core/protos/assets/asana_asset.proto";
+import "core/protos/assets/open_search_asset.proto";
 import "core/protos/assets/github_asset.proto";
 import "core/protos/assets/jira_asset.proto";
 import "core/protos/assets/argocd_asset.proto";
 import "core/protos/assets/jenkins_asset.proto";
-import "core/protos/assets/signoz_asset.proto";
 import "core/protos/assets/posthog_asset.proto";
-import "core/protos/assets/sql_database_asset.proto";
 import "core/protos/assets/mongodb_asset.proto";
+import "core/protos/assets/sql_database_asset.proto";
+import "core/protos/assets/signoz_asset.proto";
+import "core/protos/assets/kubectl_asset.proto";
 import "core/protos/assets/coralogix_asset.proto";
+import "core/protos/assets/sentry_asset.proto";
+import "core/protos/assets/victoria_logs_asset.proto";
+import "core/protos/assets/linear_asset.proto";
 
 message ConnectorModelTypeOptions {
   SourceModelType model_type = 1;
@@ -61,55 +65,57 @@ message ConnectorModelTypeOptions {
     GithubMemberAssetOptions github_member_model_options = 27;
     JiraUserAssetOptions jira_user_model_options = 28;
     JiraProjectAssetOptions jira_project_model_options = 29;
-    ArgoCDAppsAssetOptions argocd_apps_model_options = 30;
-    AzureResourceAssetOptions azure_resource_model_options = 31;
-    JenkinsAppsAssetOptions jenkins_apps_model_options = 32;
-    MongoDBDatabaseAssetOptions mongodb_database_model_options = 33;
-    MongoDBCollectionAssetOptions mongodb_collection_model_options = 34;
-    PosthogPropertyAssetOptions posthog_property_model_options = 35;
-    EcsClusterAssetOptions ecs_cluster_model_options = 36;
-    EcsTaskAssetOptions ecs_task_model_options = 37;
-    EcsServiceAssetOptions ecs_service_model_options = 38;
-    GcmDashboardEntityAssetOptions gcm_dashboard_model_options = 39;
-    GcmCloudRunServiceAssetOptions gcm_cloud_run_service_model_options = 40;
-    SignozDashboardAssetOptions signoz_dashboard_model_options = 41;
-    SignozAlertAssetOptions signoz_alert_model_options = 42;
+    SentryProjectAssetOptions sentry_project_model_options = 30;
+    ArgoCDAppsAssetOptions argocd_apps_model_options = 31;
+    AzureResourceAssetOptions azure_resource_model_options = 32;
+    JenkinsAppsAssetOptions jenkins_apps_model_options = 33;
+    MongoDBDatabaseAssetOptions mongodb_database_model_options = 34;
+    MongoDBCollectionAssetOptions mongodb_collection_model_options = 35;
+    PosthogPropertyAssetOptions posthog_property_model_options = 36;
+    EcsClusterAssetOptions ecs_cluster_model_options = 37;
+    EcsTaskAssetOptions ecs_task_model_options = 38;
+    EcsServiceAssetOptions ecs_service_model_options = 39;
+    GcmDashboardEntityAssetOptions gcm_dashboard_model_options = 40;
+    GcmCloudRunServiceAssetOptions gcm_cloud_run_service_model_options = 41;
+    SignozDashboardAssetOptions signoz_dashboard_model_options = 42;
+    SignozAlertAssetOptions signoz_alert_model_options = 43;
+    KubernetesNamespaceAssetOptions kubernetes_namespace_model_options = 44;
+    KubernetesServiceAssetOptions kubernetes_service_model_options = 45;
+    KubernetesDeploymentAssetOptions kubernetes_deployment_model_options = 46;
+    KubernetesIngressAssetOptions kubernetes_ingress_model_options = 47;
+    KubernetesNetworkPolicyAssetOptions kubernetes_network_policy_model_options = 48;
+    KubernetesHpaAssetOptions kubernetes_hpa_model_options = 49;
+    KubernetesReplicasetAssetOptions kubernetes_replicaset_model_options = 50;
+    KubernetesStatefulsetAssetOptions kubernetes_statefulset_model_options = 51;
+    KubernetesNetworkMapAssetOptions kubernetes_network_map_model_options = 52;
     ElasticSearchDashboardAssetOptions elastic_search_dashboard_model_options = 60;
     ElasticSearchIndexPatternAssetOptions elastic_search_index_pattern_model_options = 61;
     ElasticSearchServiceAssetOptions elastic_search_service_model_options = 62;
     GrafanaDatasourceAssetOptions grafana_loki_datasource_model_options = 63;
+    SignozServiceAssetOptions signoz_service_model_options = 64;
+    GkeNamespaceAssetOptions gke_namespace_model_filters = 65;
+    GkeServiceOption gke_service_model_filters = 66;
+    GkeDeploymentOption gke_deployment_model_filters = 67;
+    GkeIngressAssetOptions gke_ingress_model_filters = 68;
+    GkeNetworkPolicyAssetOptions gke_network_policy_model_filters = 69;
+    GkeHpaAssetOptions gke_hpa_model_filters = 70;
+    GkeReplicasetAssetOptions gke_replicaset_model_filters = 71;
+    GkeStatefulsetAssetOptions gke_statefulset_model_filters = 72;
+    CoralogixIndexMappingAssetOptions coralogix_index_mapping_model_options = 73;
+    SignozLogAttributesAssetOptions signoz_log_attributes_model_options = 74;
+    VictoriaLogsFieldAssetOptions victoria_logs_field_model_options = 106;
+    LinearTeamAssetOptions linear_team_model_options = 107;
+    LinearUserAssetOptions linear_user_model_options = 108;
+    LinearProjectAssetOptions linear_project_model_options = 109;
+    PosthogDashboardAssetOptions posthog_dashboard_model_options = 110;
+    PosthogProjectAssetOptions posthog_project_model_options = 111;
   }
 }
 
-message AccountConnectorAssets {
-  Connector connector = 1;
-  oneof assets {
-    CloudwatchAssets cloudwatch = 101;
-    GrafanaAssets grafana = 102;
-    ClickhouseAssets clickhouse = 103;
-    SlackAssets slack = 104;
-    NewRelicAssets new_relic = 105;
-    DatadogAssets datadog = 106;
-    PostgresAssets postgres = 107;
-    EksAssets eks = 108;
-    BashAssets bash = 109;
-    AzureAssets azure = 110;
-    GkeAssets gke = 111;
-    ElasticSearchAssets elastic_search = 112;
-    GcmAssets gcm = 113;
-    DatadogAssets datadog_oauth = 15;
-    OpenSearchAssets open_search = 16;
-    AsanaAssets asana = 17;
-    GithubAssets github = 18;
-    JiraAssets jira_cloud = 19;
-    ArgoCDAssets argocd = 20;
-    JenkinsAssets jenkins = 21;
-    MongoDBAssets mongodb = 22;
-    PosthogAssets posthog = 23;
-    SqlAssets sql = 24;
-    SignozAssets signoz = 25;
-    CoralogixAssets coralogix = 26;
-  }
+message AccountConnectorAssetsModelOptions {
+  Source connector_type = 1;
+  Connector connector = 2;
+  repeated ConnectorModelTypeOptions model_types_options = 3;
 }
 
 message AccountConnectorAssetsModelFilters {
@@ -142,23 +148,94 @@ message AccountConnectorAssetsModelFilters {
     GithubMemberAssetOptions github_member_model_filters = 26;
     JiraUserAssetOptions jira_user_model_filters = 27;
     JiraProjectAssetOptions jira_project_model_filters = 28;
-    ArgoCDAppsAssetOptions argocd_apps_model_filters = 29;
-    AzureResourceAssetOptions azure_resource_model_filters = 30;
-    GrafanaDashboardAssetOptions grafana_dashboard_model_filters = 31;
-    JenkinsAppsAssetOptions jenkins_apps_model_filters = 32;
-    MongoDBDatabaseAssetOptions mongodb_database_model_filters = 33;
-    MongoDBCollectionAssetOptions mongodb_collection_model_filters = 34;
-    PosthogPropertyAssetOptions posthog_property_model_filters = 35;
-    SqlTableAssetOptions sql_table_model_filters = 36;
-    EcsClusterAssetOptions ecs_cluster_model_filters = 39;
-    EcsTaskAssetOptions ecs_task_model_filters = 37;
-    EcsServiceAssetOptions ecs_service_model_filters = 38;
-    GcmDashboardEntityAssetOptions gcm_dashboard_model_filters = 40;
-    GcmCloudRunServiceAssetOptions gcm_cloud_run_service_model_filters = 41;
-    CloudwatchDashboardAssetOptions cloudwatch_dashboard_model_filters = 42;
+    SentryProjectAssetOptions sentry_project_model_filters = 29;
+    ArgoCDAppsAssetOptions argocd_apps_model_filters = 30;
+    AzureResourceAssetOptions azure_resource_model_filters = 31;
+    GrafanaDashboardAssetOptions grafana_dashboard_model_filters = 32;
+    JenkinsAppsAssetOptions jenkins_apps_model_filters = 33;
+    MongoDBDatabaseAssetOptions mongodb_database_model_filters = 34;
+    MongoDBCollectionAssetOptions mongodb_collection_model_filters = 35;
+    PosthogPropertyAssetOptions posthog_property_model_filters = 36;
+    SqlTableAssetOptions sql_table_model_filters = 37;
+    EcsClusterAssetOptions ecs_cluster_model_filters = 38;
+    EcsTaskAssetOptions ecs_task_model_filters = 39;
+    EcsServiceAssetOptions ecs_service_model_filters = 40;
+    GcmDashboardEntityAssetOptions gcm_dashboard_model_filters = 41;
+    GcmCloudRunServiceAssetOptions gcm_cloud_run_service_model_filters = 42;
+    CloudwatchDashboardAssetOptions cloudwatch_dashboard_model_filters = 43;
+    SignozDashboardAssetOptions signoz_dashboard_model_filters = 44;
+    SignozAlertAssetOptions signoz_alert_model_filters = 45;
+    KubernetesNamespaceAssetOptions kubernetes_namespace_model_filters = 46;
+    KubernetesServiceAssetOptions kubernetes_service_model_filters = 47;
+    KubernetesDeploymentAssetOptions kubernetes_deployment_model_filters = 48;
+    KubernetesIngressAssetOptions kubernetes_ingress_model_filters = 49;
+    KubernetesNetworkPolicyAssetOptions kubernetes_network_policy_model_filters = 50;
+    KubernetesHpaAssetOptions kubernetes_hpa_model_filters = 51;
+    KubernetesReplicasetAssetOptions kubernetes_replicaset_model_filters = 52;
+    KubernetesStatefulsetAssetOptions kubernetes_statefulset_model_filters = 53;
+    KubernetesNetworkMapAssetOptions kubernetes_network_map_model_filters = 54;
     ElasticSearchServiceAssetOptions elastic_search_service_model_filters = 61;
     ElasticSearchDashboardAssetOptions elastic_search_dashboard_model_filters = 62;
     ElasticSearchIndexPatternAssetOptions elastic_search_index_pattern_model_filters = 63;
+    CoralogixDashboardAssetOptions coralogix_dashboard_model_filters = 71;
     GrafanaDatasourceAssetOptions grafana_loki_datasource_model_filters = 72;
+    SignozServiceAssetOptions signoz_service_model_filters = 73;
+    GkeNamespaceAssetOptions gke_namespace_model_filters = 74;
+    GkeServiceOption gke_service_model_filters = 75;
+    GkeDeploymentOption gke_deployment_model_filters = 76;
+    GkeIngressAssetOptions gke_ingress_model_filters = 77;
+    GkeNetworkPolicyAssetOptions gke_network_policy_model_filters = 78;
+    GkeHpaAssetOptions gke_hpa_model_filters = 79;
+    GkeReplicasetAssetOptions gke_replicaset_model_filters = 80;
+    GkeStatefulsetAssetOptions gke_statefulset_model_filters = 81;
+    CoralogixIndexMappingAssetOptions coralogix_index_mapping_model_filters = 82;
+    SignozLogAttributesAssetOptions signoz_log_attributes_model_filters = 83;
+    VictoriaLogsFieldAssetOptions victoria_logs_field_model_filters = 186;
+    LinearTeamAssetOptions linear_team_model_filters = 187;
+    LinearUserAssetOptions linear_user_model_filters = 188;
+    LinearProjectAssetOptions linear_project_model_filters = 189;
+    PosthogDashboardAssetOptions posthog_dashboard_model_filters = 190;
+    PosthogProjectAssetOptions posthog_project_model_filters = 191;
   }
+}
+
+message AccountConnectorAssets {
+  Connector connector = 1;
+  oneof assets {
+    CloudwatchAssets cloudwatch = 2;
+    GrafanaAssets grafana = 3;
+    ClickhouseAssets clickhouse = 4;
+    SlackAssets slack = 5;
+    NewRelicAssets new_relic = 6;
+    DatadogAssets datadog = 7;
+    PostgresAssets postgres = 8;
+    EksAssets eks = 9;
+    BashAssets bash = 10;
+    AzureAssets azure = 11;
+    GkeAssets gke = 12;
+    ElasticSearchAssets elastic_search = 13;
+    GcmAssets gcm = 14;
+    DatadogAssets datadog_oauth = 15;
+    OpenSearchAssets open_search = 16;
+    AsanaAssets asana = 17;
+    GithubAssets github = 18;
+    JiraAssets jira_cloud = 19;
+    SentryAssets sentry = 20;
+    ArgoCDAssets argocd = 21;
+    JenkinsAssets jenkins = 22;
+    MongoDBAssets mongodb = 23;
+    PosthogAssets posthog = 24;
+    SqlAssets sql = 25;
+    SignozAssets signoz = 26;
+    KubernetesAssets kubernetes = 27;
+    CoralogixAssets coralogix = 28;
+    VictoriaLogsAssets victoria_logs = 29;
+    LinearAssets linear = 30;
+  }
+}
+
+message AssetMetadataModel {
+  google.protobuf.StringValue model_uid = 1;
+  SourceModelType model_type = 2;
+  google.protobuf.Struct metadata = 3;
 }

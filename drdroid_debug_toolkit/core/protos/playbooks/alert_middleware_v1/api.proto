@@ -1,0 +1,143 @@
+syntax = "proto3";
+
+package core.protos.playbooks.alert_middleware_v1;
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/struct.proto";
+
+import "core/protos/connectors/api.proto";
+import "core/protos/account.proto";
+import "core/protos/engine_options.proto";
+import "core/protos/literal.proto";
+import "core/protos/connectors/connector.proto";
+import "core/protos/base.proto";
+import "core/protos/alert_ops.proto";
+import "core/protos/playbooks/alert_middleware_v1/alert_middleware.proto";
+
+//////////////////////////////////////////  Alert Middleware api schemas  //////////////////////////////////////
+message GetAlertMiddlewareAlertsSearchRequest {
+  core.protos.connectors.Meta meta = 1;
+}
+
+message GetAlertMiddlewareAlertsSearchResponse {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  core.protos.connectors.Message message = 3;
+  repeated AlertIngestionRawData alerts = 4;
+}
+
+message CreateAlertMiddlewareAlertsRuleRequest {
+  core.protos.connectors.Meta meta = 1;
+  core.protos.Source source_type = 2;
+  AlertIngestionRule rule = 3;
+}
+
+message CreateAlertMiddlewareAlertsRuleResponse {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  core.protos.connectors.Message message = 3;
+  AlertIngestionRule rule = 4;
+}
+
+message GetAlertMiddlewareAlertsRuleRequest {
+  core.protos.connectors.Meta meta = 1;
+  repeated uint64 rule_ids = 2;
+  string rule_name = 3;
+}
+
+message GetAlertMiddlewareAlertsRuleResponse {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  core.protos.connectors.Message message = 3;
+  repeated AlertIngestionRule rules = 4;
+}
+
+
+message TestAlertMiddlewareAlertsRuleRequest {
+  core.protos.connectors.Meta meta = 1;
+  AlertIngestionRule rule = 2;
+}
+
+message TestAlertMiddlewareAlertsRuleResponse {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  core.protos.connectors.Message message = 3;
+  repeated core.protos.SlackAlert alerts = 4;
+}
+
+message UpdateAlertMiddlewareAlertsRuleRequest {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.UInt64Value rule_id = 2;
+  repeated UpdateAlertIngestionRuleOp update_rule_ops = 3;
+}
+
+message UpdateAlertMiddlewareAlertsRuleResponse {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  core.protos.connectors.Message message = 3;
+  AlertIngestionRule rule = 4;
+}
+
+message GetAlertMiddlewareAlertRuleQueryOptionsRequest {
+  core.protos.connectors.Meta meta = 1;
+  core.protos.IdLiteral id_literal = 2;
+}
+
+message GetAlertMiddlewareAlertRuleQueryOptionsResponse {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  core.protos.connectors.Message message = 3;
+  core.protos.QueryOptions query_options = 4;
+}
+
+message CreateAlertMiddlewareAlertsDefinitionRequest {
+  core.protos.connectors.Meta meta = 1;
+  AlertIngestionDefinition definition = 2;
+}
+
+message CreateAlertMiddlewareAlertsDefinitionResponse {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  core.protos.connectors.Message message = 3;
+  AlertIngestionDefinition definition = 4;
+}
+
+message GetAlertMiddlewareAlertsDefinitionRequest {
+  core.protos.connectors.Meta meta = 1;
+  repeated uint64 definition_ids = 2;
+  string definition_name = 3;
+}
+
+message GetAlertMiddlewareAlertsDefinitionResponse {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  core.protos.connectors.Message message = 3;
+  repeated AlertIngestionDefinition definitions = 4;
+}
+
+
+message TestAlertMiddlewareAlertsDefinitionRequest {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.UInt64Value alert_ingestion_id = 2;
+  AlertIngestionDefinition definition = 3;
+}
+
+message TestAlertMiddlewareAlertsDefinitionResponse {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  core.protos.connectors.Message message = 3;
+  AlertIngestionParsed parsed_alert = 4;
+}
+
+message UpdateAlertMiddlewareAlertsDefinitionRequest {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.UInt64Value definition_id = 2;
+  repeated UpdateAlertIngestionDefinitionOp update_definition_ops = 3;
+}
+
+message UpdateAlertMiddlewareAlertsDefinitionResponse {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  core.protos.connectors.Message message = 3;
+  AlertIngestionDefinition definition = 4;
+}

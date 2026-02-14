@@ -1,0 +1,84 @@
+syntax = "proto3";
+package core.protos.connectors;
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/struct.proto";
+import "core/protos/base.proto";
+import "core/protos/connectors/connector.proto";
+import "core/protos/assets/asset.proto";
+import "core/protos/connectors/api.proto";
+
+message GetConnectorsAssetsModelsOptionsRequest {
+  core.protos.connectors.Meta meta = 1;
+  core.protos.Source connector_type = 2;
+  google.protobuf.UInt64Value connector_id = 3;
+  core.protos.SourceModelType model_type = 4;
+}
+
+message GetConnectorsAssetsModelsOptionsResponse {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  core.protos.connectors.Message message = 3;
+  repeated AccountConnectorAssetsModelOptions asset_model_options = 4;
+}
+
+message GetConnectorsAssetsModelsRequest {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.UInt64Value connector_id = 2;
+  core.protos.Source connector_type = 3;
+  core.protos.SourceModelType type = 4;
+  AccountConnectorAssetsModelFilters filters = 5;
+  google.protobuf.UInt32Value page = 6;
+  google.protobuf.UInt32Value page_size = 7;
+}
+
+message ApiGetConnectorsAssetsModelsRequest {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.UInt64Value connector_id = 2;
+  google.protobuf.StringValue task_type = 3;
+  google.protobuf.Struct filters = 4;
+}
+
+message ModelTypeCount {
+  core.protos.SourceModelType model_type = 1;
+  google.protobuf.UInt32Value total_count = 2;
+}
+
+message GetConnectorsAssetsModelsResponse {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  core.protos.connectors.Message message = 3;
+  repeated AccountConnectorAssets assets = 4;
+  google.protobuf.StringValue asset_descriptor = 5;
+  repeated ModelTypeCount model_type_counts = 6;
+  google.protobuf.UInt32Value current_page = 7;
+  google.protobuf.UInt32Value total_pages = 8;
+}
+
+message GetConnectorsAssetsModelsRefreshRequest {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.UInt64Value connector_id = 2;
+}
+
+message GetConnectorsAssetsModelsRefreshResponse {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  core.protos.connectors.Message message = 3;
+}
+
+/////////////////////  Proxy Connector Asset PIs schema  /////////////////////
+// When sending batched assets (e.g. 100 per request), send the same refresh_id
+// for all batches and set has_more=true until the last batch (has_more=false).
+// Backend will accumulate and run full-set sync only when has_more=false.
+message ProxyConnectorRegisterConnectorMetadataRequest {
+  core.protos.connectors.Connector connector = 1;
+  repeated AssetMetadataModel assets = 2;
+  google.protobuf.StringValue refresh_id = 3;
+  google.protobuf.BoolValue has_more = 4;
+  core.protos.SourceModelType model_type = 5;  // model_type this batch belongs to
+}
+
+message ProxyConnectorRegisterConnectorMetadataResponse {
+  google.protobuf.BoolValue success = 1;
+  core.protos.connectors.Message message = 2;
+}

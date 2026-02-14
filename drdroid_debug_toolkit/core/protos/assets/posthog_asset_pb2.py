@@ -24,21 +24,30 @@ _sym_db = _symbol_database.Default()
 
 from google.protobuf import wrappers_pb2 as google_dot_protobuf_dot_wrappers__pb2
 from core.protos import base_pb2 as core_dot_protos_dot_base__pb2
+from core.protos.connectors import connector_pb2 as core_dot_protos_dot_connectors_dot_connector__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n&core/protos/assets/posthog_asset.proto\x12\x16\x63ore.protos.connectors\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x16\x63ore/protos/base.proto\"\xa6\x02\n\x19PosthogPropertyAssetModel\x12(\n\x02id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04name\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x30\n\x0cis_numerical\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.BoolValue\x12\x33\n\rproperty_type\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12>\n\x1ais_seen_on_filtered_events\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.BoolValue\x12\x0c\n\x04tags\x18\x06 \x03(\t\"R\n\x1bPosthogPropertyAssetOptions\x12\r\n\x05names\x18\x01 \x03(\t\x12\x16\n\x0eproperty_types\x18\x02 \x03(\t\x12\x0c\n\x04tags\x18\x03 \x03(\t\"\x84\x02\n\x11PosthogAssetModel\x12(\n\x02id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.UInt64Value\x12+\n\x0e\x63onnector_type\x18\x02 \x01(\x0e\x32\x13.core.protos.Source\x12*\n\x04type\x18\x03 \x01(\x0e\x32\x1c.core.protos.SourceModelType\x12\x14\n\x0clast_updated\x18\x04 \x01(\x10\x12M\n\x10posthog_property\x18\x65 \x01(\x0b\x32\x31.core.protos.connectors.PosthogPropertyAssetModelH\x00\x42\x07\n\x05\x61sset\"J\n\rPosthogAssets\x12\x39\n\x06\x61ssets\x18\x01 \x03(\x0b\x32).core.protos.connectors.PosthogAssetModelb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n&core/protos/assets/posthog_asset.proto\x12\x16\x63ore.protos.connectors\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x16\x63ore/protos/base.proto\x1a&core/protos/connectors/connector.proto\"\xa6\x02\n\x19PosthogPropertyAssetModel\x12(\n\x02id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04name\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x30\n\x0cis_numerical\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.BoolValue\x12\x33\n\rproperty_type\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12>\n\x1ais_seen_on_filtered_events\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.BoolValue\x12\x0c\n\x04tags\x18\x06 \x03(\t\"R\n\x1bPosthogPropertyAssetOptions\x12\r\n\x05names\x18\x01 \x03(\t\x12\x16\n\x0eproperty_types\x18\x02 \x03(\t\x12\x0c\n\x04tags\x18\x03 \x03(\t\"\x91\x02\n\x1aPosthogDashboardAssetModel\x12(\n\x02id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04name\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x31\n\x0b\x64\x65scription\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x06pinned\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.BoolValue\x12\x0c\n\x04tags\x18\x05 \x03(\t\x12\x30\n\ncreated_at\x18\x06 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"g\n\x1cPosthogDashboardAssetOptions\x12\r\n\x05names\x18\x01 \x03(\t\x12\x0c\n\x04tags\x18\x02 \x03(\t\x12*\n\x06pinned\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.BoolValue\"\xfe\x01\n\x18PosthogProjectAssetModel\x12(\n\x02id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04name\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04uuid\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12.\n\x08timezone\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x30\n\ncreated_at\x18\x05 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"+\n\x1aPosthogProjectAssetOptions\x12\r\n\x05names\x18\x01 \x03(\t\"\xa2\x03\n\x11PosthogAssetModel\x12(\n\x02id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.UInt64Value\x12+\n\x0e\x63onnector_type\x18\x02 \x01(\x0e\x32\x13.core.protos.Source\x12*\n\x04type\x18\x03 \x01(\x0e\x32\x1c.core.protos.SourceModelType\x12\x14\n\x0clast_updated\x18\x04 \x01(\x10\x12M\n\x10posthog_property\x18\x65 \x01(\x0b\x32\x31.core.protos.connectors.PosthogPropertyAssetModelH\x00\x12O\n\x11posthog_dashboard\x18\x66 \x01(\x0b\x32\x32.core.protos.connectors.PosthogDashboardAssetModelH\x00\x12K\n\x0fposthog_project\x18g \x01(\x0b\x32\x30.core.protos.connectors.PosthogProjectAssetModelH\x00\x42\x07\n\x05\x61sset\"J\n\rPosthogAssets\x12\x39\n\x06\x61ssets\x18\x01 \x03(\x0b\x32).core.protos.connectors.PosthogAssetModelb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'core.protos.assets.posthog_asset_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_POSTHOGPROPERTYASSETMODEL']._serialized_start=123
-  _globals['_POSTHOGPROPERTYASSETMODEL']._serialized_end=417
-  _globals['_POSTHOGPROPERTYASSETOPTIONS']._serialized_start=419
-  _globals['_POSTHOGPROPERTYASSETOPTIONS']._serialized_end=501
-  _globals['_POSTHOGASSETMODEL']._serialized_start=504
-  _globals['_POSTHOGASSETMODEL']._serialized_end=764
-  _globals['_POSTHOGASSETS']._serialized_start=766
-  _globals['_POSTHOGASSETS']._serialized_end=840
+  _globals['_POSTHOGPROPERTYASSETMODEL']._serialized_start=163
+  _globals['_POSTHOGPROPERTYASSETMODEL']._serialized_end=457
+  _globals['_POSTHOGPROPERTYASSETOPTIONS']._serialized_start=459
+  _globals['_POSTHOGPROPERTYASSETOPTIONS']._serialized_end=541
+  _globals['_POSTHOGDASHBOARDASSETMODEL']._serialized_start=544
+  _globals['_POSTHOGDASHBOARDASSETMODEL']._serialized_end=817
+  _globals['_POSTHOGDASHBOARDASSETOPTIONS']._serialized_start=819
+  _globals['_POSTHOGDASHBOARDASSETOPTIONS']._serialized_end=922
+  _globals['_POSTHOGPROJECTASSETMODEL']._serialized_start=925
+  _globals['_POSTHOGPROJECTASSETMODEL']._serialized_end=1179
+  _globals['_POSTHOGPROJECTASSETOPTIONS']._serialized_start=1181
+  _globals['_POSTHOGPROJECTASSETOPTIONS']._serialized_end=1224
+  _globals['_POSTHOGASSETMODEL']._serialized_start=1227
+  _globals['_POSTHOGASSETMODEL']._serialized_end=1645
+  _globals['_POSTHOGASSETS']._serialized_start=1647
+  _globals['_POSTHOGASSETS']._serialized_end=1721
 # @@protoc_insertion_point(module_scope)

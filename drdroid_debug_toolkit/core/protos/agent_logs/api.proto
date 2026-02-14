@@ -1,0 +1,30 @@
+syntax = "proto3";
+package core.protos.agent_logs;
+
+import "core/protos/connectors/api.proto";
+import "core/protos/agent_logs/agent_logs_commons.proto";
+
+import "google/protobuf/wrappers.proto";
+
+message ApiInvestigationAddAgentLogRequest {
+    google.protobuf.StringValue investigation_session_id = 1;
+    google.protobuf.StringValue message = 2;
+    google.protobuf.UInt64Value session_sequence = 3;
+}
+
+message ApiInvestigationAddAgentLogResponse {
+    google.protobuf.BoolValue success = 1;
+    core.protos.connectors.Message message = 2;
+}
+
+message GetAgentLogRequest {
+    google.protobuf.StringValue investigation_session_id = 1;
+    google.protobuf.StringValue session_id = 2;
+    google.protobuf.UInt64Value last_created_at = 3;
+}
+
+message GetAgentLogResponse {
+    google.protobuf.BoolValue success = 1;
+    core.protos.connectors.Message message = 2;
+    repeated AgentLog logs = 3;
+}

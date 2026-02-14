@@ -1,0 +1,26 @@
+syntax = "proto3";
+package core.protos.usage_and_billing;
+
+import "google/protobuf/wrappers.proto";
+
+enum CreditType {
+    UNKNOWN_STATUS = 0;
+    AI_INVESTIGATION = 1;
+    BROWSER_AUTOMATION = 2;
+}
+
+message BillingUsageMetrics {
+    google.protobuf.DoubleValue ai_investigation_credits = 1;
+    google.protobuf.DoubleValue browser_automation_credits = 2;
+    google.protobuf.DoubleValue total_credits_used = 3;
+}
+
+message BillingUsageDistributionEntry {
+    google.protobuf.StringValue timestamp = 1;
+    google.protobuf.DoubleValue credits_used = 2;
+}
+
+message BillingUsageDistributionGroup {
+    CreditType credit_type = 1;
+    repeated BillingUsageDistributionEntry distribution_entries = 2;
+}

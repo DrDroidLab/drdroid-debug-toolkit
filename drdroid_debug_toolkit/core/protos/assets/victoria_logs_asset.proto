@@ -1,0 +1,35 @@
+syntax = "proto3";
+package core.protos.connectors;
+
+import "google/protobuf/wrappers.proto";
+import "core/protos/base.proto";
+import "core/protos/connectors/connector.proto";
+
+// Options for Victoria Logs field assets (used for filters/options UI)
+message VictoriaLogsFieldAssetOptions {
+  repeated string fields = 1;
+}
+
+// A minimal payload representing discovered Victoria Logs fields
+message VictoriaLogsFieldModel {
+  repeated string fields = 1;
+}
+
+// Generic Victoria Logs asset wrapper
+message VictoriaLogsAssetModel {
+  google.protobuf.UInt64Value id = 1;
+  core.protos.Source connector_type = 2;
+  core.protos.SourceModelType type = 3;
+  int64 last_updated = 4;
+
+  oneof asset {
+    VictoriaLogsFieldModel victoria_logs_field = 5;
+  }
+}
+
+// Envelope for Victoria Logs assets
+message VictoriaLogsAssets {
+  repeated VictoriaLogsAssetModel assets = 1;
+}
+
+

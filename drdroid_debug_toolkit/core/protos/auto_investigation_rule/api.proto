@@ -1,0 +1,39 @@
+syntax = "proto3";
+package core.protos.auto_investigation_rule;
+
+import "core/protos/connectors/api.proto";
+import "core/protos/base.proto";
+import "google/protobuf/wrappers.proto";
+
+import "core/protos/auto_investigation_rule/auto_investigation_rule.proto";
+
+message GetAutoInvestigationRuleRequest {
+  core.protos.connectors.Meta meta = 1;
+  repeated uint64 auto_investigation_rule_ids = 2;
+}
+
+message GetAutoInvestigationRuleResponse {
+  core.protos.connectors.Meta meta = 1;
+  repeated AutoInvestigationRule auto_investigation_rules = 2;
+}
+
+message CreateAutoInvestigationRuleRequest {
+  string name = 1;
+  AutoInvestigationRule auto_investigation_rule = 2;
+}
+
+message CreateAutoInvestigationRuleResponse {
+  google.protobuf.BoolValue success = 1;
+  core.protos.connectors.Message message = 2;
+  AutoInvestigationRule auto_investigation_rule = 3;
+}
+
+message UpdateAutoInvestigationRuleRequest {
+  google.protobuf.UInt64Value auto_investigation_rule_id = 1;
+  repeated UpdateAutoInvestigationRuleOp update_auto_investigation_rule_ops = 2;
+}
+
+message UpdateAutoInvestigationRuleResponse {
+  google.protobuf.BoolValue success = 1;
+  core.protos.connectors.Message message = 2;
+}

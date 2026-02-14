@@ -1,0 +1,10 @@
+syntax = "proto3";
+package core.protos.agent_logs;
+
+import "google/protobuf/wrappers.proto";
+
+message AgentLog {
+    google.protobuf.StringValue message = 1;
+    google.protobuf.UInt64Value created_at = 2;
+    google.protobuf.UInt64Value session_sequence = 3;
+}
