@@ -1,0 +1,62 @@
+syntax = "proto3";
+package core.protos.playbooks;
+
+import "google/protobuf/wrappers.proto";
+
+message CustomStrategies {
+  message InvestigateServiceErrorRateAlert {
+    google.protobuf.StringValue alert_id = 1;
+  }
+
+  message CheckEc2InstanceHealth {
+    google.protobuf.StringValue region = 1;
+    google.protobuf.StringValue instance_id = 2;
+  }
+
+  message InvestigateServiceErrorRateAlertOtel {
+    google.protobuf.StringValue service_name = 1;
+    google.protobuf.StringValue op_name = 2;
+    google.protobuf.StringValue alert_id = 3;
+  }
+
+  message CheckKubernetesPodHealth {
+    google.protobuf.StringValue pod_name = 1;
+    google.protobuf.StringValue namespace = 2;
+    google.protobuf.StringValue cluster = 3;
+  }
+
+  message CheckKubernetesNodeHealth {
+    google.protobuf.StringValue node_name = 1;
+    google.protobuf.StringValue cluster = 2;
+  }
+
+  message CheckKubernetesIngressHealth {
+    google.protobuf.StringValue ingress_name = 1;
+    google.protobuf.StringValue namespace = 2;
+    google.protobuf.StringValue cluster = 3;
+  }
+
+  enum TaskType {
+    UNKNOWN = 0;
+    INVESTIGATE_SERVICE_ERROR_RATE_ALERT = 1;
+    CHECK_EC2_INSTANCE_HEALTH = 2;
+    INVESTIGATE_ERROR_RATE_ALERT_OTEL = 3;
+    CHECK_KUBERNETES_POD_HEALTH = 4;
+    CHECK_KUBERNETES_NODE_HEALTH = 5;
+    CHECK_KUBERNETES_INGRESS_HEALTH = 6;
+    INVESTIGATE_REDIS_IN_DATADOG = 7;
+    INVESTIGATE_RDS_IN_DATADOG = 8;
+  }
+
+  TaskType type = 1;
+  oneof task {
+    InvestigateServiceErrorRateAlert investigate_service_error_rate_alert = 2;
+    CheckEc2InstanceHealth check_ec2_instance_health = 3;
+    InvestigateServiceErrorRateAlertOtel investigate_service_error_rate_alert_otel = 4;
+    CheckKubernetesPodHealth check_kubernetes_pod_health = 5;
+    CheckKubernetesNodeHealth check_kubernetes_node_health = 6;
+    CheckKubernetesIngressHealth check_kubernetes_ingress_health = 7;
+    InvestigateServiceErrorRateAlert investigate_redis_in_datadog = 8;
+    InvestigateServiceErrorRateAlert investigate_rds_in_datadog = 9;
+  }
+}

@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package core.protos.browser_automation;
+import "google/protobuf/wrappers.proto";
+
+enum BrowserAutomationDataType {
+    UNKNOWN = 0;
+    LIVE_URL = 1;
+    STATUS = 2;
+    IMAGE_URLS = 3;
+    IMAGE_HYPERLINK_URLS = 4;
+    INVESTIGATION_MESSAGES = 5;
+}
+
+message BrowserAutomationDetails {
+    google.protobuf.StringValue prompt_run_id = 1;
+    google.protobuf.StringValue live_url = 2;
+    google.protobuf.StringValue status = 3;
+    repeated string image_urls = 4;
+    repeated string image_hyperlink_urls = 5;
+    repeated string investigation_messages = 6;
+}

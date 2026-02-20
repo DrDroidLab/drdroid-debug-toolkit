@@ -1,0 +1,105 @@
+syntax = "proto3";
+package core.protos.playbooks.alert_middleware_v1;
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/struct.proto";
+import "core/protos/connectors/connector.proto";
+import "core/protos/base.proto";
+import "core/protos/playbooks/playbook.proto";
+import "core/protos/query_base.proto";
+
+////////////// Alert Middleware Protos //////////////
+message AlertIngestionRawData {
+  google.protobuf.UInt64Value id = 1;
+  core.protos.Source source = 3;
+  google.protobuf.Struct data = 4;
+  sfixed64 timestamp = 5;
+}
+
+// v1
+message AlertIngestionParsed {
+  google.protobuf.UInt64Value id = 1;
+  google.protobuf.UInt64Value alert_metadata_id = 2;
+  google.protobuf.StringValue title = 3;
+  google.protobuf.StringValue text = 4;
+}
+
+// v1
+message AlertIngestionRule {
+  google.protobuf.UInt64Value id = 1;
+  google.protobuf.UInt64Value version = 2;
+  google.protobuf.BoolValue is_active = 3;
+  google.protobuf.StringValue name = 4;
+  google.protobuf.StringValue created_by = 5;
+  core.protos.QueryRequest query_request = 6;
+  repeated core.protos.playbooks.PlaybookTask tasks = 7;
+  google.protobuf.StringValue user_input_prompt = 8;
+  google.protobuf.UInt64Value max_runs_in_fifteen_minutes = 9;
+  repeated google.protobuf.UInt64Value playbook_ids = 10;
+}
+
+message UpdateAlertIngestionRuleOp {
+  enum Op {
+    UNKNOWN = 0;
+    UPDATE_RULE_NAME = 1;
+    UPDATE_RULE = 2;
+    UPDATE_STATUS = 3;
+  }
+
+  message UpdateRuleName {
+    google.protobuf.StringValue name = 1;
+  }
+
+  message UpdateRule {
+    AlertIngestionRule rule = 1;
+  }
+
+  message UpdateStatus {
+    google.protobuf.BoolValue is_active = 1;
+  }
+
+  Op op = 1;
+  oneof update {
+    UpdateRuleName update_rule_name = 101;
+    UpdateRule update_rule = 102;
+    UpdateStatus update_status = 103;
+  }
+}
+
+// v1
+message AlertIngestionDefinition {
+  google.protobuf.UInt64Value id = 1;
+  google.protobuf.UInt64Value version = 2;
+  google.protobuf.BoolValue is_active = 3;
+  google.protobuf.StringValue name = 4;
+  google.protobuf.StringValue created_by = 5;
+
+  core.protos.Source source_type = 6;
+  google.protobuf.UInt64Value priority = 7;
+  google.protobuf.StringValue title_field = 8;
+  google.protobuf.StringValue text_field = 9;
+  google.protobuf.Struct definition = 10;
+}
+
+message UpdateAlertIngestionDefinitionOp {
+  enum Op {
+    UNKNOWN = 0;
+    UPDATE_STATUS = 2;
+    UPDATE_DEFINITION = 3;
+  }
+
+  message UpdateDefinition {
+    AlertIngestionDefinition definition = 1;
+  }
+
+  message UpdateStatus {
+    google.protobuf.BoolValue is_active = 1;
+  }
+
+  Op op = 1;
+  oneof update {
+    UpdateDefinition update_definition = 101;
+    UpdateStatus update_status = 102;
+    UpdateDefinition update_rule = 103;
+  }
+}

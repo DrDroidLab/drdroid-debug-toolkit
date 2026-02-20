@@ -68,7 +68,7 @@ class KubectlApiProcessor(Processor):
                 raise Exception(f"Failed to connect with kubernetes cluster. Error: {stderr}")
         except Exception as e:
             logger.error(f"Exception occurred while executing kubectl command with error: {e}")
-            raise e
+            raise
 
     def execute_command(self, command):
         command = command.strip()
@@ -106,11 +106,10 @@ class KubectlApiProcessor(Processor):
                 print("Command Output:", stdout)
                 return stdout
             else:
-                print("Error executing command:", stderr)
-                return stderr
+                raise Exception(f"kubectl command failed (exit code {process.returncode}): {stderr}")
         except Exception as e:
             logger.error(f"Exception occurred while executing kubectl command with error: {e}")
-            raise e
+            raise
 
     def execute_non_kubectl_command(self, command_args):
         """
@@ -142,7 +141,7 @@ class KubectlApiProcessor(Processor):
                 text=True
             )
             stdout, stderr = process.communicate()
-            
+
             if process.returncode == 0:
                 logger.debug(f"Command executed successfully: {' '.join(command_args)}")
                 return stdout

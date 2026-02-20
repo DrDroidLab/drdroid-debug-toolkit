@@ -1,0 +1,20 @@
+syntax = "proto3";
+package core.protos.playbooks;
+
+import "google/protobuf/wrappers.proto";
+
+message Browser {
+  message Automation {
+    google.protobuf.StringValue user_prompt = 1;
+  }
+
+  enum TaskType {
+    UNKNOWN = 0;
+    AUTOMATION = 1;
+  }
+
+  TaskType type = 1;
+  oneof task {
+    Automation automation = 101;
+  }
+}

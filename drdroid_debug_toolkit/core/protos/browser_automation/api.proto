@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package core.protos.browser_automation;
+
+import "google/protobuf/wrappers.proto";
+
+import "core/protos/connectors/api.proto";
+import "core/protos/browser_automation/browser_automation_commons.proto";
+
+message StartBrowserAutomationRequest {
+    google.protobuf.StringValue user_input_prompt = 1;
+}
+  
+message StartBrowserAutomationResponse {
+    google.protobuf.BoolValue success = 1;
+    core.protos.connectors.Message message = 2;
+    google.protobuf.StringValue prompt_run_id = 3;
+}
+
+
+message BrowserAutomationDetailsRequest {
+    google.protobuf.StringValue prompt_run_id = 1;
+}
+  
+message BrowserAutomationDetailsResponse {
+    google.protobuf.BoolValue success = 1;
+    core.protos.connectors.Message message = 2;
+    BrowserAutomationDetails browser_automation_details = 3;
+}
+
+message SaveDataFromLightSaberRequest {
+    google.protobuf.StringValue investigation_session_id = 1;
+    google.protobuf.StringValue value = 2;
+    BrowserAutomationDataType type = 3;
+}
+
+message SaveDataFromLightSaberResponse {
+    google.protobuf.BoolValue success = 1;
+    core.protos.connectors.Message message = 2;
+}

@@ -1,0 +1,8 @@
+syntax = "proto3";
+package core.protos.workflows;
+
+import "google/protobuf/wrappers.proto";
+import "core/protos/base.proto";
+
+
+message ApiWorkflowEntryPoint {}

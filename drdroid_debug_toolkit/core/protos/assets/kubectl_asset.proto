@@ -1,0 +1,179 @@
+syntax = "proto3";
+package core.protos.connectors;
+
+import "google/protobuf/wrappers.proto";
+import "core/protos/base.proto";
+import "core/protos/connectors/connector.proto";
+
+message KubernetesNamespaceAssetOptions {
+  repeated KubectlNamespace namespaces = 1;
+}
+
+message KubernetesServiceAssetOptions {
+  repeated KubectlService services = 1;
+}
+
+message KubernetesDeploymentAssetOptions {
+  repeated KubectlDeployment deployments = 1;
+}
+
+message KubernetesIngressAssetOptions {
+  repeated KubectlIngress ingresses = 1;
+}
+
+message KubernetesNetworkPolicyAssetOptions {
+  repeated KubectlNetworkPolicy network_policies = 1;
+}
+
+message KubernetesHpaAssetOptions {
+  repeated KubectlHpa pod_autoscalers = 1;
+}
+
+message KubernetesReplicasetAssetOptions {
+  repeated KubectlReplicaset replicasets = 1;
+}
+
+message KubernetesStatefulsetAssetOptions {
+  repeated KubectlStatefulset statefulsets = 1;
+}
+
+message KubernetesNetworkMapAssetOptions {
+  repeated KubectlNetworkMap network_maps = 1;
+}
+
+message KubernetesNamespaceAssetModel {
+  google.protobuf.StringValue name = 1;
+  google.protobuf.StringValue status = 2;
+  google.protobuf.StringValue labels = 3;
+}
+
+message KubernetesServiceAssetModel {
+  google.protobuf.StringValue name = 1;
+  google.protobuf.StringValue namespace = 2;
+  google.protobuf.StringValue type = 3;
+  google.protobuf.StringValue cluster_ip = 4;
+  google.protobuf.StringValue ports = 5;
+}
+
+message KubernetesDeploymentAssetModel {
+  google.protobuf.StringValue name = 1;
+  google.protobuf.StringValue namespace = 2;
+  google.protobuf.StringValue replicas = 3;
+  google.protobuf.StringValue containers = 4;
+}
+
+message KubernetesIngressAssetModel {
+  google.protobuf.StringValue name = 1;
+  google.protobuf.StringValue namespace = 2;
+  google.protobuf.StringValue host = 3;
+  google.protobuf.StringValue paths = 4;
+  google.protobuf.StringValue tls = 5;
+}
+
+message KubernetesNetworkPolicyAssetModel {
+  google.protobuf.StringValue name = 1;
+  google.protobuf.StringValue namespace = 2;
+  google.protobuf.StringValue pod_selector = 3;
+  google.protobuf.StringValue ingress_rules = 4;
+  google.protobuf.StringValue egress_rules = 5;
+}
+
+message KubernetesHpaAssetModel {
+  google.protobuf.StringValue name = 1;
+  google.protobuf.StringValue namespace = 2;
+  google.protobuf.StringValue reference = 3;
+  google.protobuf.StringValue min_replicas = 4;
+  google.protobuf.StringValue max_replicas = 5;
+  google.protobuf.StringValue current_replicas = 6;
+  google.protobuf.StringValue metrics = 7;
+}
+
+message KubernetesReplicasetAssetModel {
+  google.protobuf.StringValue name = 1;
+  google.protobuf.StringValue namespace = 2;
+  google.protobuf.StringValue desired_replicas = 3;
+  google.protobuf.StringValue current_replicas = 4;
+  google.protobuf.StringValue selector = 5;
+}
+
+message KubernetesStatefulsetAssetModel {
+  google.protobuf.StringValue name = 1;
+  google.protobuf.StringValue namespace = 2;
+  google.protobuf.StringValue replicas = 3;
+  google.protobuf.StringValue service_name = 4;
+  google.protobuf.StringValue volume_claims = 5;
+  google.protobuf.StringValue containers = 6;
+}
+
+message KubernetesNetworkMapAssetModel {
+  google.protobuf.StringValue name = 1;
+  google.protobuf.StringValue network_map_data = 2;
+  google.protobuf.StringValue description = 3;
+  google.protobuf.StringValue total_services = 4;
+}
+
+message KubectlNamespace {
+  google.protobuf.StringValue name = 1;
+}
+
+message KubectlService {
+  google.protobuf.StringValue name = 1;
+  google.protobuf.StringValue namespace = 2;
+}
+
+message KubectlDeployment {
+  google.protobuf.StringValue name = 1;
+  google.protobuf.StringValue namespace = 2;
+}
+
+message KubectlIngress {
+  google.protobuf.StringValue name = 1;
+  google.protobuf.StringValue namespace = 2;
+}
+
+message KubectlNetworkPolicy {
+  google.protobuf.StringValue name = 1;
+  google.protobuf.StringValue namespace = 2;
+}
+
+message KubectlHpa {
+  google.protobuf.StringValue name = 1;
+  google.protobuf.StringValue namespace = 2;
+}
+
+message KubectlReplicaset {
+  google.protobuf.StringValue name = 1;
+  google.protobuf.StringValue namespace = 2;
+}
+
+message KubectlStatefulset {
+  google.protobuf.StringValue name = 1;
+  google.protobuf.StringValue namespace = 2;
+}
+
+message KubectlNetworkMap {
+  google.protobuf.StringValue name = 1;
+}
+
+message KubernetesAssetModel {
+  google.protobuf.UInt64Value id = 1;
+  core.protos.Source connector_type = 2;
+  core.protos.SourceModelType type = 3;
+  sfixed64 last_updated = 4;
+
+  oneof asset {
+    KubernetesNamespaceAssetModel kubernetes_namespace = 101;
+    KubernetesServiceAssetModel kubernetes_service = 102;
+    KubernetesDeploymentAssetModel kubernetes_deployment = 103;
+    KubernetesIngressAssetModel kubernetes_ingress = 104;
+    KubernetesNetworkPolicyAssetModel kubernetes_network_policy = 105;
+    KubernetesHpaAssetModel kubernetes_hpa = 106;
+    KubernetesReplicasetAssetModel kubernetes_replicaset = 107;
+    KubernetesStatefulsetAssetModel kubernetes_statefulset = 108;
+    KubernetesNetworkMapAssetModel kubernetes_network_map = 109;
+  }
+}
+
+message KubernetesAssets {
+  repeated KubernetesAssetModel assets = 1;
+}

@@ -1,0 +1,195 @@
+syntax = "proto3";
+package core.protos.workflows;
+
+import "google/protobuf/struct.proto";
+import "google/protobuf/wrappers.proto";
+
+import "core/protos/connectors/api.proto";
+import "core/protos/base.proto";
+import "core/protos/playbooks/playbook.proto";
+import "core/protos/connectors/connector.proto";
+
+import "core/protos/workflows/schedules/cron_schedule.proto";
+import "core/protos/workflows/schedules/interval_schedule.proto";
+import "core/protos/workflows/schedules/one_off_schedule.proto";
+
+import "core/protos/workflows/source_entry_points/alert_channel_entry_point.proto";
+import "core/protos/workflows/source_entry_points/api_entry_point.proto";
+
+import "core/protos/playbooks/source_task_definitions/lambda_function_task.proto";
+import "core/protos/playbooks/source_task_definitions/slack_task.proto";
+
+message WorkflowConnectorSourceProto {
+  google.protobuf.UInt64Value id = 1;
+  core.protos.Source source = 2;
+  google.protobuf.StringValue name = 3;
+}
+
+enum WorkflowExecutionStatusType {
+  UNKNOWN_WORKFLOW_STATUS = 0;
+  WORKFLOW_SCHEDULED = 1;
+  WORKFLOW_RUNNING = 2;
+  WORKFLOW_FINISHED = 3;
+  WORKFLOW_FAILED = 4;
+  WORKFLOW_CANCELLED = 5;
+}
+///////////////////// Workflow Configurations /////////////////////
+message WorkflowConfiguration {
+  google.protobuf.BoolValue generate_summary = 1;
+  google.protobuf.Struct global_variable_set = 2;
+  core.protos.playbooks.Lambda.Function transformer_lambda_function = 3;
+  google.protobuf.UInt64Value evaluation_window_in_seconds = 4;
+}
+
+
+///////////////////// Workflow Schedules /////////////////////
+message WorkflowSchedule {
+  enum Type {
+    UNKNOWN = 0;
+    ONE_OFF = 1;
+    INTERVAL = 2;
+    CRON = 3;
+  }
+  Type type = 1;
+  oneof scheduler {
+    OneOffSchedule one_off = 101;
+    IntervalSchedule interval = 102;
+    CronSchedule cron = 103;
+  }
+}
+
+///////////////////// Workflow Entry Points /////////////////////
+message WorkflowEntryPoint {
+  google.protobuf.UInt64Value id = 1;
+  core.protos.Source source = 2;
+  WorkflowConnectorSourceProto entry_point_source = 3;
+  oneof config {
+    AlertSourceEntryPoint alert_source = 101;
+  }
+}
+
+
+///////////////////// Workflow Actions /////////////////////
+message WorkflowAction {
+  google.protobuf.UInt64Value id = 1;
+  core.protos.Source source = 2;
+  WorkflowConnectorSourceProto action_source = 3;
+  oneof action_config {
+    core.protos.playbooks.Slack slack = 101;
+  }
+}
+
+message Workflow {
+  enum Type {
+    UNKNOWN = 0;
+    STANDARD = 1;
+    DYNAMIC_ALERT = 2;
+  }
+
+  google.protobuf.UInt64Value id = 1;
+  google.protobuf.StringValue name = 2;
+  google.protobuf.StringValue description = 3;
+  Type type = 4;
+  google.protobuf.StringValue created_by = 5;
+  sfixed64 created_at = 6;
+  google.protobuf.BoolValue is_active = 7;
+  WorkflowSchedule schedule = 8;
+  repeated core.protos.playbooks.Playbook playbooks = 9;
+  repeated WorkflowEntryPoint entry_points = 10;
+  repeated WorkflowAction actions = 11;
+  sfixed64 last_execution_time = 12;
+  WorkflowExecutionStatusType last_execution_status = 13;
+  WorkflowConfiguration configuration = 14;
+}
+
+
+///////////////////// Workflow Update Ops Proto /////////////////////
+message UpdateWorkflowOp {
+  enum Op {
+    UNKNOWN = 0;
+    UPDATE_WORKFLOW_NAME = 1;
+    UPDATE_WORKFLOW_STATUS = 2;
+    UPDATE_WORKFLOW = 3;
+    UPDATE_WORKFLOW_ENTRY_POINT_STATUS = 4;
+    UPDATE_WORKFLOW_ACTION_STATUS = 5;
+    UPDATE_WORKFLOW_PLAYBOOK_STATUS = 6;
+  }
+
+  message UpdateWorkflowName {
+    google.protobuf.StringValue name = 1;
+  }
+
+  message UpdateWorkflowStatus {
+    google.protobuf.BoolValue is_active = 1;
+  }
+
+  message UpdateWorkflow {
+    Workflow workflow = 1;
+  }
+
+  message UpdateWorkflowEntryPointStatus {
+    google.protobuf.UInt64Value entry_point_id = 1;
+    google.protobuf.BoolValue is_active = 2;
+  }
+
+  message UpdateWorkflowActionStatus {
+    google.protobuf.UInt64Value action_id = 1;
+    google.protobuf.BoolValue is_active = 2;
+  }
+
+  message UpdateWorkflowPlaybookStatus {
+    google.protobuf.UInt64Value playbook_id = 1;
+    google.protobuf.BoolValue is_active = 2;
+  }
+
+  Op op = 1;
+  oneof update {
+    UpdateWorkflowName update_workflow_name = 2;
+    UpdateWorkflowStatus update_workflow_status = 3;
+    UpdateWorkflow update_workflow = 4;
+    UpdateWorkflowEntryPointStatus update_workflow_entry_point_status = 5;
+    UpdateWorkflowActionStatus update_workflow_action_status = 6;
+    UpdateWorkflowPlaybookStatus update_workflow_playbook_status = 7;
+  }
+}
+
+
+message WorkflowExecutionLog {
+  google.protobuf.UInt64Value id = 1;
+  core.protos.playbooks.PlaybookExecution playbook_execution = 2;
+  sfixed64 created_at = 3;
+}
+
+message WorkflowExecution {
+  message WorkflowExecutionMetadata {
+    enum Type {
+      UNKNOWN = 0;
+      SLACK_MESSAGE = 1;
+    }
+    Type type = 1;
+    google.protobuf.Struct event = 2;
+    google.protobuf.Struct event_context = 3;
+  }
+
+  google.protobuf.UInt64Value id = 1;
+  google.protobuf.StringValue workflow_run_id = 2;
+  Workflow workflow = 3;
+  WorkflowExecutionStatusType status = 4;
+  core.protos.TimeRange time_range = 5;
+
+  sfixed64 created_at = 6;
+  sfixed64 scheduled_at = 7;
+  sfixed64 expiry_at = 8;
+  google.protobuf.BoolValue keep_alive = 9;
+
+  sfixed64 started_at = 10;
+  sfixed64 latest_scheduled_at = 11;
+  sfixed64 finished_at = 12;
+  google.protobuf.UInt64Value total_executions = 13;
+
+  google.protobuf.StringValue created_by = 14;
+
+  repeated WorkflowExecutionLog workflow_logs = 15;
+  WorkflowConfiguration execution_configuration = 16;
+  WorkflowExecutionMetadata metadata = 17;
+}

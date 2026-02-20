@@ -1,0 +1,18 @@
+syntax = "proto3";
+package core.protos.playbooks.audit_log;
+
+import "google/protobuf/wrappers.proto";
+
+import "core/protos/connectors/api.proto";
+
+message TriggerAuditLogRequest {
+    core.protos.connectors.Meta meta = 1;
+    repeated string recipient_email_ids = 2;
+    repeated string users = 3;
+}
+
+message TriggerAuditLogResponse {
+    core.protos.connectors.Meta meta = 1;
+    google.protobuf.BoolValue success = 2;
+    core.protos.connectors.Message message = 3;
+}

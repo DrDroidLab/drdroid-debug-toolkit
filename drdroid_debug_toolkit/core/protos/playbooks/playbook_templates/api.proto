@@ -1,0 +1,18 @@
+syntax = "proto3";
+package core.protos.playbooks.playbook_templates;
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/struct.proto";
+
+import "core/protos/connectors/api.proto";
+
+message ImportPlaybookTemplatesGetRequest  {
+    core.protos.connectors.Meta meta = 1;
+    google.protobuf.Struct import_sops = 2;
+}
+
+message ImportPlaybookTemplatesGetResponse  {
+    google.protobuf.BoolValue success = 1;
+    core.protos.connectors.Message message = 2;
+    repeated google.protobuf.Struct data = 3;
+}

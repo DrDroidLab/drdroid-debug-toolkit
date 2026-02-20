@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+import "core/protos/usage_and_billing/usage_and_billing_commons.proto";
+package core.protos.usage_and_billing;
+
+import "google/protobuf/wrappers.proto";
+
+message CreditTransaction {
+    CreditType type = 1;
+    // Use a double to allow fractional credit values (e.g., 1.25 credits)
+    google.protobuf.DoubleValue credits = 2;
+    google.protobuf.StringValue session_id = 3;
+    google.protobuf.StringValue session_title = 4;
+    sfixed64 created_at = 5;
+}
+
+message CreditUsageBySession {
+    google.protobuf.StringValue session_id = 1;
+    google.protobuf.StringValue session_title = 2;
+    google.protobuf.DoubleValue credits_used = 3;
+}
+  

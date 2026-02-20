@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+package core.protos.usage_and_billing;
+
+import "google/protobuf/wrappers.proto";
+import "core/protos/connectors/api.proto";
+import "core/protos/usage_and_billing/usage_and_billing_commons.proto";
+import "core/protos/usage_and_billing/usage_and_billing.proto";
+
+// Request for remaining credits
+message GetBillingRemainingRequest {
+  core.protos.connectors.Meta meta = 1;
+}
+
+message GetBillingRemainingResponse {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  google.protobuf.DoubleValue remaining_credits = 3;
+  string message = 4;
+}
+
+// Request for usage metrics
+message GetBillingUsageMetricsRequest {
+  core.protos.connectors.Meta meta = 1;
+  // Optional date filters in YYYY-MM-DD format.
+  google.protobuf.StringValue start_date = 2;
+  google.protobuf.StringValue end_date = 3;
+  // Optional credit type (use numeric enum value from CreditType)
+  google.protobuf.UInt32Value credit_type = 4;
+}
+
+message GetBillingUsageMetricsResponse {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  BillingUsageMetrics metrics = 3;
+  string message = 4;
+}
+
+// Request for usage distribution
+message GetBillingUsageDistributionRequest {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.StringValue start_date = 2;
+  google.protobuf.StringValue end_date = 3;
+  google.protobuf.UInt32Value credit_type = 4;
+}
+
+message GetBillingUsageDistributionResponse {
+  google.protobuf.BoolValue success = 1;
+  repeated BillingUsageDistributionGroup distribution = 2;
+  string message = 3;
+}
+
+message GetCreditUsageListRequest {
+  core.protos.connectors.Meta meta = 1;
+}
+
+message GetCreditUsageListResponse {
+  core.protos.connectors.Meta meta = 1;
+  google.protobuf.BoolValue success = 2;
+  repeated CreditUsageBySession usage_by_session = 3;
+  string message = 4;
+}

@@ -29,6 +29,29 @@ message DatadogDashboardAssetOptions {
 }
 
 
+message DatadogFieldsAssetModel {
+  message FieldInfo {
+    google.protobuf.StringValue field_name = 1;
+    google.protobuf.StringValue field_type = 2;
+  }
+
+  message TagInfo {
+    google.protobuf.StringValue tag_name = 1;
+  }
+
+  message AttributeInfo {
+    google.protobuf.StringValue attribute_name = 1;
+    google.protobuf.StringValue attribute_type = 2;
+  }
+
+  google.protobuf.StringValue source = 1;
+  repeated FieldInfo fields = 2;
+  repeated TagInfo tags = 3;
+  repeated AttributeInfo attributes = 4;
+  google.protobuf.UInt64Value total_logs_analyzed = 5;
+  sfixed64 extraction_timestamp = 6;
+}
+
 message DatadogDashboardModel {
   message Panel {
     message Widget {
@@ -59,6 +82,7 @@ message DatadogAssetModel {
   oneof asset {
     DatadogServiceAssetModel datadog_service = 5;
     DatadogDashboardModel datadog_dashboard = 6;
+    DatadogFieldsAssetModel datadog_fields = 7;
   }
 }
 
