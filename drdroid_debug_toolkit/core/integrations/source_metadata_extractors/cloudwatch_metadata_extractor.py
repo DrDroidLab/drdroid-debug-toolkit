@@ -37,197 +37,33 @@ class CloudwatchSourceMetadataExtractor(SourceMetadataExtractor):
             cloudwatch_boto3_processor = AWSBoto3ApiProcessor('cloudwatch', self.__region, self.__aws_access_key,
                                                               self.__aws_secret_key, self.__aws_assumed_role_arn,
                                                               self.__aws_drd_cloud_role_arn)
-            namespaces = ['AWS/AmplifyHosting',
-                          'AWS/ApiGateway',
-                          'AWS/AppFlow',
-                          'AWS/MGN',
-                          'AWS/AppRunner',
-                          'AWS/AppStream',
-                          'AWS/AppSync',
-                          'AWS/Athena',
-                          'AWS/RDS',
-                          'AWS/Backup',
-                          'AWS/Bedrock',
-                          'AWS/Billing',
-                          'AWS/Braket/By Device',
-                          'AWS/CertificateManager',
-                          'AWS/ACMPrivateCA',
-                          'AWS/Chatbot',
-                          'AWS/ChimeVoiceConnector',
-                          'AWS/ChimeSDK',
-                          'AWS/ClientVPN',
-                          'AWS/CloudFront',
-                          'AWS/CloudHSM',
-                          'AWS/CloudSearch',
-                          'AWS/CloudTrail',
-                          'ApplicationSignals',
-                          'AWS/CloudWatch/MetricStreams',
-                          'AWS/RUM',
-                          'CloudWatchSynthetics',
-                          'AWS/Logs',
-                          'AWS/CodeBuild',
-                          'AWS/CodeWhisperer',
-                          'AWS/Cognito',
-                          'AWS/Comprehend',
-                          'AWS/Config',
-                          'AWS/Connect',
-                          'AWS/DataLifecycleManager',
-                          'AWS/DataSync',
-                          'AWS/DevOps-Guru',
-                          'AWS/DMS',
-                          'AWS/DX',
-                          'AWS/DirectoryService',
-                          'AWS/DocDB',
-                          'AWS/DynamoDB',
-                          'AWS/DAX',
-                          'AWS/EC2',
-                          'AWS/ElasticGPUs',
-                          'AWS/EC2Spot',
-                          'AWS/AutoScaling',
-                          'AWS/ElasticBeanstalk',
-                          'AWS/EBS',
-                          'AWS/ECR',
-                          'AWS/ECS',
-                          'ECS/ContainerInsights',
-                          'AWS/ECS/ManagedScaling',
-                          'AWS/EFS',
-                          'AWS/ElasticInference',
-                          'ContainerInsights',
-                          'AWS/ApplicationELB',
-                          'AWS/NetworkELB',
-                          'AWS/GatewayELB',
-                          'AWS/ELB',
-                          'AWS/ElasticTranscoder',
-                          'AWS/ElastiCache',
-                          'AWS/ElastiCache',
-                          'AWS/ES',
-                          'AWS/ElasticMapReduce',
-                          'AWS/MediaConnect',
-                          'AWS/MediaConvert',
-                          'AWS/MediaLive',
-                          'AWS/MediaPackage',
-                          'AWS/MediaStore',
-                          'AWS/MediaTailor',
-                          'AWS/SMSVoice',
-                          'AWS/SocialMessaging',
-                          'AWS/Events',
-                          'AWS/FSx',
-                          'AWS/FSx',
-                          'AWS/FSx',
-                          'AWS/FSx',
-                          'AWS/FSx',
-                          'AWS/GameLift',
-                          'AWS/GlobalAccelerator',
-                          'Glue',
-                          'AWS/GroundStation',
-                          'AWS/HealthLake',
-                          'AWS/Inspector',
-                          'AWS/IVS',
-                          'AWS/IVSChat',
-                          'AWS/IoT',
-                          'AWS/IoTAnalytics',
-                          'AWS/IoTFleetWise',
-                          'AWS/IoTSiteWise',
-                          'AWS/IoTTwinMaker',
-                          'AWS/KMS',
-                          'AWS/Cassandra',
-                          'AWS/KinesisAnalytics',
-                          'AWS/Firehose',
-                          'AWS/Kinesis',
-                          'AWS/KinesisVideo',
-                          'AWS/Lambda',
-                          'AWS/Lex',
-                          'AWSLicenseManager/licenseUsage',
-                          'AWS/LicenseManager/LinuxSubscriptions',
-                          'AWS/Location',
-                          'AWS/lookoutequipment',
-                          'AWS/LookoutMetrics',
-                          'AWS/LookoutVision',
-                          'AWS/ML',
-                          'AWS/managedblockchain',
-                          'AWS/Prometheus',
-                          'AWS/Kafka',
-                          'AWS/KafkaConnect',
-                          'AWS/MWAA',
-                          'AWS/MemoryDB',
-                          'AWS/AmazonMQ',
-                          'AWS/Neptune',
-                          'AWS/NetworkFirewall',
-                          'AWS/NetworkManager',
-                          'AWS/NimbleStudio',
-                          'AWS/Omics',
-                          'AWS/OpsWorks',
-                          'AWS/Outposts',
-                          'AWS/PanoramaDeviceMetrics',
-                          'AWS/Personalize',
-                          'AWS/Pinpoint',
-                          'AWS/Polly',
-                          'AWS/PrivateLinkEndpoints',
-                          'AWS/PrivateLinkServices',
-                          'AWS/Private5G',
-                          'AWS/QLDB',
-                          'AWS/QuickSight',
-                          'AWS/Redshift',
-                          'AWS/RDS',
-                          'AWS/Rekognition',
-                          'AWS/rePostPrivate',
-                          'AWS/Robomaker',
-                          'AWS/Route53',
-                          'AWS/Route53RecoveryReadiness',
-                          'AWS/SageMaker',
-                          'AWS/SageMaker/ModelBuildingPipeline',
-                          'AWS/SecretsManager',
-                          'AWS/SecurityLake',
-                          'AWS/ServiceCatalog',
-                          'AWS/DDoSProtection',
-                          'AWS/SES',
-                          'AWS/simspaceweaver',
-                          'AWS/SNS',
-                          'AWS/SQS',
-                          'AWS/S3',
-                          'AWS/S3/Storage-Lens',
-                          'AWS/SWF',
-                          'AWS/States',
-                          'AWS/StorageGateway',
-                          'AWS/SSM-RunCommand',
-                          'AWS/Textract',
-                          'AWS/Timestream',
-                          'AWS/Transfer',
-                          'AWS/Transcribe',
-                          'AWS/Translate',
-                          'AWS/TrustedAdvisor',
-                          'AWS/NATGateway',
-                          'AWS/TransitGateway',
-                          'AWS/VPN',
-                          'AWS/IPAM',
-                          'AWS/WAFV2',
-                          'WAF',
-                          'AWS/WorkMail',
-                          'AWS/WorkSpaces',
-                          'AWS/WorkSpacesWeb']
-            for namespace in namespaces:
-                iterator = 0
-                next_token = None
-                metric_dimension_map = {}
-                while True:
-                    response = cloudwatch_boto3_processor.cloudwatch_list_metrics(namespace, next_token)
-                    next_token = response.get('NextToken', None)
-                    all_metrics = response.get('Metrics', [])
-                    iterator += 1
-                    for metric in all_metrics:
-                        metric_map = metric_dimension_map.get(metric['MetricName'], {})
-                        dimension_map = metric_map.get('Dimensions', {})
-                        for dimension in metric['Dimensions']:
-                            dimension_values = dimension_map.get(dimension['Name'], [])
-                            dimension_values.append(dimension['Value'])
-                            dimension_map[dimension['Name']] = list(set(dimension_values))
-                        metric_dimension_map[metric['MetricName']] = {'Dimensions': dimension_map,
-                                                                      'DimensionNames': list(dimension_map.keys())}
-                    if not next_token or next_token == '':
-                        break
+            next_token = None
+            page_count = 0
+            MAX_PAGES = 10000
 
-                if metric_dimension_map:
-                    model_data[namespace] = {self.__region: metric_dimension_map}
+            while page_count < MAX_PAGES:
+                response = cloudwatch_boto3_processor.cloudwatch_list_metrics(token=next_token)
+                next_token = response.get('NextToken', None)
+                page_count += 1
+
+                for metric in response.get('Metrics', []):
+                    ns = metric['Namespace']
+                    ns_data = model_data.setdefault(ns, {}).setdefault(self.__region, {})
+                    metric_map = ns_data.setdefault(metric['MetricName'], {'Dimensions': {}, 'DimensionNames': []})
+
+                    for dim in metric['Dimensions']:
+                        dim_values = metric_map['Dimensions'].setdefault(dim['Name'], [])
+                        if dim['Value'] not in dim_values:
+                            dim_values.append(dim['Value'])
+                    metric_map['DimensionNames'] = list(metric_map['Dimensions'].keys())
+
+                if not next_token or next_token == '':
+                    break
+
+            if page_count >= MAX_PAGES:
+                logger.warning(f"Hit MAX_PAGES limit ({MAX_PAGES}), some metrics may not be captured")
+
+            logger.info(f"Discovered {len(model_data)} CloudWatch namespaces across {page_count} pages")
 
             if len(model_data) > 0:
                 self.create_or_update_model_metadata(model_type, model_data)
