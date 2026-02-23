@@ -41,7 +41,7 @@ SUM_F: Function.ValueType  # 2
 MIN_F: Function.ValueType  # 3
 MAX_F: Function.ValueType  # 4
 LAST_F: Function.ValueType  # 5
-Global___Function: typing_extensions.TypeAlias = Function
+global___Function = Function
 
 class _Operator:
     ValueType = typing.NewType("ValueType", builtins.int)
@@ -72,7 +72,7 @@ NOT_EQUAL_O: Operator.ValueType  # 6
 LIKE_O: Operator.ValueType  # 7
 EXISTS_O: Operator.ValueType  # 8
 CONTAINS_O: Operator.ValueType  # 9
-Global___Operator: typing_extensions.TypeAlias = Operator
+global___Operator = Operator
 
 class _LogicalOperator:
     ValueType = typing.NewType("ValueType", builtins.int)
@@ -91,7 +91,7 @@ UNKNOWN_LO: LogicalOperator.ValueType  # 0
 AND_LO: LogicalOperator.ValueType  # 1
 OR_LO: LogicalOperator.ValueType  # 2
 NOT_LO: LogicalOperator.ValueType  # 3
-Global___LogicalOperator: typing_extensions.TypeAlias = LogicalOperator
+global___LogicalOperator = LogicalOperator
 
 class _Op:
     ValueType = typing.NewType("ValueType", builtins.int)
@@ -132,7 +132,7 @@ CONTAINS: Op.ValueType  # 11
 AND: Op.ValueType  # 20
 OR: Op.ValueType  # 21
 NOT: Op.ValueType  # 22
-Global___Op: typing_extensions.TypeAlias = Op
+global___Op = Op
 
 class _Source:
     ValueType = typing.NewType("ValueType", builtins.int)
@@ -301,7 +301,7 @@ RENDER: Source.ValueType  # 75
 MCP_SERVER: Source.ValueType  # 76
 VICTORIA_LOGS: Source.ValueType  # 77
 METABASE: Source.ValueType  # 78
-Global___Source: typing_extensions.TypeAlias = Source
+global___Source = Source
 
 class _SourceKeyType:
     ValueType = typing.NewType("ValueType", builtins.int)
@@ -622,7 +622,7 @@ GITHUB_APP_ACCESS_TOKEN: SourceKeyType.ValueType  # 161
 METABASE_URL: SourceKeyType.ValueType  # 162
 """Metabase specific keys"""
 METABASE_API_KEY: SourceKeyType.ValueType  # 163
-Global___SourceKeyType: typing_extensions.TypeAlias = SourceKeyType
+global___SourceKeyType = SourceKeyType
 
 class _SourceModelType:
     ValueType = typing.NewType("ValueType", builtins.int)
@@ -1069,7 +1069,7 @@ METABASE_CARD: SourceModelType.ValueType  # 9302
 METABASE_DATABASE: SourceModelType.ValueType  # 9303
 METABASE_COLLECTION: SourceModelType.ValueType  # 9304
 METABASE_SUBSCRIPTION: SourceModelType.ValueType  # 9305
-Global___SourceModelType: typing_extensions.TypeAlias = SourceModelType
+global___SourceModelType = SourceModelType
 
 class _Context:
     ValueType = typing.NewType("ValueType", builtins.int)
@@ -1110,7 +1110,7 @@ SLACK_ALERT: Context.ValueType  # 11
 EVENTS_PRODIGAL_CLICKHOUSE: Context.ValueType  # 12
 ALERT_OPS: Context.ValueType  # 13
 ALERT_MIDDLEWARE: Context.ValueType  # 14
-Global___Context: typing_extensions.TypeAlias = Context
+global___Context = Context
 
 class _RecentArtifactType:
     ValueType = typing.NewType("ValueType", builtins.int)
@@ -1154,7 +1154,7 @@ RA_BITBUCKET_REPO: RecentArtifactType.ValueType  # 201
 """Bitbucket Artifacts (future)"""
 RA_BITBUCKET_COMMIT: RecentArtifactType.ValueType  # 202
 RA_BITBUCKET_PR: RecentArtifactType.ValueType  # 203
-Global___RecentArtifactType: typing_extensions.TypeAlias = RecentArtifactType
+global___RecentArtifactType = RecentArtifactType
 
 @typing.final
 class TimeRange(google.protobuf.message.Message):
@@ -1172,7 +1172,7 @@ class TimeRange(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["time_geq", b"time_geq", "time_lt", b"time_lt"]) -> None: ...
 
-Global___TimeRange: typing_extensions.TypeAlias = TimeRange
+global___TimeRange = TimeRange
 
 @typing.final
 class Page(google.protobuf.message.Message):
@@ -1193,7 +1193,7 @@ class Page(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["limit", b"limit", "offset", b"offset"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["limit", b"limit", "offset", b"offset"]) -> None: ...
 
-Global___Page: typing_extensions.TypeAlias = Page
+global___Page = Page
 
 @typing.final
 class OpDescription(google.protobuf.message.Message):
@@ -1203,21 +1203,21 @@ class OpDescription(google.protobuf.message.Message):
     LABEL_FIELD_NUMBER: builtins.int
     IS_UNARY_FIELD_NUMBER: builtins.int
     IS_LOGICAL_FIELD_NUMBER: builtins.int
-    op: Global___Op.ValueType
+    op: global___Op.ValueType
     label: builtins.str
     is_unary: builtins.bool
     is_logical: builtins.bool
     def __init__(
         self,
         *,
-        op: Global___Op.ValueType = ...,
+        op: global___Op.ValueType = ...,
         label: builtins.str = ...,
         is_unary: builtins.bool = ...,
         is_logical: builtins.bool = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["is_logical", b"is_logical", "is_unary", b"is_unary", "label", b"label", "op", b"op"]) -> None: ...
 
-Global___OpDescription: typing_extensions.TypeAlias = OpDescription
+global___OpDescription = OpDescription
 
 @typing.final
 class TaskCronSchedule(google.protobuf.message.Message):
@@ -1254,7 +1254,7 @@ class TaskCronSchedule(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["days_of_the_month", b"days_of_the_month", "days_of_the_week", b"days_of_the_week", "days_of_the_year", b"days_of_the_year", "hours", b"hours", "minutes", b"minutes", "timezone", b"timezone"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["days_of_the_month", b"days_of_the_month", "days_of_the_week", b"days_of_the_week", "days_of_the_year", b"days_of_the_year", "hours", b"hours", "minutes", b"minutes", "timezone", b"timezone"]) -> None: ...
 
-Global___TaskCronSchedule: typing_extensions.TypeAlias = TaskCronSchedule
+global___TaskCronSchedule = TaskCronSchedule
 
 @typing.final
 class TaskInterval(google.protobuf.message.Message):
@@ -1271,7 +1271,7 @@ class TaskInterval(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["interval_in_seconds", b"interval_in_seconds"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["interval_in_seconds", b"interval_in_seconds"]) -> None: ...
 
-Global___TaskInterval: typing_extensions.TypeAlias = TaskInterval
+global___TaskInterval = TaskInterval
 
 @typing.final
 class TaskCronRule(google.protobuf.message.Message):
@@ -1292,7 +1292,7 @@ class TaskCronRule(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["rule", b"rule", "timezone", b"timezone"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["rule", b"rule", "timezone", b"timezone"]) -> None: ...
 
-Global___TaskCronRule: typing_extensions.TypeAlias = TaskCronRule
+global___TaskCronRule = TaskCronRule
 
 @typing.final
 class EventKey(google.protobuf.message.Message):
@@ -1329,21 +1329,21 @@ class EventKey(google.protobuf.message.Message):
     EVENT_TYPE_FIELD_NUMBER: builtins.int
     id: builtins.int
     key: builtins.str
-    key_type: Global___EventKey.KeyType.ValueType
+    key_type: global___EventKey.KeyType.ValueType
     @property
-    def event_type(self) -> Global___EventTypePartial: ...
+    def event_type(self) -> global___EventTypePartial: ...
     def __init__(
         self,
         *,
         id: builtins.int = ...,
         key: builtins.str = ...,
-        key_type: Global___EventKey.KeyType.ValueType = ...,
-        event_type: Global___EventTypePartial | None = ...,
+        key_type: global___EventKey.KeyType.ValueType = ...,
+        event_type: global___EventTypePartial | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["event_type", b"event_type"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["event_type", b"event_type", "id", b"id", "key", b"key", "key_type", b"key_type"]) -> None: ...
 
-Global___EventKey: typing_extensions.TypeAlias = EventKey
+global___EventKey = EventKey
 
 @typing.final
 class EventType(google.protobuf.message.Message):
@@ -1356,20 +1356,20 @@ class EventType(google.protobuf.message.Message):
     id: builtins.int
     name: builtins.str
     @property
-    def keys(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___EventKey]: ...
+    def keys(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___EventKey]: ...
     @property
-    def event_sources(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[Global___Event.EventSource.ValueType]: ...
+    def event_sources(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[global___Event.EventSource.ValueType]: ...
     def __init__(
         self,
         *,
         id: builtins.int = ...,
         name: builtins.str = ...,
-        keys: collections.abc.Iterable[Global___EventKey] | None = ...,
-        event_sources: collections.abc.Iterable[Global___Event.EventSource.ValueType] | None = ...,
+        keys: collections.abc.Iterable[global___EventKey] | None = ...,
+        event_sources: collections.abc.Iterable[global___Event.EventSource.ValueType] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["event_sources", b"event_sources", "id", b"id", "keys", b"keys", "name", b"name"]) -> None: ...
 
-Global___EventType: typing_extensions.TypeAlias = EventType
+global___EventType = EventType
 
 @typing.final
 class EventTypeStats(google.protobuf.message.Message):
@@ -1394,7 +1394,7 @@ class EventTypeStats(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["event_count", b"event_count", "keys_count", b"keys_count", "monitor_count", b"monitor_count"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["event_count", b"event_count", "keys_count", b"keys_count", "monitor_count", b"monitor_count"]) -> None: ...
 
-Global___EventTypeStats: typing_extensions.TypeAlias = EventTypeStats
+global___EventTypeStats = EventTypeStats
 
 @typing.final
 class EventTypePartial(google.protobuf.message.Message):
@@ -1412,7 +1412,7 @@ class EventTypePartial(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["id", b"id", "name", b"name"]) -> None: ...
 
-Global___EventTypePartial: typing_extensions.TypeAlias = EventTypePartial
+global___EventTypePartial = EventTypePartial
 
 @typing.final
 class EventTypeSummary(google.protobuf.message.Message):
@@ -1421,19 +1421,19 @@ class EventTypeSummary(google.protobuf.message.Message):
     EVENT_TYPE_FIELD_NUMBER: builtins.int
     STATS_FIELD_NUMBER: builtins.int
     @property
-    def event_type(self) -> Global___EventTypePartial: ...
+    def event_type(self) -> global___EventTypePartial: ...
     @property
-    def stats(self) -> Global___EventTypeStats: ...
+    def stats(self) -> global___EventTypeStats: ...
     def __init__(
         self,
         *,
-        event_type: Global___EventTypePartial | None = ...,
-        stats: Global___EventTypeStats | None = ...,
+        event_type: global___EventTypePartial | None = ...,
+        stats: global___EventTypeStats | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["event_type", b"event_type", "stats", b"stats"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["event_type", b"event_type", "stats", b"stats"]) -> None: ...
 
-Global___EventTypeSummary: typing_extensions.TypeAlias = EventTypeSummary
+global___EventTypeSummary = EventTypeSummary
 
 @typing.final
 class EventTypeDefinition(google.protobuf.message.Message):
@@ -1442,19 +1442,19 @@ class EventTypeDefinition(google.protobuf.message.Message):
     EVENT_TYPE_FIELD_NUMBER: builtins.int
     STATS_FIELD_NUMBER: builtins.int
     @property
-    def event_type(self) -> Global___EventType: ...
+    def event_type(self) -> global___EventType: ...
     @property
-    def stats(self) -> Global___EventTypeStats: ...
+    def stats(self) -> global___EventTypeStats: ...
     def __init__(
         self,
         *,
-        event_type: Global___EventType | None = ...,
-        stats: Global___EventTypeStats | None = ...,
+        event_type: global___EventType | None = ...,
+        stats: global___EventTypeStats | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["event_type", b"event_type", "stats", b"stats"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["event_type", b"event_type", "stats", b"stats"]) -> None: ...
 
-Global___EventTypeDefinition: typing_extensions.TypeAlias = EventTypeDefinition
+global___EventTypeDefinition = EventTypeDefinition
 
 @typing.final
 class Event(google.protobuf.message.Message):
@@ -1500,24 +1500,24 @@ class Event(google.protobuf.message.Message):
     EVENT_SOURCE_FIELD_NUMBER: builtins.int
     id: builtins.int
     timestamp: builtins.int
-    event_source: Global___Event.EventSource.ValueType
+    event_source: global___Event.EventSource.ValueType
     @property
-    def event_type(self) -> Global___EventTypePartial: ...
+    def event_type(self) -> global___EventTypePartial: ...
     @property
-    def kvs(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___KeyValue]: ...
+    def kvs(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___KeyValue]: ...
     def __init__(
         self,
         *,
         id: builtins.int = ...,
-        event_type: Global___EventTypePartial | None = ...,
-        kvs: collections.abc.Iterable[Global___KeyValue] | None = ...,
+        event_type: global___EventTypePartial | None = ...,
+        kvs: collections.abc.Iterable[global___KeyValue] | None = ...,
         timestamp: builtins.int = ...,
-        event_source: Global___Event.EventSource.ValueType = ...,
+        event_source: global___Event.EventSource.ValueType = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["event_type", b"event_type"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["event_source", b"event_source", "event_type", b"event_type", "id", b"id", "kvs", b"kvs", "timestamp", b"timestamp"]) -> None: ...
 
-Global___Event: typing_extensions.TypeAlias = Event
+global___Event = Event
 
 @typing.final
 class Value(google.protobuf.message.Message):
@@ -1536,9 +1536,9 @@ class Value(google.protobuf.message.Message):
     double_value: builtins.float
     bytes_value: builtins.bytes
     @property
-    def array_value(self) -> Global___ArrayValue: ...
+    def array_value(self) -> global___ArrayValue: ...
     @property
-    def kvlist_value(self) -> Global___KeyValueList: ...
+    def kvlist_value(self) -> global___KeyValueList: ...
     def __init__(
         self,
         *,
@@ -1546,15 +1546,15 @@ class Value(google.protobuf.message.Message):
         bool_value: builtins.bool = ...,
         int_value: builtins.int = ...,
         double_value: builtins.float = ...,
-        array_value: Global___ArrayValue | None = ...,
-        kvlist_value: Global___KeyValueList | None = ...,
+        array_value: global___ArrayValue | None = ...,
+        kvlist_value: global___KeyValueList | None = ...,
         bytes_value: builtins.bytes = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["array_value", b"array_value", "bool_value", b"bool_value", "bytes_value", b"bytes_value", "double_value", b"double_value", "int_value", b"int_value", "kvlist_value", b"kvlist_value", "string_value", b"string_value", "value", b"value"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["array_value", b"array_value", "bool_value", b"bool_value", "bytes_value", b"bytes_value", "double_value", b"double_value", "int_value", b"int_value", "kvlist_value", b"kvlist_value", "string_value", b"string_value", "value", b"value"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["value", b"value"]) -> typing.Literal["string_value", "bool_value", "int_value", "double_value", "array_value", "kvlist_value", "bytes_value"] | None: ...
 
-Global___Value: typing_extensions.TypeAlias = Value
+global___Value = Value
 
 @typing.final
 class ArrayValue(google.protobuf.message.Message):
@@ -1562,17 +1562,17 @@ class ArrayValue(google.protobuf.message.Message):
 
     VALUES_FIELD_NUMBER: builtins.int
     @property
-    def values(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___Value]:
+    def values(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___Value]:
         """Array of values. The array may be empty (contain 0 elements)."""
 
     def __init__(
         self,
         *,
-        values: collections.abc.Iterable[Global___Value] | None = ...,
+        values: collections.abc.Iterable[global___Value] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["values", b"values"]) -> None: ...
 
-Global___ArrayValue: typing_extensions.TypeAlias = ArrayValue
+global___ArrayValue = ArrayValue
 
 @typing.final
 class KeyValueList(google.protobuf.message.Message):
@@ -1580,7 +1580,7 @@ class KeyValueList(google.protobuf.message.Message):
 
     VALUES_FIELD_NUMBER: builtins.int
     @property
-    def values(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___KeyValue]:
+    def values(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___KeyValue]:
         """A collection of key/value pairs. The list may be empty (may
         contain 0 elements).
         The keys MUST be unique (it is not allowed to have more than one
@@ -1590,11 +1590,11 @@ class KeyValueList(google.protobuf.message.Message):
     def __init__(
         self,
         *,
-        values: collections.abc.Iterable[Global___KeyValue] | None = ...,
+        values: collections.abc.Iterable[global___KeyValue] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["values", b"values"]) -> None: ...
 
-Global___KeyValueList: typing_extensions.TypeAlias = KeyValueList
+global___KeyValueList = KeyValueList
 
 @typing.final
 class KeyValue(google.protobuf.message.Message):
@@ -1604,14 +1604,14 @@ class KeyValue(google.protobuf.message.Message):
     VALUE_FIELD_NUMBER: builtins.int
     key: builtins.str
     @property
-    def value(self) -> Global___Value: ...
+    def value(self) -> global___Value: ...
     def __init__(
         self,
         *,
         key: builtins.str = ...,
-        value: Global___Value | None = ...,
+        value: global___Value | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["value", b"value"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["key", b"key", "value", b"value"]) -> None: ...
 
-Global___KeyValue: typing_extensions.TypeAlias = KeyValue
+global___KeyValue = KeyValue

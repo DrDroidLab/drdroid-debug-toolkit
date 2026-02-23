@@ -34,7 +34,6 @@ message ApiRunPlaybookTaskRequest {
   google.protobuf.StringValue investigation_session_id = 4;
   google.protobuf.StringValue created_by = 5;
   core.protos.playbooks.PlaybookTask playbook_task = 6;
-  google.protobuf.StringValue user_email = 7;
 }
 
 message ApiRunPlaybookTaskResponse {

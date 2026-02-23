@@ -52,17 +52,17 @@ class PostHog(google.protobuf.message.Message):
 
     TYPE_FIELD_NUMBER: builtins.int
     HOGQL_QUERY_FIELD_NUMBER: builtins.int
-    type: Global___PostHog.TaskType.ValueType
+    type: global___PostHog.TaskType.ValueType
     @property
-    def hogql_query(self) -> Global___PostHog.HogQLQueryTask: ...
+    def hogql_query(self) -> global___PostHog.HogQLQueryTask: ...
     def __init__(
         self,
         *,
-        type: Global___PostHog.TaskType.ValueType = ...,
-        hogql_query: Global___PostHog.HogQLQueryTask | None = ...,
+        type: global___PostHog.TaskType.ValueType = ...,
+        hogql_query: global___PostHog.HogQLQueryTask | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["hogql_query", b"hogql_query", "task", b"task"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["hogql_query", b"hogql_query", "task", b"task", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["task", b"task"]) -> typing.Literal["hogql_query"] | None: ...
 
-Global___PostHog: typing_extensions.TypeAlias = PostHog
+global___PostHog = PostHog

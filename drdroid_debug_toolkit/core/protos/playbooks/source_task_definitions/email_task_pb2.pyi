@@ -60,17 +60,17 @@ class SMTP(google.protobuf.message.Message):
 
     TYPE_FIELD_NUMBER: builtins.int
     SEND_EMAIL_FIELD_NUMBER: builtins.int
-    type: Global___SMTP.TaskType.ValueType
+    type: global___SMTP.TaskType.ValueType
     @property
-    def send_email(self) -> Global___SMTP.SendEmail: ...
+    def send_email(self) -> global___SMTP.SendEmail: ...
     def __init__(
         self,
         *,
-        type: Global___SMTP.TaskType.ValueType = ...,
-        send_email: Global___SMTP.SendEmail | None = ...,
+        type: global___SMTP.TaskType.ValueType = ...,
+        send_email: global___SMTP.SendEmail | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["send_email", b"send_email", "task", b"task"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["send_email", b"send_email", "task", b"task", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["task", b"task"]) -> typing.Literal["send_email"] | None: ...
 
-Global___SMTP: typing_extensions.TypeAlias = SMTP
+global___SMTP = SMTP

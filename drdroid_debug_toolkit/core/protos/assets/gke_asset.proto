@@ -3,7 +3,6 @@ package core.protos.connectors;
 
 import "google/protobuf/wrappers.proto";
 import "core/protos/base.proto";
-import "core/protos/connectors/connector.proto";
 
 message GkeCommand {
   google.protobuf.StringValue type = 1;
@@ -31,175 +30,8 @@ message GkeClusterAssetModel {
   repeated GkeCommand commands = 3;
 }
 
-message GkeNamespaceAssetModel {
-  google.protobuf.StringValue name = 1;
-  google.protobuf.StringValue zone = 2;
-  google.protobuf.StringValue cluster = 3;
-  google.protobuf.StringValue status = 4;
-  google.protobuf.StringValue labels = 5;
-}
-
-message GkeServiceAssetModel {
-  google.protobuf.StringValue name = 1;
-  google.protobuf.StringValue namespace = 2;
-  google.protobuf.StringValue zone = 3;
-  google.protobuf.StringValue cluster = 4;
-  google.protobuf.StringValue type = 5;
-  google.protobuf.StringValue cluster_ip = 6;
-  google.protobuf.StringValue ports = 7;
-}
-
-message GkeDeploymentAssetModel {
-  google.protobuf.StringValue name = 1;
-  google.protobuf.StringValue namespace = 2;
-  google.protobuf.StringValue zone = 3;
-  google.protobuf.StringValue cluster = 4;
-  google.protobuf.StringValue replicas = 5;
-  google.protobuf.StringValue containers = 6;
-}
-
-message GkeIngressAssetModel {
-  google.protobuf.StringValue name = 1;
-  google.protobuf.StringValue namespace = 2;
-  google.protobuf.StringValue zone = 3;
-  google.protobuf.StringValue cluster = 4;
-  google.protobuf.StringValue host = 5;
-  google.protobuf.StringValue paths = 6;
-  google.protobuf.StringValue tls = 7;
-}
-
-message GkeNetworkPolicyAssetModel {
-  google.protobuf.StringValue name = 1;
-  google.protobuf.StringValue namespace = 2;
-  google.protobuf.StringValue zone = 3;
-  google.protobuf.StringValue cluster = 4;
-  google.protobuf.StringValue pod_selector = 5;
-  google.protobuf.StringValue ingress_rules = 6;
-  google.protobuf.StringValue egress_rules = 7;
-}
-
-message GkeHpaAssetModel {
-  google.protobuf.StringValue name = 1;
-  google.protobuf.StringValue namespace = 2;
-  google.protobuf.StringValue zone = 3;
-  google.protobuf.StringValue cluster = 4;
-  google.protobuf.StringValue reference = 5;
-  google.protobuf.StringValue min_replicas = 6;
-  google.protobuf.StringValue max_replicas = 7;
-  google.protobuf.StringValue current_replicas = 8;
-  google.protobuf.StringValue metrics = 9;
-}
-
-message GkeReplicasetAssetModel {
-  google.protobuf.StringValue name = 1;
-  google.protobuf.StringValue namespace = 2;
-  google.protobuf.StringValue zone = 3;
-  google.protobuf.StringValue cluster = 4;
-  google.protobuf.StringValue desired_replicas = 5;
-  google.protobuf.StringValue current_replicas = 6;
-  google.protobuf.StringValue selector = 7;
-}
-
-message GkeStatefulsetAssetModel {
-  google.protobuf.StringValue name = 1;
-  google.protobuf.StringValue namespace = 2;
-  google.protobuf.StringValue zone = 3;
-  google.protobuf.StringValue cluster = 4;
-  google.protobuf.StringValue replicas = 5;
-  google.protobuf.StringValue service_name = 6;
-  google.protobuf.StringValue volume_claims = 7;
-  google.protobuf.StringValue containers = 8;
-}
-
 message GkeClusterAssetOptions {
   repeated ZoneCluster zones = 1;
-}
-
-message GkeNamespaceAssetOptions {
-  repeated GkeNamespaceOption namespaces = 1;
-}
-
-message GkeServiceAssetOptions {
-  repeated GkeServiceOption services = 1;
-}
-
-message GkeDeploymentAssetOptions {
-  repeated GkeDeploymentOption deployments = 1;
-}
-
-message GkeIngressAssetOptions {
-  repeated GkeIngressOption ingresses = 1;
-}
-
-message GkeNetworkPolicyAssetOptions {
-  repeated GkeNetworkPolicyOption network_policies = 1;
-}
-
-message GkeHpaAssetOptions {
-  repeated GkeHpaOption pod_autoscalers = 1;
-}
-
-message GkeReplicasetAssetOptions {
-  repeated GkeReplicasetOption replicasets = 1;
-}
-
-message GkeStatefulsetAssetOptions {
-  repeated GkeStatefulsetOption statefulsets = 1;
-}
-
-message GkeNamespaceOption {
-  google.protobuf.StringValue name = 1;
-  google.protobuf.StringValue zone = 2;
-  google.protobuf.StringValue cluster = 3;
-}
-
-message GkeServiceOption {
-  google.protobuf.StringValue name = 1;
-  google.protobuf.StringValue namespace = 2;
-  google.protobuf.StringValue zone = 3;
-  google.protobuf.StringValue cluster = 4;
-}
-
-message GkeDeploymentOption {
-  google.protobuf.StringValue name = 1;
-  google.protobuf.StringValue namespace = 2;
-  google.protobuf.StringValue zone = 3;
-  google.protobuf.StringValue cluster = 4;
-}
-
-message GkeIngressOption {
-  google.protobuf.StringValue name = 1;
-  google.protobuf.StringValue namespace = 2;
-  google.protobuf.StringValue zone = 3;
-  google.protobuf.StringValue cluster = 4;
-}
-
-message GkeNetworkPolicyOption {
-  google.protobuf.StringValue name = 1;
-  google.protobuf.StringValue namespace = 2;
-  google.protobuf.StringValue zone = 3;
-  google.protobuf.StringValue cluster = 4;
-}
-
-message GkeHpaOption {
-  google.protobuf.StringValue name = 1;
-  google.protobuf.StringValue namespace = 2;
-  google.protobuf.StringValue zone = 3;
-  google.protobuf.StringValue cluster = 4;
-}
-
-message GkeReplicasetOption {
-  google.protobuf.StringValue name = 1;
-  google.protobuf.StringValue namespace = 2;
-  google.protobuf.StringValue zone = 3;
-  google.protobuf.StringValue cluster = 4;
-}
-
-message GkeStatefulsetOption {
-  google.protobuf.StringValue name = 1;
-  google.protobuf.StringValue namespace = 2;
-  google.protobuf.StringValue zone = 3;
-  google.protobuf.StringValue cluster = 4;
 }
 
 message GkeAssetModel {
@@ -209,14 +41,6 @@ message GkeAssetModel {
   sfixed64 last_updated = 4;
   oneof asset {
     GkeClusterAssetModel gke_cluster = 5;
-    GkeNamespaceAssetModel gke_namespace = 6;
-    GkeServiceAssetModel gke_service = 7;
-    GkeDeploymentAssetModel gke_deployment = 8;
-    GkeIngressAssetModel gke_ingress = 9;
-    GkeNetworkPolicyAssetModel gke_network_policy = 10;
-    GkeHpaAssetModel gke_hpa = 11;
-    GkeReplicasetAssetModel gke_replicaset = 12;
-    GkeStatefulsetAssetModel gke_statefulset = 13;
   }
 }
 

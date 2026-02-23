@@ -7,13 +7,7 @@ import builtins
 import google.protobuf.descriptor
 import google.protobuf.message
 import google.protobuf.wrappers_pb2
-import sys
 import typing
-
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
-else:
-    import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
@@ -44,4 +38,4 @@ class AlertSourceEntryPoint(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["alert_channel_name", b"alert_channel_name", "alert_channel_uid", b"alert_channel_uid", "alert_filter_string", b"alert_filter_string", "alert_type", b"alert_type"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["alert_channel_name", b"alert_channel_name", "alert_channel_uid", b"alert_channel_uid", "alert_filter_string", b"alert_filter_string", "alert_type", b"alert_type"]) -> None: ...
 
-Global___AlertSourceEntryPoint: typing_extensions.TypeAlias = AlertSourceEntryPoint
+global___AlertSourceEntryPoint = AlertSourceEntryPoint

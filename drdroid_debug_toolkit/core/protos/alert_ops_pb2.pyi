@@ -42,7 +42,7 @@ UNKNOWN_STATE: InvestigationSessionState.ValueType  # 0
 STATE_RUNNING: InvestigationSessionState.ValueType  # 1
 STATE_DONE: InvestigationSessionState.ValueType  # 2
 STATE_HALTED: InvestigationSessionState.ValueType  # 3
-Global___InvestigationSessionState: typing_extensions.TypeAlias = InvestigationSessionState
+global___InvestigationSessionState = InvestigationSessionState
 
 class _InvestigationMessageType:
     ValueType = typing.NewType("ValueType", builtins.int)
@@ -67,7 +67,7 @@ REMEDIATION_PLAN: InvestigationMessageType.ValueType  # 3
 COMPLETE_SESSION: InvestigationMessageType.ValueType  # 4
 HALT_SESSION: InvestigationMessageType.ValueType  # 5
 INVESTIGATION_TIMELINE: InvestigationMessageType.ValueType  # 6
-Global___InvestigationMessageType: typing_extensions.TypeAlias = InvestigationMessageType
+global___InvestigationMessageType = InvestigationMessageType
 
 class _InvestigationMessageReactionType:
     ValueType = typing.NewType("ValueType", builtins.int)
@@ -84,7 +84,7 @@ class InvestigationMessageReactionType(_InvestigationMessageReactionType, metacl
 UNKNOWN_IMRT: InvestigationMessageReactionType.ValueType  # 0
 LIKE: InvestigationMessageReactionType.ValueType  # 1
 DISLIKE: InvestigationMessageReactionType.ValueType  # 2
-Global___InvestigationMessageReactionType: typing_extensions.TypeAlias = InvestigationMessageReactionType
+global___InvestigationMessageReactionType = InvestigationMessageReactionType
 
 @typing.final
 class CommWorkspace(google.protobuf.message.Message):
@@ -102,24 +102,24 @@ class CommWorkspace(google.protobuf.message.Message):
     @property
     def name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
-    def active_channels(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___CommChannel]: ...
+    def active_channels(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___CommChannel]: ...
     @property
-    def alert_types(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___CommAlertType]: ...
+    def alert_types(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___CommAlertType]: ...
     @property
-    def alert_tags(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___CommAlertTag]: ...
+    def alert_tags(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___CommAlertTag]: ...
     def __init__(
         self,
         *,
         id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
         name: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        active_channels: collections.abc.Iterable[Global___CommChannel] | None = ...,
-        alert_types: collections.abc.Iterable[Global___CommAlertType] | None = ...,
-        alert_tags: collections.abc.Iterable[Global___CommAlertTag] | None = ...,
+        active_channels: collections.abc.Iterable[global___CommChannel] | None = ...,
+        alert_types: collections.abc.Iterable[global___CommAlertType] | None = ...,
+        alert_tags: collections.abc.Iterable[global___CommAlertTag] | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["id", b"id", "name", b"name"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["active_channels", b"active_channels", "alert_tags", b"alert_tags", "alert_types", b"alert_types", "id", b"id", "name", b"name"]) -> None: ...
 
-Global___CommWorkspace: typing_extensions.TypeAlias = CommWorkspace
+global___CommWorkspace = CommWorkspace
 
 @typing.final
 class CommChannel(google.protobuf.message.Message):
@@ -144,7 +144,7 @@ class CommChannel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["channel_id", b"channel_id", "channel_name", b"channel_name", "id", b"id"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["channel_id", b"channel_id", "channel_name", b"channel_name", "id", b"id"]) -> None: ...
 
-Global___CommChannel: typing_extensions.TypeAlias = CommChannel
+global___CommChannel = CommChannel
 
 @typing.final
 class CommAlertType(google.protobuf.message.Message):
@@ -169,7 +169,7 @@ class CommAlertType(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["alert_type", b"alert_type", "channel_connector_key_id", b"channel_connector_key_id", "id", b"id"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["alert_type", b"alert_type", "channel_connector_key_id", b"channel_connector_key_id", "id", b"id"]) -> None: ...
 
-Global___CommAlertType: typing_extensions.TypeAlias = CommAlertType
+global___CommAlertType = CommAlertType
 
 @typing.final
 class CommAlertTag(google.protobuf.message.Message):
@@ -198,7 +198,7 @@ class CommAlertTag(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["active_channel_id", b"active_channel_id", "alert_tag", b"alert_tag", "alert_type_id", b"alert_type_id", "id", b"id"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["active_channel_id", b"active_channel_id", "alert_tag", b"alert_tag", "alert_type_id", b"alert_type_id", "id", b"id"]) -> None: ...
 
-Global___CommAlertTag: typing_extensions.TypeAlias = CommAlertTag
+global___CommAlertTag = CommAlertTag
 
 @typing.final
 class CommAlertOpsOptions(google.protobuf.message.Message):
@@ -206,15 +206,15 @@ class CommAlertOpsOptions(google.protobuf.message.Message):
 
     WORKSPACES_FIELD_NUMBER: builtins.int
     @property
-    def workspaces(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___CommWorkspace]: ...
+    def workspaces(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___CommWorkspace]: ...
     def __init__(
         self,
         *,
-        workspaces: collections.abc.Iterable[Global___CommWorkspace] | None = ...,
+        workspaces: collections.abc.Iterable[global___CommWorkspace] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["workspaces", b"workspaces"]) -> None: ...
 
-Global___CommAlertOpsOptions: typing_extensions.TypeAlias = CommAlertOpsOptions
+global___CommAlertOpsOptions = CommAlertOpsOptions
 
 @typing.final
 class AlertOpsOptions(google.protobuf.message.Message):
@@ -222,16 +222,16 @@ class AlertOpsOptions(google.protobuf.message.Message):
 
     COMM_OPTIONS_FIELD_NUMBER: builtins.int
     @property
-    def comm_options(self) -> Global___CommAlertOpsOptions: ...
+    def comm_options(self) -> global___CommAlertOpsOptions: ...
     def __init__(
         self,
         *,
-        comm_options: Global___CommAlertOpsOptions | None = ...,
+        comm_options: global___CommAlertOpsOptions | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["comm_options", b"comm_options"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["comm_options", b"comm_options"]) -> None: ...
 
-Global___AlertOpsOptions: typing_extensions.TypeAlias = AlertOpsOptions
+global___AlertOpsOptions = AlertOpsOptions
 
 @typing.final
 class SlackAlert(google.protobuf.message.Message):
@@ -277,9 +277,9 @@ class SlackAlert(google.protobuf.message.Message):
     @property
     def alert_title(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
-    def slack_channel(self) -> Global___CommChannel: ...
+    def slack_channel(self) -> global___CommChannel: ...
     @property
-    def alert_tags(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___SlackAlert.AlertTag]: ...
+    def alert_tags(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___SlackAlert.AlertTag]: ...
     @property
     def count(self) -> google.protobuf.wrappers_pb2.UInt64Value:
         """Grouping Metadata"""
@@ -302,9 +302,9 @@ class SlackAlert(google.protobuf.message.Message):
         id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
         alert_type: google.protobuf.wrappers_pb2.StringValue | None = ...,
         alert_title: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        slack_channel: Global___CommChannel | None = ...,
+        slack_channel: global___CommChannel | None = ...,
         alert_timestamp: builtins.int = ...,
-        alert_tags: collections.abc.Iterable[Global___SlackAlert.AlertTag] | None = ...,
+        alert_tags: collections.abc.Iterable[global___SlackAlert.AlertTag] | None = ...,
         count: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
         alert_text: google.protobuf.wrappers_pb2.StringValue | None = ...,
         alert_json: google.protobuf.struct_pb2.Struct | None = ...,
@@ -316,7 +316,7 @@ class SlackAlert(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["alert_details", b"alert_details", "alert_json", b"alert_json", "alert_text", b"alert_text", "alert_title", b"alert_title", "alert_type", b"alert_type", "count", b"count", "id", b"id", "investigation_session_id", b"investigation_session_id", "is_debugged", b"is_debugged", "is_hidden", b"is_hidden", "slack_channel", b"slack_channel"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["alert_details", b"alert_details", "alert_json", b"alert_json", "alert_tags", b"alert_tags", "alert_text", b"alert_text", "alert_timestamp", b"alert_timestamp", "alert_title", b"alert_title", "alert_type", b"alert_type", "count", b"count", "id", b"id", "investigation_session_id", b"investigation_session_id", "is_debugged", b"is_debugged", "is_hidden", b"is_hidden", "slack_channel", b"slack_channel"]) -> None: ...
 
-Global___SlackAlert: typing_extensions.TypeAlias = SlackAlert
+global___SlackAlert = SlackAlert
 
 @typing.final
 class GroupedSlackAlert(google.protobuf.message.Message):
@@ -338,29 +338,29 @@ class GroupedSlackAlert(google.protobuf.message.Message):
     @property
     def group_title(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
-    def slack_channel(self) -> Global___CommChannel: ...
+    def slack_channel(self) -> global___CommChannel: ...
     @property
     def total_count(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     @property
     def custom_message(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
-    def alerts(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___SlackAlert]: ...
+    def alerts(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___SlackAlert]: ...
     def __init__(
         self,
         *,
         id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
         alert_type: google.protobuf.wrappers_pb2.StringValue | None = ...,
         group_title: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        slack_channel: Global___CommChannel | None = ...,
+        slack_channel: global___CommChannel | None = ...,
         last_alert_timestamp: builtins.int = ...,
         total_count: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
         custom_message: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        alerts: collections.abc.Iterable[Global___SlackAlert] | None = ...,
+        alerts: collections.abc.Iterable[global___SlackAlert] | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["alert_type", b"alert_type", "custom_message", b"custom_message", "group_title", b"group_title", "id", b"id", "slack_channel", b"slack_channel", "total_count", b"total_count"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["alert_type", b"alert_type", "alerts", b"alerts", "custom_message", b"custom_message", "group_title", b"group_title", "id", b"id", "last_alert_timestamp", b"last_alert_timestamp", "slack_channel", b"slack_channel", "total_count", b"total_count"]) -> None: ...
 
-Global___GroupedSlackAlert: typing_extensions.TypeAlias = GroupedSlackAlert
+global___GroupedSlackAlert = GroupedSlackAlert
 
 @typing.final
 class LiveSlackAlertRow(google.protobuf.message.Message):
@@ -373,23 +373,23 @@ class LiveSlackAlertRow(google.protobuf.message.Message):
     @property
     def is_grouped(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
     @property
-    def slack_alert(self) -> Global___SlackAlert: ...
+    def slack_alert(self) -> global___SlackAlert: ...
     @property
-    def grouped_slack_alert(self) -> Global___GroupedSlackAlert: ...
+    def grouped_slack_alert(self) -> global___GroupedSlackAlert: ...
     @property
     def labels(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
     def __init__(
         self,
         *,
         is_grouped: google.protobuf.wrappers_pb2.BoolValue | None = ...,
-        slack_alert: Global___SlackAlert | None = ...,
-        grouped_slack_alert: Global___GroupedSlackAlert | None = ...,
+        slack_alert: global___SlackAlert | None = ...,
+        grouped_slack_alert: global___GroupedSlackAlert | None = ...,
         labels: collections.abc.Iterable[builtins.str] | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["grouped_slack_alert", b"grouped_slack_alert", "is_grouped", b"is_grouped", "slack_alert", b"slack_alert"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["grouped_slack_alert", b"grouped_slack_alert", "is_grouped", b"is_grouped", "labels", b"labels", "slack_alert", b"slack_alert"]) -> None: ...
 
-Global___LiveSlackAlertRow: typing_extensions.TypeAlias = LiveSlackAlertRow
+global___LiveSlackAlertRow = LiveSlackAlertRow
 
 @typing.final
 class Issue(google.protobuf.message.Message):
@@ -429,9 +429,9 @@ class Issue(google.protobuf.message.Message):
     @property
     def issue_title(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
-    def issue_channel(self) -> Global___CommChannel: ...
+    def issue_channel(self) -> global___CommChannel: ...
     @property
-    def issue_tags(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___Issue.IssueTag]: ...
+    def issue_tags(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___Issue.IssueTag]: ...
     @property
     def count(self) -> google.protobuf.wrappers_pb2.UInt64Value:
         """Grouping Metadata"""
@@ -442,15 +442,15 @@ class Issue(google.protobuf.message.Message):
         id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
         issue_type: google.protobuf.wrappers_pb2.StringValue | None = ...,
         issue_title: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        issue_channel: Global___CommChannel | None = ...,
+        issue_channel: global___CommChannel | None = ...,
         issue_timestamp: builtins.int = ...,
-        issue_tags: collections.abc.Iterable[Global___Issue.IssueTag] | None = ...,
+        issue_tags: collections.abc.Iterable[global___Issue.IssueTag] | None = ...,
         count: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["count", b"count", "id", b"id", "issue_channel", b"issue_channel", "issue_title", b"issue_title", "issue_type", b"issue_type"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["count", b"count", "id", b"id", "issue_channel", b"issue_channel", "issue_tags", b"issue_tags", "issue_timestamp", b"issue_timestamp", "issue_title", b"issue_title", "issue_type", b"issue_type"]) -> None: ...
 
-Global___Issue: typing_extensions.TypeAlias = Issue
+global___Issue = Issue
 
 @typing.final
 class AlertOpsMetricLabel(google.protobuf.message.Message):
@@ -473,7 +473,7 @@ class AlertOpsMetricLabel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["key", b"key", "value", b"value"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["key", b"key", "value", b"value"]) -> None: ...
 
-Global___AlertOpsMetricLabel: typing_extensions.TypeAlias = AlertOpsMetricLabel
+global___AlertOpsMetricLabel = AlertOpsMetricLabel
 
 @typing.final
 class AlertOpsMetricData(google.protobuf.message.Message):
@@ -482,18 +482,18 @@ class AlertOpsMetricData(google.protobuf.message.Message):
     LABEL_GROUP_FIELD_NUMBER: builtins.int
     Y_SERIES_FIELD_NUMBER: builtins.int
     @property
-    def label_group(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___AlertOpsMetricLabel]: ...
+    def label_group(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___AlertOpsMetricLabel]: ...
     @property
     def y_series(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.float]: ...
     def __init__(
         self,
         *,
-        label_group: collections.abc.Iterable[Global___AlertOpsMetricLabel] | None = ...,
+        label_group: collections.abc.Iterable[global___AlertOpsMetricLabel] | None = ...,
         y_series: collections.abc.Iterable[builtins.float] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["label_group", b"label_group", "y_series", b"y_series"]) -> None: ...
 
-Global___AlertOpsMetricData: typing_extensions.TypeAlias = AlertOpsMetricData
+global___AlertOpsMetricData = AlertOpsMetricData
 
 @typing.final
 class AlertOpsMetric(google.protobuf.message.Message):
@@ -507,18 +507,18 @@ class AlertOpsMetric(google.protobuf.message.Message):
     @property
     def x_series(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]: ...
     @property
-    def data(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___AlertOpsMetricData]: ...
+    def data(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___AlertOpsMetricData]: ...
     def __init__(
         self,
         *,
         is_timeseries: google.protobuf.wrappers_pb2.BoolValue | None = ...,
         x_series: collections.abc.Iterable[builtins.int] | None = ...,
-        data: collections.abc.Iterable[Global___AlertOpsMetricData] | None = ...,
+        data: collections.abc.Iterable[global___AlertOpsMetricData] | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["is_timeseries", b"is_timeseries"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["data", b"data", "is_timeseries", b"is_timeseries", "x_series", b"x_series"]) -> None: ...
 
-Global___AlertOpsMetric: typing_extensions.TypeAlias = AlertOpsMetric
+global___AlertOpsMetric = AlertOpsMetric
 
 @typing.final
 class AlertOpsMetricsResponses(google.protobuf.message.Message):
@@ -526,15 +526,15 @@ class AlertOpsMetricsResponses(google.protobuf.message.Message):
 
     METRIC_RESPONSES_FIELD_NUMBER: builtins.int
     @property
-    def metric_responses(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___AlertOpsMetric]: ...
+    def metric_responses(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___AlertOpsMetric]: ...
     def __init__(
         self,
         *,
-        metric_responses: collections.abc.Iterable[Global___AlertOpsMetric] | None = ...,
+        metric_responses: collections.abc.Iterable[global___AlertOpsMetric] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["metric_responses", b"metric_responses"]) -> None: ...
 
-Global___AlertOpsMetricsResponses: typing_extensions.TypeAlias = AlertOpsMetricsResponses
+global___AlertOpsMetricsResponses = AlertOpsMetricsResponses
 
 @typing.final
 class AQSScoreModel(google.protobuf.message.Message):
@@ -574,7 +574,7 @@ class AQSScoreModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["apd", b"apd", "aqs", b"aqs", "noisy_alerts", b"noisy_alerts", "score_a", b"score_a", "score_f", b"score_f", "total_alerts", b"total_alerts"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["apd", b"apd", "aqs", b"aqs", "noisy_alerts", b"noisy_alerts", "score_a", b"score_a", "score_f", b"score_f", "timestamp", b"timestamp", "total_alerts", b"total_alerts"]) -> None: ...
 
-Global___AQSScoreModel: typing_extensions.TypeAlias = AQSScoreModel
+global___AQSScoreModel = AQSScoreModel
 
 @typing.final
 class AlertSource(google.protobuf.message.Message):
@@ -600,7 +600,7 @@ class AlertSource(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["id", b"id", "name", b"name"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["id", b"id", "name", b"name", "source_type", b"source_type"]) -> None: ...
 
-Global___AlertSource: typing_extensions.TypeAlias = AlertSource
+global___AlertSource = AlertSource
 
 @typing.final
 class AlertChannel(google.protobuf.message.Message):
@@ -617,19 +617,19 @@ class AlertChannel(google.protobuf.message.Message):
     @property
     def name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
-    def alert_source(self) -> Global___AlertSource: ...
+    def alert_source(self) -> global___AlertSource: ...
     def __init__(
         self,
         *,
         id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
         uid: google.protobuf.wrappers_pb2.StringValue | None = ...,
         name: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        alert_source: Global___AlertSource | None = ...,
+        alert_source: global___AlertSource | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["alert_source", b"alert_source", "id", b"id", "name", b"name", "uid", b"uid"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["alert_source", b"alert_source", "id", b"id", "name", b"name", "uid", b"uid"]) -> None: ...
 
-Global___AlertChannel: typing_extensions.TypeAlias = AlertChannel
+global___AlertChannel = AlertChannel
 
 @typing.final
 class AlertType(google.protobuf.message.Message):
@@ -644,21 +644,21 @@ class AlertType(google.protobuf.message.Message):
     @property
     def alert_type(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
-    def alert_source(self) -> Global___AlertSource: ...
+    def alert_source(self) -> global___AlertSource: ...
     @property
-    def alert_channel(self) -> Global___AlertChannel: ...
+    def alert_channel(self) -> global___AlertChannel: ...
     def __init__(
         self,
         *,
         id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
         alert_type: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        alert_source: Global___AlertSource | None = ...,
-        alert_channel: Global___AlertChannel | None = ...,
+        alert_source: global___AlertSource | None = ...,
+        alert_channel: global___AlertChannel | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["alert_channel", b"alert_channel", "alert_source", b"alert_source", "alert_type", b"alert_type", "id", b"id"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["alert_channel", b"alert_channel", "alert_source", b"alert_source", "alert_type", b"alert_type", "id", b"id"]) -> None: ...
 
-Global___AlertType: typing_extensions.TypeAlias = AlertType
+global___AlertType = AlertType
 
 @typing.final
 class AlertTag(google.protobuf.message.Message):
@@ -677,25 +677,25 @@ class AlertTag(google.protobuf.message.Message):
     @property
     def value(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
-    def alert_source(self) -> Global___AlertSource: ...
+    def alert_source(self) -> global___AlertSource: ...
     @property
-    def alert_channel(self) -> Global___AlertChannel: ...
+    def alert_channel(self) -> global___AlertChannel: ...
     @property
-    def alert_type(self) -> Global___AlertType: ...
+    def alert_type(self) -> global___AlertType: ...
     def __init__(
         self,
         *,
         id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
         key: google.protobuf.wrappers_pb2.StringValue | None = ...,
         value: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        alert_source: Global___AlertSource | None = ...,
-        alert_channel: Global___AlertChannel | None = ...,
-        alert_type: Global___AlertType | None = ...,
+        alert_source: global___AlertSource | None = ...,
+        alert_channel: global___AlertChannel | None = ...,
+        alert_type: global___AlertType | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["alert_channel", b"alert_channel", "alert_source", b"alert_source", "alert_type", b"alert_type", "id", b"id", "key", b"key", "value", b"value"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["alert_channel", b"alert_channel", "alert_source", b"alert_source", "alert_type", b"alert_type", "id", b"id", "key", b"key", "value", b"value"]) -> None: ...
 
-Global___AlertTag: typing_extensions.TypeAlias = AlertTag
+global___AlertTag = AlertTag
 
 @typing.final
 class Alert(google.protobuf.message.Message):
@@ -717,13 +717,13 @@ class Alert(google.protobuf.message.Message):
     @property
     def total_count(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     @property
-    def alert_source(self) -> Global___AlertSource: ...
+    def alert_source(self) -> global___AlertSource: ...
     @property
-    def alert_channel(self) -> Global___AlertChannel: ...
+    def alert_channel(self) -> global___AlertChannel: ...
     @property
-    def alert_type(self) -> Global___AlertType: ...
+    def alert_type(self) -> global___AlertType: ...
     @property
-    def alert_tags(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___AlertTag]: ...
+    def alert_tags(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___AlertTag]: ...
     def __init__(
         self,
         *,
@@ -731,15 +731,15 @@ class Alert(google.protobuf.message.Message):
         alert_title: google.protobuf.wrappers_pb2.StringValue | None = ...,
         alert_timestamp: builtins.int = ...,
         total_count: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
-        alert_source: Global___AlertSource | None = ...,
-        alert_channel: Global___AlertChannel | None = ...,
-        alert_type: Global___AlertType | None = ...,
-        alert_tags: collections.abc.Iterable[Global___AlertTag] | None = ...,
+        alert_source: global___AlertSource | None = ...,
+        alert_channel: global___AlertChannel | None = ...,
+        alert_type: global___AlertType | None = ...,
+        alert_tags: collections.abc.Iterable[global___AlertTag] | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["alert_channel", b"alert_channel", "alert_source", b"alert_source", "alert_title", b"alert_title", "alert_type", b"alert_type", "id", b"id", "total_count", b"total_count"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["alert_channel", b"alert_channel", "alert_source", b"alert_source", "alert_tags", b"alert_tags", "alert_timestamp", b"alert_timestamp", "alert_title", b"alert_title", "alert_type", b"alert_type", "id", b"id", "total_count", b"total_count"]) -> None: ...
 
-Global___Alert: typing_extensions.TypeAlias = Alert
+global___Alert = Alert
 
 @typing.final
 class InvestigationConversation(google.protobuf.message.Message):
@@ -762,7 +762,7 @@ class InvestigationConversation(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["id", b"id"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["id", b"id", "message", b"message", "timestamp", b"timestamp"]) -> None: ...
 
-Global___InvestigationConversation: typing_extensions.TypeAlias = InvestigationConversation
+global___InvestigationConversation = InvestigationConversation
 
 @typing.final
 class InvestigationMessageContent(google.protobuf.message.Message):
@@ -786,7 +786,7 @@ class InvestigationMessageContent(google.protobuf.message.Message):
     TYPE_FIELD_NUMBER: builtins.int
     TEXT_FIELD_NUMBER: builtins.int
     JSON_FIELD_NUMBER: builtins.int
-    type: Global___InvestigationMessageContent.Type.ValueType
+    type: global___InvestigationMessageContent.Type.ValueType
     @property
     def text(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
@@ -794,7 +794,7 @@ class InvestigationMessageContent(google.protobuf.message.Message):
     def __init__(
         self,
         *,
-        type: Global___InvestigationMessageContent.Type.ValueType = ...,
+        type: global___InvestigationMessageContent.Type.ValueType = ...,
         text: google.protobuf.wrappers_pb2.StringValue | None = ...,
         json: google.protobuf.struct_pb2.Struct | None = ...,
     ) -> None: ...
@@ -802,7 +802,7 @@ class InvestigationMessageContent(google.protobuf.message.Message):
     def ClearField(self, field_name: typing.Literal["content", b"content", "json", b"json", "text", b"text", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["content", b"content"]) -> typing.Literal["text", "json"] | None: ...
 
-Global___InvestigationMessageContent: typing_extensions.TypeAlias = InvestigationMessageContent
+global___InvestigationMessageContent = InvestigationMessageContent
 
 @typing.final
 class InvestigationMessage(google.protobuf.message.Message):
@@ -815,7 +815,7 @@ class InvestigationMessage(google.protobuf.message.Message):
         CURRENT_STATE_FIELD_NUMBER: builtins.int
         TOTAL_LIKES_FIELD_NUMBER: builtins.int
         TOTAL_DISLIKES_FIELD_NUMBER: builtins.int
-        current_state: Global___InvestigationMessageReactionType.ValueType
+        current_state: global___InvestigationMessageReactionType.ValueType
         @property
         def total_likes(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
         @property
@@ -823,7 +823,7 @@ class InvestigationMessage(google.protobuf.message.Message):
         def __init__(
             self,
             *,
-            current_state: Global___InvestigationMessageReactionType.ValueType = ...,
+            current_state: global___InvestigationMessageReactionType.ValueType = ...,
             total_likes: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
             total_dislikes: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
         ) -> None: ...
@@ -860,7 +860,7 @@ class InvestigationMessage(google.protobuf.message.Message):
     TASK_EXECUTION_IDS_FIELD_NUMBER: builtins.int
     USER_REACTION_STATE_FIELD_NUMBER: builtins.int
     CONVERSATION_FIELD_NUMBER: builtins.int
-    message_type: Global___InvestigationMessageType.ValueType
+    message_type: global___InvestigationMessageType.ValueType
     timestamp: builtins.int
     @property
     def message_id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
@@ -871,15 +871,15 @@ class InvestigationMessage(google.protobuf.message.Message):
     @property
     def author(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
-    def metadata(self) -> Global___InvestigationMessage.InvestigationMessageMetadata: ...
+    def metadata(self) -> global___InvestigationMessage.InvestigationMessageMetadata: ...
     @property
-    def content(self) -> Global___InvestigationMessageContent: ...
+    def content(self) -> global___InvestigationMessageContent: ...
     @property
     def task_execution_ids(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]: ...
     @property
-    def user_reaction_state(self) -> Global___InvestigationMessage.UserReactionState: ...
+    def user_reaction_state(self) -> global___InvestigationMessage.UserReactionState: ...
     @property
-    def conversation(self) -> Global___InvestigationConversation: ...
+    def conversation(self) -> global___InvestigationConversation: ...
     def __init__(
         self,
         *,
@@ -887,18 +887,18 @@ class InvestigationMessage(google.protobuf.message.Message):
         session_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
         session_sequence: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
         author: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        metadata: Global___InvestigationMessage.InvestigationMessageMetadata | None = ...,
-        message_type: Global___InvestigationMessageType.ValueType = ...,
-        content: Global___InvestigationMessageContent | None = ...,
+        metadata: global___InvestigationMessage.InvestigationMessageMetadata | None = ...,
+        message_type: global___InvestigationMessageType.ValueType = ...,
+        content: global___InvestigationMessageContent | None = ...,
         timestamp: builtins.int = ...,
         task_execution_ids: collections.abc.Iterable[builtins.int] | None = ...,
-        user_reaction_state: Global___InvestigationMessage.UserReactionState | None = ...,
-        conversation: Global___InvestigationConversation | None = ...,
+        user_reaction_state: global___InvestigationMessage.UserReactionState | None = ...,
+        conversation: global___InvestigationConversation | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["author", b"author", "content", b"content", "conversation", b"conversation", "message_id", b"message_id", "metadata", b"metadata", "session_id", b"session_id", "session_sequence", b"session_sequence", "user_reaction_state", b"user_reaction_state"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["author", b"author", "content", b"content", "conversation", b"conversation", "message_id", b"message_id", "message_type", b"message_type", "metadata", b"metadata", "session_id", b"session_id", "session_sequence", b"session_sequence", "task_execution_ids", b"task_execution_ids", "timestamp", b"timestamp", "user_reaction_state", b"user_reaction_state"]) -> None: ...
 
-Global___InvestigationMessage: typing_extensions.TypeAlias = InvestigationMessage
+global___InvestigationMessage = InvestigationMessage
 
 @typing.final
 class InvestigationSession(google.protobuf.message.Message):
@@ -921,17 +921,17 @@ class InvestigationSession(google.protobuf.message.Message):
     description: builtins.str
     user_input_prompt: builtins.str
     title: builtins.str
-    state: Global___InvestigationSessionState.ValueType
+    state: global___InvestigationSessionState.ValueType
     @property
     def created_at(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     @property
     def tags(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
     @property
-    def messages(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___InvestigationMessage]: ...
+    def messages(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___InvestigationMessage]: ...
     @property
-    def included_alerts(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___SlackAlert]: ...
+    def included_alerts(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___SlackAlert]: ...
     @property
-    def included_issues(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___Issue]: ...
+    def included_issues(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___Issue]: ...
     @property
     def created_by(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
@@ -944,21 +944,21 @@ class InvestigationSession(google.protobuf.message.Message):
         session_id: builtins.str = ...,
         created_at: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
         tags: collections.abc.Iterable[builtins.str] | None = ...,
-        messages: collections.abc.Iterable[Global___InvestigationMessage] | None = ...,
+        messages: collections.abc.Iterable[global___InvestigationMessage] | None = ...,
         description: builtins.str = ...,
         user_input_prompt: builtins.str = ...,
-        included_alerts: collections.abc.Iterable[Global___SlackAlert] | None = ...,
+        included_alerts: collections.abc.Iterable[global___SlackAlert] | None = ...,
         title: builtins.str = ...,
-        included_issues: collections.abc.Iterable[Global___Issue] | None = ...,
+        included_issues: collections.abc.Iterable[global___Issue] | None = ...,
         created_by: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        state: Global___InvestigationSessionState.ValueType = ...,
+        state: global___InvestigationSessionState.ValueType = ...,
         current_session_sequence: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
         is_important: google.protobuf.wrappers_pb2.BoolValue | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["created_at", b"created_at", "created_by", b"created_by", "current_session_sequence", b"current_session_sequence", "is_important", b"is_important"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["created_at", b"created_at", "created_by", b"created_by", "current_session_sequence", b"current_session_sequence", "description", b"description", "included_alerts", b"included_alerts", "included_issues", b"included_issues", "is_important", b"is_important", "messages", b"messages", "session_id", b"session_id", "state", b"state", "tags", b"tags", "title", b"title", "user_input_prompt", b"user_input_prompt"]) -> None: ...
 
-Global___InvestigationSession: typing_extensions.TypeAlias = InvestigationSession
+global___InvestigationSession = InvestigationSession
 
 @typing.final
 class UserAlertOpsPreferences(google.protobuf.message.Message):
@@ -975,7 +975,7 @@ class UserAlertOpsPreferences(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["use_alert_group_titles", b"use_alert_group_titles"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["use_alert_group_titles", b"use_alert_group_titles"]) -> None: ...
 
-Global___UserAlertOpsPreferences: typing_extensions.TypeAlias = UserAlertOpsPreferences
+global___UserAlertOpsPreferences = UserAlertOpsPreferences
 
 @typing.final
 class AgentTaskConfig(google.protobuf.message.Message):
@@ -1020,7 +1020,7 @@ class AgentTaskConfig(google.protobuf.message.Message):
     @property
     def is_active(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
     @property
-    def metadata(self) -> Global___AgentTaskConfig.AgentTaskConfigMetadata: ...
+    def metadata(self) -> global___AgentTaskConfig.AgentTaskConfigMetadata: ...
     def __init__(
         self,
         *,
@@ -1032,12 +1032,12 @@ class AgentTaskConfig(google.protobuf.message.Message):
         available_connectors: collections.abc.Iterable[core.protos.connectors.connector_pb2.Connector] | None = ...,
         asset_types: collections.abc.Iterable[builtins.str] | None = ...,
         is_active: google.protobuf.wrappers_pb2.BoolValue | None = ...,
-        metadata: Global___AgentTaskConfig.AgentTaskConfigMetadata | None = ...,
+        metadata: global___AgentTaskConfig.AgentTaskConfigMetadata | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["category", b"category", "display_name", b"display_name", "is_active", b"is_active", "metadata", b"metadata", "source_description", b"source_description", "task_type", b"task_type"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["asset_types", b"asset_types", "available_connectors", b"available_connectors", "category", b"category", "display_name", b"display_name", "is_active", b"is_active", "metadata", b"metadata", "source", b"source", "source_description", b"source_description", "task_type", b"task_type"]) -> None: ...
 
-Global___AgentTaskConfig: typing_extensions.TypeAlias = AgentTaskConfig
+global___AgentTaskConfig = AgentTaskConfig
 
 @typing.final
 class PlaybookComment(google.protobuf.message.Message):
@@ -1054,19 +1054,19 @@ class PlaybookComment(google.protobuf.message.Message):
     @property
     def conversation_author(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
-    def conversation_message(self) -> Global___InvestigationConversation: ...
+    def conversation_message(self) -> global___InvestigationConversation: ...
     def __init__(
         self,
         *,
         investigation_session_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
         investigation_session_title: google.protobuf.wrappers_pb2.StringValue | None = ...,
         conversation_author: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        conversation_message: Global___InvestigationConversation | None = ...,
+        conversation_message: global___InvestigationConversation | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["conversation_author", b"conversation_author", "conversation_message", b"conversation_message", "investigation_session_id", b"investigation_session_id", "investigation_session_title", b"investigation_session_title"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["conversation_author", b"conversation_author", "conversation_message", b"conversation_message", "investigation_session_id", b"investigation_session_id", "investigation_session_title", b"investigation_session_title"]) -> None: ...
 
-Global___PlaybookComment: typing_extensions.TypeAlias = PlaybookComment
+global___PlaybookComment = PlaybookComment
 
 @typing.final
 class ScheduleNotificationMetadata(google.protobuf.message.Message):
@@ -1093,7 +1093,7 @@ class ScheduleNotificationMetadata(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["notify_channel_id", b"notify_channel_id", "notify_criteria", b"notify_criteria", "notify_on_every_run", b"notify_on_every_run"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["notify_channel_id", b"notify_channel_id", "notify_criteria", b"notify_criteria", "notify_on_every_run", b"notify_on_every_run"]) -> None: ...
 
-Global___ScheduleNotificationMetadata: typing_extensions.TypeAlias = ScheduleNotificationMetadata
+global___ScheduleNotificationMetadata = ScheduleNotificationMetadata
 
 @typing.final
 class ScheduleSummaryMetadata(google.protobuf.message.Message):
@@ -1118,7 +1118,7 @@ class ScheduleSummaryMetadata(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["last_summary_sent_at", b"last_summary_sent_at", "send_aggregated_summary", b"send_aggregated_summary", "summary_cron_schedule", b"summary_cron_schedule"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["last_summary_sent_at", b"last_summary_sent_at", "send_aggregated_summary", b"send_aggregated_summary", "summary_cron_schedule", b"summary_cron_schedule"]) -> None: ...
 
-Global___ScheduleSummaryMetadata: typing_extensions.TypeAlias = ScheduleSummaryMetadata
+global___ScheduleSummaryMetadata = ScheduleSummaryMetadata
 
 @typing.final
 class ScheduleCronMetadata(google.protobuf.message.Message):
@@ -1139,4 +1139,4 @@ class ScheduleCronMetadata(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["cron_schedule", b"cron_schedule", "last_scheduled_at", b"last_scheduled_at"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["cron_schedule", b"cron_schedule", "last_scheduled_at", b"last_scheduled_at"]) -> None: ...
 
-Global___ScheduleCronMetadata: typing_extensions.TypeAlias = ScheduleCronMetadata
+global___ScheduleCronMetadata = ScheduleCronMetadata

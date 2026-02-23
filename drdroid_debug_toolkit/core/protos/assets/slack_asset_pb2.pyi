@@ -11,13 +11,7 @@ import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.message
 import google.protobuf.wrappers_pb2
-import sys
 import typing
-
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
-else:
-    import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
@@ -61,7 +55,7 @@ class SlackChannelAssetModel(google.protobuf.message.Message):
     @property
     def channel_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
-    def metadata(self) -> Global___SlackChannelAssetModel.ChannelMetadata: ...
+    def metadata(self) -> global___SlackChannelAssetModel.ChannelMetadata: ...
     @property
     def alert_ops_configuration(self) -> core.protos.connectors.api_pb2.SlackAlertOpsConfiguration: ...
     def __init__(
@@ -69,13 +63,13 @@ class SlackChannelAssetModel(google.protobuf.message.Message):
         *,
         channel_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
         channel_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        metadata: Global___SlackChannelAssetModel.ChannelMetadata | None = ...,
+        metadata: global___SlackChannelAssetModel.ChannelMetadata | None = ...,
         alert_ops_configuration: core.protos.connectors.api_pb2.SlackAlertOpsConfiguration | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["alert_ops_configuration", b"alert_ops_configuration", "channel_id", b"channel_id", "channel_name", b"channel_name", "metadata", b"metadata"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["alert_ops_configuration", b"alert_ops_configuration", "channel_id", b"channel_id", "channel_name", b"channel_name", "metadata", b"metadata"]) -> None: ...
 
-Global___SlackChannelAssetModel: typing_extensions.TypeAlias = SlackChannelAssetModel
+global___SlackChannelAssetModel = SlackChannelAssetModel
 
 @typing.final
 class SlackChannelAssetOptions(google.protobuf.message.Message):
@@ -91,7 +85,7 @@ class SlackChannelAssetOptions(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["channel_ids", b"channel_ids"]) -> None: ...
 
-Global___SlackChannelAssetOptions: typing_extensions.TypeAlias = SlackChannelAssetOptions
+global___SlackChannelAssetOptions = SlackChannelAssetOptions
 
 @typing.final
 class SlackAssetModel(google.protobuf.message.Message):
@@ -108,7 +102,7 @@ class SlackAssetModel(google.protobuf.message.Message):
     @property
     def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     @property
-    def slack_channel(self) -> Global___SlackChannelAssetModel: ...
+    def slack_channel(self) -> global___SlackChannelAssetModel: ...
     def __init__(
         self,
         *,
@@ -116,13 +110,13 @@ class SlackAssetModel(google.protobuf.message.Message):
         connector_type: core.protos.base_pb2.Source.ValueType = ...,
         type: core.protos.base_pb2.SourceModelType.ValueType = ...,
         last_updated: builtins.int = ...,
-        slack_channel: Global___SlackChannelAssetModel | None = ...,
+        slack_channel: global___SlackChannelAssetModel | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["asset", b"asset", "id", b"id", "slack_channel", b"slack_channel"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["asset", b"asset", "connector_type", b"connector_type", "id", b"id", "last_updated", b"last_updated", "slack_channel", b"slack_channel", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["asset", b"asset"]) -> typing.Literal["slack_channel"] | None: ...
 
-Global___SlackAssetModel: typing_extensions.TypeAlias = SlackAssetModel
+global___SlackAssetModel = SlackAssetModel
 
 @typing.final
 class SlackAssets(google.protobuf.message.Message):
@@ -130,12 +124,12 @@ class SlackAssets(google.protobuf.message.Message):
 
     ASSETS_FIELD_NUMBER: builtins.int
     @property
-    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___SlackAssetModel]: ...
+    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___SlackAssetModel]: ...
     def __init__(
         self,
         *,
-        assets: collections.abc.Iterable[Global___SlackAssetModel] | None = ...,
+        assets: collections.abc.Iterable[global___SlackAssetModel] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["assets", b"assets"]) -> None: ...
 
-Global___SlackAssets: typing_extensions.TypeAlias = SlackAssets
+global___SlackAssets = SlackAssets

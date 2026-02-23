@@ -10,13 +10,7 @@ import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.message
 import google.protobuf.wrappers_pb2
-import sys
 import typing
-
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
-else:
-    import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
@@ -39,7 +33,7 @@ class Command(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["description", b"description", "type", b"type"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["description", b"description", "type", b"type"]) -> None: ...
 
-Global___Command: typing_extensions.TypeAlias = Command
+global___Command = Command
 
 @typing.final
 class Namespace(google.protobuf.message.Message):
@@ -60,7 +54,7 @@ class Namespace(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["name", b"name"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["name", b"name", "pods", b"pods"]) -> None: ...
 
-Global___Namespace: typing_extensions.TypeAlias = Namespace
+global___Namespace = Namespace
 
 @typing.final
 class Cluster(google.protobuf.message.Message):
@@ -71,17 +65,17 @@ class Cluster(google.protobuf.message.Message):
     @property
     def name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
-    def namespaces(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___Namespace]: ...
+    def namespaces(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___Namespace]: ...
     def __init__(
         self,
         *,
         name: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        namespaces: collections.abc.Iterable[Global___Namespace] | None = ...,
+        namespaces: collections.abc.Iterable[global___Namespace] | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["name", b"name"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["name", b"name", "namespaces", b"namespaces"]) -> None: ...
 
-Global___Cluster: typing_extensions.TypeAlias = Cluster
+global___Cluster = Cluster
 
 @typing.final
 class RegionCluster(google.protobuf.message.Message):
@@ -92,17 +86,17 @@ class RegionCluster(google.protobuf.message.Message):
     @property
     def region(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
-    def clusters(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___Cluster]: ...
+    def clusters(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___Cluster]: ...
     def __init__(
         self,
         *,
         region: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        clusters: collections.abc.Iterable[Global___Cluster] | None = ...,
+        clusters: collections.abc.Iterable[global___Cluster] | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["region", b"region"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["clusters", b"clusters", "region", b"region"]) -> None: ...
 
-Global___RegionCluster: typing_extensions.TypeAlias = RegionCluster
+global___RegionCluster = RegionCluster
 
 @typing.final
 class EksClusterAssetModel(google.protobuf.message.Message):
@@ -114,20 +108,20 @@ class EksClusterAssetModel(google.protobuf.message.Message):
     @property
     def region(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
-    def clusters(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___Cluster]: ...
+    def clusters(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___Cluster]: ...
     @property
-    def commands(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___Command]: ...
+    def commands(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___Command]: ...
     def __init__(
         self,
         *,
         region: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        clusters: collections.abc.Iterable[Global___Cluster] | None = ...,
-        commands: collections.abc.Iterable[Global___Command] | None = ...,
+        clusters: collections.abc.Iterable[global___Cluster] | None = ...,
+        commands: collections.abc.Iterable[global___Command] | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["region", b"region"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["clusters", b"clusters", "commands", b"commands", "region", b"region"]) -> None: ...
 
-Global___EksClusterAssetModel: typing_extensions.TypeAlias = EksClusterAssetModel
+global___EksClusterAssetModel = EksClusterAssetModel
 
 @typing.final
 class EksClusterAssetOptions(google.protobuf.message.Message):
@@ -135,15 +129,15 @@ class EksClusterAssetOptions(google.protobuf.message.Message):
 
     REGIONS_FIELD_NUMBER: builtins.int
     @property
-    def regions(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___RegionCluster]: ...
+    def regions(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___RegionCluster]: ...
     def __init__(
         self,
         *,
-        regions: collections.abc.Iterable[Global___RegionCluster] | None = ...,
+        regions: collections.abc.Iterable[global___RegionCluster] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["regions", b"regions"]) -> None: ...
 
-Global___EksClusterAssetOptions: typing_extensions.TypeAlias = EksClusterAssetOptions
+global___EksClusterAssetOptions = EksClusterAssetOptions
 
 @typing.final
 class EksAssetModel(google.protobuf.message.Message):
@@ -160,7 +154,7 @@ class EksAssetModel(google.protobuf.message.Message):
     @property
     def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     @property
-    def eks_cluster(self) -> Global___EksClusterAssetModel: ...
+    def eks_cluster(self) -> global___EksClusterAssetModel: ...
     def __init__(
         self,
         *,
@@ -168,13 +162,13 @@ class EksAssetModel(google.protobuf.message.Message):
         connector_type: core.protos.base_pb2.Source.ValueType = ...,
         type: core.protos.base_pb2.SourceModelType.ValueType = ...,
         last_updated: builtins.int = ...,
-        eks_cluster: Global___EksClusterAssetModel | None = ...,
+        eks_cluster: global___EksClusterAssetModel | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["asset", b"asset", "eks_cluster", b"eks_cluster", "id", b"id"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["asset", b"asset", "connector_type", b"connector_type", "eks_cluster", b"eks_cluster", "id", b"id", "last_updated", b"last_updated", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["asset", b"asset"]) -> typing.Literal["eks_cluster"] | None: ...
 
-Global___EksAssetModel: typing_extensions.TypeAlias = EksAssetModel
+global___EksAssetModel = EksAssetModel
 
 @typing.final
 class EksAssets(google.protobuf.message.Message):
@@ -182,12 +176,12 @@ class EksAssets(google.protobuf.message.Message):
 
     ASSETS_FIELD_NUMBER: builtins.int
     @property
-    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___EksAssetModel]: ...
+    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___EksAssetModel]: ...
     def __init__(
         self,
         *,
-        assets: collections.abc.Iterable[Global___EksAssetModel] | None = ...,
+        assets: collections.abc.Iterable[global___EksAssetModel] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["assets", b"assets"]) -> None: ...
 
-Global___EksAssets: typing_extensions.TypeAlias = EksAssets
+global___EksAssets = EksAssets

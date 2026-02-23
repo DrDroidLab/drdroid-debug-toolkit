@@ -35,7 +35,7 @@ class SortOrder(_SortOrder, metaclass=_SortOrderEnumTypeWrapper): ...
 
 ASC: SortOrder.ValueType  # 0
 DESC: SortOrder.ValueType  # 1
-Global___SortOrder: typing_extensions.TypeAlias = SortOrder
+global___SortOrder = SortOrder
 
 @typing.final
 class OpRhs(google.protobuf.message.Message):
@@ -53,7 +53,7 @@ class OpRhs(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["op", b"op", "rhs", b"rhs"]) -> None: ...
 
-Global___OpRhs: typing_extensions.TypeAlias = OpRhs
+global___OpRhs = OpRhs
 
 @typing.final
 class OpMapping(google.protobuf.message.Message):
@@ -63,16 +63,16 @@ class OpMapping(google.protobuf.message.Message):
     OP_RHS_FIELD_NUMBER: builtins.int
     lhs: core.protos.literal_pb2.LiteralType.ValueType
     @property
-    def op_rhs(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___OpRhs]: ...
+    def op_rhs(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___OpRhs]: ...
     def __init__(
         self,
         *,
         lhs: core.protos.literal_pb2.LiteralType.ValueType = ...,
-        op_rhs: collections.abc.Iterable[Global___OpRhs] | None = ...,
+        op_rhs: collections.abc.Iterable[global___OpRhs] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["lhs", b"lhs", "op_rhs", b"op_rhs"]) -> None: ...
 
-Global___OpMapping: typing_extensions.TypeAlias = OpMapping
+global___OpMapping = OpMapping
 
 @typing.final
 class ColumnIdentifier(google.protobuf.message.Message):
@@ -90,7 +90,7 @@ class ColumnIdentifier(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["name", b"name", "type", b"type"]) -> None: ...
 
-Global___ColumnIdentifier: typing_extensions.TypeAlias = ColumnIdentifier
+global___ColumnIdentifier = ColumnIdentifier
 
 @typing.final
 class AttributeIdentifier(google.protobuf.message.Message):
@@ -111,7 +111,7 @@ class AttributeIdentifier(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["name", b"name", "path", b"path", "type", b"type"]) -> None: ...
 
-Global___AttributeIdentifier: typing_extensions.TypeAlias = AttributeIdentifier
+global___AttributeIdentifier = AttributeIdentifier
 
 @typing.final
 class AttributeIdentifierV2(google.protobuf.message.Message):
@@ -133,7 +133,7 @@ class AttributeIdentifierV2(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["name", b"name", "path", b"path", "type", b"type"]) -> None: ...
 
-Global___AttributeIdentifierV2: typing_extensions.TypeAlias = AttributeIdentifierV2
+global___AttributeIdentifierV2 = AttributeIdentifierV2
 
 @typing.final
 class Expression(google.protobuf.message.Message):
@@ -144,26 +144,26 @@ class Expression(google.protobuf.message.Message):
     ATTRIBUTE_IDENTIFIER_V2_FIELD_NUMBER: builtins.int
     LITERAL_FIELD_NUMBER: builtins.int
     @property
-    def column_identifier(self) -> Global___ColumnIdentifier: ...
+    def column_identifier(self) -> global___ColumnIdentifier: ...
     @property
-    def attribute_identifier(self) -> Global___AttributeIdentifier: ...
+    def attribute_identifier(self) -> global___AttributeIdentifier: ...
     @property
-    def attribute_identifier_v2(self) -> Global___AttributeIdentifierV2: ...
+    def attribute_identifier_v2(self) -> global___AttributeIdentifierV2: ...
     @property
     def literal(self) -> core.protos.literal_pb2.Literal: ...
     def __init__(
         self,
         *,
-        column_identifier: Global___ColumnIdentifier | None = ...,
-        attribute_identifier: Global___AttributeIdentifier | None = ...,
-        attribute_identifier_v2: Global___AttributeIdentifierV2 | None = ...,
+        column_identifier: global___ColumnIdentifier | None = ...,
+        attribute_identifier: global___AttributeIdentifier | None = ...,
+        attribute_identifier_v2: global___AttributeIdentifierV2 | None = ...,
         literal: core.protos.literal_pb2.Literal | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["attribute_identifier", b"attribute_identifier", "attribute_identifier_v2", b"attribute_identifier_v2", "column_identifier", b"column_identifier", "literal", b"literal", "value", b"value"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["attribute_identifier", b"attribute_identifier", "attribute_identifier_v2", b"attribute_identifier_v2", "column_identifier", b"column_identifier", "literal", b"literal", "value", b"value"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["value", b"value"]) -> typing.Literal["column_identifier", "attribute_identifier", "attribute_identifier_v2", "literal"] | None: ...
 
-Global___Expression: typing_extensions.TypeAlias = Expression
+global___Expression = Expression
 
 @typing.final
 class Filter(google.protobuf.message.Message):
@@ -175,23 +175,23 @@ class Filter(google.protobuf.message.Message):
     FILTERS_FIELD_NUMBER: builtins.int
     op: core.protos.base_pb2.Op.ValueType
     @property
-    def lhs(self) -> Global___Expression: ...
+    def lhs(self) -> global___Expression: ...
     @property
-    def rhs(self) -> Global___Expression: ...
+    def rhs(self) -> global___Expression: ...
     @property
-    def filters(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___Filter]: ...
+    def filters(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___Filter]: ...
     def __init__(
         self,
         *,
-        lhs: Global___Expression | None = ...,
+        lhs: global___Expression | None = ...,
         op: core.protos.base_pb2.Op.ValueType = ...,
-        rhs: Global___Expression | None = ...,
-        filters: collections.abc.Iterable[Global___Filter] | None = ...,
+        rhs: global___Expression | None = ...,
+        filters: collections.abc.Iterable[global___Filter] | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["lhs", b"lhs", "rhs", b"rhs"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["filters", b"filters", "lhs", b"lhs", "op", b"op", "rhs", b"rhs"]) -> None: ...
 
-Global___Filter: typing_extensions.TypeAlias = Filter
+global___Filter = Filter
 
 @typing.final
 class QueryRequest(google.protobuf.message.Message):
@@ -203,23 +203,23 @@ class QueryRequest(google.protobuf.message.Message):
     ORDER_BY_FIELD_NUMBER: builtins.int
     distinct_selections: builtins.bool
     @property
-    def filter(self) -> Global___Filter: ...
+    def filter(self) -> global___Filter: ...
     @property
-    def selection(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___Expression]: ...
+    def selection(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___Expression]: ...
     @property
-    def order_by(self) -> Global___OrderByExpression: ...
+    def order_by(self) -> global___OrderByExpression: ...
     def __init__(
         self,
         *,
-        filter: Global___Filter | None = ...,
-        selection: collections.abc.Iterable[Global___Expression] | None = ...,
+        filter: global___Filter | None = ...,
+        selection: collections.abc.Iterable[global___Expression] | None = ...,
         distinct_selections: builtins.bool = ...,
-        order_by: Global___OrderByExpression | None = ...,
+        order_by: global___OrderByExpression | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["filter", b"filter", "order_by", b"order_by"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["distinct_selections", b"distinct_selections", "filter", b"filter", "order_by", b"order_by", "selection", b"selection"]) -> None: ...
 
-Global___QueryRequest: typing_extensions.TypeAlias = QueryRequest
+global___QueryRequest = QueryRequest
 
 @typing.final
 class OrderByExpression(google.protobuf.message.Message):
@@ -229,9 +229,9 @@ class OrderByExpression(google.protobuf.message.Message):
     ORDER_FIELD_NUMBER: builtins.int
     ALLOW_NULLS_FIELD_NUMBER: builtins.int
     NULLS_LAST_FIELD_NUMBER: builtins.int
-    order: Global___SortOrder.ValueType
+    order: global___SortOrder.ValueType
     @property
-    def expression(self) -> Global___Expression: ...
+    def expression(self) -> global___Expression: ...
     @property
     def allow_nulls(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
     @property
@@ -239,12 +239,12 @@ class OrderByExpression(google.protobuf.message.Message):
     def __init__(
         self,
         *,
-        expression: Global___Expression | None = ...,
-        order: Global___SortOrder.ValueType = ...,
+        expression: global___Expression | None = ...,
+        order: global___SortOrder.ValueType = ...,
         allow_nulls: google.protobuf.wrappers_pb2.BoolValue | None = ...,
         nulls_last: google.protobuf.wrappers_pb2.BoolValue | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["allow_nulls", b"allow_nulls", "expression", b"expression", "nulls_last", b"nulls_last"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["allow_nulls", b"allow_nulls", "expression", b"expression", "nulls_last", b"nulls_last", "order", b"order"]) -> None: ...
 
-Global___OrderByExpression: typing_extensions.TypeAlias = OrderByExpression
+global___OrderByExpression = OrderByExpression

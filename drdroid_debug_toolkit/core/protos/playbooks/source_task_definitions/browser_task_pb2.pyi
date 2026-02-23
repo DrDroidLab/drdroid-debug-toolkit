@@ -52,17 +52,17 @@ class Browser(google.protobuf.message.Message):
 
     TYPE_FIELD_NUMBER: builtins.int
     AUTOMATION_FIELD_NUMBER: builtins.int
-    type: Global___Browser.TaskType.ValueType
+    type: global___Browser.TaskType.ValueType
     @property
-    def automation(self) -> Global___Browser.Automation: ...
+    def automation(self) -> global___Browser.Automation: ...
     def __init__(
         self,
         *,
-        type: Global___Browser.TaskType.ValueType = ...,
-        automation: Global___Browser.Automation | None = ...,
+        type: global___Browser.TaskType.ValueType = ...,
+        automation: global___Browser.Automation | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["automation", b"automation", "task", b"task"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["automation", b"automation", "task", b"task", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["task", b"task"]) -> typing.Literal["automation"] | None: ...
 
-Global___Browser: typing_extensions.TypeAlias = Browser
+global___Browser = Browser

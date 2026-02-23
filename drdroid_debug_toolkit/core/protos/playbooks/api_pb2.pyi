@@ -15,13 +15,7 @@ import google.protobuf.internal.containers
 import google.protobuf.message
 import google.protobuf.struct_pb2
 import google.protobuf.wrappers_pb2
-import sys
 import typing
-
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
-else:
-    import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
@@ -42,7 +36,7 @@ class PlaybooksBuilderOptionsRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["meta", b"meta"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["meta", b"meta"]) -> None: ...
 
-Global___PlaybooksBuilderOptionsRequest: typing_extensions.TypeAlias = PlaybooksBuilderOptionsRequest
+global___PlaybooksBuilderOptionsRequest = PlaybooksBuilderOptionsRequest
 
 @typing.final
 class PlaybooksBuilderOptionsResponse(google.protobuf.message.Message):
@@ -71,7 +65,7 @@ class PlaybooksBuilderOptionsResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "source_options", b"source_options", "success", b"success"]) -> None: ...
 
-Global___PlaybooksBuilderOptionsResponse: typing_extensions.TypeAlias = PlaybooksBuilderOptionsResponse
+global___PlaybooksBuilderOptionsResponse = PlaybooksBuilderOptionsResponse
 
 @typing.final
 class ApiRunPlaybookTaskRequest(google.protobuf.message.Message):
@@ -85,7 +79,6 @@ class ApiRunPlaybookTaskRequest(google.protobuf.message.Message):
     INVESTIGATION_SESSION_ID_FIELD_NUMBER: builtins.int
     CREATED_BY_FIELD_NUMBER: builtins.int
     PLAYBOOK_TASK_FIELD_NUMBER: builtins.int
-    USER_EMAIL_FIELD_NUMBER: builtins.int
     @property
     def meta(self) -> core.protos.connectors.api_pb2.Meta: ...
     @property
@@ -98,8 +91,6 @@ class ApiRunPlaybookTaskRequest(google.protobuf.message.Message):
     def created_by(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
     def playbook_task(self) -> core.protos.playbooks.playbook_pb2.PlaybookTask: ...
-    @property
-    def user_email(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     def __init__(
         self,
         *,
@@ -109,12 +100,11 @@ class ApiRunPlaybookTaskRequest(google.protobuf.message.Message):
         investigation_session_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
         created_by: google.protobuf.wrappers_pb2.StringValue | None = ...,
         playbook_task: core.protos.playbooks.playbook_pb2.PlaybookTask | None = ...,
-        user_email: google.protobuf.wrappers_pb2.StringValue | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["account_id", b"account_id", "created_by", b"created_by", "global_variable_set", b"global_variable_set", "investigation_session_id", b"investigation_session_id", "meta", b"meta", "playbook_task", b"playbook_task", "user_email", b"user_email"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["account_id", b"account_id", "created_by", b"created_by", "global_variable_set", b"global_variable_set", "investigation_session_id", b"investigation_session_id", "meta", b"meta", "playbook_task", b"playbook_task", "user_email", b"user_email"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["account_id", b"account_id", "created_by", b"created_by", "global_variable_set", b"global_variable_set", "investigation_session_id", b"investigation_session_id", "meta", b"meta", "playbook_task", b"playbook_task"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["account_id", b"account_id", "created_by", b"created_by", "global_variable_set", b"global_variable_set", "investigation_session_id", b"investigation_session_id", "meta", b"meta", "playbook_task", b"playbook_task"]) -> None: ...
 
-Global___ApiRunPlaybookTaskRequest: typing_extensions.TypeAlias = ApiRunPlaybookTaskRequest
+global___ApiRunPlaybookTaskRequest = ApiRunPlaybookTaskRequest
 
 @typing.final
 class ApiRunPlaybookTaskResponse(google.protobuf.message.Message):
@@ -143,7 +133,7 @@ class ApiRunPlaybookTaskResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "playbook_task_execution_log", b"playbook_task_execution_log", "success", b"success"]) -> None: ...
 
-Global___ApiRunPlaybookTaskResponse: typing_extensions.TypeAlias = ApiRunPlaybookTaskResponse
+global___ApiRunPlaybookTaskResponse = ApiRunPlaybookTaskResponse
 
 @typing.final
 class ApiRunPlaybookStepRequest(google.protobuf.message.Message):
@@ -176,7 +166,7 @@ class ApiRunPlaybookStepRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["created_by", b"created_by", "global_variable_set", b"global_variable_set", "investigation_session_id", b"investigation_session_id", "meta", b"meta", "playbook_step", b"playbook_step"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["created_by", b"created_by", "global_variable_set", b"global_variable_set", "investigation_session_id", b"investigation_session_id", "meta", b"meta", "playbook_step", b"playbook_step"]) -> None: ...
 
-Global___ApiRunPlaybookStepRequest: typing_extensions.TypeAlias = ApiRunPlaybookStepRequest
+global___ApiRunPlaybookStepRequest = ApiRunPlaybookStepRequest
 
 @typing.final
 class ApiRunPlaybookStepResponse(google.protobuf.message.Message):
@@ -205,7 +195,7 @@ class ApiRunPlaybookStepResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "step_execution_log", b"step_execution_log", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "step_execution_log", b"step_execution_log", "success", b"success"]) -> None: ...
 
-Global___ApiRunPlaybookStepResponse: typing_extensions.TypeAlias = ApiRunPlaybookStepResponse
+global___ApiRunPlaybookStepResponse = ApiRunPlaybookStepResponse
 
 @typing.final
 class RunPlaybookTaskRequest(google.protobuf.message.Message):
@@ -238,7 +228,7 @@ class RunPlaybookTaskRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["global_variable_set", b"global_variable_set", "message_id", b"message_id", "meta", b"meta", "playbook_task", b"playbook_task", "session_id", b"session_id"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["global_variable_set", b"global_variable_set", "message_id", b"message_id", "meta", b"meta", "playbook_task", b"playbook_task", "session_id", b"session_id"]) -> None: ...
 
-Global___RunPlaybookTaskRequest: typing_extensions.TypeAlias = RunPlaybookTaskRequest
+global___RunPlaybookTaskRequest = RunPlaybookTaskRequest
 
 @typing.final
 class RunPlaybookTaskResponse(google.protobuf.message.Message):
@@ -267,7 +257,7 @@ class RunPlaybookTaskResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "playbook_task_execution_log", b"playbook_task_execution_log", "success", b"success"]) -> None: ...
 
-Global___RunPlaybookTaskResponse: typing_extensions.TypeAlias = RunPlaybookTaskResponse
+global___RunPlaybookTaskResponse = RunPlaybookTaskResponse
 
 @typing.final
 class ApprovePlaybookTaskRequest(google.protobuf.message.Message):
@@ -292,7 +282,7 @@ class ApprovePlaybookTaskRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["approval_request_id", b"approval_request_id", "is_approved", b"is_approved", "meta", b"meta"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["approval_request_id", b"approval_request_id", "is_approved", b"is_approved", "meta", b"meta"]) -> None: ...
 
-Global___ApprovePlaybookTaskRequest: typing_extensions.TypeAlias = ApprovePlaybookTaskRequest
+global___ApprovePlaybookTaskRequest = ApprovePlaybookTaskRequest
 
 @typing.final
 class ApprovePlaybookTaskResponse(google.protobuf.message.Message):
@@ -321,7 +311,7 @@ class ApprovePlaybookTaskResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "playbook_task_execution_log", b"playbook_task_execution_log", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "playbook_task_execution_log", b"playbook_task_execution_log", "success", b"success"]) -> None: ...
 
-Global___ApprovePlaybookTaskResponse: typing_extensions.TypeAlias = ApprovePlaybookTaskResponse
+global___ApprovePlaybookTaskResponse = ApprovePlaybookTaskResponse
 
 @typing.final
 class RunBulkPlaybookTaskResponse(google.protobuf.message.Message):
@@ -350,7 +340,7 @@ class RunBulkPlaybookTaskResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "playbook_task_execution_logs", b"playbook_task_execution_logs", "success", b"success"]) -> None: ...
 
-Global___RunBulkPlaybookTaskResponse: typing_extensions.TypeAlias = RunBulkPlaybookTaskResponse
+global___RunBulkPlaybookTaskResponse = RunBulkPlaybookTaskResponse
 
 @typing.final
 class RunPlaybookStepRequest(google.protobuf.message.Message):
@@ -371,7 +361,7 @@ class RunPlaybookStepRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["meta", b"meta", "playbook_step", b"playbook_step"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["meta", b"meta", "playbook_step", b"playbook_step"]) -> None: ...
 
-Global___RunPlaybookStepRequest: typing_extensions.TypeAlias = RunPlaybookStepRequest
+global___RunPlaybookStepRequest = RunPlaybookStepRequest
 
 @typing.final
 class RunPlaybookStepResponse(google.protobuf.message.Message):
@@ -400,7 +390,7 @@ class RunPlaybookStepResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "step_execution_log", b"step_execution_log", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "step_execution_log", b"step_execution_log", "success", b"success"]) -> None: ...
 
-Global___RunPlaybookStepResponse: typing_extensions.TypeAlias = RunPlaybookStepResponse
+global___RunPlaybookStepResponse = RunPlaybookStepResponse
 
 @typing.final
 class RunPlaybookRequest(google.protobuf.message.Message):
@@ -421,7 +411,7 @@ class RunPlaybookRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["meta", b"meta", "playbook", b"playbook"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["meta", b"meta", "playbook", b"playbook"]) -> None: ...
 
-Global___RunPlaybookRequest: typing_extensions.TypeAlias = RunPlaybookRequest
+global___RunPlaybookRequest = RunPlaybookRequest
 
 @typing.final
 class RunPlaybookResponse(google.protobuf.message.Message):
@@ -450,7 +440,7 @@ class RunPlaybookResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "playbook_execution", b"playbook_execution", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "playbook_execution", b"playbook_execution", "success", b"success"]) -> None: ...
 
-Global___RunPlaybookResponse: typing_extensions.TypeAlias = RunPlaybookResponse
+global___RunPlaybookResponse = RunPlaybookResponse
 
 @typing.final
 class TestResultTransformerRequest(google.protobuf.message.Message):
@@ -471,7 +461,7 @@ class TestResultTransformerRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["payload", b"payload", "transformer_lambda_function", b"transformer_lambda_function"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["payload", b"payload", "transformer_lambda_function", b"transformer_lambda_function"]) -> None: ...
 
-Global___TestResultTransformerRequest: typing_extensions.TypeAlias = TestResultTransformerRequest
+global___TestResultTransformerRequest = TestResultTransformerRequest
 
 @typing.final
 class TestResultTransformerResponse(google.protobuf.message.Message):
@@ -496,7 +486,7 @@ class TestResultTransformerResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["message", b"message", "output", b"output", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["message", b"message", "output", b"output", "success", b"success"]) -> None: ...
 
-Global___TestResultTransformerResponse: typing_extensions.TypeAlias = TestResultTransformerResponse
+global___TestResultTransformerResponse = TestResultTransformerResponse
 
 @typing.final
 class GetPlaybooksRequest(google.protobuf.message.Message):
@@ -526,7 +516,7 @@ class GetPlaybooksRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["meta", b"meta", "outside_folder", b"outside_folder"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["meta", b"meta", "outside_folder", b"outside_folder", "playbook_ids", b"playbook_ids", "playbook_name", b"playbook_name"]) -> None: ...
 
-Global___GetPlaybooksRequest: typing_extensions.TypeAlias = GetPlaybooksRequest
+global___GetPlaybooksRequest = GetPlaybooksRequest
 
 @typing.final
 class GetPlaybooksResponse(google.protobuf.message.Message):
@@ -547,7 +537,7 @@ class GetPlaybooksResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["meta", b"meta"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["meta", b"meta", "playbooks", b"playbooks"]) -> None: ...
 
-Global___GetPlaybooksResponse: typing_extensions.TypeAlias = GetPlaybooksResponse
+global___GetPlaybooksResponse = GetPlaybooksResponse
 
 @typing.final
 class GetPlaybookCommentsRequest(google.protobuf.message.Message):
@@ -568,7 +558,7 @@ class GetPlaybookCommentsRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["meta", b"meta"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["meta", b"meta", "playbook_ids", b"playbook_ids"]) -> None: ...
 
-Global___GetPlaybookCommentsRequest: typing_extensions.TypeAlias = GetPlaybookCommentsRequest
+global___GetPlaybookCommentsRequest = GetPlaybookCommentsRequest
 
 @typing.final
 class GetPlaybookCommentsResponse(google.protobuf.message.Message):
@@ -589,7 +579,7 @@ class GetPlaybookCommentsResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["meta", b"meta"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["comments", b"comments", "meta", b"meta"]) -> None: ...
 
-Global___GetPlaybookCommentsResponse: typing_extensions.TypeAlias = GetPlaybookCommentsResponse
+global___GetPlaybookCommentsResponse = GetPlaybookCommentsResponse
 
 @typing.final
 class PlaybooksAgentUploadSOPRequest(google.protobuf.message.Message):
@@ -610,7 +600,7 @@ class PlaybooksAgentUploadSOPRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["file_name", b"file_name", "meta", b"meta"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["file_name", b"file_name", "meta", b"meta"]) -> None: ...
 
-Global___PlaybooksAgentUploadSOPRequest: typing_extensions.TypeAlias = PlaybooksAgentUploadSOPRequest
+global___PlaybooksAgentUploadSOPRequest = PlaybooksAgentUploadSOPRequest
 
 @typing.final
 class PlaybooksAgentUploadSOPResponse(google.protobuf.message.Message):
@@ -635,7 +625,7 @@ class PlaybooksAgentUploadSOPResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["message", b"message", "playbook", b"playbook", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["message", b"message", "playbook", b"playbook", "success", b"success"]) -> None: ...
 
-Global___PlaybooksAgentUploadSOPResponse: typing_extensions.TypeAlias = PlaybooksAgentUploadSOPResponse
+global___PlaybooksAgentUploadSOPResponse = PlaybooksAgentUploadSOPResponse
 
 @typing.final
 class PlaybooksAgentUploadSOPFromConfluenceRequest(google.protobuf.message.Message):
@@ -664,7 +654,7 @@ class PlaybooksAgentUploadSOPFromConfluenceRequest(google.protobuf.message.Messa
     def HasField(self, field_name: typing.Literal["connector_id", b"connector_id", "meta", b"meta", "save_pb_to_db", b"save_pb_to_db"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["confluence_urls", b"confluence_urls", "connector_id", b"connector_id", "meta", b"meta", "save_pb_to_db", b"save_pb_to_db"]) -> None: ...
 
-Global___PlaybooksAgentUploadSOPFromConfluenceRequest: typing_extensions.TypeAlias = PlaybooksAgentUploadSOPFromConfluenceRequest
+global___PlaybooksAgentUploadSOPFromConfluenceRequest = PlaybooksAgentUploadSOPFromConfluenceRequest
 
 @typing.final
 class PlaybooksAgentUploadSOPFromConfluenceResponse(google.protobuf.message.Message):
@@ -689,7 +679,7 @@ class PlaybooksAgentUploadSOPFromConfluenceResponse(google.protobuf.message.Mess
     def HasField(self, field_name: typing.Literal["message", b"message", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["message", b"message", "playbooks", b"playbooks", "success", b"success"]) -> None: ...
 
-Global___PlaybooksAgentUploadSOPFromConfluenceResponse: typing_extensions.TypeAlias = PlaybooksAgentUploadSOPFromConfluenceResponse
+global___PlaybooksAgentUploadSOPFromConfluenceResponse = PlaybooksAgentUploadSOPFromConfluenceResponse
 
 @typing.final
 class ApiGetPlaybooksRequest(google.protobuf.message.Message):
@@ -717,7 +707,7 @@ class ApiGetPlaybooksRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["account_id", b"account_id", "meta", b"meta"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["account_id", b"account_id", "meta", b"meta", "playbook_ids", b"playbook_ids", "playbook_name", b"playbook_name"]) -> None: ...
 
-Global___ApiGetPlaybooksRequest: typing_extensions.TypeAlias = ApiGetPlaybooksRequest
+global___ApiGetPlaybooksRequest = ApiGetPlaybooksRequest
 
 @typing.final
 class ApiGetPlaybooksResponse(google.protobuf.message.Message):
@@ -746,7 +736,7 @@ class ApiGetPlaybooksResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "playbooks", b"playbooks", "success", b"success"]) -> None: ...
 
-Global___ApiGetPlaybooksResponse: typing_extensions.TypeAlias = ApiGetPlaybooksResponse
+global___ApiGetPlaybooksResponse = ApiGetPlaybooksResponse
 
 @typing.final
 class CreatePlaybookRequest(google.protobuf.message.Message):
@@ -766,7 +756,7 @@ class CreatePlaybookRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["playbook", b"playbook"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["name", b"name", "playbook", b"playbook"]) -> None: ...
 
-Global___CreatePlaybookRequest: typing_extensions.TypeAlias = CreatePlaybookRequest
+global___CreatePlaybookRequest = CreatePlaybookRequest
 
 @typing.final
 class CreatePlaybookResponse(google.protobuf.message.Message):
@@ -791,7 +781,7 @@ class CreatePlaybookResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["message", b"message", "playbook", b"playbook", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["message", b"message", "playbook", b"playbook", "success", b"success"]) -> None: ...
 
-Global___CreatePlaybookResponse: typing_extensions.TypeAlias = CreatePlaybookResponse
+global___CreatePlaybookResponse = CreatePlaybookResponse
 
 @typing.final
 class UpdatePlaybookRequest(google.protobuf.message.Message):
@@ -812,7 +802,7 @@ class UpdatePlaybookRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["playbook_id", b"playbook_id"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["playbook_id", b"playbook_id", "update_playbook_ops", b"update_playbook_ops"]) -> None: ...
 
-Global___UpdatePlaybookRequest: typing_extensions.TypeAlias = UpdatePlaybookRequest
+global___UpdatePlaybookRequest = UpdatePlaybookRequest
 
 @typing.final
 class UpdatePlaybookResponse(google.protobuf.message.Message):
@@ -833,7 +823,7 @@ class UpdatePlaybookResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["message", b"message", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["message", b"message", "success", b"success"]) -> None: ...
 
-Global___UpdatePlaybookResponse: typing_extensions.TypeAlias = UpdatePlaybookResponse
+global___UpdatePlaybookResponse = UpdatePlaybookResponse
 
 @typing.final
 class ExecutionPlaybookGetRequest(google.protobuf.message.Message):
@@ -856,7 +846,7 @@ class ExecutionPlaybookGetRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["meta", b"meta", "playbook_run_id", b"playbook_run_id"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["meta", b"meta", "playbook_run_id", b"playbook_run_id"]) -> None: ...
 
-Global___ExecutionPlaybookGetRequest: typing_extensions.TypeAlias = ExecutionPlaybookGetRequest
+global___ExecutionPlaybookGetRequest = ExecutionPlaybookGetRequest
 
 @typing.final
 class ExecutionPlaybookGetResponse(google.protobuf.message.Message):
@@ -885,7 +875,7 @@ class ExecutionPlaybookGetResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "playbook_execution", b"playbook_execution", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "playbook_execution", b"playbook_execution", "success", b"success"]) -> None: ...
 
-Global___ExecutionPlaybookGetResponse: typing_extensions.TypeAlias = ExecutionPlaybookGetResponse
+global___ExecutionPlaybookGetResponse = ExecutionPlaybookGetResponse
 
 @typing.final
 class PlaybookExecutionCreateRequest(google.protobuf.message.Message):
@@ -906,7 +896,7 @@ class PlaybookExecutionCreateRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["meta", b"meta", "playbook_id", b"playbook_id"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["meta", b"meta", "playbook_id", b"playbook_id"]) -> None: ...
 
-Global___PlaybookExecutionCreateRequest: typing_extensions.TypeAlias = PlaybookExecutionCreateRequest
+global___PlaybookExecutionCreateRequest = PlaybookExecutionCreateRequest
 
 @typing.final
 class PlaybookExecutionCreateResponse(google.protobuf.message.Message):
@@ -939,7 +929,7 @@ class PlaybookExecutionCreateResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["execution_session_url", b"execution_session_url", "message", b"message", "meta", b"meta", "playbook_run_id", b"playbook_run_id", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["execution_session_url", b"execution_session_url", "message", b"message", "meta", b"meta", "playbook_run_id", b"playbook_run_id", "success", b"success"]) -> None: ...
 
-Global___PlaybookExecutionCreateResponse: typing_extensions.TypeAlias = PlaybookExecutionCreateResponse
+global___PlaybookExecutionCreateResponse = PlaybookExecutionCreateResponse
 
 @typing.final
 class PlaybookExecutionStatusUpdateRequest(google.protobuf.message.Message):
@@ -963,7 +953,7 @@ class PlaybookExecutionStatusUpdateRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["meta", b"meta", "playbook_run_id", b"playbook_run_id"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["meta", b"meta", "playbook_run_id", b"playbook_run_id", "status", b"status"]) -> None: ...
 
-Global___PlaybookExecutionStatusUpdateRequest: typing_extensions.TypeAlias = PlaybookExecutionStatusUpdateRequest
+global___PlaybookExecutionStatusUpdateRequest = PlaybookExecutionStatusUpdateRequest
 
 @typing.final
 class PlaybookExecutionStatusUpdateResponse(google.protobuf.message.Message):
@@ -988,7 +978,7 @@ class PlaybookExecutionStatusUpdateResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> None: ...
 
-Global___PlaybookExecutionStatusUpdateResponse: typing_extensions.TypeAlias = PlaybookExecutionStatusUpdateResponse
+global___PlaybookExecutionStatusUpdateResponse = PlaybookExecutionStatusUpdateResponse
 
 @typing.final
 class PlaybookExecutionStepExecuteRequest(google.protobuf.message.Message):
@@ -1013,7 +1003,7 @@ class PlaybookExecutionStepExecuteRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["meta", b"meta", "playbook_run_id", b"playbook_run_id", "step", b"step"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["meta", b"meta", "playbook_run_id", b"playbook_run_id", "step", b"step"]) -> None: ...
 
-Global___PlaybookExecutionStepExecuteRequest: typing_extensions.TypeAlias = PlaybookExecutionStepExecuteRequest
+global___PlaybookExecutionStepExecuteRequest = PlaybookExecutionStepExecuteRequest
 
 @typing.final
 class PlaybookExecutionStepExecuteResponse(google.protobuf.message.Message):
@@ -1046,7 +1036,7 @@ class PlaybookExecutionStepExecuteResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "playbook_run_id", b"playbook_run_id", "step_execution_log", b"step_execution_log", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "playbook_run_id", b"playbook_run_id", "step_execution_log", b"step_execution_log", "success", b"success"]) -> None: ...
 
-Global___PlaybookExecutionStepExecuteResponse: typing_extensions.TypeAlias = PlaybookExecutionStepExecuteResponse
+global___PlaybookExecutionStepExecuteResponse = PlaybookExecutionStepExecuteResponse
 
 @typing.final
 class ExecutionTaskGetRequest(google.protobuf.message.Message):
@@ -1071,7 +1061,7 @@ class ExecutionTaskGetRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["meta", b"meta"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["meta", b"meta", "proxy_execution_request_ids", b"proxy_execution_request_ids", "task_execution_ids", b"task_execution_ids"]) -> None: ...
 
-Global___ExecutionTaskGetRequest: typing_extensions.TypeAlias = ExecutionTaskGetRequest
+global___ExecutionTaskGetRequest = ExecutionTaskGetRequest
 
 @typing.final
 class ExecutionTaskGetResponse(google.protobuf.message.Message):
@@ -1100,7 +1090,7 @@ class ExecutionTaskGetResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "success", b"success", "task_execution_logs", b"task_execution_logs"]) -> None: ...
 
-Global___ExecutionTaskGetResponse: typing_extensions.TypeAlias = ExecutionTaskGetResponse
+global___ExecutionTaskGetResponse = ExecutionTaskGetResponse
 
 @typing.final
 class PlaybookTemplatesGetRequest(google.protobuf.message.Message):
@@ -1117,7 +1107,7 @@ class PlaybookTemplatesGetRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["meta", b"meta"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["meta", b"meta"]) -> None: ...
 
-Global___PlaybookTemplatesGetRequest: typing_extensions.TypeAlias = PlaybookTemplatesGetRequest
+global___PlaybookTemplatesGetRequest = PlaybookTemplatesGetRequest
 
 @typing.final
 class PlaybookTemplatesGetResponse(google.protobuf.message.Message):
@@ -1142,7 +1132,7 @@ class PlaybookTemplatesGetResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["message", b"message", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["data", b"data", "message", b"message", "success", b"success"]) -> None: ...
 
-Global___PlaybookTemplatesGetResponse: typing_extensions.TypeAlias = PlaybookTemplatesGetResponse
+global___PlaybookTemplatesGetResponse = PlaybookTemplatesGetResponse
 
 @typing.final
 class GetVariablesRequest(google.protobuf.message.Message):
@@ -1167,7 +1157,7 @@ class GetVariablesRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["meta", b"meta", "variable_name", b"variable_name"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["meta", b"meta", "variable_ids", b"variable_ids", "variable_name", b"variable_name"]) -> None: ...
 
-Global___GetVariablesRequest: typing_extensions.TypeAlias = GetVariablesRequest
+global___GetVariablesRequest = GetVariablesRequest
 
 @typing.final
 class GetVariablesResponse(google.protobuf.message.Message):
@@ -1196,7 +1186,7 @@ class GetVariablesResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "success", b"success", "variables", b"variables"]) -> None: ...
 
-Global___GetVariablesResponse: typing_extensions.TypeAlias = GetVariablesResponse
+global___GetVariablesResponse = GetVariablesResponse
 
 @typing.final
 class CreateVariableRequest(google.protobuf.message.Message):
@@ -1217,7 +1207,7 @@ class CreateVariableRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["meta", b"meta", "variable", b"variable"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["meta", b"meta", "variable", b"variable"]) -> None: ...
 
-Global___CreateVariableRequest: typing_extensions.TypeAlias = CreateVariableRequest
+global___CreateVariableRequest = CreateVariableRequest
 
 @typing.final
 class CreateVariableResponse(google.protobuf.message.Message):
@@ -1246,7 +1236,7 @@ class CreateVariableResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "success", b"success", "variable", b"variable"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "success", b"success", "variable", b"variable"]) -> None: ...
 
-Global___CreateVariableResponse: typing_extensions.TypeAlias = CreateVariableResponse
+global___CreateVariableResponse = CreateVariableResponse
 
 @typing.final
 class UpdateVariableRequest(google.protobuf.message.Message):
@@ -1271,7 +1261,7 @@ class UpdateVariableRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["meta", b"meta", "variable_id", b"variable_id"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["meta", b"meta", "update_variable_ops", b"update_variable_ops", "variable_id", b"variable_id"]) -> None: ...
 
-Global___UpdateVariableRequest: typing_extensions.TypeAlias = UpdateVariableRequest
+global___UpdateVariableRequest = UpdateVariableRequest
 
 @typing.final
 class UpdateVariableResponse(google.protobuf.message.Message):
@@ -1300,7 +1290,7 @@ class UpdateVariableResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "success", b"success", "variable", b"variable"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "success", b"success", "variable", b"variable"]) -> None: ...
 
-Global___UpdateVariableResponse: typing_extensions.TypeAlias = UpdateVariableResponse
+global___UpdateVariableResponse = UpdateVariableResponse
 
 @typing.final
 class ProxyPlaybookExecutionTasksRequest(google.protobuf.message.Message):
@@ -1319,7 +1309,7 @@ class ProxyPlaybookExecutionTasksRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["meta", b"meta"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["meta", b"meta"]) -> None: ...
 
-Global___ProxyPlaybookExecutionTasksRequest: typing_extensions.TypeAlias = ProxyPlaybookExecutionTasksRequest
+global___ProxyPlaybookExecutionTasksRequest = ProxyPlaybookExecutionTasksRequest
 
 @typing.final
 class ProxyPlaybookExecutionTasksResponse(google.protobuf.message.Message):
@@ -1348,7 +1338,7 @@ class ProxyPlaybookExecutionTasksResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "playbook_task_executions", b"playbook_task_executions", "success", b"success"]) -> None: ...
 
-Global___ProxyPlaybookExecutionTasksResponse: typing_extensions.TypeAlias = ProxyPlaybookExecutionTasksResponse
+global___ProxyPlaybookExecutionTasksResponse = ProxyPlaybookExecutionTasksResponse
 
 @typing.final
 class ProxyPlaybookExecutionResultsRequest(google.protobuf.message.Message):
@@ -1369,7 +1359,7 @@ class ProxyPlaybookExecutionResultsRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["meta", b"meta"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["meta", b"meta", "playbook_task_execution_logs", b"playbook_task_execution_logs"]) -> None: ...
 
-Global___ProxyPlaybookExecutionResultsRequest: typing_extensions.TypeAlias = ProxyPlaybookExecutionResultsRequest
+global___ProxyPlaybookExecutionResultsRequest = ProxyPlaybookExecutionResultsRequest
 
 @typing.final
 class ProxyPlaybookExecutionResultsResponse(google.protobuf.message.Message):
@@ -1394,7 +1384,7 @@ class ProxyPlaybookExecutionResultsResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> None: ...
 
-Global___ProxyPlaybookExecutionResultsResponse: typing_extensions.TypeAlias = ProxyPlaybookExecutionResultsResponse
+global___ProxyPlaybookExecutionResultsResponse = ProxyPlaybookExecutionResultsResponse
 
 @typing.final
 class GetRelatedPlaybooksRequest(google.protobuf.message.Message):
@@ -1420,7 +1410,7 @@ class GetRelatedPlaybooksRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["meta", b"meta"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["alert_ids", b"alert_ids", "meta", b"meta", "session_id", b"session_id"]) -> None: ...
 
-Global___GetRelatedPlaybooksRequest: typing_extensions.TypeAlias = GetRelatedPlaybooksRequest
+global___GetRelatedPlaybooksRequest = GetRelatedPlaybooksRequest
 
 @typing.final
 class GetRelatedPlaybooksResponse(google.protobuf.message.Message):
@@ -1453,7 +1443,7 @@ class GetRelatedPlaybooksResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["link", b"link", "message", b"message", "meta", b"meta", "playbook", b"playbook", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["link", b"link", "message", b"message", "meta", b"meta", "playbook", b"playbook", "success", b"success"]) -> None: ...
 
-Global___GetRelatedPlaybooksResponse: typing_extensions.TypeAlias = GetRelatedPlaybooksResponse
+global___GetRelatedPlaybooksResponse = GetRelatedPlaybooksResponse
 
 @typing.final
 class GenerateTaskRequest(google.protobuf.message.Message):
@@ -1476,7 +1466,7 @@ class GenerateTaskRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["document", b"document", "meta", b"meta"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["document", b"document", "meta", b"meta"]) -> None: ...
 
-Global___GenerateTaskRequest: typing_extensions.TypeAlias = GenerateTaskRequest
+global___GenerateTaskRequest = GenerateTaskRequest
 
 @typing.final
 class GenerateTaskResponse(google.protobuf.message.Message):
@@ -1505,4 +1495,4 @@ class GenerateTaskResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "playbook_tasks", b"playbook_tasks", "success", b"success"]) -> None: ...
 
-Global___GenerateTaskResponse: typing_extensions.TypeAlias = GenerateTaskResponse
+global___GenerateTaskResponse = GenerateTaskResponse

@@ -67,7 +67,7 @@ class Api(google.protobuf.message.Message):
         TIMEOUT_FIELD_NUMBER: builtins.int
         COOKIES_FIELD_NUMBER: builtins.int
         SSL_VERIFY_FIELD_NUMBER: builtins.int
-        method: Global___Api.HttpRequest.Method.ValueType
+        method: global___Api.HttpRequest.Method.ValueType
         @property
         def url(self) -> google.protobuf.wrappers_pb2.StringValue: ...
         @property
@@ -83,7 +83,7 @@ class Api(google.protobuf.message.Message):
         def __init__(
             self,
             *,
-            method: Global___Api.HttpRequest.Method.ValueType = ...,
+            method: global___Api.HttpRequest.Method.ValueType = ...,
             url: google.protobuf.wrappers_pb2.StringValue | None = ...,
             headers: google.protobuf.wrappers_pb2.StringValue | None = ...,
             payload: google.protobuf.wrappers_pb2.StringValue | None = ...,
@@ -96,17 +96,17 @@ class Api(google.protobuf.message.Message):
 
     TYPE_FIELD_NUMBER: builtins.int
     HTTP_REQUEST_FIELD_NUMBER: builtins.int
-    type: Global___Api.TaskType.ValueType
+    type: global___Api.TaskType.ValueType
     @property
-    def http_request(self) -> Global___Api.HttpRequest: ...
+    def http_request(self) -> global___Api.HttpRequest: ...
     def __init__(
         self,
         *,
-        type: Global___Api.TaskType.ValueType = ...,
-        http_request: Global___Api.HttpRequest | None = ...,
+        type: global___Api.TaskType.ValueType = ...,
+        http_request: global___Api.HttpRequest | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["http_request", b"http_request", "task", b"task"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["http_request", b"http_request", "task", b"task", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["task", b"task"]) -> typing.Literal["http_request"] | None: ...
 
-Global___Api: typing_extensions.TypeAlias = Api
+global___Api = Api

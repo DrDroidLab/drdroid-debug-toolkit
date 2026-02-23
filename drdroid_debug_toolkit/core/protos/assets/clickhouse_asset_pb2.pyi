@@ -10,13 +10,7 @@ import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.message
 import google.protobuf.wrappers_pb2
-import sys
 import typing
-
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
-else:
-    import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
@@ -35,7 +29,7 @@ class ClickhouseDatabaseAssetModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["database", b"database"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["database", b"database"]) -> None: ...
 
-Global___ClickhouseDatabaseAssetModel: typing_extensions.TypeAlias = ClickhouseDatabaseAssetModel
+global___ClickhouseDatabaseAssetModel = ClickhouseDatabaseAssetModel
 
 @typing.final
 class ClickhouseDatabaseAssetOptions(google.protobuf.message.Message):
@@ -51,7 +45,7 @@ class ClickhouseDatabaseAssetOptions(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["databases", b"databases"]) -> None: ...
 
-Global___ClickhouseDatabaseAssetOptions: typing_extensions.TypeAlias = ClickhouseDatabaseAssetOptions
+global___ClickhouseDatabaseAssetOptions = ClickhouseDatabaseAssetOptions
 
 @typing.final
 class ClickhouseColumnModel(google.protobuf.message.Message):
@@ -86,7 +80,7 @@ class ClickhouseColumnModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["data_type", b"data_type", "default_value", b"default_value", "description", b"description", "is_nullable", b"is_nullable", "name", b"name"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["data_type", b"data_type", "default_value", b"default_value", "description", b"description", "is_nullable", b"is_nullable", "name", b"name"]) -> None: ...
 
-Global___ClickhouseColumnModel: typing_extensions.TypeAlias = ClickhouseColumnModel
+global___ClickhouseColumnModel = ClickhouseColumnModel
 
 @typing.final
 class ClickhouseTableAssetModel(google.protobuf.message.Message):
@@ -111,7 +105,7 @@ class ClickhouseTableAssetModel(google.protobuf.message.Message):
     @property
     def size(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
-    def columns(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___ClickhouseColumnModel]: ...
+    def columns(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___ClickhouseColumnModel]: ...
     def __init__(
         self,
         *,
@@ -120,12 +114,12 @@ class ClickhouseTableAssetModel(google.protobuf.message.Message):
         engine: google.protobuf.wrappers_pb2.StringValue | None = ...,
         description: google.protobuf.wrappers_pb2.StringValue | None = ...,
         size: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        columns: collections.abc.Iterable[Global___ClickhouseColumnModel] | None = ...,
+        columns: collections.abc.Iterable[global___ClickhouseColumnModel] | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["database_name", b"database_name", "description", b"description", "engine", b"engine", "size", b"size", "table_name", b"table_name"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["columns", b"columns", "database_name", b"database_name", "description", b"description", "engine", b"engine", "size", b"size", "table_name", b"table_name"]) -> None: ...
 
-Global___ClickhouseTableAssetModel: typing_extensions.TypeAlias = ClickhouseTableAssetModel
+global___ClickhouseTableAssetModel = ClickhouseTableAssetModel
 
 @typing.final
 class ClickhouseTableAssetOptions(google.protobuf.message.Message):
@@ -145,7 +139,7 @@ class ClickhouseTableAssetOptions(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["databases", b"databases", "tables", b"tables"]) -> None: ...
 
-Global___ClickhouseTableAssetOptions: typing_extensions.TypeAlias = ClickhouseTableAssetOptions
+global___ClickhouseTableAssetOptions = ClickhouseTableAssetOptions
 
 @typing.final
 class ClickhouseAssetModel(google.protobuf.message.Message):
@@ -163,9 +157,9 @@ class ClickhouseAssetModel(google.protobuf.message.Message):
     @property
     def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     @property
-    def clickhouse_database(self) -> Global___ClickhouseDatabaseAssetModel: ...
+    def clickhouse_database(self) -> global___ClickhouseDatabaseAssetModel: ...
     @property
-    def clickhouse_table(self) -> Global___ClickhouseTableAssetModel: ...
+    def clickhouse_table(self) -> global___ClickhouseTableAssetModel: ...
     def __init__(
         self,
         *,
@@ -173,14 +167,14 @@ class ClickhouseAssetModel(google.protobuf.message.Message):
         connector_type: core.protos.base_pb2.Source.ValueType = ...,
         type: core.protos.base_pb2.SourceModelType.ValueType = ...,
         last_updated: builtins.int = ...,
-        clickhouse_database: Global___ClickhouseDatabaseAssetModel | None = ...,
-        clickhouse_table: Global___ClickhouseTableAssetModel | None = ...,
+        clickhouse_database: global___ClickhouseDatabaseAssetModel | None = ...,
+        clickhouse_table: global___ClickhouseTableAssetModel | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["asset", b"asset", "clickhouse_database", b"clickhouse_database", "clickhouse_table", b"clickhouse_table", "id", b"id"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["asset", b"asset", "clickhouse_database", b"clickhouse_database", "clickhouse_table", b"clickhouse_table", "connector_type", b"connector_type", "id", b"id", "last_updated", b"last_updated", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["asset", b"asset"]) -> typing.Literal["clickhouse_database", "clickhouse_table"] | None: ...
 
-Global___ClickhouseAssetModel: typing_extensions.TypeAlias = ClickhouseAssetModel
+global___ClickhouseAssetModel = ClickhouseAssetModel
 
 @typing.final
 class ClickhouseAssets(google.protobuf.message.Message):
@@ -188,12 +182,12 @@ class ClickhouseAssets(google.protobuf.message.Message):
 
     ASSETS_FIELD_NUMBER: builtins.int
     @property
-    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___ClickhouseAssetModel]: ...
+    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___ClickhouseAssetModel]: ...
     def __init__(
         self,
         *,
-        assets: collections.abc.Iterable[Global___ClickhouseAssetModel] | None = ...,
+        assets: collections.abc.Iterable[global___ClickhouseAssetModel] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["assets", b"assets"]) -> None: ...
 
-Global___ClickhouseAssets: typing_extensions.TypeAlias = ClickhouseAssets
+global___ClickhouseAssets = ClickhouseAssets

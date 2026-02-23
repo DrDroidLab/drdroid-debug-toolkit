@@ -82,20 +82,20 @@ class DrdProxyAgent(google.protobuf.message.Message):
     TYPE_FIELD_NUMBER: builtins.int
     COMMAND_FIELD_NUMBER: builtins.int
     ASSET_REFRESH_FIELD_NUMBER: builtins.int
-    type: Global___DrdProxyAgent.TaskType.ValueType
+    type: global___DrdProxyAgent.TaskType.ValueType
     @property
-    def command(self) -> Global___DrdProxyAgent.Command: ...
+    def command(self) -> global___DrdProxyAgent.Command: ...
     @property
-    def asset_refresh(self) -> Global___DrdProxyAgent.AssetRefresh: ...
+    def asset_refresh(self) -> global___DrdProxyAgent.AssetRefresh: ...
     def __init__(
         self,
         *,
-        type: Global___DrdProxyAgent.TaskType.ValueType = ...,
-        command: Global___DrdProxyAgent.Command | None = ...,
-        asset_refresh: Global___DrdProxyAgent.AssetRefresh | None = ...,
+        type: global___DrdProxyAgent.TaskType.ValueType = ...,
+        command: global___DrdProxyAgent.Command | None = ...,
+        asset_refresh: global___DrdProxyAgent.AssetRefresh | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["asset_refresh", b"asset_refresh", "command", b"command", "task", b"task"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["asset_refresh", b"asset_refresh", "command", b"command", "task", b"task", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["task", b"task"]) -> typing.Literal["command", "asset_refresh"] | None: ...
 
-Global___DrdProxyAgent: typing_extensions.TypeAlias = DrdProxyAgent
+global___DrdProxyAgent = DrdProxyAgent

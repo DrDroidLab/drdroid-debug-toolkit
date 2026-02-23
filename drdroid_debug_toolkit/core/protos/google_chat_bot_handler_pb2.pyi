@@ -7,13 +7,7 @@ import builtins
 import google.protobuf.descriptor
 import google.protobuf.message
 import google.protobuf.wrappers_pb2
-import sys
 import typing
-
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
-else:
-    import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
@@ -48,4 +42,4 @@ class GoogleChatSpace(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["description", b"description", "display_name", b"display_name", "name", b"name", "space_type", b"space_type", "type", b"type"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["description", b"description", "display_name", b"display_name", "name", b"name", "space_type", b"space_type", "type", b"type"]) -> None: ...
 
-Global___GoogleChatSpace: typing_extensions.TypeAlias = GoogleChatSpace
+global___GoogleChatSpace = GoogleChatSpace

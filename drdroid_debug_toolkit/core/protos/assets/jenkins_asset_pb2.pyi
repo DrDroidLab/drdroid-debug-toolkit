@@ -10,13 +10,7 @@ import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.message
 import google.protobuf.wrappers_pb2
-import sys
 import typing
-
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
-else:
-    import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
@@ -36,7 +30,7 @@ class JenkinsAppsAssetOptions(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["apps", b"apps"]) -> None: ...
 
-Global___JenkinsAppsAssetOptions: typing_extensions.TypeAlias = JenkinsAppsAssetOptions
+global___JenkinsAppsAssetOptions = JenkinsAppsAssetOptions
 
 @typing.final
 class JenkinsAppsAssetModel(google.protobuf.message.Message):
@@ -57,7 +51,7 @@ class JenkinsAppsAssetModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["class_name", b"class_name", "name", b"name"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["class_name", b"class_name", "name", b"name"]) -> None: ...
 
-Global___JenkinsAppsAssetModel: typing_extensions.TypeAlias = JenkinsAppsAssetModel
+global___JenkinsAppsAssetModel = JenkinsAppsAssetModel
 
 @typing.final
 class JenkinsAssetModel(google.protobuf.message.Message):
@@ -74,7 +68,7 @@ class JenkinsAssetModel(google.protobuf.message.Message):
     @property
     def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     @property
-    def jenkins_apps(self) -> Global___JenkinsAppsAssetModel: ...
+    def jenkins_apps(self) -> global___JenkinsAppsAssetModel: ...
     def __init__(
         self,
         *,
@@ -82,13 +76,13 @@ class JenkinsAssetModel(google.protobuf.message.Message):
         connector_type: core.protos.base_pb2.Source.ValueType = ...,
         type: core.protos.base_pb2.SourceModelType.ValueType = ...,
         last_updated: builtins.int = ...,
-        jenkins_apps: Global___JenkinsAppsAssetModel | None = ...,
+        jenkins_apps: global___JenkinsAppsAssetModel | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["asset", b"asset", "id", b"id", "jenkins_apps", b"jenkins_apps"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["asset", b"asset", "connector_type", b"connector_type", "id", b"id", "jenkins_apps", b"jenkins_apps", "last_updated", b"last_updated", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["asset", b"asset"]) -> typing.Literal["jenkins_apps"] | None: ...
 
-Global___JenkinsAssetModel: typing_extensions.TypeAlias = JenkinsAssetModel
+global___JenkinsAssetModel = JenkinsAssetModel
 
 @typing.final
 class JenkinsAssets(google.protobuf.message.Message):
@@ -96,12 +90,12 @@ class JenkinsAssets(google.protobuf.message.Message):
 
     ASSETS_FIELD_NUMBER: builtins.int
     @property
-    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___JenkinsAssetModel]: ...
+    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___JenkinsAssetModel]: ...
     def __init__(
         self,
         *,
-        assets: collections.abc.Iterable[Global___JenkinsAssetModel] | None = ...,
+        assets: collections.abc.Iterable[global___JenkinsAssetModel] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["assets", b"assets"]) -> None: ...
 
-Global___JenkinsAssets: typing_extensions.TypeAlias = JenkinsAssets
+global___JenkinsAssets = JenkinsAssets

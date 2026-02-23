@@ -14,13 +14,7 @@ import google.protobuf.internal.containers
 import google.protobuf.message
 import google.protobuf.struct_pb2
 import google.protobuf.wrappers_pb2
-import sys
 import typing
-
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
-else:
-    import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
@@ -49,7 +43,7 @@ class GetConnectorsAssetsModelsOptionsRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["connector_id", b"connector_id", "meta", b"meta"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["connector_id", b"connector_id", "connector_type", b"connector_type", "meta", b"meta", "model_type", b"model_type"]) -> None: ...
 
-Global___GetConnectorsAssetsModelsOptionsRequest: typing_extensions.TypeAlias = GetConnectorsAssetsModelsOptionsRequest
+global___GetConnectorsAssetsModelsOptionsRequest = GetConnectorsAssetsModelsOptionsRequest
 
 @typing.final
 class GetConnectorsAssetsModelsOptionsResponse(google.protobuf.message.Message):
@@ -78,7 +72,7 @@ class GetConnectorsAssetsModelsOptionsResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["asset_model_options", b"asset_model_options", "message", b"message", "meta", b"meta", "success", b"success"]) -> None: ...
 
-Global___GetConnectorsAssetsModelsOptionsResponse: typing_extensions.TypeAlias = GetConnectorsAssetsModelsOptionsResponse
+global___GetConnectorsAssetsModelsOptionsResponse = GetConnectorsAssetsModelsOptionsResponse
 
 @typing.final
 class GetConnectorsAssetsModelsRequest(google.protobuf.message.Message):
@@ -117,7 +111,7 @@ class GetConnectorsAssetsModelsRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["connector_id", b"connector_id", "filters", b"filters", "meta", b"meta", "page", b"page", "page_size", b"page_size"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["connector_id", b"connector_id", "connector_type", b"connector_type", "filters", b"filters", "meta", b"meta", "page", b"page", "page_size", b"page_size", "type", b"type"]) -> None: ...
 
-Global___GetConnectorsAssetsModelsRequest: typing_extensions.TypeAlias = GetConnectorsAssetsModelsRequest
+global___GetConnectorsAssetsModelsRequest = GetConnectorsAssetsModelsRequest
 
 @typing.final
 class ApiGetConnectorsAssetsModelsRequest(google.protobuf.message.Message):
@@ -146,7 +140,7 @@ class ApiGetConnectorsAssetsModelsRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["connector_id", b"connector_id", "filters", b"filters", "meta", b"meta", "task_type", b"task_type"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["connector_id", b"connector_id", "filters", b"filters", "meta", b"meta", "task_type", b"task_type"]) -> None: ...
 
-Global___ApiGetConnectorsAssetsModelsRequest: typing_extensions.TypeAlias = ApiGetConnectorsAssetsModelsRequest
+global___ApiGetConnectorsAssetsModelsRequest = ApiGetConnectorsAssetsModelsRequest
 
 @typing.final
 class ModelTypeCount(google.protobuf.message.Message):
@@ -166,7 +160,7 @@ class ModelTypeCount(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["total_count", b"total_count"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["model_type", b"model_type", "total_count", b"total_count"]) -> None: ...
 
-Global___ModelTypeCount: typing_extensions.TypeAlias = ModelTypeCount
+global___ModelTypeCount = ModelTypeCount
 
 @typing.final
 class GetConnectorsAssetsModelsResponse(google.protobuf.message.Message):
@@ -191,7 +185,7 @@ class GetConnectorsAssetsModelsResponse(google.protobuf.message.Message):
     @property
     def asset_descriptor(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
-    def model_type_counts(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___ModelTypeCount]: ...
+    def model_type_counts(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___ModelTypeCount]: ...
     @property
     def current_page(self) -> google.protobuf.wrappers_pb2.UInt32Value: ...
     @property
@@ -204,14 +198,14 @@ class GetConnectorsAssetsModelsResponse(google.protobuf.message.Message):
         message: core.protos.connectors.api_pb2.Message | None = ...,
         assets: collections.abc.Iterable[core.protos.assets.asset_pb2.AccountConnectorAssets] | None = ...,
         asset_descriptor: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        model_type_counts: collections.abc.Iterable[Global___ModelTypeCount] | None = ...,
+        model_type_counts: collections.abc.Iterable[global___ModelTypeCount] | None = ...,
         current_page: google.protobuf.wrappers_pb2.UInt32Value | None = ...,
         total_pages: google.protobuf.wrappers_pb2.UInt32Value | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["asset_descriptor", b"asset_descriptor", "current_page", b"current_page", "message", b"message", "meta", b"meta", "success", b"success", "total_pages", b"total_pages"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["asset_descriptor", b"asset_descriptor", "assets", b"assets", "current_page", b"current_page", "message", b"message", "meta", b"meta", "model_type_counts", b"model_type_counts", "success", b"success", "total_pages", b"total_pages"]) -> None: ...
 
-Global___GetConnectorsAssetsModelsResponse: typing_extensions.TypeAlias = GetConnectorsAssetsModelsResponse
+global___GetConnectorsAssetsModelsResponse = GetConnectorsAssetsModelsResponse
 
 @typing.final
 class GetConnectorsAssetsModelsRefreshRequest(google.protobuf.message.Message):
@@ -232,7 +226,7 @@ class GetConnectorsAssetsModelsRefreshRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["connector_id", b"connector_id", "meta", b"meta"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["connector_id", b"connector_id", "meta", b"meta"]) -> None: ...
 
-Global___GetConnectorsAssetsModelsRefreshRequest: typing_extensions.TypeAlias = GetConnectorsAssetsModelsRefreshRequest
+global___GetConnectorsAssetsModelsRefreshRequest = GetConnectorsAssetsModelsRefreshRequest
 
 @typing.final
 class GetConnectorsAssetsModelsRefreshResponse(google.protobuf.message.Message):
@@ -257,7 +251,7 @@ class GetConnectorsAssetsModelsRefreshResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> None: ...
 
-Global___GetConnectorsAssetsModelsRefreshResponse: typing_extensions.TypeAlias = GetConnectorsAssetsModelsRefreshResponse
+global___GetConnectorsAssetsModelsRefreshResponse = GetConnectorsAssetsModelsRefreshResponse
 
 @typing.final
 class ProxyConnectorRegisterConnectorMetadataRequest(google.protobuf.message.Message):
@@ -296,7 +290,7 @@ class ProxyConnectorRegisterConnectorMetadataRequest(google.protobuf.message.Mes
     def HasField(self, field_name: typing.Literal["connector", b"connector", "has_more", b"has_more", "refresh_id", b"refresh_id"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["assets", b"assets", "connector", b"connector", "has_more", b"has_more", "model_type", b"model_type", "refresh_id", b"refresh_id"]) -> None: ...
 
-Global___ProxyConnectorRegisterConnectorMetadataRequest: typing_extensions.TypeAlias = ProxyConnectorRegisterConnectorMetadataRequest
+global___ProxyConnectorRegisterConnectorMetadataRequest = ProxyConnectorRegisterConnectorMetadataRequest
 
 @typing.final
 class ProxyConnectorRegisterConnectorMetadataResponse(google.protobuf.message.Message):
@@ -317,4 +311,4 @@ class ProxyConnectorRegisterConnectorMetadataResponse(google.protobuf.message.Me
     def HasField(self, field_name: typing.Literal["message", b"message", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["message", b"message", "success", b"success"]) -> None: ...
 
-Global___ProxyConnectorRegisterConnectorMetadataResponse: typing_extensions.TypeAlias = ProxyConnectorRegisterConnectorMetadataResponse
+global___ProxyConnectorRegisterConnectorMetadataResponse = ProxyConnectorRegisterConnectorMetadataResponse

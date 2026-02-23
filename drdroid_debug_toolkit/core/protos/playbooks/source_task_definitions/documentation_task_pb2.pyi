@@ -70,20 +70,20 @@ class Documentation(google.protobuf.message.Message):
     TYPE_FIELD_NUMBER: builtins.int
     MARKDOWN_FIELD_NUMBER: builtins.int
     IFRAME_FIELD_NUMBER: builtins.int
-    type: Global___Documentation.TaskType.ValueType
+    type: global___Documentation.TaskType.ValueType
     @property
-    def markdown(self) -> Global___Documentation.Markdown: ...
+    def markdown(self) -> global___Documentation.Markdown: ...
     @property
-    def iframe(self) -> Global___Documentation.Iframe: ...
+    def iframe(self) -> global___Documentation.Iframe: ...
     def __init__(
         self,
         *,
-        type: Global___Documentation.TaskType.ValueType = ...,
-        markdown: Global___Documentation.Markdown | None = ...,
-        iframe: Global___Documentation.Iframe | None = ...,
+        type: global___Documentation.TaskType.ValueType = ...,
+        markdown: global___Documentation.Markdown | None = ...,
+        iframe: global___Documentation.Iframe | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["iframe", b"iframe", "markdown", b"markdown", "task", b"task"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["iframe", b"iframe", "markdown", b"markdown", "task", b"task", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["task", b"task"]) -> typing.Literal["markdown", "iframe"] | None: ...
 
-Global___Documentation: typing_extensions.TypeAlias = Documentation
+global___Documentation = Documentation

@@ -10,13 +10,7 @@ import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.message
 import google.protobuf.wrappers_pb2
-import sys
 import typing
-
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
-else:
-    import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
@@ -39,7 +33,7 @@ class GkeCommand(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["description", b"description", "type", b"type"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["description", b"description", "type", b"type"]) -> None: ...
 
-Global___GkeCommand: typing_extensions.TypeAlias = GkeCommand
+global___GkeCommand = GkeCommand
 
 @typing.final
 class GkeNamespace(google.protobuf.message.Message):
@@ -60,7 +54,7 @@ class GkeNamespace(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["name", b"name"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["name", b"name", "pods", b"pods"]) -> None: ...
 
-Global___GkeNamespace: typing_extensions.TypeAlias = GkeNamespace
+global___GkeNamespace = GkeNamespace
 
 @typing.final
 class GkeCluster(google.protobuf.message.Message):
@@ -71,17 +65,17 @@ class GkeCluster(google.protobuf.message.Message):
     @property
     def name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
-    def namespaces(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___GkeNamespace]: ...
+    def namespaces(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___GkeNamespace]: ...
     def __init__(
         self,
         *,
         name: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        namespaces: collections.abc.Iterable[Global___GkeNamespace] | None = ...,
+        namespaces: collections.abc.Iterable[global___GkeNamespace] | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["name", b"name"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["name", b"name", "namespaces", b"namespaces"]) -> None: ...
 
-Global___GkeCluster: typing_extensions.TypeAlias = GkeCluster
+global___GkeCluster = GkeCluster
 
 @typing.final
 class ZoneCluster(google.protobuf.message.Message):
@@ -92,17 +86,17 @@ class ZoneCluster(google.protobuf.message.Message):
     @property
     def zone(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
-    def clusters(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___GkeCluster]: ...
+    def clusters(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___GkeCluster]: ...
     def __init__(
         self,
         *,
         zone: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        clusters: collections.abc.Iterable[Global___GkeCluster] | None = ...,
+        clusters: collections.abc.Iterable[global___GkeCluster] | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["zone", b"zone"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["clusters", b"clusters", "zone", b"zone"]) -> None: ...
 
-Global___ZoneCluster: typing_extensions.TypeAlias = ZoneCluster
+global___ZoneCluster = ZoneCluster
 
 @typing.final
 class GkeClusterAssetModel(google.protobuf.message.Message):
@@ -114,348 +108,20 @@ class GkeClusterAssetModel(google.protobuf.message.Message):
     @property
     def zone(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
-    def clusters(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___GkeCluster]: ...
+    def clusters(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___GkeCluster]: ...
     @property
-    def commands(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___GkeCommand]: ...
+    def commands(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___GkeCommand]: ...
     def __init__(
         self,
         *,
         zone: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        clusters: collections.abc.Iterable[Global___GkeCluster] | None = ...,
-        commands: collections.abc.Iterable[Global___GkeCommand] | None = ...,
+        clusters: collections.abc.Iterable[global___GkeCluster] | None = ...,
+        commands: collections.abc.Iterable[global___GkeCommand] | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["zone", b"zone"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["clusters", b"clusters", "commands", b"commands", "zone", b"zone"]) -> None: ...
 
-Global___GkeClusterAssetModel: typing_extensions.TypeAlias = GkeClusterAssetModel
-
-@typing.final
-class GkeNamespaceAssetModel(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    NAME_FIELD_NUMBER: builtins.int
-    ZONE_FIELD_NUMBER: builtins.int
-    CLUSTER_FIELD_NUMBER: builtins.int
-    STATUS_FIELD_NUMBER: builtins.int
-    LABELS_FIELD_NUMBER: builtins.int
-    @property
-    def name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def zone(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def cluster(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def status(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def labels(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    def __init__(
-        self,
-        *,
-        name: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        zone: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        cluster: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        status: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        labels: google.protobuf.wrappers_pb2.StringValue | None = ...,
-    ) -> None: ...
-    def HasField(self, field_name: typing.Literal["cluster", b"cluster", "labels", b"labels", "name", b"name", "status", b"status", "zone", b"zone"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["cluster", b"cluster", "labels", b"labels", "name", b"name", "status", b"status", "zone", b"zone"]) -> None: ...
-
-Global___GkeNamespaceAssetModel: typing_extensions.TypeAlias = GkeNamespaceAssetModel
-
-@typing.final
-class GkeServiceAssetModel(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    NAME_FIELD_NUMBER: builtins.int
-    NAMESPACE_FIELD_NUMBER: builtins.int
-    ZONE_FIELD_NUMBER: builtins.int
-    CLUSTER_FIELD_NUMBER: builtins.int
-    TYPE_FIELD_NUMBER: builtins.int
-    CLUSTER_IP_FIELD_NUMBER: builtins.int
-    PORTS_FIELD_NUMBER: builtins.int
-    @property
-    def name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def namespace(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def zone(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def cluster(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def type(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def cluster_ip(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def ports(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    def __init__(
-        self,
-        *,
-        name: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        namespace: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        zone: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        cluster: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        type: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        cluster_ip: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        ports: google.protobuf.wrappers_pb2.StringValue | None = ...,
-    ) -> None: ...
-    def HasField(self, field_name: typing.Literal["cluster", b"cluster", "cluster_ip", b"cluster_ip", "name", b"name", "namespace", b"namespace", "ports", b"ports", "type", b"type", "zone", b"zone"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["cluster", b"cluster", "cluster_ip", b"cluster_ip", "name", b"name", "namespace", b"namespace", "ports", b"ports", "type", b"type", "zone", b"zone"]) -> None: ...
-
-Global___GkeServiceAssetModel: typing_extensions.TypeAlias = GkeServiceAssetModel
-
-@typing.final
-class GkeDeploymentAssetModel(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    NAME_FIELD_NUMBER: builtins.int
-    NAMESPACE_FIELD_NUMBER: builtins.int
-    ZONE_FIELD_NUMBER: builtins.int
-    CLUSTER_FIELD_NUMBER: builtins.int
-    REPLICAS_FIELD_NUMBER: builtins.int
-    CONTAINERS_FIELD_NUMBER: builtins.int
-    @property
-    def name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def namespace(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def zone(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def cluster(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def replicas(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def containers(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    def __init__(
-        self,
-        *,
-        name: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        namespace: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        zone: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        cluster: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        replicas: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        containers: google.protobuf.wrappers_pb2.StringValue | None = ...,
-    ) -> None: ...
-    def HasField(self, field_name: typing.Literal["cluster", b"cluster", "containers", b"containers", "name", b"name", "namespace", b"namespace", "replicas", b"replicas", "zone", b"zone"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["cluster", b"cluster", "containers", b"containers", "name", b"name", "namespace", b"namespace", "replicas", b"replicas", "zone", b"zone"]) -> None: ...
-
-Global___GkeDeploymentAssetModel: typing_extensions.TypeAlias = GkeDeploymentAssetModel
-
-@typing.final
-class GkeIngressAssetModel(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    NAME_FIELD_NUMBER: builtins.int
-    NAMESPACE_FIELD_NUMBER: builtins.int
-    ZONE_FIELD_NUMBER: builtins.int
-    CLUSTER_FIELD_NUMBER: builtins.int
-    HOST_FIELD_NUMBER: builtins.int
-    PATHS_FIELD_NUMBER: builtins.int
-    TLS_FIELD_NUMBER: builtins.int
-    @property
-    def name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def namespace(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def zone(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def cluster(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def host(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def paths(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def tls(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    def __init__(
-        self,
-        *,
-        name: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        namespace: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        zone: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        cluster: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        host: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        paths: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        tls: google.protobuf.wrappers_pb2.StringValue | None = ...,
-    ) -> None: ...
-    def HasField(self, field_name: typing.Literal["cluster", b"cluster", "host", b"host", "name", b"name", "namespace", b"namespace", "paths", b"paths", "tls", b"tls", "zone", b"zone"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["cluster", b"cluster", "host", b"host", "name", b"name", "namespace", b"namespace", "paths", b"paths", "tls", b"tls", "zone", b"zone"]) -> None: ...
-
-Global___GkeIngressAssetModel: typing_extensions.TypeAlias = GkeIngressAssetModel
-
-@typing.final
-class GkeNetworkPolicyAssetModel(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    NAME_FIELD_NUMBER: builtins.int
-    NAMESPACE_FIELD_NUMBER: builtins.int
-    ZONE_FIELD_NUMBER: builtins.int
-    CLUSTER_FIELD_NUMBER: builtins.int
-    POD_SELECTOR_FIELD_NUMBER: builtins.int
-    INGRESS_RULES_FIELD_NUMBER: builtins.int
-    EGRESS_RULES_FIELD_NUMBER: builtins.int
-    @property
-    def name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def namespace(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def zone(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def cluster(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def pod_selector(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def ingress_rules(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def egress_rules(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    def __init__(
-        self,
-        *,
-        name: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        namespace: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        zone: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        cluster: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        pod_selector: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        ingress_rules: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        egress_rules: google.protobuf.wrappers_pb2.StringValue | None = ...,
-    ) -> None: ...
-    def HasField(self, field_name: typing.Literal["cluster", b"cluster", "egress_rules", b"egress_rules", "ingress_rules", b"ingress_rules", "name", b"name", "namespace", b"namespace", "pod_selector", b"pod_selector", "zone", b"zone"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["cluster", b"cluster", "egress_rules", b"egress_rules", "ingress_rules", b"ingress_rules", "name", b"name", "namespace", b"namespace", "pod_selector", b"pod_selector", "zone", b"zone"]) -> None: ...
-
-Global___GkeNetworkPolicyAssetModel: typing_extensions.TypeAlias = GkeNetworkPolicyAssetModel
-
-@typing.final
-class GkeHpaAssetModel(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    NAME_FIELD_NUMBER: builtins.int
-    NAMESPACE_FIELD_NUMBER: builtins.int
-    ZONE_FIELD_NUMBER: builtins.int
-    CLUSTER_FIELD_NUMBER: builtins.int
-    REFERENCE_FIELD_NUMBER: builtins.int
-    MIN_REPLICAS_FIELD_NUMBER: builtins.int
-    MAX_REPLICAS_FIELD_NUMBER: builtins.int
-    CURRENT_REPLICAS_FIELD_NUMBER: builtins.int
-    METRICS_FIELD_NUMBER: builtins.int
-    @property
-    def name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def namespace(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def zone(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def cluster(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def reference(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def min_replicas(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def max_replicas(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def current_replicas(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def metrics(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    def __init__(
-        self,
-        *,
-        name: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        namespace: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        zone: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        cluster: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        reference: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        min_replicas: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        max_replicas: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        current_replicas: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        metrics: google.protobuf.wrappers_pb2.StringValue | None = ...,
-    ) -> None: ...
-    def HasField(self, field_name: typing.Literal["cluster", b"cluster", "current_replicas", b"current_replicas", "max_replicas", b"max_replicas", "metrics", b"metrics", "min_replicas", b"min_replicas", "name", b"name", "namespace", b"namespace", "reference", b"reference", "zone", b"zone"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["cluster", b"cluster", "current_replicas", b"current_replicas", "max_replicas", b"max_replicas", "metrics", b"metrics", "min_replicas", b"min_replicas", "name", b"name", "namespace", b"namespace", "reference", b"reference", "zone", b"zone"]) -> None: ...
-
-Global___GkeHpaAssetModel: typing_extensions.TypeAlias = GkeHpaAssetModel
-
-@typing.final
-class GkeReplicasetAssetModel(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    NAME_FIELD_NUMBER: builtins.int
-    NAMESPACE_FIELD_NUMBER: builtins.int
-    ZONE_FIELD_NUMBER: builtins.int
-    CLUSTER_FIELD_NUMBER: builtins.int
-    DESIRED_REPLICAS_FIELD_NUMBER: builtins.int
-    CURRENT_REPLICAS_FIELD_NUMBER: builtins.int
-    SELECTOR_FIELD_NUMBER: builtins.int
-    @property
-    def name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def namespace(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def zone(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def cluster(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def desired_replicas(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def current_replicas(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def selector(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    def __init__(
-        self,
-        *,
-        name: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        namespace: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        zone: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        cluster: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        desired_replicas: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        current_replicas: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        selector: google.protobuf.wrappers_pb2.StringValue | None = ...,
-    ) -> None: ...
-    def HasField(self, field_name: typing.Literal["cluster", b"cluster", "current_replicas", b"current_replicas", "desired_replicas", b"desired_replicas", "name", b"name", "namespace", b"namespace", "selector", b"selector", "zone", b"zone"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["cluster", b"cluster", "current_replicas", b"current_replicas", "desired_replicas", b"desired_replicas", "name", b"name", "namespace", b"namespace", "selector", b"selector", "zone", b"zone"]) -> None: ...
-
-Global___GkeReplicasetAssetModel: typing_extensions.TypeAlias = GkeReplicasetAssetModel
-
-@typing.final
-class GkeStatefulsetAssetModel(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    NAME_FIELD_NUMBER: builtins.int
-    NAMESPACE_FIELD_NUMBER: builtins.int
-    ZONE_FIELD_NUMBER: builtins.int
-    CLUSTER_FIELD_NUMBER: builtins.int
-    REPLICAS_FIELD_NUMBER: builtins.int
-    SERVICE_NAME_FIELD_NUMBER: builtins.int
-    VOLUME_CLAIMS_FIELD_NUMBER: builtins.int
-    CONTAINERS_FIELD_NUMBER: builtins.int
-    @property
-    def name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def namespace(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def zone(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def cluster(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def replicas(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def service_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def volume_claims(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def containers(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    def __init__(
-        self,
-        *,
-        name: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        namespace: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        zone: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        cluster: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        replicas: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        service_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        volume_claims: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        containers: google.protobuf.wrappers_pb2.StringValue | None = ...,
-    ) -> None: ...
-    def HasField(self, field_name: typing.Literal["cluster", b"cluster", "containers", b"containers", "name", b"name", "namespace", b"namespace", "replicas", b"replicas", "service_name", b"service_name", "volume_claims", b"volume_claims", "zone", b"zone"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["cluster", b"cluster", "containers", b"containers", "name", b"name", "namespace", b"namespace", "replicas", b"replicas", "service_name", b"service_name", "volume_claims", b"volume_claims", "zone", b"zone"]) -> None: ...
-
-Global___GkeStatefulsetAssetModel: typing_extensions.TypeAlias = GkeStatefulsetAssetModel
+global___GkeClusterAssetModel = GkeClusterAssetModel
 
 @typing.final
 class GkeClusterAssetOptions(google.protobuf.message.Message):
@@ -463,371 +129,15 @@ class GkeClusterAssetOptions(google.protobuf.message.Message):
 
     ZONES_FIELD_NUMBER: builtins.int
     @property
-    def zones(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___ZoneCluster]: ...
+    def zones(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___ZoneCluster]: ...
     def __init__(
         self,
         *,
-        zones: collections.abc.Iterable[Global___ZoneCluster] | None = ...,
+        zones: collections.abc.Iterable[global___ZoneCluster] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["zones", b"zones"]) -> None: ...
 
-Global___GkeClusterAssetOptions: typing_extensions.TypeAlias = GkeClusterAssetOptions
-
-@typing.final
-class GkeNamespaceAssetOptions(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    NAMESPACES_FIELD_NUMBER: builtins.int
-    @property
-    def namespaces(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___GkeNamespaceOption]: ...
-    def __init__(
-        self,
-        *,
-        namespaces: collections.abc.Iterable[Global___GkeNamespaceOption] | None = ...,
-    ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["namespaces", b"namespaces"]) -> None: ...
-
-Global___GkeNamespaceAssetOptions: typing_extensions.TypeAlias = GkeNamespaceAssetOptions
-
-@typing.final
-class GkeServiceAssetOptions(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    SERVICES_FIELD_NUMBER: builtins.int
-    @property
-    def services(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___GkeServiceOption]: ...
-    def __init__(
-        self,
-        *,
-        services: collections.abc.Iterable[Global___GkeServiceOption] | None = ...,
-    ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["services", b"services"]) -> None: ...
-
-Global___GkeServiceAssetOptions: typing_extensions.TypeAlias = GkeServiceAssetOptions
-
-@typing.final
-class GkeDeploymentAssetOptions(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    DEPLOYMENTS_FIELD_NUMBER: builtins.int
-    @property
-    def deployments(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___GkeDeploymentOption]: ...
-    def __init__(
-        self,
-        *,
-        deployments: collections.abc.Iterable[Global___GkeDeploymentOption] | None = ...,
-    ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["deployments", b"deployments"]) -> None: ...
-
-Global___GkeDeploymentAssetOptions: typing_extensions.TypeAlias = GkeDeploymentAssetOptions
-
-@typing.final
-class GkeIngressAssetOptions(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    INGRESSES_FIELD_NUMBER: builtins.int
-    @property
-    def ingresses(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___GkeIngressOption]: ...
-    def __init__(
-        self,
-        *,
-        ingresses: collections.abc.Iterable[Global___GkeIngressOption] | None = ...,
-    ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["ingresses", b"ingresses"]) -> None: ...
-
-Global___GkeIngressAssetOptions: typing_extensions.TypeAlias = GkeIngressAssetOptions
-
-@typing.final
-class GkeNetworkPolicyAssetOptions(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    NETWORK_POLICIES_FIELD_NUMBER: builtins.int
-    @property
-    def network_policies(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___GkeNetworkPolicyOption]: ...
-    def __init__(
-        self,
-        *,
-        network_policies: collections.abc.Iterable[Global___GkeNetworkPolicyOption] | None = ...,
-    ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["network_policies", b"network_policies"]) -> None: ...
-
-Global___GkeNetworkPolicyAssetOptions: typing_extensions.TypeAlias = GkeNetworkPolicyAssetOptions
-
-@typing.final
-class GkeHpaAssetOptions(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    POD_AUTOSCALERS_FIELD_NUMBER: builtins.int
-    @property
-    def pod_autoscalers(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___GkeHpaOption]: ...
-    def __init__(
-        self,
-        *,
-        pod_autoscalers: collections.abc.Iterable[Global___GkeHpaOption] | None = ...,
-    ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["pod_autoscalers", b"pod_autoscalers"]) -> None: ...
-
-Global___GkeHpaAssetOptions: typing_extensions.TypeAlias = GkeHpaAssetOptions
-
-@typing.final
-class GkeReplicasetAssetOptions(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    REPLICASETS_FIELD_NUMBER: builtins.int
-    @property
-    def replicasets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___GkeReplicasetOption]: ...
-    def __init__(
-        self,
-        *,
-        replicasets: collections.abc.Iterable[Global___GkeReplicasetOption] | None = ...,
-    ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["replicasets", b"replicasets"]) -> None: ...
-
-Global___GkeReplicasetAssetOptions: typing_extensions.TypeAlias = GkeReplicasetAssetOptions
-
-@typing.final
-class GkeStatefulsetAssetOptions(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    STATEFULSETS_FIELD_NUMBER: builtins.int
-    @property
-    def statefulsets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___GkeStatefulsetOption]: ...
-    def __init__(
-        self,
-        *,
-        statefulsets: collections.abc.Iterable[Global___GkeStatefulsetOption] | None = ...,
-    ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["statefulsets", b"statefulsets"]) -> None: ...
-
-Global___GkeStatefulsetAssetOptions: typing_extensions.TypeAlias = GkeStatefulsetAssetOptions
-
-@typing.final
-class GkeNamespaceOption(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    NAME_FIELD_NUMBER: builtins.int
-    ZONE_FIELD_NUMBER: builtins.int
-    CLUSTER_FIELD_NUMBER: builtins.int
-    @property
-    def name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def zone(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def cluster(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    def __init__(
-        self,
-        *,
-        name: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        zone: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        cluster: google.protobuf.wrappers_pb2.StringValue | None = ...,
-    ) -> None: ...
-    def HasField(self, field_name: typing.Literal["cluster", b"cluster", "name", b"name", "zone", b"zone"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["cluster", b"cluster", "name", b"name", "zone", b"zone"]) -> None: ...
-
-Global___GkeNamespaceOption: typing_extensions.TypeAlias = GkeNamespaceOption
-
-@typing.final
-class GkeServiceOption(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    NAME_FIELD_NUMBER: builtins.int
-    NAMESPACE_FIELD_NUMBER: builtins.int
-    ZONE_FIELD_NUMBER: builtins.int
-    CLUSTER_FIELD_NUMBER: builtins.int
-    @property
-    def name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def namespace(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def zone(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def cluster(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    def __init__(
-        self,
-        *,
-        name: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        namespace: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        zone: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        cluster: google.protobuf.wrappers_pb2.StringValue | None = ...,
-    ) -> None: ...
-    def HasField(self, field_name: typing.Literal["cluster", b"cluster", "name", b"name", "namespace", b"namespace", "zone", b"zone"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["cluster", b"cluster", "name", b"name", "namespace", b"namespace", "zone", b"zone"]) -> None: ...
-
-Global___GkeServiceOption: typing_extensions.TypeAlias = GkeServiceOption
-
-@typing.final
-class GkeDeploymentOption(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    NAME_FIELD_NUMBER: builtins.int
-    NAMESPACE_FIELD_NUMBER: builtins.int
-    ZONE_FIELD_NUMBER: builtins.int
-    CLUSTER_FIELD_NUMBER: builtins.int
-    @property
-    def name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def namespace(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def zone(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def cluster(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    def __init__(
-        self,
-        *,
-        name: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        namespace: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        zone: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        cluster: google.protobuf.wrappers_pb2.StringValue | None = ...,
-    ) -> None: ...
-    def HasField(self, field_name: typing.Literal["cluster", b"cluster", "name", b"name", "namespace", b"namespace", "zone", b"zone"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["cluster", b"cluster", "name", b"name", "namespace", b"namespace", "zone", b"zone"]) -> None: ...
-
-Global___GkeDeploymentOption: typing_extensions.TypeAlias = GkeDeploymentOption
-
-@typing.final
-class GkeIngressOption(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    NAME_FIELD_NUMBER: builtins.int
-    NAMESPACE_FIELD_NUMBER: builtins.int
-    ZONE_FIELD_NUMBER: builtins.int
-    CLUSTER_FIELD_NUMBER: builtins.int
-    @property
-    def name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def namespace(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def zone(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def cluster(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    def __init__(
-        self,
-        *,
-        name: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        namespace: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        zone: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        cluster: google.protobuf.wrappers_pb2.StringValue | None = ...,
-    ) -> None: ...
-    def HasField(self, field_name: typing.Literal["cluster", b"cluster", "name", b"name", "namespace", b"namespace", "zone", b"zone"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["cluster", b"cluster", "name", b"name", "namespace", b"namespace", "zone", b"zone"]) -> None: ...
-
-Global___GkeIngressOption: typing_extensions.TypeAlias = GkeIngressOption
-
-@typing.final
-class GkeNetworkPolicyOption(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    NAME_FIELD_NUMBER: builtins.int
-    NAMESPACE_FIELD_NUMBER: builtins.int
-    ZONE_FIELD_NUMBER: builtins.int
-    CLUSTER_FIELD_NUMBER: builtins.int
-    @property
-    def name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def namespace(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def zone(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def cluster(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    def __init__(
-        self,
-        *,
-        name: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        namespace: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        zone: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        cluster: google.protobuf.wrappers_pb2.StringValue | None = ...,
-    ) -> None: ...
-    def HasField(self, field_name: typing.Literal["cluster", b"cluster", "name", b"name", "namespace", b"namespace", "zone", b"zone"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["cluster", b"cluster", "name", b"name", "namespace", b"namespace", "zone", b"zone"]) -> None: ...
-
-Global___GkeNetworkPolicyOption: typing_extensions.TypeAlias = GkeNetworkPolicyOption
-
-@typing.final
-class GkeHpaOption(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    NAME_FIELD_NUMBER: builtins.int
-    NAMESPACE_FIELD_NUMBER: builtins.int
-    ZONE_FIELD_NUMBER: builtins.int
-    CLUSTER_FIELD_NUMBER: builtins.int
-    @property
-    def name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def namespace(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def zone(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def cluster(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    def __init__(
-        self,
-        *,
-        name: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        namespace: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        zone: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        cluster: google.protobuf.wrappers_pb2.StringValue | None = ...,
-    ) -> None: ...
-    def HasField(self, field_name: typing.Literal["cluster", b"cluster", "name", b"name", "namespace", b"namespace", "zone", b"zone"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["cluster", b"cluster", "name", b"name", "namespace", b"namespace", "zone", b"zone"]) -> None: ...
-
-Global___GkeHpaOption: typing_extensions.TypeAlias = GkeHpaOption
-
-@typing.final
-class GkeReplicasetOption(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    NAME_FIELD_NUMBER: builtins.int
-    NAMESPACE_FIELD_NUMBER: builtins.int
-    ZONE_FIELD_NUMBER: builtins.int
-    CLUSTER_FIELD_NUMBER: builtins.int
-    @property
-    def name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def namespace(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def zone(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def cluster(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    def __init__(
-        self,
-        *,
-        name: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        namespace: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        zone: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        cluster: google.protobuf.wrappers_pb2.StringValue | None = ...,
-    ) -> None: ...
-    def HasField(self, field_name: typing.Literal["cluster", b"cluster", "name", b"name", "namespace", b"namespace", "zone", b"zone"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["cluster", b"cluster", "name", b"name", "namespace", b"namespace", "zone", b"zone"]) -> None: ...
-
-Global___GkeReplicasetOption: typing_extensions.TypeAlias = GkeReplicasetOption
-
-@typing.final
-class GkeStatefulsetOption(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    NAME_FIELD_NUMBER: builtins.int
-    NAMESPACE_FIELD_NUMBER: builtins.int
-    ZONE_FIELD_NUMBER: builtins.int
-    CLUSTER_FIELD_NUMBER: builtins.int
-    @property
-    def name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def namespace(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def zone(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def cluster(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    def __init__(
-        self,
-        *,
-        name: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        namespace: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        zone: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        cluster: google.protobuf.wrappers_pb2.StringValue | None = ...,
-    ) -> None: ...
-    def HasField(self, field_name: typing.Literal["cluster", b"cluster", "name", b"name", "namespace", b"namespace", "zone", b"zone"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["cluster", b"cluster", "name", b"name", "namespace", b"namespace", "zone", b"zone"]) -> None: ...
-
-Global___GkeStatefulsetOption: typing_extensions.TypeAlias = GkeStatefulsetOption
+global___GkeClusterAssetOptions = GkeClusterAssetOptions
 
 @typing.final
 class GkeAssetModel(google.protobuf.message.Message):
@@ -838,37 +148,13 @@ class GkeAssetModel(google.protobuf.message.Message):
     TYPE_FIELD_NUMBER: builtins.int
     LAST_UPDATED_FIELD_NUMBER: builtins.int
     GKE_CLUSTER_FIELD_NUMBER: builtins.int
-    GKE_NAMESPACE_FIELD_NUMBER: builtins.int
-    GKE_SERVICE_FIELD_NUMBER: builtins.int
-    GKE_DEPLOYMENT_FIELD_NUMBER: builtins.int
-    GKE_INGRESS_FIELD_NUMBER: builtins.int
-    GKE_NETWORK_POLICY_FIELD_NUMBER: builtins.int
-    GKE_HPA_FIELD_NUMBER: builtins.int
-    GKE_REPLICASET_FIELD_NUMBER: builtins.int
-    GKE_STATEFULSET_FIELD_NUMBER: builtins.int
     connector_type: core.protos.base_pb2.Source.ValueType
     type: core.protos.base_pb2.SourceModelType.ValueType
     last_updated: builtins.int
     @property
     def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     @property
-    def gke_cluster(self) -> Global___GkeClusterAssetModel: ...
-    @property
-    def gke_namespace(self) -> Global___GkeNamespaceAssetModel: ...
-    @property
-    def gke_service(self) -> Global___GkeServiceAssetModel: ...
-    @property
-    def gke_deployment(self) -> Global___GkeDeploymentAssetModel: ...
-    @property
-    def gke_ingress(self) -> Global___GkeIngressAssetModel: ...
-    @property
-    def gke_network_policy(self) -> Global___GkeNetworkPolicyAssetModel: ...
-    @property
-    def gke_hpa(self) -> Global___GkeHpaAssetModel: ...
-    @property
-    def gke_replicaset(self) -> Global___GkeReplicasetAssetModel: ...
-    @property
-    def gke_statefulset(self) -> Global___GkeStatefulsetAssetModel: ...
+    def gke_cluster(self) -> global___GkeClusterAssetModel: ...
     def __init__(
         self,
         *,
@@ -876,21 +162,13 @@ class GkeAssetModel(google.protobuf.message.Message):
         connector_type: core.protos.base_pb2.Source.ValueType = ...,
         type: core.protos.base_pb2.SourceModelType.ValueType = ...,
         last_updated: builtins.int = ...,
-        gke_cluster: Global___GkeClusterAssetModel | None = ...,
-        gke_namespace: Global___GkeNamespaceAssetModel | None = ...,
-        gke_service: Global___GkeServiceAssetModel | None = ...,
-        gke_deployment: Global___GkeDeploymentAssetModel | None = ...,
-        gke_ingress: Global___GkeIngressAssetModel | None = ...,
-        gke_network_policy: Global___GkeNetworkPolicyAssetModel | None = ...,
-        gke_hpa: Global___GkeHpaAssetModel | None = ...,
-        gke_replicaset: Global___GkeReplicasetAssetModel | None = ...,
-        gke_statefulset: Global___GkeStatefulsetAssetModel | None = ...,
+        gke_cluster: global___GkeClusterAssetModel | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["asset", b"asset", "gke_cluster", b"gke_cluster", "gke_deployment", b"gke_deployment", "gke_hpa", b"gke_hpa", "gke_ingress", b"gke_ingress", "gke_namespace", b"gke_namespace", "gke_network_policy", b"gke_network_policy", "gke_replicaset", b"gke_replicaset", "gke_service", b"gke_service", "gke_statefulset", b"gke_statefulset", "id", b"id"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["asset", b"asset", "connector_type", b"connector_type", "gke_cluster", b"gke_cluster", "gke_deployment", b"gke_deployment", "gke_hpa", b"gke_hpa", "gke_ingress", b"gke_ingress", "gke_namespace", b"gke_namespace", "gke_network_policy", b"gke_network_policy", "gke_replicaset", b"gke_replicaset", "gke_service", b"gke_service", "gke_statefulset", b"gke_statefulset", "id", b"id", "last_updated", b"last_updated", "type", b"type"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing.Literal["asset", b"asset"]) -> typing.Literal["gke_cluster", "gke_namespace", "gke_service", "gke_deployment", "gke_ingress", "gke_network_policy", "gke_hpa", "gke_replicaset", "gke_statefulset"] | None: ...
+    def HasField(self, field_name: typing.Literal["asset", b"asset", "gke_cluster", b"gke_cluster", "id", b"id"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["asset", b"asset", "connector_type", b"connector_type", "gke_cluster", b"gke_cluster", "id", b"id", "last_updated", b"last_updated", "type", b"type"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["asset", b"asset"]) -> typing.Literal["gke_cluster"] | None: ...
 
-Global___GkeAssetModel: typing_extensions.TypeAlias = GkeAssetModel
+global___GkeAssetModel = GkeAssetModel
 
 @typing.final
 class GkeAssets(google.protobuf.message.Message):
@@ -898,12 +176,12 @@ class GkeAssets(google.protobuf.message.Message):
 
     ASSETS_FIELD_NUMBER: builtins.int
     @property
-    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___GkeAssetModel]: ...
+    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___GkeAssetModel]: ...
     def __init__(
         self,
         *,
-        assets: collections.abc.Iterable[Global___GkeAssetModel] | None = ...,
+        assets: collections.abc.Iterable[global___GkeAssetModel] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["assets", b"assets"]) -> None: ...
 
-Global___GkeAssets: typing_extensions.TypeAlias = GkeAssets
+global___GkeAssets = GkeAssets

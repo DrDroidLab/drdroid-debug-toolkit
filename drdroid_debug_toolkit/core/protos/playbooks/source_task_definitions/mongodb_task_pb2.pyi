@@ -76,17 +76,17 @@ class MongoDB(google.protobuf.message.Message):
 
     TYPE_FIELD_NUMBER: builtins.int
     DATA_FETCH_FIELD_NUMBER: builtins.int
-    type: Global___MongoDB.TaskType.ValueType
+    type: global___MongoDB.TaskType.ValueType
     @property
-    def data_fetch(self) -> Global___MongoDB.MongoQuery: ...
+    def data_fetch(self) -> global___MongoDB.MongoQuery: ...
     def __init__(
         self,
         *,
-        type: Global___MongoDB.TaskType.ValueType = ...,
-        data_fetch: Global___MongoDB.MongoQuery | None = ...,
+        type: global___MongoDB.TaskType.ValueType = ...,
+        data_fetch: global___MongoDB.MongoQuery | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["data_fetch", b"data_fetch", "task", b"task"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["data_fetch", b"data_fetch", "task", b"task", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["task", b"task"]) -> typing.Literal["data_fetch"] | None: ...
 
-Global___MongoDB: typing_extensions.TypeAlias = MongoDB
+global___MongoDB = MongoDB

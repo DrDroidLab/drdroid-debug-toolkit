@@ -10,13 +10,7 @@ import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.message
 import google.protobuf.wrappers_pb2
-import sys
 import typing
-
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
-else:
-    import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
@@ -35,7 +29,7 @@ class OpenSearchIndexAssetModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["index", b"index"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["index", b"index"]) -> None: ...
 
-Global___OpenSearchIndexAssetModel: typing_extensions.TypeAlias = OpenSearchIndexAssetModel
+global___OpenSearchIndexAssetModel = OpenSearchIndexAssetModel
 
 @typing.final
 class OpenSearchIndexAssetOptions(google.protobuf.message.Message):
@@ -51,7 +45,7 @@ class OpenSearchIndexAssetOptions(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["indexes", b"indexes"]) -> None: ...
 
-Global___OpenSearchIndexAssetOptions: typing_extensions.TypeAlias = OpenSearchIndexAssetOptions
+global___OpenSearchIndexAssetOptions = OpenSearchIndexAssetOptions
 
 @typing.final
 class OpenSearchAssetModel(google.protobuf.message.Message):
@@ -68,7 +62,7 @@ class OpenSearchAssetModel(google.protobuf.message.Message):
     @property
     def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     @property
-    def open_search_index(self) -> Global___OpenSearchIndexAssetModel: ...
+    def open_search_index(self) -> global___OpenSearchIndexAssetModel: ...
     def __init__(
         self,
         *,
@@ -76,13 +70,13 @@ class OpenSearchAssetModel(google.protobuf.message.Message):
         connector_type: core.protos.base_pb2.Source.ValueType = ...,
         type: core.protos.base_pb2.SourceModelType.ValueType = ...,
         last_updated: builtins.int = ...,
-        open_search_index: Global___OpenSearchIndexAssetModel | None = ...,
+        open_search_index: global___OpenSearchIndexAssetModel | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["asset", b"asset", "id", b"id", "open_search_index", b"open_search_index"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["asset", b"asset", "connector_type", b"connector_type", "id", b"id", "last_updated", b"last_updated", "open_search_index", b"open_search_index", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["asset", b"asset"]) -> typing.Literal["open_search_index"] | None: ...
 
-Global___OpenSearchAssetModel: typing_extensions.TypeAlias = OpenSearchAssetModel
+global___OpenSearchAssetModel = OpenSearchAssetModel
 
 @typing.final
 class OpenSearchAssets(google.protobuf.message.Message):
@@ -90,12 +84,12 @@ class OpenSearchAssets(google.protobuf.message.Message):
 
     ASSETS_FIELD_NUMBER: builtins.int
     @property
-    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___OpenSearchAssetModel]: ...
+    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___OpenSearchAssetModel]: ...
     def __init__(
         self,
         *,
-        assets: collections.abc.Iterable[Global___OpenSearchAssetModel] | None = ...,
+        assets: collections.abc.Iterable[global___OpenSearchAssetModel] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["assets", b"assets"]) -> None: ...
 
-Global___OpenSearchAssets: typing_extensions.TypeAlias = OpenSearchAssets
+global___OpenSearchAssets = OpenSearchAssets

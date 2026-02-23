@@ -7,13 +7,7 @@ import builtins
 import google.protobuf.descriptor
 import google.protobuf.message
 import google.protobuf.wrappers_pb2
-import sys
 import typing
-
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
-else:
-    import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
@@ -40,4 +34,4 @@ class AutoInvestigationCronScheduleRule(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["rule", b"rule", "slack_channel_id", b"slack_channel_id", "timezone", b"timezone"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["rule", b"rule", "slack_channel_id", b"slack_channel_id", "timezone", b"timezone"]) -> None: ...
 
-Global___AutoInvestigationCronScheduleRule: typing_extensions.TypeAlias = AutoInvestigationCronScheduleRule
+global___AutoInvestigationCronScheduleRule = AutoInvestigationCronScheduleRule

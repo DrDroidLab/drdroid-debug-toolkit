@@ -13,13 +13,7 @@ import google.protobuf.internal.containers
 import google.protobuf.message
 import google.protobuf.struct_pb2
 import google.protobuf.wrappers_pb2
-import sys
 import typing
-
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
-else:
-    import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
@@ -44,7 +38,7 @@ class GetWorkflowsRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["meta", b"meta"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["meta", b"meta", "workflow_ids", b"workflow_ids"]) -> None: ...
 
-Global___GetWorkflowsRequest: typing_extensions.TypeAlias = GetWorkflowsRequest
+global___GetWorkflowsRequest = GetWorkflowsRequest
 
 @typing.final
 class GetWorkflowsResponse(google.protobuf.message.Message):
@@ -65,7 +59,7 @@ class GetWorkflowsResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["meta", b"meta"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["meta", b"meta", "workflows", b"workflows"]) -> None: ...
 
-Global___GetWorkflowsResponse: typing_extensions.TypeAlias = GetWorkflowsResponse
+global___GetWorkflowsResponse = GetWorkflowsResponse
 
 @typing.final
 class GetWorkflowsForPlaybookRequest(google.protobuf.message.Message):
@@ -85,7 +79,7 @@ class GetWorkflowsForPlaybookRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["meta", b"meta"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["meta", b"meta", "playbook_id", b"playbook_id"]) -> None: ...
 
-Global___GetWorkflowsForPlaybookRequest: typing_extensions.TypeAlias = GetWorkflowsForPlaybookRequest
+global___GetWorkflowsForPlaybookRequest = GetWorkflowsForPlaybookRequest
 
 @typing.final
 class GetWorkflowsForPlaybookResponse(google.protobuf.message.Message):
@@ -106,7 +100,7 @@ class GetWorkflowsForPlaybookResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["meta", b"meta"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["meta", b"meta", "workflows", b"workflows"]) -> None: ...
 
-Global___GetWorkflowsForPlaybookResponse: typing_extensions.TypeAlias = GetWorkflowsForPlaybookResponse
+global___GetWorkflowsForPlaybookResponse = GetWorkflowsForPlaybookResponse
 
 @typing.final
 class CreateWorkflowRequest(google.protobuf.message.Message):
@@ -126,7 +120,7 @@ class CreateWorkflowRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["workflow", b"workflow"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["name", b"name", "workflow", b"workflow"]) -> None: ...
 
-Global___CreateWorkflowRequest: typing_extensions.TypeAlias = CreateWorkflowRequest
+global___CreateWorkflowRequest = CreateWorkflowRequest
 
 @typing.final
 class CreateWorkflowResponse(google.protobuf.message.Message):
@@ -151,7 +145,7 @@ class CreateWorkflowResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["message", b"message", "success", b"success", "workflow", b"workflow"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["message", b"message", "success", b"success", "workflow", b"workflow"]) -> None: ...
 
-Global___CreateWorkflowResponse: typing_extensions.TypeAlias = CreateWorkflowResponse
+global___CreateWorkflowResponse = CreateWorkflowResponse
 
 @typing.final
 class UpdateWorkflowRequest(google.protobuf.message.Message):
@@ -172,7 +166,7 @@ class UpdateWorkflowRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["workflow_id", b"workflow_id"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["update_workflow_ops", b"update_workflow_ops", "workflow_id", b"workflow_id"]) -> None: ...
 
-Global___UpdateWorkflowRequest: typing_extensions.TypeAlias = UpdateWorkflowRequest
+global___UpdateWorkflowRequest = UpdateWorkflowRequest
 
 @typing.final
 class UpdateWorkflowResponse(google.protobuf.message.Message):
@@ -193,7 +187,7 @@ class UpdateWorkflowResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["message", b"message", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["message", b"message", "success", b"success"]) -> None: ...
 
-Global___UpdateWorkflowResponse: typing_extensions.TypeAlias = UpdateWorkflowResponse
+global___UpdateWorkflowResponse = UpdateWorkflowResponse
 
 @typing.final
 class ExecuteWorkflowRequest(google.protobuf.message.Message):
@@ -222,7 +216,7 @@ class ExecuteWorkflowRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["meta", b"meta", "workflow_configuration", b"workflow_configuration", "workflow_id", b"workflow_id", "workflow_name", b"workflow_name"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["meta", b"meta", "workflow_configuration", b"workflow_configuration", "workflow_id", b"workflow_id", "workflow_name", b"workflow_name"]) -> None: ...
 
-Global___ExecuteWorkflowRequest: typing_extensions.TypeAlias = ExecuteWorkflowRequest
+global___ExecuteWorkflowRequest = ExecuteWorkflowRequest
 
 @typing.final
 class ExecuteWorkflowResponse(google.protobuf.message.Message):
@@ -251,7 +245,7 @@ class ExecuteWorkflowResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "success", b"success", "workflow_run_id", b"workflow_run_id"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "success", b"success", "workflow_run_id", b"workflow_run_id"]) -> None: ...
 
-Global___ExecuteWorkflowResponse: typing_extensions.TypeAlias = ExecuteWorkflowResponse
+global___ExecuteWorkflowResponse = ExecuteWorkflowResponse
 
 @typing.final
 class TerminateWorkflowExecutionRequest(google.protobuf.message.Message):
@@ -276,7 +270,7 @@ class TerminateWorkflowExecutionRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["meta", b"meta", "workflow_id", b"workflow_id", "workflow_run_id", b"workflow_run_id"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["meta", b"meta", "workflow_id", b"workflow_id", "workflow_run_id", b"workflow_run_id"]) -> None: ...
 
-Global___TerminateWorkflowExecutionRequest: typing_extensions.TypeAlias = TerminateWorkflowExecutionRequest
+global___TerminateWorkflowExecutionRequest = TerminateWorkflowExecutionRequest
 
 @typing.final
 class TerminateWorkflowExecutionResponse(google.protobuf.message.Message):
@@ -301,7 +295,7 @@ class TerminateWorkflowExecutionResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> None: ...
 
-Global___TerminateWorkflowExecutionResponse: typing_extensions.TypeAlias = TerminateWorkflowExecutionResponse
+global___TerminateWorkflowExecutionResponse = TerminateWorkflowExecutionResponse
 
 @typing.final
 class ExecutionWorkflowGetRequest(google.protobuf.message.Message):
@@ -322,7 +316,7 @@ class ExecutionWorkflowGetRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["meta", b"meta", "workflow_execution_id", b"workflow_execution_id"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["meta", b"meta", "workflow_execution_id", b"workflow_execution_id"]) -> None: ...
 
-Global___ExecutionWorkflowGetRequest: typing_extensions.TypeAlias = ExecutionWorkflowGetRequest
+global___ExecutionWorkflowGetRequest = ExecutionWorkflowGetRequest
 
 @typing.final
 class ExecutionWorkflowGetResponse(google.protobuf.message.Message):
@@ -351,7 +345,7 @@ class ExecutionWorkflowGetResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "success", b"success", "workflow_execution", b"workflow_execution"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "success", b"success", "workflow_execution", b"workflow_execution"]) -> None: ...
 
-Global___ExecutionWorkflowGetResponse: typing_extensions.TypeAlias = ExecutionWorkflowGetResponse
+global___ExecutionWorkflowGetResponse = ExecutionWorkflowGetResponse
 
 @typing.final
 class ExecutionsWorkflowsListRequest(google.protobuf.message.Message):
@@ -372,7 +366,7 @@ class ExecutionsWorkflowsListRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["meta", b"meta"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["meta", b"meta", "workflow_ids", b"workflow_ids"]) -> None: ...
 
-Global___ExecutionsWorkflowsListRequest: typing_extensions.TypeAlias = ExecutionsWorkflowsListRequest
+global___ExecutionsWorkflowsListRequest = ExecutionsWorkflowsListRequest
 
 @typing.final
 class ExecutionsWorkflowsListResponse(google.protobuf.message.Message):
@@ -401,7 +395,7 @@ class ExecutionsWorkflowsListResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "success", b"success", "workflow_executions", b"workflow_executions"]) -> None: ...
 
-Global___ExecutionsWorkflowsListResponse: typing_extensions.TypeAlias = ExecutionsWorkflowsListResponse
+global___ExecutionsWorkflowsListResponse = ExecutionsWorkflowsListResponse
 
 @typing.final
 class ExecutionsWorkflowsGetAllRequest(google.protobuf.message.Message):
@@ -422,7 +416,7 @@ class ExecutionsWorkflowsGetAllRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["meta", b"meta", "workflow_run_id", b"workflow_run_id"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["meta", b"meta", "workflow_run_id", b"workflow_run_id"]) -> None: ...
 
-Global___ExecutionsWorkflowsGetAllRequest: typing_extensions.TypeAlias = ExecutionsWorkflowsGetAllRequest
+global___ExecutionsWorkflowsGetAllRequest = ExecutionsWorkflowsGetAllRequest
 
 @typing.final
 class ExecutionsWorkflowsGetAllResponse(google.protobuf.message.Message):
@@ -451,7 +445,7 @@ class ExecutionsWorkflowsGetAllResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "success", b"success", "workflow_executions", b"workflow_executions"]) -> None: ...
 
-Global___ExecutionsWorkflowsGetAllResponse: typing_extensions.TypeAlias = ExecutionsWorkflowsGetAllResponse
+global___ExecutionsWorkflowsGetAllResponse = ExecutionsWorkflowsGetAllResponse
 
 @typing.final
 class ExecutionsWorkflowsGetAllLogsRequest(google.protobuf.message.Message):
@@ -472,7 +466,7 @@ class ExecutionsWorkflowsGetAllLogsRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["meta", b"meta", "workflow_run_id", b"workflow_run_id"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["meta", b"meta", "workflow_run_id", b"workflow_run_id"]) -> None: ...
 
-Global___ExecutionsWorkflowsGetAllLogsRequest: typing_extensions.TypeAlias = ExecutionsWorkflowsGetAllLogsRequest
+global___ExecutionsWorkflowsGetAllLogsRequest = ExecutionsWorkflowsGetAllLogsRequest
 
 @typing.final
 class ExecutionsWorkflowsGetAllLogsResponse(google.protobuf.message.Message):
@@ -501,7 +495,7 @@ class ExecutionsWorkflowsGetAllLogsResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "success", b"success", "workflow_execution_logs", b"workflow_execution_logs"]) -> None: ...
 
-Global___ExecutionsWorkflowsGetAllLogsResponse: typing_extensions.TypeAlias = ExecutionsWorkflowsGetAllLogsResponse
+global___ExecutionsWorkflowsGetAllLogsResponse = ExecutionsWorkflowsGetAllLogsResponse
 
 @typing.final
 class TestWorkflowTransformerRequest(google.protobuf.message.Message):
@@ -522,7 +516,7 @@ class TestWorkflowTransformerRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["event", b"event", "transformer_lambda_function", b"transformer_lambda_function"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["event", b"event", "transformer_lambda_function", b"transformer_lambda_function"]) -> None: ...
 
-Global___TestWorkflowTransformerRequest: typing_extensions.TypeAlias = TestWorkflowTransformerRequest
+global___TestWorkflowTransformerRequest = TestWorkflowTransformerRequest
 
 @typing.final
 class TestWorkflowTransformerResponse(google.protobuf.message.Message):
@@ -547,4 +541,4 @@ class TestWorkflowTransformerResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["event_context", b"event_context", "message", b"message", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["event_context", b"event_context", "message", b"message", "success", b"success"]) -> None: ...
 
-Global___TestWorkflowTransformerResponse: typing_extensions.TypeAlias = TestWorkflowTransformerResponse
+global___TestWorkflowTransformerResponse = TestWorkflowTransformerResponse

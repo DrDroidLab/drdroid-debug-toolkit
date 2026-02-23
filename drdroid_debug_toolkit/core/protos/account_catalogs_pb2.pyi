@@ -76,7 +76,7 @@ class Service(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["description", b"description", "framework", b"framework", "id", b"id", "metadata", b"metadata", "owner", b"owner", "repository", b"repository", "service_name", b"service_name", "source", b"source"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["description", b"description", "downstream_services", b"downstream_services", "framework", b"framework", "id", b"id", "metadata", b"metadata", "owner", b"owner", "repository", b"repository", "service_name", b"service_name", "source", b"source", "tools", b"tools", "upstream_services", b"upstream_services"]) -> None: ...
 
-Global___Service: typing_extensions.TypeAlias = Service
+global___Service = Service
 
 @typing.final
 class ServiceCatalog(google.protobuf.message.Message):
@@ -84,15 +84,15 @@ class ServiceCatalog(google.protobuf.message.Message):
 
     ENTRIES_FIELD_NUMBER: builtins.int
     @property
-    def entries(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___Service]: ...
+    def entries(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___Service]: ...
     def __init__(
         self,
         *,
-        entries: collections.abc.Iterable[Global___Service] | None = ...,
+        entries: collections.abc.Iterable[global___Service] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["entries", b"entries"]) -> None: ...
 
-Global___ServiceCatalog: typing_extensions.TypeAlias = ServiceCatalog
+global___ServiceCatalog = ServiceCatalog
 
 @typing.final
 class Infrastructure(google.protobuf.message.Message):
@@ -145,7 +145,7 @@ class Infrastructure(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["configuration", b"configuration", "description", b"description", "id", b"id", "name", b"name", "owner", b"owner", "provider", b"provider", "type", b"type"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["components", b"components", "configuration", b"configuration", "description", b"description", "id", b"id", "name", b"name", "owner", b"owner", "provider", b"provider", "services", b"services", "tools", b"tools", "type", b"type"]) -> None: ...
 
-Global___Infrastructure: typing_extensions.TypeAlias = Infrastructure
+global___Infrastructure = Infrastructure
 
 @typing.final
 class InfrastructureCatalog(google.protobuf.message.Message):
@@ -153,15 +153,15 @@ class InfrastructureCatalog(google.protobuf.message.Message):
 
     ENTRIES_FIELD_NUMBER: builtins.int
     @property
-    def entries(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___Infrastructure]: ...
+    def entries(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___Infrastructure]: ...
     def __init__(
         self,
         *,
-        entries: collections.abc.Iterable[Global___Infrastructure] | None = ...,
+        entries: collections.abc.Iterable[global___Infrastructure] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["entries", b"entries"]) -> None: ...
 
-Global___InfrastructureCatalog: typing_extensions.TypeAlias = InfrastructureCatalog
+global___InfrastructureCatalog = InfrastructureCatalog
 
 @typing.final
 class Integration(google.protobuf.message.Message):
@@ -198,7 +198,7 @@ class Integration(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["description", b"description", "id", b"id", "name", b"name", "source", b"source"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["description", b"description", "id", b"id", "name", b"name", "related_infrastructure", b"related_infrastructure", "related_services", b"related_services", "source", b"source"]) -> None: ...
 
-Global___Integration: typing_extensions.TypeAlias = Integration
+global___Integration = Integration
 
 @typing.final
 class IntegrationCatalog(google.protobuf.message.Message):
@@ -206,15 +206,15 @@ class IntegrationCatalog(google.protobuf.message.Message):
 
     ENTRIES_FIELD_NUMBER: builtins.int
     @property
-    def entries(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___Integration]: ...
+    def entries(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___Integration]: ...
     def __init__(
         self,
         *,
-        entries: collections.abc.Iterable[Global___Integration] | None = ...,
+        entries: collections.abc.Iterable[global___Integration] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["entries", b"entries"]) -> None: ...
 
-Global___IntegrationCatalog: typing_extensions.TypeAlias = IntegrationCatalog
+global___IntegrationCatalog = IntegrationCatalog
 
 @typing.final
 class OrgAccountContext(google.protobuf.message.Message):
@@ -246,32 +246,32 @@ class OrgAccountContext(google.protobuf.message.Message):
     INFRASTRUCTURE_FIELD_NUMBER: builtins.int
     INTEGRATION_FIELD_NUMBER: builtins.int
     ARCHITECTURE_FIELD_NUMBER: builtins.int
-    type: Global___OrgAccountContext.Type.ValueType
+    type: global___OrgAccountContext.Type.ValueType
     @property
     def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     @property
     def name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
-    def service(self) -> Global___Service: ...
+    def service(self) -> global___Service: ...
     @property
-    def infrastructure(self) -> Global___Infrastructure: ...
+    def infrastructure(self) -> global___Infrastructure: ...
     @property
-    def integration(self) -> Global___Integration: ...
+    def integration(self) -> global___Integration: ...
     @property
     def architecture(self) -> google.protobuf.struct_pb2.Struct: ...
     def __init__(
         self,
         *,
         id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
-        type: Global___OrgAccountContext.Type.ValueType = ...,
+        type: global___OrgAccountContext.Type.ValueType = ...,
         name: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        service: Global___Service | None = ...,
-        infrastructure: Global___Infrastructure | None = ...,
-        integration: Global___Integration | None = ...,
+        service: global___Service | None = ...,
+        infrastructure: global___Infrastructure | None = ...,
+        integration: global___Integration | None = ...,
         architecture: google.protobuf.struct_pb2.Struct | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["architecture", b"architecture", "context", b"context", "id", b"id", "infrastructure", b"infrastructure", "integration", b"integration", "name", b"name", "service", b"service"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["architecture", b"architecture", "context", b"context", "id", b"id", "infrastructure", b"infrastructure", "integration", b"integration", "name", b"name", "service", b"service", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["context", b"context"]) -> typing.Literal["service", "infrastructure", "integration", "architecture"] | None: ...
 
-Global___OrgAccountContext: typing_extensions.TypeAlias = OrgAccountContext
+global___OrgAccountContext = OrgAccountContext

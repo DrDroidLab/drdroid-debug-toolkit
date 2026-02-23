@@ -11,13 +11,7 @@ import google.protobuf.internal.containers
 import google.protobuf.message
 import google.protobuf.struct_pb2
 import google.protobuf.wrappers_pb2
-import sys
 import typing
-
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
-else:
-    import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
@@ -40,7 +34,7 @@ class ImportPlaybookTemplatesGetRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["import_sops", b"import_sops", "meta", b"meta"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["import_sops", b"import_sops", "meta", b"meta"]) -> None: ...
 
-Global___ImportPlaybookTemplatesGetRequest: typing_extensions.TypeAlias = ImportPlaybookTemplatesGetRequest
+global___ImportPlaybookTemplatesGetRequest = ImportPlaybookTemplatesGetRequest
 
 @typing.final
 class ImportPlaybookTemplatesGetResponse(google.protobuf.message.Message):
@@ -65,4 +59,4 @@ class ImportPlaybookTemplatesGetResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["message", b"message", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["data", b"data", "message", b"message", "success", b"success"]) -> None: ...
 
-Global___ImportPlaybookTemplatesGetResponse: typing_extensions.TypeAlias = ImportPlaybookTemplatesGetResponse
+global___ImportPlaybookTemplatesGetResponse = ImportPlaybookTemplatesGetResponse

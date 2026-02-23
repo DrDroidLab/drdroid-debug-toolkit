@@ -10,13 +10,7 @@ import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.message
 import google.protobuf.wrappers_pb2
-import sys
 import typing
-
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
-else:
-    import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
@@ -52,17 +46,17 @@ class GcmMetricAssetModel(google.protobuf.message.Message):
     @property
     def metric_type(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
-    def label_value_metric_map(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___GcmMetricAssetModel.MetricLabel]: ...
+    def label_value_metric_map(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___GcmMetricAssetModel.MetricLabel]: ...
     def __init__(
         self,
         *,
         metric_type: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        label_value_metric_map: collections.abc.Iterable[Global___GcmMetricAssetModel.MetricLabel] | None = ...,
+        label_value_metric_map: collections.abc.Iterable[global___GcmMetricAssetModel.MetricLabel] | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["metric_type", b"metric_type"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["label_value_metric_map", b"label_value_metric_map", "metric_type", b"metric_type"]) -> None: ...
 
-Global___GcmMetricAssetModel: typing_extensions.TypeAlias = GcmMetricAssetModel
+global___GcmMetricAssetModel = GcmMetricAssetModel
 
 @typing.final
 class GcmMetricAssetOptions(google.protobuf.message.Message):
@@ -78,7 +72,7 @@ class GcmMetricAssetOptions(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["metric_types", b"metric_types"]) -> None: ...
 
-Global___GcmMetricAssetOptions: typing_extensions.TypeAlias = GcmMetricAssetOptions
+global___GcmMetricAssetOptions = GcmMetricAssetOptions
 
 @typing.final
 class GcmDashboardEntityAssetModel(google.protobuf.message.Message):
@@ -119,18 +113,18 @@ class GcmDashboardEntityAssetModel(google.protobuf.message.Message):
     @property
     def dashboard_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
-    def widgets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___GcmDashboardEntityAssetModel.DashboardWidget]: ...
+    def widgets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___GcmDashboardEntityAssetModel.DashboardWidget]: ...
     def __init__(
         self,
         *,
         dashboard_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
         dashboard_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        widgets: collections.abc.Iterable[Global___GcmDashboardEntityAssetModel.DashboardWidget] | None = ...,
+        widgets: collections.abc.Iterable[global___GcmDashboardEntityAssetModel.DashboardWidget] | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["dashboard_id", b"dashboard_id", "dashboard_name", b"dashboard_name"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["dashboard_id", b"dashboard_id", "dashboard_name", b"dashboard_name", "widgets", b"widgets"]) -> None: ...
 
-Global___GcmDashboardEntityAssetModel: typing_extensions.TypeAlias = GcmDashboardEntityAssetModel
+global___GcmDashboardEntityAssetModel = GcmDashboardEntityAssetModel
 
 @typing.final
 class GcmDashboardEntityAssetOptions(google.protobuf.message.Message):
@@ -161,15 +155,15 @@ class GcmDashboardEntityAssetOptions(google.protobuf.message.Message):
 
     DASHBOARDS_FIELD_NUMBER: builtins.int
     @property
-    def dashboards(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___GcmDashboardEntityAssetOptions.DashboardOptions]: ...
+    def dashboards(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___GcmDashboardEntityAssetOptions.DashboardOptions]: ...
     def __init__(
         self,
         *,
-        dashboards: collections.abc.Iterable[Global___GcmDashboardEntityAssetOptions.DashboardOptions] | None = ...,
+        dashboards: collections.abc.Iterable[global___GcmDashboardEntityAssetOptions.DashboardOptions] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["dashboards", b"dashboards"]) -> None: ...
 
-Global___GcmDashboardEntityAssetOptions: typing_extensions.TypeAlias = GcmDashboardEntityAssetOptions
+global___GcmDashboardEntityAssetOptions = GcmDashboardEntityAssetOptions
 
 @typing.final
 class GcmCloudRunServiceAssetModel(google.protobuf.message.Message):
@@ -205,19 +199,19 @@ class GcmCloudRunServiceAssetModel(google.protobuf.message.Message):
     @property
     def project_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
-    def metrics(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___GcmCloudRunServiceAssetModel.CloudRunMetric]: ...
+    def metrics(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___GcmCloudRunServiceAssetModel.CloudRunMetric]: ...
     def __init__(
         self,
         *,
         service_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
         region: google.protobuf.wrappers_pb2.StringValue | None = ...,
         project_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        metrics: collections.abc.Iterable[Global___GcmCloudRunServiceAssetModel.CloudRunMetric] | None = ...,
+        metrics: collections.abc.Iterable[global___GcmCloudRunServiceAssetModel.CloudRunMetric] | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["project_id", b"project_id", "region", b"region", "service_name", b"service_name"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["metrics", b"metrics", "project_id", b"project_id", "region", b"region", "service_name", b"service_name"]) -> None: ...
 
-Global___GcmCloudRunServiceAssetModel: typing_extensions.TypeAlias = GcmCloudRunServiceAssetModel
+global___GcmCloudRunServiceAssetModel = GcmCloudRunServiceAssetModel
 
 @typing.final
 class GcmCloudRunServiceAssetOptions(google.protobuf.message.Message):
@@ -237,7 +231,7 @@ class GcmCloudRunServiceAssetOptions(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["regions", b"regions", "service_names", b"service_names"]) -> None: ...
 
-Global___GcmCloudRunServiceAssetOptions: typing_extensions.TypeAlias = GcmCloudRunServiceAssetOptions
+global___GcmCloudRunServiceAssetOptions = GcmCloudRunServiceAssetOptions
 
 @typing.final
 class GcmAssetModel(google.protobuf.message.Message):
@@ -256,11 +250,11 @@ class GcmAssetModel(google.protobuf.message.Message):
     @property
     def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     @property
-    def gcm_metric(self) -> Global___GcmMetricAssetModel: ...
+    def gcm_metric(self) -> global___GcmMetricAssetModel: ...
     @property
-    def gcm_dashboard(self) -> Global___GcmDashboardEntityAssetModel: ...
+    def gcm_dashboard(self) -> global___GcmDashboardEntityAssetModel: ...
     @property
-    def gcm_cloud_run_service_dashboard(self) -> Global___GcmCloudRunServiceAssetModel: ...
+    def gcm_cloud_run_service_dashboard(self) -> global___GcmCloudRunServiceAssetModel: ...
     def __init__(
         self,
         *,
@@ -268,15 +262,15 @@ class GcmAssetModel(google.protobuf.message.Message):
         connector_type: core.protos.base_pb2.Source.ValueType = ...,
         type: core.protos.base_pb2.SourceModelType.ValueType = ...,
         last_updated: builtins.int = ...,
-        gcm_metric: Global___GcmMetricAssetModel | None = ...,
-        gcm_dashboard: Global___GcmDashboardEntityAssetModel | None = ...,
-        gcm_cloud_run_service_dashboard: Global___GcmCloudRunServiceAssetModel | None = ...,
+        gcm_metric: global___GcmMetricAssetModel | None = ...,
+        gcm_dashboard: global___GcmDashboardEntityAssetModel | None = ...,
+        gcm_cloud_run_service_dashboard: global___GcmCloudRunServiceAssetModel | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["asset", b"asset", "gcm_cloud_run_service_dashboard", b"gcm_cloud_run_service_dashboard", "gcm_dashboard", b"gcm_dashboard", "gcm_metric", b"gcm_metric", "id", b"id"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["asset", b"asset", "connector_type", b"connector_type", "gcm_cloud_run_service_dashboard", b"gcm_cloud_run_service_dashboard", "gcm_dashboard", b"gcm_dashboard", "gcm_metric", b"gcm_metric", "id", b"id", "last_updated", b"last_updated", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["asset", b"asset"]) -> typing.Literal["gcm_metric", "gcm_dashboard", "gcm_cloud_run_service_dashboard"] | None: ...
 
-Global___GcmAssetModel: typing_extensions.TypeAlias = GcmAssetModel
+global___GcmAssetModel = GcmAssetModel
 
 @typing.final
 class GcmAssets(google.protobuf.message.Message):
@@ -284,12 +278,12 @@ class GcmAssets(google.protobuf.message.Message):
 
     ASSETS_FIELD_NUMBER: builtins.int
     @property
-    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___GcmAssetModel]: ...
+    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___GcmAssetModel]: ...
     def __init__(
         self,
         *,
-        assets: collections.abc.Iterable[Global___GcmAssetModel] | None = ...,
+        assets: collections.abc.Iterable[global___GcmAssetModel] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["assets", b"assets"]) -> None: ...
 
-Global___GcmAssets: typing_extensions.TypeAlias = GcmAssets
+global___GcmAssets = GcmAssets

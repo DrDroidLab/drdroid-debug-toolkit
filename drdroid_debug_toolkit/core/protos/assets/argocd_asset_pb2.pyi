@@ -10,13 +10,7 @@ import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.message
 import google.protobuf.wrappers_pb2
-import sys
 import typing
-
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
-else:
-    import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
@@ -36,7 +30,7 @@ class ArgoCDAppsAssetOptions(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["apps", b"apps"]) -> None: ...
 
-Global___ArgoCDAppsAssetOptions: typing_extensions.TypeAlias = ArgoCDAppsAssetOptions
+global___ArgoCDAppsAssetOptions = ArgoCDAppsAssetOptions
 
 @typing.final
 class ArgoCDAppsAssetModel(google.protobuf.message.Message):
@@ -57,7 +51,7 @@ class ArgoCDAppsAssetModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["name", b"name", "path", b"path"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["name", b"name", "path", b"path"]) -> None: ...
 
-Global___ArgoCDAppsAssetModel: typing_extensions.TypeAlias = ArgoCDAppsAssetModel
+global___ArgoCDAppsAssetModel = ArgoCDAppsAssetModel
 
 @typing.final
 class ArgoCDAssetModel(google.protobuf.message.Message):
@@ -74,7 +68,7 @@ class ArgoCDAssetModel(google.protobuf.message.Message):
     @property
     def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     @property
-    def argocd_apps(self) -> Global___ArgoCDAppsAssetModel: ...
+    def argocd_apps(self) -> global___ArgoCDAppsAssetModel: ...
     def __init__(
         self,
         *,
@@ -82,13 +76,13 @@ class ArgoCDAssetModel(google.protobuf.message.Message):
         connector_type: core.protos.base_pb2.Source.ValueType = ...,
         type: core.protos.base_pb2.SourceModelType.ValueType = ...,
         last_updated: builtins.int = ...,
-        argocd_apps: Global___ArgoCDAppsAssetModel | None = ...,
+        argocd_apps: global___ArgoCDAppsAssetModel | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["argocd_apps", b"argocd_apps", "asset", b"asset", "id", b"id"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["argocd_apps", b"argocd_apps", "asset", b"asset", "connector_type", b"connector_type", "id", b"id", "last_updated", b"last_updated", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["asset", b"asset"]) -> typing.Literal["argocd_apps"] | None: ...
 
-Global___ArgoCDAssetModel: typing_extensions.TypeAlias = ArgoCDAssetModel
+global___ArgoCDAssetModel = ArgoCDAssetModel
 
 @typing.final
 class ArgoCDAssets(google.protobuf.message.Message):
@@ -96,12 +90,12 @@ class ArgoCDAssets(google.protobuf.message.Message):
 
     ASSETS_FIELD_NUMBER: builtins.int
     @property
-    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___ArgoCDAssetModel]: ...
+    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___ArgoCDAssetModel]: ...
     def __init__(
         self,
         *,
-        assets: collections.abc.Iterable[Global___ArgoCDAssetModel] | None = ...,
+        assets: collections.abc.Iterable[global___ArgoCDAssetModel] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["assets", b"assets"]) -> None: ...
 
-Global___ArgoCDAssets: typing_extensions.TypeAlias = ArgoCDAssets
+global___ArgoCDAssets = ArgoCDAssets

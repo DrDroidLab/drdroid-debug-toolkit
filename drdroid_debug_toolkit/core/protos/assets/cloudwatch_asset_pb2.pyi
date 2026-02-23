@@ -11,13 +11,7 @@ import google.protobuf.internal.containers
 import google.protobuf.message
 import google.protobuf.struct_pb2
 import google.protobuf.wrappers_pb2
-import sys
 import typing
-
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
-else:
-    import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
@@ -40,7 +34,7 @@ class CloudwatchLogGroupAssetModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["region", b"region"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["log_groups", b"log_groups", "region", b"region"]) -> None: ...
 
-Global___CloudwatchLogGroupAssetModel: typing_extensions.TypeAlias = CloudwatchLogGroupAssetModel
+global___CloudwatchLogGroupAssetModel = CloudwatchLogGroupAssetModel
 
 @typing.final
 class CloudwatchLogGroupQueryAssetModel(google.protobuf.message.Message):
@@ -61,7 +55,7 @@ class CloudwatchLogGroupQueryAssetModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["log_group", b"log_group"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["log_group", b"log_group", "queries", b"queries"]) -> None: ...
 
-Global___CloudwatchLogGroupQueryAssetModel: typing_extensions.TypeAlias = CloudwatchLogGroupQueryAssetModel
+global___CloudwatchLogGroupQueryAssetModel = CloudwatchLogGroupQueryAssetModel
 
 @typing.final
 class CloudwatchLogGroupAssetOptions(google.protobuf.message.Message):
@@ -77,7 +71,7 @@ class CloudwatchLogGroupAssetOptions(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["regions", b"regions"]) -> None: ...
 
-Global___CloudwatchLogGroupAssetOptions: typing_extensions.TypeAlias = CloudwatchLogGroupAssetOptions
+global___CloudwatchLogGroupAssetOptions = CloudwatchLogGroupAssetOptions
 
 @typing.final
 class CloudwatchLogGroupQueryAssetOptions(google.protobuf.message.Message):
@@ -93,7 +87,7 @@ class CloudwatchLogGroupQueryAssetOptions(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["log_groups", b"log_groups"]) -> None: ...
 
-Global___CloudwatchLogGroupQueryAssetOptions: typing_extensions.TypeAlias = CloudwatchLogGroupQueryAssetOptions
+global___CloudwatchLogGroupQueryAssetOptions = CloudwatchLogGroupQueryAssetOptions
 
 @typing.final
 class CloudwatchMetricAssetModel(google.protobuf.message.Message):
@@ -131,12 +125,12 @@ class CloudwatchMetricAssetModel(google.protobuf.message.Message):
         @property
         def region(self) -> google.protobuf.wrappers_pb2.StringValue: ...
         @property
-        def dimensions(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___CloudwatchMetricAssetModel.MetricDimension]: ...
+        def dimensions(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___CloudwatchMetricAssetModel.MetricDimension]: ...
         def __init__(
             self,
             *,
             region: google.protobuf.wrappers_pb2.StringValue | None = ...,
-            dimensions: collections.abc.Iterable[Global___CloudwatchMetricAssetModel.MetricDimension] | None = ...,
+            dimensions: collections.abc.Iterable[global___CloudwatchMetricAssetModel.MetricDimension] | None = ...,
         ) -> None: ...
         def HasField(self, field_name: typing.Literal["region", b"region"]) -> builtins.bool: ...
         def ClearField(self, field_name: typing.Literal["dimensions", b"dimensions", "region", b"region"]) -> None: ...
@@ -146,17 +140,17 @@ class CloudwatchMetricAssetModel(google.protobuf.message.Message):
     @property
     def namespace(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
-    def region_dimension_map(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___CloudwatchMetricAssetModel.RegionDimensionMap]: ...
+    def region_dimension_map(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___CloudwatchMetricAssetModel.RegionDimensionMap]: ...
     def __init__(
         self,
         *,
         namespace: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        region_dimension_map: collections.abc.Iterable[Global___CloudwatchMetricAssetModel.RegionDimensionMap] | None = ...,
+        region_dimension_map: collections.abc.Iterable[global___CloudwatchMetricAssetModel.RegionDimensionMap] | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["namespace", b"namespace"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["namespace", b"namespace", "region_dimension_map", b"region_dimension_map"]) -> None: ...
 
-Global___CloudwatchMetricAssetModel: typing_extensions.TypeAlias = CloudwatchMetricAssetModel
+global___CloudwatchMetricAssetModel = CloudwatchMetricAssetModel
 
 @typing.final
 class CloudwatchMetricAssetOptions(google.protobuf.message.Message):
@@ -172,7 +166,7 @@ class CloudwatchMetricAssetOptions(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["namespaces", b"namespaces"]) -> None: ...
 
-Global___CloudwatchMetricAssetOptions: typing_extensions.TypeAlias = CloudwatchMetricAssetOptions
+global___CloudwatchMetricAssetOptions = CloudwatchMetricAssetOptions
 
 @typing.final
 class CloudwatchAlarmAssetModel(google.protobuf.message.Message):
@@ -193,7 +187,7 @@ class CloudwatchAlarmAssetModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["alarm", b"alarm", "alarm_name", b"alarm_name"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["alarm", b"alarm", "alarm_name", b"alarm_name"]) -> None: ...
 
-Global___CloudwatchAlarmAssetModel: typing_extensions.TypeAlias = CloudwatchAlarmAssetModel
+global___CloudwatchAlarmAssetModel = CloudwatchAlarmAssetModel
 
 @typing.final
 class CloudwatchAlarmAssetOptions(google.protobuf.message.Message):
@@ -209,7 +203,7 @@ class CloudwatchAlarmAssetOptions(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["alarm_names", b"alarm_names"]) -> None: ...
 
-Global___CloudwatchAlarmAssetOptions: typing_extensions.TypeAlias = CloudwatchAlarmAssetOptions
+global___CloudwatchAlarmAssetOptions = CloudwatchAlarmAssetOptions
 
 @typing.final
 class EcsClusterAssetOptions(google.protobuf.message.Message):
@@ -229,7 +223,7 @@ class EcsClusterAssetOptions(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["clusters", b"clusters"]) -> None: ...
 
-Global___EcsClusterAssetOptions: typing_extensions.TypeAlias = EcsClusterAssetOptions
+global___EcsClusterAssetOptions = EcsClusterAssetOptions
 
 @typing.final
 class EcsTaskAssetOptions(google.protobuf.message.Message):
@@ -247,7 +241,7 @@ class EcsTaskAssetOptions(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["tasks", b"tasks"]) -> None: ...
 
-Global___EcsTaskAssetOptions: typing_extensions.TypeAlias = EcsTaskAssetOptions
+global___EcsTaskAssetOptions = EcsTaskAssetOptions
 
 @typing.final
 class EcsServiceAssetOptions(google.protobuf.message.Message):
@@ -265,7 +259,7 @@ class EcsServiceAssetOptions(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["services", b"services"]) -> None: ...
 
-Global___EcsServiceAssetOptions: typing_extensions.TypeAlias = EcsServiceAssetOptions
+global___EcsServiceAssetOptions = EcsServiceAssetOptions
 
 @typing.final
 class EcsClusterAssetModel(google.protobuf.message.Message):
@@ -294,7 +288,7 @@ class EcsClusterAssetModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["arn", b"arn", "name", b"name", "region", b"region", "status", b"status"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["arn", b"arn", "name", b"name", "region", b"region", "status", b"status"]) -> None: ...
 
-Global___EcsClusterAssetModel: typing_extensions.TypeAlias = EcsClusterAssetModel
+global___EcsClusterAssetModel = EcsClusterAssetModel
 
 @typing.final
 class EcsTaskAssetModel(google.protobuf.message.Message):
@@ -331,7 +325,7 @@ class EcsTaskAssetModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["arn", b"arn", "cluster_arn", b"cluster_arn", "cluster_name", b"cluster_name", "container_name", b"container_name", "status", b"status", "task_definition_arn", b"task_definition_arn"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["arn", b"arn", "cluster_arn", b"cluster_arn", "cluster_name", b"cluster_name", "container_name", b"container_name", "status", b"status", "task_definition_arn", b"task_definition_arn"]) -> None: ...
 
-Global___EcsTaskAssetModel: typing_extensions.TypeAlias = EcsTaskAssetModel
+global___EcsTaskAssetModel = EcsTaskAssetModel
 
 @typing.final
 class EcsServiceAssetModel(google.protobuf.message.Message):
@@ -364,7 +358,7 @@ class EcsServiceAssetModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["arn", b"arn", "cluster_arn", b"cluster_arn", "cluster_name", b"cluster_name", "name", b"name", "status", b"status"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["arn", b"arn", "cluster_arn", b"cluster_arn", "cluster_name", b"cluster_name", "name", b"name", "status", b"status"]) -> None: ...
 
-Global___EcsServiceAssetModel: typing_extensions.TypeAlias = EcsServiceAssetModel
+global___EcsServiceAssetModel = EcsServiceAssetModel
 
 @typing.final
 class CloudwatchMetricWidget(google.protobuf.message.Message):
@@ -409,7 +403,7 @@ class CloudwatchMetricWidget(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["metric_name", b"metric_name", "namespace", b"namespace", "period", b"period", "region", b"region", "statistic", b"statistic", "unit", b"unit", "widget_title", b"widget_title"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["dimensions", b"dimensions", "metric_name", b"metric_name", "namespace", b"namespace", "period", b"period", "region", b"region", "statistic", b"statistic", "unit", b"unit", "widget_title", b"widget_title"]) -> None: ...
 
-Global___CloudwatchMetricWidget: typing_extensions.TypeAlias = CloudwatchMetricWidget
+global___CloudwatchMetricWidget = CloudwatchMetricWidget
 
 @typing.final
 class CloudwatchDashboardAssetModel(google.protobuf.message.Message):
@@ -423,18 +417,18 @@ class CloudwatchDashboardAssetModel(google.protobuf.message.Message):
     @property
     def dashboard_arn(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
-    def widgets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___CloudwatchMetricWidget]: ...
+    def widgets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___CloudwatchMetricWidget]: ...
     def __init__(
         self,
         *,
         dashboard_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
         dashboard_arn: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        widgets: collections.abc.Iterable[Global___CloudwatchMetricWidget] | None = ...,
+        widgets: collections.abc.Iterable[global___CloudwatchMetricWidget] | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["dashboard_arn", b"dashboard_arn", "dashboard_name", b"dashboard_name"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["dashboard_arn", b"dashboard_arn", "dashboard_name", b"dashboard_name", "widgets", b"widgets"]) -> None: ...
 
-Global___CloudwatchDashboardAssetModel: typing_extensions.TypeAlias = CloudwatchDashboardAssetModel
+global___CloudwatchDashboardAssetModel = CloudwatchDashboardAssetModel
 
 @typing.final
 class CloudwatchDashboardAssetOptions(google.protobuf.message.Message):
@@ -450,7 +444,7 @@ class CloudwatchDashboardAssetOptions(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["dashboard_names", b"dashboard_names"]) -> None: ...
 
-Global___CloudwatchDashboardAssetOptions: typing_extensions.TypeAlias = CloudwatchDashboardAssetOptions
+global___CloudwatchDashboardAssetOptions = CloudwatchDashboardAssetOptions
 
 @typing.final
 class CloudwatchAssetModel(google.protobuf.message.Message):
@@ -474,23 +468,23 @@ class CloudwatchAssetModel(google.protobuf.message.Message):
     @property
     def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     @property
-    def cloudwatch_log_group(self) -> Global___CloudwatchLogGroupAssetModel: ...
+    def cloudwatch_log_group(self) -> global___CloudwatchLogGroupAssetModel: ...
     @property
-    def cloudwatch_metric(self) -> Global___CloudwatchMetricAssetModel: ...
+    def cloudwatch_metric(self) -> global___CloudwatchMetricAssetModel: ...
     @property
-    def cloudwatch_log_group_query(self) -> Global___CloudwatchLogGroupQueryAssetModel: ...
+    def cloudwatch_log_group_query(self) -> global___CloudwatchLogGroupQueryAssetModel: ...
     @property
-    def cloudwatch_alarm(self) -> Global___CloudwatchAlarmAssetModel: ...
+    def cloudwatch_alarm(self) -> global___CloudwatchAlarmAssetModel: ...
     @property
-    def ecs_cluster(self) -> Global___EcsClusterAssetModel:
+    def ecs_cluster(self) -> global___EcsClusterAssetModel:
         """ECS assets integrated into CloudWatch"""
 
     @property
-    def ecs_task(self) -> Global___EcsTaskAssetModel: ...
+    def ecs_task(self) -> global___EcsTaskAssetModel: ...
     @property
-    def ecs_service(self) -> Global___EcsServiceAssetModel: ...
+    def ecs_service(self) -> global___EcsServiceAssetModel: ...
     @property
-    def cloudwatch_dashboard(self) -> Global___CloudwatchDashboardAssetModel:
+    def cloudwatch_dashboard(self) -> global___CloudwatchDashboardAssetModel:
         """Cloudwatch Dashboard"""
 
     def __init__(
@@ -500,20 +494,20 @@ class CloudwatchAssetModel(google.protobuf.message.Message):
         connector_type: core.protos.base_pb2.Source.ValueType = ...,
         type: core.protos.base_pb2.SourceModelType.ValueType = ...,
         last_updated: builtins.int = ...,
-        cloudwatch_log_group: Global___CloudwatchLogGroupAssetModel | None = ...,
-        cloudwatch_metric: Global___CloudwatchMetricAssetModel | None = ...,
-        cloudwatch_log_group_query: Global___CloudwatchLogGroupQueryAssetModel | None = ...,
-        cloudwatch_alarm: Global___CloudwatchAlarmAssetModel | None = ...,
-        ecs_cluster: Global___EcsClusterAssetModel | None = ...,
-        ecs_task: Global___EcsTaskAssetModel | None = ...,
-        ecs_service: Global___EcsServiceAssetModel | None = ...,
-        cloudwatch_dashboard: Global___CloudwatchDashboardAssetModel | None = ...,
+        cloudwatch_log_group: global___CloudwatchLogGroupAssetModel | None = ...,
+        cloudwatch_metric: global___CloudwatchMetricAssetModel | None = ...,
+        cloudwatch_log_group_query: global___CloudwatchLogGroupQueryAssetModel | None = ...,
+        cloudwatch_alarm: global___CloudwatchAlarmAssetModel | None = ...,
+        ecs_cluster: global___EcsClusterAssetModel | None = ...,
+        ecs_task: global___EcsTaskAssetModel | None = ...,
+        ecs_service: global___EcsServiceAssetModel | None = ...,
+        cloudwatch_dashboard: global___CloudwatchDashboardAssetModel | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["asset", b"asset", "cloudwatch_alarm", b"cloudwatch_alarm", "cloudwatch_dashboard", b"cloudwatch_dashboard", "cloudwatch_log_group", b"cloudwatch_log_group", "cloudwatch_log_group_query", b"cloudwatch_log_group_query", "cloudwatch_metric", b"cloudwatch_metric", "ecs_cluster", b"ecs_cluster", "ecs_service", b"ecs_service", "ecs_task", b"ecs_task", "id", b"id"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["asset", b"asset", "cloudwatch_alarm", b"cloudwatch_alarm", "cloudwatch_dashboard", b"cloudwatch_dashboard", "cloudwatch_log_group", b"cloudwatch_log_group", "cloudwatch_log_group_query", b"cloudwatch_log_group_query", "cloudwatch_metric", b"cloudwatch_metric", "connector_type", b"connector_type", "ecs_cluster", b"ecs_cluster", "ecs_service", b"ecs_service", "ecs_task", b"ecs_task", "id", b"id", "last_updated", b"last_updated", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["asset", b"asset"]) -> typing.Literal["cloudwatch_log_group", "cloudwatch_metric", "cloudwatch_log_group_query", "cloudwatch_alarm", "ecs_cluster", "ecs_task", "ecs_service", "cloudwatch_dashboard"] | None: ...
 
-Global___CloudwatchAssetModel: typing_extensions.TypeAlias = CloudwatchAssetModel
+global___CloudwatchAssetModel = CloudwatchAssetModel
 
 @typing.final
 class CloudwatchAssets(google.protobuf.message.Message):
@@ -521,12 +515,12 @@ class CloudwatchAssets(google.protobuf.message.Message):
 
     ASSETS_FIELD_NUMBER: builtins.int
     @property
-    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___CloudwatchAssetModel]: ...
+    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___CloudwatchAssetModel]: ...
     def __init__(
         self,
         *,
-        assets: collections.abc.Iterable[Global___CloudwatchAssetModel] | None = ...,
+        assets: collections.abc.Iterable[global___CloudwatchAssetModel] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["assets", b"assets"]) -> None: ...
 
-Global___CloudwatchAssets: typing_extensions.TypeAlias = CloudwatchAssets
+global___CloudwatchAssets = CloudwatchAssets

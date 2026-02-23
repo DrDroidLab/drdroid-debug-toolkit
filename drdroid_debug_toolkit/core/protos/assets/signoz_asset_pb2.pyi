@@ -11,13 +11,7 @@ import google.protobuf.internal.containers
 import google.protobuf.message
 import google.protobuf.struct_pb2
 import google.protobuf.wrappers_pb2
-import sys
 import typing
-
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
-else:
-    import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
@@ -138,13 +132,13 @@ class SignozDashboardPanelModel(google.protobuf.message.Message):
         QUERY_DATA_FIELD_NUMBER: builtins.int
         QUERY_FORMULAS_FIELD_NUMBER: builtins.int
         @property
-        def query_data(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___SignozDashboardPanelModel.QueryData]: ...
+        def query_data(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___SignozDashboardPanelModel.QueryData]: ...
         @property
         def query_formulas(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[google.protobuf.struct_pb2.Struct]: ...
         def __init__(
             self,
             *,
-            query_data: collections.abc.Iterable[Global___SignozDashboardPanelModel.QueryData] | None = ...,
+            query_data: collections.abc.Iterable[global___SignozDashboardPanelModel.QueryData] | None = ...,
             query_formulas: collections.abc.Iterable[google.protobuf.struct_pb2.Struct] | None = ...,
         ) -> None: ...
         def ClearField(self, field_name: typing.Literal["query_data", b"query_data", "query_formulas", b"query_formulas"]) -> None: ...
@@ -161,21 +155,21 @@ class SignozDashboardPanelModel(google.protobuf.message.Message):
         @property
         def id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
         @property
-        def promql(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___SignozDashboardPanelModel.Query]: ...
+        def promql(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___SignozDashboardPanelModel.Query]: ...
         @property
-        def builder(self) -> Global___SignozDashboardPanelModel.QueryBuilder: ...
+        def builder(self) -> global___SignozDashboardPanelModel.QueryBuilder: ...
         @property
         def query_type(self) -> google.protobuf.wrappers_pb2.StringValue: ...
         @property
-        def clickhouse_sql(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___SignozDashboardPanelModel.Query]: ...
+        def clickhouse_sql(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___SignozDashboardPanelModel.Query]: ...
         def __init__(
             self,
             *,
             id: google.protobuf.wrappers_pb2.StringValue | None = ...,
-            promql: collections.abc.Iterable[Global___SignozDashboardPanelModel.Query] | None = ...,
-            builder: Global___SignozDashboardPanelModel.QueryBuilder | None = ...,
+            promql: collections.abc.Iterable[global___SignozDashboardPanelModel.Query] | None = ...,
+            builder: global___SignozDashboardPanelModel.QueryBuilder | None = ...,
             query_type: google.protobuf.wrappers_pb2.StringValue | None = ...,
-            clickhouse_sql: collections.abc.Iterable[Global___SignozDashboardPanelModel.Query] | None = ...,
+            clickhouse_sql: collections.abc.Iterable[global___SignozDashboardPanelModel.Query] | None = ...,
         ) -> None: ...
         def HasField(self, field_name: typing.Literal["builder", b"builder", "id", b"id", "query_type", b"query_type"]) -> builtins.bool: ...
         def ClearField(self, field_name: typing.Literal["builder", b"builder", "clickhouse_sql", b"clickhouse_sql", "id", b"id", "promql", b"promql", "query_type", b"query_type"]) -> None: ...
@@ -208,7 +202,7 @@ class SignozDashboardPanelModel(google.protobuf.message.Message):
     @property
     def description(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
-    def query(self) -> Global___SignozDashboardPanelModel.PanelQuery: ...
+    def query(self) -> global___SignozDashboardPanelModel.PanelQuery: ...
     @property
     def panel_type(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
@@ -249,7 +243,7 @@ class SignozDashboardPanelModel(google.protobuf.message.Message):
         id: google.protobuf.wrappers_pb2.StringValue | None = ...,
         title: google.protobuf.wrappers_pb2.StringValue | None = ...,
         description: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        query: Global___SignozDashboardPanelModel.PanelQuery | None = ...,
+        query: global___SignozDashboardPanelModel.PanelQuery | None = ...,
         panel_type: google.protobuf.wrappers_pb2.StringValue | None = ...,
         opacity: google.protobuf.wrappers_pb2.StringValue | None = ...,
         soft_max: google.protobuf.wrappers_pb2.Int32Value | None = ...,
@@ -271,7 +265,7 @@ class SignozDashboardPanelModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["bucket_count", b"bucket_count", "bucket_width", b"bucket_width", "column_units", b"column_units", "description", b"description", "fill_spans", b"fill_spans", "id", b"id", "is_stacked", b"is_stacked", "merge_all_active_queries", b"merge_all_active_queries", "null_zero_values", b"null_zero_values", "opacity", b"opacity", "panel_type", b"panel_type", "query", b"query", "soft_max", b"soft_max", "soft_min", b"soft_min", "stacked_bar_chart", b"stacked_bar_chart", "time_preference", b"time_preference", "title", b"title", "y_axis_unit", b"y_axis_unit"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["bucket_count", b"bucket_count", "bucket_width", b"bucket_width", "column_units", b"column_units", "description", b"description", "fill_spans", b"fill_spans", "id", b"id", "is_stacked", b"is_stacked", "merge_all_active_queries", b"merge_all_active_queries", "null_zero_values", b"null_zero_values", "opacity", b"opacity", "panel_type", b"panel_type", "query", b"query", "selected_log_fields", b"selected_log_fields", "selected_traces_fields", b"selected_traces_fields", "soft_max", b"soft_max", "soft_min", b"soft_min", "stacked_bar_chart", b"stacked_bar_chart", "thresholds", b"thresholds", "time_preference", b"time_preference", "title", b"title", "y_axis_unit", b"y_axis_unit"]) -> None: ...
 
-Global___SignozDashboardPanelModel: typing_extensions.TypeAlias = SignozDashboardPanelModel
+global___SignozDashboardPanelModel = SignozDashboardPanelModel
 
 @typing.final
 class SignozDashboardVariableModel(google.protobuf.message.Message):
@@ -308,7 +302,7 @@ class SignozDashboardVariableModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["description", b"description", "id", b"id", "name", b"name", "selected_value", b"selected_value", "type", b"type"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["description", b"description", "id", b"id", "name", b"name", "selected_value", b"selected_value", "type", b"type"]) -> None: ...
 
-Global___SignozDashboardVariableModel: typing_extensions.TypeAlias = SignozDashboardVariableModel
+global___SignozDashboardVariableModel = SignozDashboardVariableModel
 
 @typing.final
 class SignozDashboardModel(google.protobuf.message.Message):
@@ -335,9 +329,9 @@ class SignozDashboardModel(google.protobuf.message.Message):
     @property
     def description(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
-    def panels(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___SignozDashboardPanelModel]: ...
+    def panels(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___SignozDashboardPanelModel]: ...
     @property
-    def variables(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___SignozDashboardVariableModel]: ...
+    def variables(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___SignozDashboardVariableModel]: ...
     @property
     def created_at(self) -> google.protobuf.wrappers_pb2.Int64Value: ...
     @property
@@ -352,8 +346,8 @@ class SignozDashboardModel(google.protobuf.message.Message):
         url: google.protobuf.wrappers_pb2.StringValue | None = ...,
         title: google.protobuf.wrappers_pb2.StringValue | None = ...,
         description: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        panels: collections.abc.Iterable[Global___SignozDashboardPanelModel] | None = ...,
-        variables: collections.abc.Iterable[Global___SignozDashboardVariableModel] | None = ...,
+        panels: collections.abc.Iterable[global___SignozDashboardPanelModel] | None = ...,
+        variables: collections.abc.Iterable[global___SignozDashboardVariableModel] | None = ...,
         created_at: google.protobuf.wrappers_pb2.Int64Value | None = ...,
         updated_at: google.protobuf.wrappers_pb2.Int64Value | None = ...,
         tags: google.protobuf.wrappers_pb2.StringValue | None = ...,
@@ -361,7 +355,7 @@ class SignozDashboardModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["created_at", b"created_at", "description", b"description", "id", b"id", "tags", b"tags", "title", b"title", "updated_at", b"updated_at", "url", b"url", "uuid", b"uuid"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["created_at", b"created_at", "description", b"description", "id", b"id", "panels", b"panels", "tags", b"tags", "title", b"title", "updated_at", b"updated_at", "url", b"url", "uuid", b"uuid", "variables", b"variables"]) -> None: ...
 
-Global___SignozDashboardModel: typing_extensions.TypeAlias = SignozDashboardModel
+global___SignozDashboardModel = SignozDashboardModel
 
 @typing.final
 class SignozAlertModel(google.protobuf.message.Message):
@@ -428,105 +422,7 @@ class SignozAlertModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["condition", b"condition", "created_at", b"created_at", "description", b"description", "enabled", b"enabled", "evaluation_window", b"evaluation_window", "id", b"id", "name", b"name", "query", b"query", "severity", b"severity", "tags", b"tags", "threshold", b"threshold", "updated_at", b"updated_at"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["condition", b"condition", "created_at", b"created_at", "description", b"description", "enabled", b"enabled", "evaluation_window", b"evaluation_window", "id", b"id", "name", b"name", "query", b"query", "severity", b"severity", "tags", b"tags", "threshold", b"threshold", "updated_at", b"updated_at"]) -> None: ...
 
-Global___SignozAlertModel: typing_extensions.TypeAlias = SignozAlertModel
-
-@typing.final
-class SignozServiceModel(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    SERVICE_NAME_FIELD_NUMBER: builtins.int
-    ENVIRONMENT_FIELD_NUMBER: builtins.int
-    SERVICE_VERSION_FIELD_NUMBER: builtins.int
-    SOURCE_NAME_FIELD_NUMBER: builtins.int
-    P99_FIELD_NUMBER: builtins.int
-    P95_FIELD_NUMBER: builtins.int
-    P50_FIELD_NUMBER: builtins.int
-    ERROR_RATE_FIELD_NUMBER: builtins.int
-    CALLS_PER_SEC_FIELD_NUMBER: builtins.int
-    TAGS_FIELD_NUMBER: builtins.int
-    @property
-    def service_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def environment(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def service_version(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def source_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def p99(self) -> google.protobuf.wrappers_pb2.Int64Value: ...
-    @property
-    def p95(self) -> google.protobuf.wrappers_pb2.Int64Value: ...
-    @property
-    def p50(self) -> google.protobuf.wrappers_pb2.Int64Value: ...
-    @property
-    def error_rate(self) -> google.protobuf.wrappers_pb2.DoubleValue: ...
-    @property
-    def calls_per_sec(self) -> google.protobuf.wrappers_pb2.DoubleValue: ...
-    @property
-    def tags(self) -> google.protobuf.wrappers_pb2.StringValue:
-        """JSON string of tags/metadata"""
-
-    def __init__(
-        self,
-        *,
-        service_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        environment: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        service_version: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        source_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        p99: google.protobuf.wrappers_pb2.Int64Value | None = ...,
-        p95: google.protobuf.wrappers_pb2.Int64Value | None = ...,
-        p50: google.protobuf.wrappers_pb2.Int64Value | None = ...,
-        error_rate: google.protobuf.wrappers_pb2.DoubleValue | None = ...,
-        calls_per_sec: google.protobuf.wrappers_pb2.DoubleValue | None = ...,
-        tags: google.protobuf.wrappers_pb2.StringValue | None = ...,
-    ) -> None: ...
-    def HasField(self, field_name: typing.Literal["calls_per_sec", b"calls_per_sec", "environment", b"environment", "error_rate", b"error_rate", "p50", b"p50", "p95", b"p95", "p99", b"p99", "service_name", b"service_name", "service_version", b"service_version", "source_name", b"source_name", "tags", b"tags"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["calls_per_sec", b"calls_per_sec", "environment", b"environment", "error_rate", b"error_rate", "p50", b"p50", "p95", b"p95", "p99", b"p99", "service_name", b"service_name", "service_version", b"service_version", "source_name", b"source_name", "tags", b"tags"]) -> None: ...
-
-Global___SignozServiceModel: typing_extensions.TypeAlias = SignozServiceModel
-
-@typing.final
-class SignozLogAttributeModel(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    ATTRIBUTES_JSON_FIELD_NUMBER: builtins.int
-    TOTAL_COUNT_FIELD_NUMBER: builtins.int
-    EXTRACTION_TIMESTAMP_FIELD_NUMBER: builtins.int
-    TIME_RANGE_DAYS_FIELD_NUMBER: builtins.int
-    DESCRIPTION_FIELD_NUMBER: builtins.int
-    @property
-    def attributes_json(self) -> google.protobuf.wrappers_pb2.StringValue:
-        """JSON string containing all attributes"""
-
-    @property
-    def total_count(self) -> google.protobuf.wrappers_pb2.Int32Value:
-        """Total number of attributes discovered"""
-
-    @property
-    def extraction_timestamp(self) -> google.protobuf.wrappers_pb2.Int64Value:
-        """When this extraction was performed"""
-
-    @property
-    def time_range_days(self) -> google.protobuf.wrappers_pb2.Int32Value:
-        """Time range used for extraction"""
-
-    @property
-    def description(self) -> google.protobuf.wrappers_pb2.StringValue:
-        """Description of the extraction"""
-
-    def __init__(
-        self,
-        *,
-        attributes_json: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        total_count: google.protobuf.wrappers_pb2.Int32Value | None = ...,
-        extraction_timestamp: google.protobuf.wrappers_pb2.Int64Value | None = ...,
-        time_range_days: google.protobuf.wrappers_pb2.Int32Value | None = ...,
-        description: google.protobuf.wrappers_pb2.StringValue | None = ...,
-    ) -> None: ...
-    def HasField(self, field_name: typing.Literal["attributes_json", b"attributes_json", "description", b"description", "extraction_timestamp", b"extraction_timestamp", "time_range_days", b"time_range_days", "total_count", b"total_count"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["attributes_json", b"attributes_json", "description", b"description", "extraction_timestamp", b"extraction_timestamp", "time_range_days", b"time_range_days", "total_count", b"total_count"]) -> None: ...
-
-Global___SignozLogAttributeModel: typing_extensions.TypeAlias = SignozLogAttributeModel
+global___SignozAlertModel = SignozAlertModel
 
 @typing.final
 class SignozAssetModel(google.protobuf.message.Message):
@@ -538,21 +434,15 @@ class SignozAssetModel(google.protobuf.message.Message):
     LAST_UPDATED_FIELD_NUMBER: builtins.int
     SIGNOZ_DASHBOARD_FIELD_NUMBER: builtins.int
     SIGNOZ_ALERT_FIELD_NUMBER: builtins.int
-    SIGNOZ_SERVICE_FIELD_NUMBER: builtins.int
-    SIGNOZ_LOG_ATTRIBUTE_FIELD_NUMBER: builtins.int
     connector_type: core.protos.base_pb2.Source.ValueType
     type: core.protos.base_pb2.SourceModelType.ValueType
     last_updated: builtins.int
     @property
     def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     @property
-    def signoz_dashboard(self) -> Global___SignozDashboardModel: ...
+    def signoz_dashboard(self) -> global___SignozDashboardModel: ...
     @property
-    def signoz_alert(self) -> Global___SignozAlertModel: ...
-    @property
-    def signoz_service(self) -> Global___SignozServiceModel: ...
-    @property
-    def signoz_log_attribute(self) -> Global___SignozLogAttributeModel: ...
+    def signoz_alert(self) -> global___SignozAlertModel: ...
     def __init__(
         self,
         *,
@@ -560,16 +450,14 @@ class SignozAssetModel(google.protobuf.message.Message):
         connector_type: core.protos.base_pb2.Source.ValueType = ...,
         type: core.protos.base_pb2.SourceModelType.ValueType = ...,
         last_updated: builtins.int = ...,
-        signoz_dashboard: Global___SignozDashboardModel | None = ...,
-        signoz_alert: Global___SignozAlertModel | None = ...,
-        signoz_service: Global___SignozServiceModel | None = ...,
-        signoz_log_attribute: Global___SignozLogAttributeModel | None = ...,
+        signoz_dashboard: global___SignozDashboardModel | None = ...,
+        signoz_alert: global___SignozAlertModel | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["asset", b"asset", "id", b"id", "signoz_alert", b"signoz_alert", "signoz_dashboard", b"signoz_dashboard", "signoz_log_attribute", b"signoz_log_attribute", "signoz_service", b"signoz_service"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["asset", b"asset", "connector_type", b"connector_type", "id", b"id", "last_updated", b"last_updated", "signoz_alert", b"signoz_alert", "signoz_dashboard", b"signoz_dashboard", "signoz_log_attribute", b"signoz_log_attribute", "signoz_service", b"signoz_service", "type", b"type"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing.Literal["asset", b"asset"]) -> typing.Literal["signoz_dashboard", "signoz_alert", "signoz_service", "signoz_log_attribute"] | None: ...
+    def HasField(self, field_name: typing.Literal["asset", b"asset", "id", b"id", "signoz_alert", b"signoz_alert", "signoz_dashboard", b"signoz_dashboard"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["asset", b"asset", "connector_type", b"connector_type", "id", b"id", "last_updated", b"last_updated", "signoz_alert", b"signoz_alert", "signoz_dashboard", b"signoz_dashboard", "type", b"type"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["asset", b"asset"]) -> typing.Literal["signoz_dashboard", "signoz_alert"] | None: ...
 
-Global___SignozAssetModel: typing_extensions.TypeAlias = SignozAssetModel
+global___SignozAssetModel = SignozAssetModel
 
 @typing.final
 class SignozAssets(google.protobuf.message.Message):
@@ -577,15 +465,15 @@ class SignozAssets(google.protobuf.message.Message):
 
     ASSETS_FIELD_NUMBER: builtins.int
     @property
-    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___SignozAssetModel]: ...
+    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___SignozAssetModel]: ...
     def __init__(
         self,
         *,
-        assets: collections.abc.Iterable[Global___SignozAssetModel] | None = ...,
+        assets: collections.abc.Iterable[global___SignozAssetModel] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["assets", b"assets"]) -> None: ...
 
-Global___SignozAssets: typing_extensions.TypeAlias = SignozAssets
+global___SignozAssets = SignozAssets
 
 @typing.final
 class SignozDashboardAssetOptions(google.protobuf.message.Message):
@@ -601,7 +489,7 @@ class SignozDashboardAssetOptions(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["dashboards", b"dashboards"]) -> None: ...
 
-Global___SignozDashboardAssetOptions: typing_extensions.TypeAlias = SignozDashboardAssetOptions
+global___SignozDashboardAssetOptions = SignozDashboardAssetOptions
 
 @typing.final
 class SignozAlertAssetOptions(google.protobuf.message.Message):
@@ -617,36 +505,4 @@ class SignozAlertAssetOptions(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["alerts", b"alerts"]) -> None: ...
 
-Global___SignozAlertAssetOptions: typing_extensions.TypeAlias = SignozAlertAssetOptions
-
-@typing.final
-class SignozServiceAssetOptions(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    SERVICES_FIELD_NUMBER: builtins.int
-    @property
-    def services(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
-    def __init__(
-        self,
-        *,
-        services: collections.abc.Iterable[builtins.str] | None = ...,
-    ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["services", b"services"]) -> None: ...
-
-Global___SignozServiceAssetOptions: typing_extensions.TypeAlias = SignozServiceAssetOptions
-
-@typing.final
-class SignozLogAttributesAssetOptions(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    ATTRIBUTE_KEYS_FIELD_NUMBER: builtins.int
-    @property
-    def attribute_keys(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
-    def __init__(
-        self,
-        *,
-        attribute_keys: collections.abc.Iterable[builtins.str] | None = ...,
-    ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["attribute_keys", b"attribute_keys"]) -> None: ...
-
-Global___SignozLogAttributesAssetOptions: typing_extensions.TypeAlias = SignozLogAttributesAssetOptions
+global___SignozAlertAssetOptions = SignozAlertAssetOptions

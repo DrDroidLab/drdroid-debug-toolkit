@@ -63,17 +63,17 @@ class Lambda(google.protobuf.message.Message):
 
     TYPE_FIELD_NUMBER: builtins.int
     FUNCTION_FIELD_NUMBER: builtins.int
-    type: Global___Lambda.TaskType.ValueType
+    type: global___Lambda.TaskType.ValueType
     @property
-    def function(self) -> Global___Lambda.Function: ...
+    def function(self) -> global___Lambda.Function: ...
     def __init__(
         self,
         *,
-        type: Global___Lambda.TaskType.ValueType = ...,
-        function: Global___Lambda.Function | None = ...,
+        type: global___Lambda.TaskType.ValueType = ...,
+        function: global___Lambda.Function | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["function", b"function", "task", b"task"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["function", b"function", "task", b"task", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["task", b"task"]) -> typing.Literal["function"] | None: ...
 
-Global___Lambda: typing_extensions.TypeAlias = Lambda
+global___Lambda = Lambda

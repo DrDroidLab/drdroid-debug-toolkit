@@ -10,13 +10,7 @@ import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.message
 import google.protobuf.wrappers_pb2
-import sys
 import typing
-
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
-else:
-    import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
@@ -36,7 +30,7 @@ class MongoDBDatabaseAssetOptions(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["databases", b"databases"]) -> None: ...
 
-Global___MongoDBDatabaseAssetOptions: typing_extensions.TypeAlias = MongoDBDatabaseAssetOptions
+global___MongoDBDatabaseAssetOptions = MongoDBDatabaseAssetOptions
 
 @typing.final
 class MongoDBCollectionAssetOptions(google.protobuf.message.Message):
@@ -54,7 +48,7 @@ class MongoDBCollectionAssetOptions(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["collections", b"collections"]) -> None: ...
 
-Global___MongoDBCollectionAssetOptions: typing_extensions.TypeAlias = MongoDBCollectionAssetOptions
+global___MongoDBCollectionAssetOptions = MongoDBCollectionAssetOptions
 
 @typing.final
 class MongoDBDatabaseAssetModel(google.protobuf.message.Message):
@@ -77,7 +71,7 @@ class MongoDBDatabaseAssetModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["name", b"name"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["collections", b"collections", "name", b"name"]) -> None: ...
 
-Global___MongoDBDatabaseAssetModel: typing_extensions.TypeAlias = MongoDBDatabaseAssetModel
+global___MongoDBDatabaseAssetModel = MongoDBDatabaseAssetModel
 
 @typing.final
 class MongoDBCollectionAssetModel(google.protobuf.message.Message):
@@ -98,7 +92,7 @@ class MongoDBCollectionAssetModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["database", b"database", "name", b"name"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["database", b"database", "name", b"name"]) -> None: ...
 
-Global___MongoDBCollectionAssetModel: typing_extensions.TypeAlias = MongoDBCollectionAssetModel
+global___MongoDBCollectionAssetModel = MongoDBCollectionAssetModel
 
 @typing.final
 class MongoDBAssetModel(google.protobuf.message.Message):
@@ -116,9 +110,9 @@ class MongoDBAssetModel(google.protobuf.message.Message):
     @property
     def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     @property
-    def mongodb_database(self) -> Global___MongoDBDatabaseAssetModel: ...
+    def mongodb_database(self) -> global___MongoDBDatabaseAssetModel: ...
     @property
-    def mongodb_collection(self) -> Global___MongoDBCollectionAssetModel: ...
+    def mongodb_collection(self) -> global___MongoDBCollectionAssetModel: ...
     def __init__(
         self,
         *,
@@ -126,14 +120,14 @@ class MongoDBAssetModel(google.protobuf.message.Message):
         connector_type: core.protos.base_pb2.Source.ValueType = ...,
         type: core.protos.base_pb2.SourceModelType.ValueType = ...,
         last_updated: builtins.int = ...,
-        mongodb_database: Global___MongoDBDatabaseAssetModel | None = ...,
-        mongodb_collection: Global___MongoDBCollectionAssetModel | None = ...,
+        mongodb_database: global___MongoDBDatabaseAssetModel | None = ...,
+        mongodb_collection: global___MongoDBCollectionAssetModel | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["asset", b"asset", "id", b"id", "mongodb_collection", b"mongodb_collection", "mongodb_database", b"mongodb_database"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["asset", b"asset", "connector_type", b"connector_type", "id", b"id", "last_updated", b"last_updated", "mongodb_collection", b"mongodb_collection", "mongodb_database", b"mongodb_database", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["asset", b"asset"]) -> typing.Literal["mongodb_database", "mongodb_collection"] | None: ...
 
-Global___MongoDBAssetModel: typing_extensions.TypeAlias = MongoDBAssetModel
+global___MongoDBAssetModel = MongoDBAssetModel
 
 @typing.final
 class MongoDBAssets(google.protobuf.message.Message):
@@ -141,12 +135,12 @@ class MongoDBAssets(google.protobuf.message.Message):
 
     ASSETS_FIELD_NUMBER: builtins.int
     @property
-    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___MongoDBAssetModel]: ...
+    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___MongoDBAssetModel]: ...
     def __init__(
         self,
         *,
-        assets: collections.abc.Iterable[Global___MongoDBAssetModel] | None = ...,
+        assets: collections.abc.Iterable[global___MongoDBAssetModel] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["assets", b"assets"]) -> None: ...
 
-Global___MongoDBAssets: typing_extensions.TypeAlias = MongoDBAssets
+global___MongoDBAssets = MongoDBAssets

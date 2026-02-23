@@ -58,7 +58,7 @@ STRING_ARRAY_FT: FormFieldType.ValueType  # 10
 DATE_FT: FormFieldType.ValueType  # 11
 CHECKBOX_FT: FormFieldType.ValueType  # 12
 CODE_EDITOR_FT: FormFieldType.ValueType  # 13
-Global___FormFieldType: typing_extensions.TypeAlias = FormFieldType
+global___FormFieldType = FormFieldType
 
 @typing.final
 class FormField(google.protobuf.message.Message):
@@ -83,7 +83,7 @@ class FormField(google.protobuf.message.Message):
     is_optional: builtins.bool
     is_composite: builtins.bool
     is_date_time_field: builtins.bool
-    form_field_type: Global___FormFieldType.ValueType
+    form_field_type: global___FormFieldType.ValueType
     disabled: builtins.bool
     is_sensitive: builtins.bool
     @property
@@ -97,7 +97,7 @@ class FormField(google.protobuf.message.Message):
     @property
     def valid_values(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[core.protos.literal_pb2.Literal]: ...
     @property
-    def composite_fields(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___FormField]: ...
+    def composite_fields(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___FormField]: ...
     @property
     def max_length_allowed(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     @property
@@ -113,10 +113,10 @@ class FormField(google.protobuf.message.Message):
         default_value: core.protos.literal_pb2.Literal | None = ...,
         valid_values: collections.abc.Iterable[core.protos.literal_pb2.Literal] | None = ...,
         is_composite: builtins.bool = ...,
-        composite_fields: collections.abc.Iterable[Global___FormField] | None = ...,
+        composite_fields: collections.abc.Iterable[global___FormField] | None = ...,
         max_length_allowed: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
         is_date_time_field: builtins.bool = ...,
-        form_field_type: Global___FormFieldType.ValueType = ...,
+        form_field_type: global___FormFieldType.ValueType = ...,
         disabled: builtins.bool = ...,
         helper_text: google.protobuf.wrappers_pb2.StringValue | None = ...,
         is_sensitive: builtins.bool = ...,
@@ -124,4 +124,4 @@ class FormField(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["default_value", b"default_value", "description", b"description", "display_name", b"display_name", "helper_text", b"helper_text", "key_name", b"key_name", "max_length_allowed", b"max_length_allowed"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["composite_fields", b"composite_fields", "data_type", b"data_type", "default_value", b"default_value", "description", b"description", "disabled", b"disabled", "display_name", b"display_name", "form_field_type", b"form_field_type", "helper_text", b"helper_text", "is_composite", b"is_composite", "is_date_time_field", b"is_date_time_field", "is_optional", b"is_optional", "is_sensitive", b"is_sensitive", "key_name", b"key_name", "max_length_allowed", b"max_length_allowed", "valid_values", b"valid_values"]) -> None: ...
 
-Global___FormField: typing_extensions.TypeAlias = FormField
+global___FormField = FormField

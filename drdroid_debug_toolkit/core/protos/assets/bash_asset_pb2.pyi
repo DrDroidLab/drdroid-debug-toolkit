@@ -10,13 +10,7 @@ import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.message
 import google.protobuf.wrappers_pb2
-import sys
 import typing
-
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
-else:
-    import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
@@ -35,7 +29,7 @@ class BashSshServerAssetModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["name", b"name"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["name", b"name"]) -> None: ...
 
-Global___BashSshServerAssetModel: typing_extensions.TypeAlias = BashSshServerAssetModel
+global___BashSshServerAssetModel = BashSshServerAssetModel
 
 @typing.final
 class BashSshServerAssetOptions(google.protobuf.message.Message):
@@ -51,7 +45,7 @@ class BashSshServerAssetOptions(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["ssh_servers", b"ssh_servers"]) -> None: ...
 
-Global___BashSshServerAssetOptions: typing_extensions.TypeAlias = BashSshServerAssetOptions
+global___BashSshServerAssetOptions = BashSshServerAssetOptions
 
 @typing.final
 class BashAssetModel(google.protobuf.message.Message):
@@ -68,7 +62,7 @@ class BashAssetModel(google.protobuf.message.Message):
     @property
     def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     @property
-    def ssh_server(self) -> Global___BashSshServerAssetModel: ...
+    def ssh_server(self) -> global___BashSshServerAssetModel: ...
     def __init__(
         self,
         *,
@@ -76,13 +70,13 @@ class BashAssetModel(google.protobuf.message.Message):
         connector_type: core.protos.base_pb2.Source.ValueType = ...,
         type: core.protos.base_pb2.SourceModelType.ValueType = ...,
         last_updated: builtins.int = ...,
-        ssh_server: Global___BashSshServerAssetModel | None = ...,
+        ssh_server: global___BashSshServerAssetModel | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["asset", b"asset", "id", b"id", "ssh_server", b"ssh_server"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["asset", b"asset", "connector_type", b"connector_type", "id", b"id", "last_updated", b"last_updated", "ssh_server", b"ssh_server", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["asset", b"asset"]) -> typing.Literal["ssh_server"] | None: ...
 
-Global___BashAssetModel: typing_extensions.TypeAlias = BashAssetModel
+global___BashAssetModel = BashAssetModel
 
 @typing.final
 class BashAssets(google.protobuf.message.Message):
@@ -90,12 +84,12 @@ class BashAssets(google.protobuf.message.Message):
 
     ASSETS_FIELD_NUMBER: builtins.int
     @property
-    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___BashAssetModel]: ...
+    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___BashAssetModel]: ...
     def __init__(
         self,
         *,
-        assets: collections.abc.Iterable[Global___BashAssetModel] | None = ...,
+        assets: collections.abc.Iterable[global___BashAssetModel] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["assets", b"assets"]) -> None: ...
 
-Global___BashAssets: typing_extensions.TypeAlias = BashAssets
+global___BashAssets = BashAssets

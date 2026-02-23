@@ -56,17 +56,17 @@ class Bash(google.protobuf.message.Message):
 
     TYPE_FIELD_NUMBER: builtins.int
     COMMAND_FIELD_NUMBER: builtins.int
-    type: Global___Bash.TaskType.ValueType
+    type: global___Bash.TaskType.ValueType
     @property
-    def command(self) -> Global___Bash.Command: ...
+    def command(self) -> global___Bash.Command: ...
     def __init__(
         self,
         *,
-        type: Global___Bash.TaskType.ValueType = ...,
-        command: Global___Bash.Command | None = ...,
+        type: global___Bash.TaskType.ValueType = ...,
+        command: global___Bash.Command | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["command", b"command", "task", b"task"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["command", b"command", "task", b"task", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["task", b"task"]) -> typing.Literal["command"] | None: ...
 
-Global___Bash: typing_extensions.TypeAlias = Bash
+global___Bash = Bash

@@ -51,7 +51,7 @@ class AutoInvestigationRule(google.protobuf.message.Message):
     SUMMARY_METADATA_FIELD_NUMBER: builtins.int
     PLAYBOOK_IDS_FIELD_NUMBER: builtins.int
     CRON_RULE_FIELD_NUMBER: builtins.int
-    rule_type: Global___AutoInvestigationRule.RuleType.ValueType
+    rule_type: global___AutoInvestigationRule.RuleType.ValueType
     last_scheduled_at: builtins.int
     @property
     def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
@@ -76,7 +76,7 @@ class AutoInvestigationRule(google.protobuf.message.Message):
     def __init__(
         self,
         *,
-        rule_type: Global___AutoInvestigationRule.RuleType.ValueType = ...,
+        rule_type: global___AutoInvestigationRule.RuleType.ValueType = ...,
         id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
         name: google.protobuf.wrappers_pb2.StringValue | None = ...,
         user_input_prompt: google.protobuf.wrappers_pb2.StringValue | None = ...,
@@ -93,7 +93,7 @@ class AutoInvestigationRule(google.protobuf.message.Message):
     def ClearField(self, field_name: typing.Literal["created_at", b"created_at", "created_by", b"created_by", "cron_rule", b"cron_rule", "id", b"id", "is_active", b"is_active", "last_scheduled_at", b"last_scheduled_at", "name", b"name", "notification_metadata", b"notification_metadata", "playbook_ids", b"playbook_ids", "rule", b"rule", "rule_type", b"rule_type", "summary_metadata", b"summary_metadata", "user_input_prompt", b"user_input_prompt"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["rule", b"rule"]) -> typing.Literal["cron_rule"] | None: ...
 
-Global___AutoInvestigationRule: typing_extensions.TypeAlias = AutoInvestigationRule
+global___AutoInvestigationRule = AutoInvestigationRule
 
 @typing.final
 class UpdateAutoInvestigationRuleOp(google.protobuf.message.Message):
@@ -158,11 +158,11 @@ class UpdateAutoInvestigationRuleOp(google.protobuf.message.Message):
 
         AUTO_INVESTIGATION_RULE_FIELD_NUMBER: builtins.int
         @property
-        def auto_investigation_rule(self) -> Global___AutoInvestigationRule: ...
+        def auto_investigation_rule(self) -> global___AutoInvestigationRule: ...
         def __init__(
             self,
             *,
-            auto_investigation_rule: Global___AutoInvestigationRule | None = ...,
+            auto_investigation_rule: global___AutoInvestigationRule | None = ...,
         ) -> None: ...
         def HasField(self, field_name: typing.Literal["auto_investigation_rule", b"auto_investigation_rule"]) -> builtins.bool: ...
         def ClearField(self, field_name: typing.Literal["auto_investigation_rule", b"auto_investigation_rule"]) -> None: ...
@@ -203,29 +203,29 @@ class UpdateAutoInvestigationRuleOp(google.protobuf.message.Message):
     UPDATE_AUTO_INVESTIGATION_RULE_FIELD_NUMBER: builtins.int
     UPDATE_NOTIFICATION_METADATA_FIELD_NUMBER: builtins.int
     UPDATE_SUMMARY_METADATA_FIELD_NUMBER: builtins.int
-    op: Global___UpdateAutoInvestigationRuleOp.Op.ValueType
+    op: global___UpdateAutoInvestigationRuleOp.Op.ValueType
     @property
-    def update_auto_investigation_rule_name(self) -> Global___UpdateAutoInvestigationRuleOp.UpdateAutoInvestigationRuleName: ...
+    def update_auto_investigation_rule_name(self) -> global___UpdateAutoInvestigationRuleOp.UpdateAutoInvestigationRuleName: ...
     @property
-    def update_auto_investigation_rule_status(self) -> Global___UpdateAutoInvestigationRuleOp.UpdateAutoInvestigationRuleStatus: ...
+    def update_auto_investigation_rule_status(self) -> global___UpdateAutoInvestigationRuleOp.UpdateAutoInvestigationRuleStatus: ...
     @property
-    def update_auto_investigation_rule(self) -> Global___UpdateAutoInvestigationRuleOp.UpdateAutoInvestigationRule: ...
+    def update_auto_investigation_rule(self) -> global___UpdateAutoInvestigationRuleOp.UpdateAutoInvestigationRule: ...
     @property
-    def update_notification_metadata(self) -> Global___UpdateAutoInvestigationRuleOp.UpdateNotificationMetadata: ...
+    def update_notification_metadata(self) -> global___UpdateAutoInvestigationRuleOp.UpdateNotificationMetadata: ...
     @property
-    def update_summary_metadata(self) -> Global___UpdateAutoInvestigationRuleOp.UpdateSummaryMetadata: ...
+    def update_summary_metadata(self) -> global___UpdateAutoInvestigationRuleOp.UpdateSummaryMetadata: ...
     def __init__(
         self,
         *,
-        op: Global___UpdateAutoInvestigationRuleOp.Op.ValueType = ...,
-        update_auto_investigation_rule_name: Global___UpdateAutoInvestigationRuleOp.UpdateAutoInvestigationRuleName | None = ...,
-        update_auto_investigation_rule_status: Global___UpdateAutoInvestigationRuleOp.UpdateAutoInvestigationRuleStatus | None = ...,
-        update_auto_investigation_rule: Global___UpdateAutoInvestigationRuleOp.UpdateAutoInvestigationRule | None = ...,
-        update_notification_metadata: Global___UpdateAutoInvestigationRuleOp.UpdateNotificationMetadata | None = ...,
-        update_summary_metadata: Global___UpdateAutoInvestigationRuleOp.UpdateSummaryMetadata | None = ...,
+        op: global___UpdateAutoInvestigationRuleOp.Op.ValueType = ...,
+        update_auto_investigation_rule_name: global___UpdateAutoInvestigationRuleOp.UpdateAutoInvestigationRuleName | None = ...,
+        update_auto_investigation_rule_status: global___UpdateAutoInvestigationRuleOp.UpdateAutoInvestigationRuleStatus | None = ...,
+        update_auto_investigation_rule: global___UpdateAutoInvestigationRuleOp.UpdateAutoInvestigationRule | None = ...,
+        update_notification_metadata: global___UpdateAutoInvestigationRuleOp.UpdateNotificationMetadata | None = ...,
+        update_summary_metadata: global___UpdateAutoInvestigationRuleOp.UpdateSummaryMetadata | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["update", b"update", "update_auto_investigation_rule", b"update_auto_investigation_rule", "update_auto_investigation_rule_name", b"update_auto_investigation_rule_name", "update_auto_investigation_rule_status", b"update_auto_investigation_rule_status", "update_notification_metadata", b"update_notification_metadata", "update_summary_metadata", b"update_summary_metadata"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["op", b"op", "update", b"update", "update_auto_investigation_rule", b"update_auto_investigation_rule", "update_auto_investigation_rule_name", b"update_auto_investigation_rule_name", "update_auto_investigation_rule_status", b"update_auto_investigation_rule_status", "update_notification_metadata", b"update_notification_metadata", "update_summary_metadata", b"update_summary_metadata"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["update", b"update"]) -> typing.Literal["update_auto_investigation_rule_name", "update_auto_investigation_rule_status", "update_auto_investigation_rule", "update_notification_metadata", "update_summary_metadata"] | None: ...
 
-Global___UpdateAutoInvestigationRuleOp: typing_extensions.TypeAlias = UpdateAutoInvestigationRuleOp
+global___UpdateAutoInvestigationRuleOp = UpdateAutoInvestigationRuleOp

@@ -12,13 +12,7 @@ import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.message
 import google.protobuf.wrappers_pb2
-import sys
 import typing
-
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
-else:
-    import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
@@ -39,7 +33,7 @@ class GetBillingRemainingRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["meta", b"meta"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["meta", b"meta"]) -> None: ...
 
-Global___GetBillingRemainingRequest: typing_extensions.TypeAlias = GetBillingRemainingRequest
+global___GetBillingRemainingRequest = GetBillingRemainingRequest
 
 @typing.final
 class GetBillingRemainingResponse(google.protobuf.message.Message):
@@ -67,7 +61,7 @@ class GetBillingRemainingResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["meta", b"meta", "remaining_credits", b"remaining_credits", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "remaining_credits", b"remaining_credits", "success", b"success"]) -> None: ...
 
-Global___GetBillingRemainingResponse: typing_extensions.TypeAlias = GetBillingRemainingResponse
+global___GetBillingRemainingResponse = GetBillingRemainingResponse
 
 @typing.final
 class GetBillingUsageMetricsRequest(google.protobuf.message.Message):
@@ -102,7 +96,7 @@ class GetBillingUsageMetricsRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["credit_type", b"credit_type", "end_date", b"end_date", "meta", b"meta", "start_date", b"start_date"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["credit_type", b"credit_type", "end_date", b"end_date", "meta", b"meta", "start_date", b"start_date"]) -> None: ...
 
-Global___GetBillingUsageMetricsRequest: typing_extensions.TypeAlias = GetBillingUsageMetricsRequest
+global___GetBillingUsageMetricsRequest = GetBillingUsageMetricsRequest
 
 @typing.final
 class GetBillingUsageMetricsResponse(google.protobuf.message.Message):
@@ -130,7 +124,7 @@ class GetBillingUsageMetricsResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["meta", b"meta", "metrics", b"metrics", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "metrics", b"metrics", "success", b"success"]) -> None: ...
 
-Global___GetBillingUsageMetricsResponse: typing_extensions.TypeAlias = GetBillingUsageMetricsResponse
+global___GetBillingUsageMetricsResponse = GetBillingUsageMetricsResponse
 
 @typing.final
 class GetBillingUsageDistributionRequest(google.protobuf.message.Message):
@@ -161,7 +155,7 @@ class GetBillingUsageDistributionRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["credit_type", b"credit_type", "end_date", b"end_date", "meta", b"meta", "start_date", b"start_date"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["credit_type", b"credit_type", "end_date", b"end_date", "meta", b"meta", "start_date", b"start_date"]) -> None: ...
 
-Global___GetBillingUsageDistributionRequest: typing_extensions.TypeAlias = GetBillingUsageDistributionRequest
+global___GetBillingUsageDistributionRequest = GetBillingUsageDistributionRequest
 
 @typing.final
 class GetBillingUsageDistributionResponse(google.protobuf.message.Message):
@@ -185,7 +179,7 @@ class GetBillingUsageDistributionResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["distribution", b"distribution", "message", b"message", "success", b"success"]) -> None: ...
 
-Global___GetBillingUsageDistributionResponse: typing_extensions.TypeAlias = GetBillingUsageDistributionResponse
+global___GetBillingUsageDistributionResponse = GetBillingUsageDistributionResponse
 
 @typing.final
 class GetCreditUsageListRequest(google.protobuf.message.Message):
@@ -202,7 +196,7 @@ class GetCreditUsageListRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["meta", b"meta"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["meta", b"meta"]) -> None: ...
 
-Global___GetCreditUsageListRequest: typing_extensions.TypeAlias = GetCreditUsageListRequest
+global___GetCreditUsageListRequest = GetCreditUsageListRequest
 
 @typing.final
 class GetCreditUsageListResponse(google.protobuf.message.Message):
@@ -230,4 +224,4 @@ class GetCreditUsageListResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["meta", b"meta", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "success", b"success", "usage_by_session", b"usage_by_session"]) -> None: ...
 
-Global___GetCreditUsageListResponse: typing_extensions.TypeAlias = GetCreditUsageListResponse
+global___GetCreditUsageListResponse = GetCreditUsageListResponse

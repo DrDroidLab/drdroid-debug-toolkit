@@ -57,7 +57,7 @@ BOOLEAN_ARRAY: LiteralType.ValueType  # 10
 ID_ARRAY: LiteralType.ValueType  # 12
 NULL_STRING: LiteralType.ValueType  # 13
 NULL_NUMBER: LiteralType.ValueType  # 14
-Global___LiteralType: typing_extensions.TypeAlias = LiteralType
+global___LiteralType = LiteralType
 
 @typing.final
 class IdLiteral(google.protobuf.message.Message):
@@ -83,7 +83,7 @@ class IdLiteral(google.protobuf.message.Message):
     ALIAS_FIELD_NUMBER: builtins.int
     LONG_FIELD_NUMBER: builtins.int
     STRING_FIELD_NUMBER: builtins.int
-    type: Global___IdLiteral.Type.ValueType
+    type: global___IdLiteral.Type.ValueType
     @property
     def id_column(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
@@ -95,7 +95,7 @@ class IdLiteral(google.protobuf.message.Message):
     def __init__(
         self,
         *,
-        type: Global___IdLiteral.Type.ValueType = ...,
+        type: global___IdLiteral.Type.ValueType = ...,
         id_column: google.protobuf.wrappers_pb2.StringValue | None = ...,
         alias: google.protobuf.wrappers_pb2.StringValue | None = ...,
         long: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
@@ -105,7 +105,7 @@ class IdLiteral(google.protobuf.message.Message):
     def ClearField(self, field_name: typing.Literal["alias", b"alias", "id", b"id", "id_column", b"id_column", "long", b"long", "string", b"string", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["id", b"id"]) -> typing.Literal["long", "string"] | None: ...
 
-Global___IdLiteral: typing_extensions.TypeAlias = IdLiteral
+global___IdLiteral = IdLiteral
 
 @typing.final
 class Literal(google.protobuf.message.Message):
@@ -124,7 +124,7 @@ class Literal(google.protobuf.message.Message):
     BYTES_ARRAY_FIELD_NUMBER: builtins.int
     BOOLEAN_ARRAY_FIELD_NUMBER: builtins.int
     ID_ARRAY_FIELD_NUMBER: builtins.int
-    type: Global___LiteralType.ValueType
+    type: global___LiteralType.ValueType
     """Referenced from: https://github.com/hypertrace/entity-service/blob/main/entity-service-api/src/main/proto/org/hypertrace/entity/query/service/v1/value.proto"""
     timestamp: builtins.int
     @property
@@ -136,7 +136,7 @@ class Literal(google.protobuf.message.Message):
     @property
     def boolean(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
     @property
-    def id(self) -> Global___IdLiteral: ...
+    def id(self) -> global___IdLiteral: ...
     @property
     def string_array(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
     @property
@@ -148,28 +148,28 @@ class Literal(google.protobuf.message.Message):
     @property
     def boolean_array(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.bool]: ...
     @property
-    def id_array(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___IdLiteral]: ...
+    def id_array(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___IdLiteral]: ...
     def __init__(
         self,
         *,
-        type: Global___LiteralType.ValueType = ...,
+        type: global___LiteralType.ValueType = ...,
         string: google.protobuf.wrappers_pb2.StringValue | None = ...,
         long: google.protobuf.wrappers_pb2.Int64Value | None = ...,
         double: google.protobuf.wrappers_pb2.DoubleValue | None = ...,
         boolean: google.protobuf.wrappers_pb2.BoolValue | None = ...,
         timestamp: builtins.int = ...,
-        id: Global___IdLiteral | None = ...,
+        id: global___IdLiteral | None = ...,
         string_array: collections.abc.Iterable[builtins.str] | None = ...,
         long_array: collections.abc.Iterable[builtins.int] | None = ...,
         double_array: collections.abc.Iterable[builtins.float] | None = ...,
         bytes_array: collections.abc.Iterable[builtins.bytes] | None = ...,
         boolean_array: collections.abc.Iterable[builtins.bool] | None = ...,
-        id_array: collections.abc.Iterable[Global___IdLiteral] | None = ...,
+        id_array: collections.abc.Iterable[global___IdLiteral] | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["boolean", b"boolean", "double", b"double", "id", b"id", "long", b"long", "string", b"string"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["boolean", b"boolean", "boolean_array", b"boolean_array", "bytes_array", b"bytes_array", "double", b"double", "double_array", b"double_array", "id", b"id", "id_array", b"id_array", "long", b"long", "long_array", b"long_array", "string", b"string", "string_array", b"string_array", "timestamp", b"timestamp", "type", b"type"]) -> None: ...
 
-Global___Literal: typing_extensions.TypeAlias = Literal
+global___Literal = Literal
 
 @typing.final
 class LiteralTypeDescription(google.protobuf.message.Message):
@@ -177,14 +177,14 @@ class LiteralTypeDescription(google.protobuf.message.Message):
 
     LITERAL_TYPE_FIELD_NUMBER: builtins.int
     LABEL_FIELD_NUMBER: builtins.int
-    literal_type: Global___LiteralType.ValueType
+    literal_type: global___LiteralType.ValueType
     label: builtins.str
     def __init__(
         self,
         *,
-        literal_type: Global___LiteralType.ValueType = ...,
+        literal_type: global___LiteralType.ValueType = ...,
         label: builtins.str = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["label", b"label", "literal_type", b"literal_type"]) -> None: ...
 
-Global___LiteralTypeDescription: typing_extensions.TypeAlias = LiteralTypeDescription
+global___LiteralTypeDescription = LiteralTypeDescription

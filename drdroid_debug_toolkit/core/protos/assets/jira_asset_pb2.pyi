@@ -10,13 +10,7 @@ import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.message
 import google.protobuf.wrappers_pb2
-import sys
 import typing
-
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
-else:
-    import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
@@ -43,7 +37,7 @@ class JiraUserAssetModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["account_id", b"account_id", "display_name", b"display_name", "self_url", b"self_url"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["account_id", b"account_id", "display_name", b"display_name", "self_url", b"self_url"]) -> None: ...
 
-Global___JiraUserAssetModel: typing_extensions.TypeAlias = JiraUserAssetModel
+global___JiraUserAssetModel = JiraUserAssetModel
 
 @typing.final
 class JiraUserAssetOptions(google.protobuf.message.Message):
@@ -59,7 +53,7 @@ class JiraUserAssetOptions(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["display_names", b"display_names"]) -> None: ...
 
-Global___JiraUserAssetOptions: typing_extensions.TypeAlias = JiraUserAssetOptions
+global___JiraUserAssetOptions = JiraUserAssetOptions
 
 @typing.final
 class JiraProjectAssetModel(google.protobuf.message.Message):
@@ -88,7 +82,7 @@ class JiraProjectAssetModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["id", b"id", "key", b"key", "name", b"name", "self_url", b"self_url"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["id", b"id", "key", b"key", "name", b"name", "self_url", b"self_url"]) -> None: ...
 
-Global___JiraProjectAssetModel: typing_extensions.TypeAlias = JiraProjectAssetModel
+global___JiraProjectAssetModel = JiraProjectAssetModel
 
 @typing.final
 class JiraProjectAssetOptions(google.protobuf.message.Message):
@@ -104,7 +98,7 @@ class JiraProjectAssetOptions(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["names", b"names"]) -> None: ...
 
-Global___JiraProjectAssetOptions: typing_extensions.TypeAlias = JiraProjectAssetOptions
+global___JiraProjectAssetOptions = JiraProjectAssetOptions
 
 @typing.final
 class JiraAssetModel(google.protobuf.message.Message):
@@ -122,9 +116,9 @@ class JiraAssetModel(google.protobuf.message.Message):
     @property
     def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     @property
-    def jira_project(self) -> Global___JiraProjectAssetModel: ...
+    def jira_project(self) -> global___JiraProjectAssetModel: ...
     @property
-    def jira_user(self) -> Global___JiraUserAssetModel: ...
+    def jira_user(self) -> global___JiraUserAssetModel: ...
     def __init__(
         self,
         *,
@@ -132,14 +126,14 @@ class JiraAssetModel(google.protobuf.message.Message):
         connector_type: core.protos.base_pb2.Source.ValueType = ...,
         type: core.protos.base_pb2.SourceModelType.ValueType = ...,
         last_updated: builtins.int = ...,
-        jira_project: Global___JiraProjectAssetModel | None = ...,
-        jira_user: Global___JiraUserAssetModel | None = ...,
+        jira_project: global___JiraProjectAssetModel | None = ...,
+        jira_user: global___JiraUserAssetModel | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["asset", b"asset", "id", b"id", "jira_project", b"jira_project", "jira_user", b"jira_user"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["asset", b"asset", "connector_type", b"connector_type", "id", b"id", "jira_project", b"jira_project", "jira_user", b"jira_user", "last_updated", b"last_updated", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["asset", b"asset"]) -> typing.Literal["jira_project", "jira_user"] | None: ...
 
-Global___JiraAssetModel: typing_extensions.TypeAlias = JiraAssetModel
+global___JiraAssetModel = JiraAssetModel
 
 @typing.final
 class JiraAssets(google.protobuf.message.Message):
@@ -147,12 +141,12 @@ class JiraAssets(google.protobuf.message.Message):
 
     ASSETS_FIELD_NUMBER: builtins.int
     @property
-    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___JiraAssetModel]: ...
+    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___JiraAssetModel]: ...
     def __init__(
         self,
         *,
-        assets: collections.abc.Iterable[Global___JiraAssetModel] | None = ...,
+        assets: collections.abc.Iterable[global___JiraAssetModel] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["assets", b"assets"]) -> None: ...
 
-Global___JiraAssets: typing_extensions.TypeAlias = JiraAssets
+global___JiraAssets = JiraAssets

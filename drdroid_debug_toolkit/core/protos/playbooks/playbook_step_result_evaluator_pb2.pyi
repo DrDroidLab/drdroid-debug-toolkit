@@ -45,7 +45,7 @@ class CompareTimeWithCronRule(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["rule", b"rule", "timezone", b"timezone", "within_seconds", b"within_seconds"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["operator", b"operator", "rule", b"rule", "timezone", b"timezone", "within_seconds", b"within_seconds"]) -> None: ...
 
-Global___CompareTimeWithCronRule: typing_extensions.TypeAlias = CompareTimeWithCronRule
+global___CompareTimeWithCronRule = CompareTimeWithCronRule
 
 @typing.final
 class PlaybookStepResultRule(google.protobuf.message.Message):
@@ -66,17 +66,17 @@ class PlaybookStepResultRule(google.protobuf.message.Message):
 
     TYPE_FIELD_NUMBER: builtins.int
     COMPARE_TIME_WITH_CRON_FIELD_NUMBER: builtins.int
-    type: Global___PlaybookStepResultRule.Type.ValueType
+    type: global___PlaybookStepResultRule.Type.ValueType
     @property
-    def compare_time_with_cron(self) -> Global___CompareTimeWithCronRule: ...
+    def compare_time_with_cron(self) -> global___CompareTimeWithCronRule: ...
     def __init__(
         self,
         *,
-        type: Global___PlaybookStepResultRule.Type.ValueType = ...,
-        compare_time_with_cron: Global___CompareTimeWithCronRule | None = ...,
+        type: global___PlaybookStepResultRule.Type.ValueType = ...,
+        compare_time_with_cron: global___CompareTimeWithCronRule | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["compare_time_with_cron", b"compare_time_with_cron", "rule", b"rule"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["compare_time_with_cron", b"compare_time_with_cron", "rule", b"rule", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["rule", b"rule"]) -> typing.Literal["compare_time_with_cron"] | None: ...
 
-Global___PlaybookStepResultRule: typing_extensions.TypeAlias = PlaybookStepResultRule
+global___PlaybookStepResultRule = PlaybookStepResultRule

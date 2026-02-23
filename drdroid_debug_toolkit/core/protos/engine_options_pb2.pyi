@@ -13,13 +13,7 @@ import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.message
 import google.protobuf.wrappers_pb2
-import sys
 import typing
-
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
-else:
-    import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
@@ -45,7 +39,7 @@ class GlobalQueryOptions(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["literal_type_description", b"literal_type_description", "op_descriptions", b"op_descriptions", "op_mapping", b"op_mapping"]) -> None: ...
 
-Global___GlobalQueryOptions: typing_extensions.TypeAlias = GlobalQueryOptions
+global___GlobalQueryOptions = GlobalQueryOptions
 
 @typing.final
 class ColumnOption(google.protobuf.message.Message):
@@ -117,7 +111,7 @@ class ColumnOption(google.protobuf.message.Message):
     @property
     def aggregation_functions(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[core.protos.metric_pb2.AggregationFunction.ValueType]: ...
     @property
-    def id_option(self) -> Global___ColumnOption.IdOption: ...
+    def id_option(self) -> global___ColumnOption.IdOption: ...
     def __init__(
         self,
         *,
@@ -126,12 +120,12 @@ class ColumnOption(google.protobuf.message.Message):
         type: core.protos.literal_pb2.LiteralType.ValueType = ...,
         is_groupable: builtins.bool = ...,
         aggregation_functions: collections.abc.Iterable[core.protos.metric_pb2.AggregationFunction.ValueType] | None = ...,
-        id_option: Global___ColumnOption.IdOption | None = ...,
+        id_option: global___ColumnOption.IdOption | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["id_option", b"id_option"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["aggregation_functions", b"aggregation_functions", "alias", b"alias", "id_option", b"id_option", "is_groupable", b"is_groupable", "name", b"name", "type", b"type"]) -> None: ...
 
-Global___ColumnOption: typing_extensions.TypeAlias = ColumnOption
+global___ColumnOption = ColumnOption
 
 @typing.final
 class AttributeOption(google.protobuf.message.Message):
@@ -170,7 +164,7 @@ class AttributeOption(google.protobuf.message.Message):
     path_alias: builtins.str
     is_groupable: builtins.bool
     @property
-    def column_context(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___AttributeOption.ColumnContext]: ...
+    def column_context(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___AttributeOption.ColumnContext]: ...
     @property
     def aggregation_functions(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[core.protos.metric_pb2.AggregationFunction.ValueType]: ...
     def __init__(
@@ -180,14 +174,14 @@ class AttributeOption(google.protobuf.message.Message):
         path: builtins.str = ...,
         type: core.protos.literal_pb2.LiteralType.ValueType = ...,
         alias: builtins.str = ...,
-        column_context: collections.abc.Iterable[Global___AttributeOption.ColumnContext] | None = ...,
+        column_context: collections.abc.Iterable[global___AttributeOption.ColumnContext] | None = ...,
         path_alias: builtins.str = ...,
         is_groupable: builtins.bool = ...,
         aggregation_functions: collections.abc.Iterable[core.protos.metric_pb2.AggregationFunction.ValueType] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["aggregation_functions", b"aggregation_functions", "alias", b"alias", "column_context", b"column_context", "is_groupable", b"is_groupable", "name", b"name", "path", b"path", "path_alias", b"path_alias", "type", b"type"]) -> None: ...
 
-Global___AttributeOption: typing_extensions.TypeAlias = AttributeOption
+global___AttributeOption = AttributeOption
 
 @typing.final
 class AttributeOptionV2(google.protobuf.message.Message):
@@ -209,7 +203,7 @@ class AttributeOptionV2(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["name", b"name", "path", b"path", "type", b"type"]) -> None: ...
 
-Global___AttributeOptionV2: typing_extensions.TypeAlias = AttributeOptionV2
+global___AttributeOptionV2 = AttributeOptionV2
 
 @typing.final
 class QueryOptions(google.protobuf.message.Message):
@@ -218,18 +212,18 @@ class QueryOptions(google.protobuf.message.Message):
     COLUMN_OPTIONS_FIELD_NUMBER: builtins.int
     ATTRIBUTE_OPTIONS_FIELD_NUMBER: builtins.int
     @property
-    def column_options(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___ColumnOption]: ...
+    def column_options(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___ColumnOption]: ...
     @property
-    def attribute_options(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___AttributeOption]: ...
+    def attribute_options(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___AttributeOption]: ...
     def __init__(
         self,
         *,
-        column_options: collections.abc.Iterable[Global___ColumnOption] | None = ...,
-        attribute_options: collections.abc.Iterable[Global___AttributeOption] | None = ...,
+        column_options: collections.abc.Iterable[global___ColumnOption] | None = ...,
+        attribute_options: collections.abc.Iterable[global___AttributeOption] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["attribute_options", b"attribute_options", "column_options", b"column_options"]) -> None: ...
 
-Global___QueryOptions: typing_extensions.TypeAlias = QueryOptions
+global___QueryOptions = QueryOptions
 
 @typing.final
 class QueryOptionsV2(google.protobuf.message.Message):
@@ -238,18 +232,18 @@ class QueryOptionsV2(google.protobuf.message.Message):
     COLUMN_OPTIONS_FIELD_NUMBER: builtins.int
     ATTRIBUTE_OPTIONS_V2_FIELD_NUMBER: builtins.int
     @property
-    def column_options(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___ColumnOption]: ...
+    def column_options(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___ColumnOption]: ...
     @property
-    def attribute_options_v2(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___AttributeOptionV2]: ...
+    def attribute_options_v2(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___AttributeOptionV2]: ...
     def __init__(
         self,
         *,
-        column_options: collections.abc.Iterable[Global___ColumnOption] | None = ...,
-        attribute_options_v2: collections.abc.Iterable[Global___AttributeOptionV2] | None = ...,
+        column_options: collections.abc.Iterable[global___ColumnOption] | None = ...,
+        attribute_options_v2: collections.abc.Iterable[global___AttributeOptionV2] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["attribute_options_v2", b"attribute_options_v2", "column_options", b"column_options"]) -> None: ...
 
-Global___QueryOptionsV2: typing_extensions.TypeAlias = QueryOptionsV2
+global___QueryOptionsV2 = QueryOptionsV2
 
 @typing.final
 class MetricOptions(google.protobuf.message.Message):
@@ -281,18 +275,18 @@ class MetricOptions(google.protobuf.message.Message):
     COLUMN_OPTIONS_FIELD_NUMBER: builtins.int
     ATTRIBUTE_OPTIONS_FIELD_NUMBER: builtins.int
     @property
-    def aggregation_function_options(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___MetricOptions.AggregationFunctionOption]: ...
+    def aggregation_function_options(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___MetricOptions.AggregationFunctionOption]: ...
     @property
-    def column_options(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___ColumnOption]: ...
+    def column_options(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___ColumnOption]: ...
     @property
-    def attribute_options(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___AttributeOption]: ...
+    def attribute_options(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___AttributeOption]: ...
     def __init__(
         self,
         *,
-        aggregation_function_options: collections.abc.Iterable[Global___MetricOptions.AggregationFunctionOption] | None = ...,
-        column_options: collections.abc.Iterable[Global___ColumnOption] | None = ...,
-        attribute_options: collections.abc.Iterable[Global___AttributeOption] | None = ...,
+        aggregation_function_options: collections.abc.Iterable[global___MetricOptions.AggregationFunctionOption] | None = ...,
+        column_options: collections.abc.Iterable[global___ColumnOption] | None = ...,
+        attribute_options: collections.abc.Iterable[global___AttributeOption] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["aggregation_function_options", b"aggregation_function_options", "attribute_options", b"attribute_options", "column_options", b"column_options"]) -> None: ...
 
-Global___MetricOptions: typing_extensions.TypeAlias = MetricOptions
+global___MetricOptions = MetricOptions

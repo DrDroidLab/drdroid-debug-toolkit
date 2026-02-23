@@ -10,13 +10,7 @@ import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.message
 import google.protobuf.wrappers_pb2
-import sys
 import typing
-
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
-else:
-    import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
@@ -35,7 +29,7 @@ class ElasticSearchIndexAssetModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["index", b"index"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["index", b"index"]) -> None: ...
 
-Global___ElasticSearchIndexAssetModel: typing_extensions.TypeAlias = ElasticSearchIndexAssetModel
+global___ElasticSearchIndexAssetModel = ElasticSearchIndexAssetModel
 
 @typing.final
 class ElasticSearchIndexAssetOptions(google.protobuf.message.Message):
@@ -51,7 +45,7 @@ class ElasticSearchIndexAssetOptions(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["indexes", b"indexes"]) -> None: ...
 
-Global___ElasticSearchIndexAssetOptions: typing_extensions.TypeAlias = ElasticSearchIndexAssetOptions
+global___ElasticSearchIndexAssetOptions = ElasticSearchIndexAssetOptions
 
 @typing.final
 class ElasticSearchServiceAssetModel(google.protobuf.message.Message):
@@ -76,7 +70,7 @@ class ElasticSearchServiceAssetModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["service_name", b"service_name"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["downstream_services", b"downstream_services", "resources", b"resources", "service_name", b"service_name"]) -> None: ...
 
-Global___ElasticSearchServiceAssetModel: typing_extensions.TypeAlias = ElasticSearchServiceAssetModel
+global___ElasticSearchServiceAssetModel = ElasticSearchServiceAssetModel
 
 @typing.final
 class ElasticSearchServiceAssetOptions(google.protobuf.message.Message):
@@ -92,7 +86,7 @@ class ElasticSearchServiceAssetOptions(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["service_names", b"service_names"]) -> None: ...
 
-Global___ElasticSearchServiceAssetOptions: typing_extensions.TypeAlias = ElasticSearchServiceAssetOptions
+global___ElasticSearchServiceAssetOptions = ElasticSearchServiceAssetOptions
 
 @typing.final
 class ElasticSearchDashboardAssetModel(google.protobuf.message.Message):
@@ -113,7 +107,7 @@ class ElasticSearchDashboardAssetModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["dashboard_id", b"dashboard_id", "dashboard_name", b"dashboard_name"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["dashboard_id", b"dashboard_id", "dashboard_name", b"dashboard_name"]) -> None: ...
 
-Global___ElasticSearchDashboardAssetModel: typing_extensions.TypeAlias = ElasticSearchDashboardAssetModel
+global___ElasticSearchDashboardAssetModel = ElasticSearchDashboardAssetModel
 
 @typing.final
 class ElasticSearchDashboardAssetOptions(google.protobuf.message.Message):
@@ -129,7 +123,7 @@ class ElasticSearchDashboardAssetOptions(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["dashboard_ids", b"dashboard_ids"]) -> None: ...
 
-Global___ElasticSearchDashboardAssetOptions: typing_extensions.TypeAlias = ElasticSearchDashboardAssetOptions
+global___ElasticSearchDashboardAssetOptions = ElasticSearchDashboardAssetOptions
 
 @typing.final
 class ElasticSearchIndexPatternAssetModel(google.protobuf.message.Message):
@@ -162,7 +156,7 @@ class ElasticSearchIndexPatternAssetModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["index_pattern_id", b"index_pattern_id", "mappings", b"mappings", "name", b"name", "time_field_name", b"time_field_name", "title", b"title"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["index_pattern_id", b"index_pattern_id", "mappings", b"mappings", "name", b"name", "time_field_name", b"time_field_name", "title", b"title"]) -> None: ...
 
-Global___ElasticSearchIndexPatternAssetModel: typing_extensions.TypeAlias = ElasticSearchIndexPatternAssetModel
+global___ElasticSearchIndexPatternAssetModel = ElasticSearchIndexPatternAssetModel
 
 @typing.final
 class ElasticSearchIndexPatternAssetOptions(google.protobuf.message.Message):
@@ -178,7 +172,7 @@ class ElasticSearchIndexPatternAssetOptions(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["index_pattern_ids", b"index_pattern_ids"]) -> None: ...
 
-Global___ElasticSearchIndexPatternAssetOptions: typing_extensions.TypeAlias = ElasticSearchIndexPatternAssetOptions
+global___ElasticSearchIndexPatternAssetOptions = ElasticSearchIndexPatternAssetOptions
 
 @typing.final
 class ElasticSearchAssetModel(google.protobuf.message.Message):
@@ -198,13 +192,13 @@ class ElasticSearchAssetModel(google.protobuf.message.Message):
     @property
     def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     @property
-    def elastic_search_index(self) -> Global___ElasticSearchIndexAssetModel: ...
+    def elastic_search_index(self) -> global___ElasticSearchIndexAssetModel: ...
     @property
-    def elastic_search_service(self) -> Global___ElasticSearchServiceAssetModel: ...
+    def elastic_search_service(self) -> global___ElasticSearchServiceAssetModel: ...
     @property
-    def elastic_search_dashboard(self) -> Global___ElasticSearchDashboardAssetModel: ...
+    def elastic_search_dashboard(self) -> global___ElasticSearchDashboardAssetModel: ...
     @property
-    def elastic_search_index_pattern(self) -> Global___ElasticSearchIndexPatternAssetModel: ...
+    def elastic_search_index_pattern(self) -> global___ElasticSearchIndexPatternAssetModel: ...
     def __init__(
         self,
         *,
@@ -212,16 +206,16 @@ class ElasticSearchAssetModel(google.protobuf.message.Message):
         connector_type: core.protos.base_pb2.Source.ValueType = ...,
         type: core.protos.base_pb2.SourceModelType.ValueType = ...,
         last_updated: builtins.int = ...,
-        elastic_search_index: Global___ElasticSearchIndexAssetModel | None = ...,
-        elastic_search_service: Global___ElasticSearchServiceAssetModel | None = ...,
-        elastic_search_dashboard: Global___ElasticSearchDashboardAssetModel | None = ...,
-        elastic_search_index_pattern: Global___ElasticSearchIndexPatternAssetModel | None = ...,
+        elastic_search_index: global___ElasticSearchIndexAssetModel | None = ...,
+        elastic_search_service: global___ElasticSearchServiceAssetModel | None = ...,
+        elastic_search_dashboard: global___ElasticSearchDashboardAssetModel | None = ...,
+        elastic_search_index_pattern: global___ElasticSearchIndexPatternAssetModel | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["asset", b"asset", "elastic_search_dashboard", b"elastic_search_dashboard", "elastic_search_index", b"elastic_search_index", "elastic_search_index_pattern", b"elastic_search_index_pattern", "elastic_search_service", b"elastic_search_service", "id", b"id"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["asset", b"asset", "connector_type", b"connector_type", "elastic_search_dashboard", b"elastic_search_dashboard", "elastic_search_index", b"elastic_search_index", "elastic_search_index_pattern", b"elastic_search_index_pattern", "elastic_search_service", b"elastic_search_service", "id", b"id", "last_updated", b"last_updated", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["asset", b"asset"]) -> typing.Literal["elastic_search_index", "elastic_search_service", "elastic_search_dashboard", "elastic_search_index_pattern"] | None: ...
 
-Global___ElasticSearchAssetModel: typing_extensions.TypeAlias = ElasticSearchAssetModel
+global___ElasticSearchAssetModel = ElasticSearchAssetModel
 
 @typing.final
 class ElasticSearchAssets(google.protobuf.message.Message):
@@ -229,12 +223,12 @@ class ElasticSearchAssets(google.protobuf.message.Message):
 
     ASSETS_FIELD_NUMBER: builtins.int
     @property
-    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___ElasticSearchAssetModel]: ...
+    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___ElasticSearchAssetModel]: ...
     def __init__(
         self,
         *,
-        assets: collections.abc.Iterable[Global___ElasticSearchAssetModel] | None = ...,
+        assets: collections.abc.Iterable[global___ElasticSearchAssetModel] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["assets", b"assets"]) -> None: ...
 
-Global___ElasticSearchAssets: typing_extensions.TypeAlias = ElasticSearchAssets
+global___ElasticSearchAssets = ElasticSearchAssets

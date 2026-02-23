@@ -64,17 +64,17 @@ class GrafanaLoki(google.protobuf.message.Message):
 
     TYPE_FIELD_NUMBER: builtins.int
     QUERY_LOGS_FIELD_NUMBER: builtins.int
-    type: Global___GrafanaLoki.TaskType.ValueType
+    type: global___GrafanaLoki.TaskType.ValueType
     @property
-    def query_logs(self) -> Global___GrafanaLoki.QueryLogs: ...
+    def query_logs(self) -> global___GrafanaLoki.QueryLogs: ...
     def __init__(
         self,
         *,
-        type: Global___GrafanaLoki.TaskType.ValueType = ...,
-        query_logs: Global___GrafanaLoki.QueryLogs | None = ...,
+        type: global___GrafanaLoki.TaskType.ValueType = ...,
+        query_logs: global___GrafanaLoki.QueryLogs | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["query_logs", b"query_logs", "task", b"task"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["query_logs", b"query_logs", "task", b"task", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["task", b"task"]) -> typing.Literal["query_logs"] | None: ...
 
-Global___GrafanaLoki: typing_extensions.TypeAlias = GrafanaLoki
+global___GrafanaLoki = GrafanaLoki

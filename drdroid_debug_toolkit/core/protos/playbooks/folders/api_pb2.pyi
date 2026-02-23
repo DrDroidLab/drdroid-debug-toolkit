@@ -12,13 +12,7 @@ import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.message
 import google.protobuf.wrappers_pb2
-import sys
 import typing
-
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
-else:
-    import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
@@ -49,7 +43,7 @@ class GetFoldersRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["folder_name", b"folder_name", "high_level_only", b"high_level_only", "meta", b"meta"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["folder_ids", b"folder_ids", "folder_name", b"folder_name", "high_level_only", b"high_level_only", "meta", b"meta"]) -> None: ...
 
-Global___GetFoldersRequest: typing_extensions.TypeAlias = GetFoldersRequest
+global___GetFoldersRequest = GetFoldersRequest
 
 @typing.final
 class GetFoldersResponse(google.protobuf.message.Message):
@@ -78,7 +72,7 @@ class GetFoldersResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["folders", b"folders", "message", b"message", "meta", b"meta", "success", b"success"]) -> None: ...
 
-Global___GetFoldersResponse: typing_extensions.TypeAlias = GetFoldersResponse
+global___GetFoldersResponse = GetFoldersResponse
 
 @typing.final
 class CreateFolderRequest(google.protobuf.message.Message):
@@ -99,7 +93,7 @@ class CreateFolderRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["folder", b"folder", "meta", b"meta"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["folder", b"folder", "meta", b"meta"]) -> None: ...
 
-Global___CreateFolderRequest: typing_extensions.TypeAlias = CreateFolderRequest
+global___CreateFolderRequest = CreateFolderRequest
 
 @typing.final
 class CreateFolderResponse(google.protobuf.message.Message):
@@ -128,7 +122,7 @@ class CreateFolderResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["folder", b"folder", "message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["folder", b"folder", "message", b"message", "meta", b"meta", "success", b"success"]) -> None: ...
 
-Global___CreateFolderResponse: typing_extensions.TypeAlias = CreateFolderResponse
+global___CreateFolderResponse = CreateFolderResponse
 
 @typing.final
 class UpdateFolderRequest(google.protobuf.message.Message):
@@ -153,7 +147,7 @@ class UpdateFolderRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["folder_id", b"folder_id", "meta", b"meta"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["folder_id", b"folder_id", "meta", b"meta", "update_folder_ops", b"update_folder_ops"]) -> None: ...
 
-Global___UpdateFolderRequest: typing_extensions.TypeAlias = UpdateFolderRequest
+global___UpdateFolderRequest = UpdateFolderRequest
 
 @typing.final
 class UpdateFolderResponse(google.protobuf.message.Message):
@@ -182,7 +176,7 @@ class UpdateFolderResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["folder", b"folder", "message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["folder", b"folder", "message", b"message", "meta", b"meta", "success", b"success"]) -> None: ...
 
-Global___UpdateFolderResponse: typing_extensions.TypeAlias = UpdateFolderResponse
+global___UpdateFolderResponse = UpdateFolderResponse
 
 @typing.final
 class GetFolderPlaybooksRequest(google.protobuf.message.Message):
@@ -203,7 +197,7 @@ class GetFolderPlaybooksRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["folder_id", b"folder_id", "meta", b"meta"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["folder_id", b"folder_id", "meta", b"meta"]) -> None: ...
 
-Global___GetFolderPlaybooksRequest: typing_extensions.TypeAlias = GetFolderPlaybooksRequest
+global___GetFolderPlaybooksRequest = GetFolderPlaybooksRequest
 
 @typing.final
 class GetFolderPlaybooksResponse(google.protobuf.message.Message):
@@ -232,7 +226,7 @@ class GetFolderPlaybooksResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "playbooks", b"playbooks", "success", b"success"]) -> None: ...
 
-Global___GetFolderPlaybooksResponse: typing_extensions.TypeAlias = GetFolderPlaybooksResponse
+global___GetFolderPlaybooksResponse = GetFolderPlaybooksResponse
 
 @typing.final
 class GetSubfoldersRequest(google.protobuf.message.Message):
@@ -253,7 +247,7 @@ class GetSubfoldersRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["meta", b"meta", "parent_folder_id", b"parent_folder_id"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["meta", b"meta", "parent_folder_id", b"parent_folder_id"]) -> None: ...
 
-Global___GetSubfoldersRequest: typing_extensions.TypeAlias = GetSubfoldersRequest
+global___GetSubfoldersRequest = GetSubfoldersRequest
 
 @typing.final
 class GetSubfoldersResponse(google.protobuf.message.Message):
@@ -282,7 +276,7 @@ class GetSubfoldersResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "subfolders", b"subfolders", "success", b"success"]) -> None: ...
 
-Global___GetSubfoldersResponse: typing_extensions.TypeAlias = GetSubfoldersResponse
+global___GetSubfoldersResponse = GetSubfoldersResponse
 
 @typing.final
 class MovePlaybookRequest(google.protobuf.message.Message):
@@ -307,7 +301,7 @@ class MovePlaybookRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["meta", b"meta", "new_folder_id", b"new_folder_id", "playbook_id", b"playbook_id"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["meta", b"meta", "new_folder_id", b"new_folder_id", "playbook_id", b"playbook_id"]) -> None: ...
 
-Global___MovePlaybookRequest: typing_extensions.TypeAlias = MovePlaybookRequest
+global___MovePlaybookRequest = MovePlaybookRequest
 
 @typing.final
 class MovePlaybookResponse(google.protobuf.message.Message):
@@ -336,4 +330,4 @@ class MovePlaybookResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "playbook", b"playbook", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "playbook", b"playbook", "success", b"success"]) -> None: ...
 
-Global___MovePlaybookResponse: typing_extensions.TypeAlias = MovePlaybookResponse
+global___MovePlaybookResponse = MovePlaybookResponse

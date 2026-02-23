@@ -11,13 +11,7 @@ import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.message
 import google.protobuf.wrappers_pb2
-import sys
 import typing
-
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
-else:
-    import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
@@ -44,7 +38,7 @@ class ApiInvestigationAddAgentLogRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["investigation_session_id", b"investigation_session_id", "message", b"message", "session_sequence", b"session_sequence"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["investigation_session_id", b"investigation_session_id", "message", b"message", "session_sequence", b"session_sequence"]) -> None: ...
 
-Global___ApiInvestigationAddAgentLogRequest: typing_extensions.TypeAlias = ApiInvestigationAddAgentLogRequest
+global___ApiInvestigationAddAgentLogRequest = ApiInvestigationAddAgentLogRequest
 
 @typing.final
 class ApiInvestigationAddAgentLogResponse(google.protobuf.message.Message):
@@ -65,7 +59,7 @@ class ApiInvestigationAddAgentLogResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["message", b"message", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["message", b"message", "success", b"success"]) -> None: ...
 
-Global___ApiInvestigationAddAgentLogResponse: typing_extensions.TypeAlias = ApiInvestigationAddAgentLogResponse
+global___ApiInvestigationAddAgentLogResponse = ApiInvestigationAddAgentLogResponse
 
 @typing.final
 class GetAgentLogRequest(google.protobuf.message.Message):
@@ -90,7 +84,7 @@ class GetAgentLogRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["investigation_session_id", b"investigation_session_id", "last_created_at", b"last_created_at", "session_id", b"session_id"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["investigation_session_id", b"investigation_session_id", "last_created_at", b"last_created_at", "session_id", b"session_id"]) -> None: ...
 
-Global___GetAgentLogRequest: typing_extensions.TypeAlias = GetAgentLogRequest
+global___GetAgentLogRequest = GetAgentLogRequest
 
 @typing.final
 class GetAgentLogResponse(google.protobuf.message.Message):
@@ -115,4 +109,4 @@ class GetAgentLogResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["message", b"message", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["logs", b"logs", "message", b"message", "success", b"success"]) -> None: ...
 
-Global___GetAgentLogResponse: typing_extensions.TypeAlias = GetAgentLogResponse
+global___GetAgentLogResponse = GetAgentLogResponse

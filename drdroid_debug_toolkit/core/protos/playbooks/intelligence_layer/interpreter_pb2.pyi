@@ -35,7 +35,7 @@ UNKNOWN_I: InterpreterType.ValueType  # 0
 BASIC_I: InterpreterType.ValueType  # 1
 STATISTICAL_I: InterpreterType.ValueType  # 2
 LLM_CHAT_GPT_VISION_I: InterpreterType.ValueType  # 3
-Global___InterpreterType: typing_extensions.TypeAlias = InterpreterType
+global___InterpreterType = InterpreterType
 
 @typing.final
 class Interpretation(google.protobuf.message.Message):
@@ -91,9 +91,9 @@ class Interpretation(google.protobuf.message.Message):
     OBJECT_URL_FIELD_NUMBER: builtins.int
     MODEL_TYPE_FIELD_NUMBER: builtins.int
     OBJECT_UID_FIELD_NUMBER: builtins.int
-    type: Global___Interpretation.Type.ValueType
-    interpreter_type: Global___InterpreterType.ValueType
-    model_type: Global___Interpretation.ModelType.ValueType
+    type: global___Interpretation.Type.ValueType
+    interpreter_type: global___InterpreterType.ValueType
+    model_type: global___Interpretation.ModelType.ValueType
     @property
     def title(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
@@ -111,18 +111,18 @@ class Interpretation(google.protobuf.message.Message):
     def __init__(
         self,
         *,
-        type: Global___Interpretation.Type.ValueType = ...,
-        interpreter_type: Global___InterpreterType.ValueType = ...,
+        type: global___Interpretation.Type.ValueType = ...,
+        interpreter_type: global___InterpreterType.ValueType = ...,
         title: google.protobuf.wrappers_pb2.StringValue | None = ...,
         description: google.protobuf.wrappers_pb2.StringValue | None = ...,
         summary: google.protobuf.wrappers_pb2.StringValue | None = ...,
         image_url: google.protobuf.wrappers_pb2.StringValue | None = ...,
         file_path: google.protobuf.wrappers_pb2.StringValue | None = ...,
         object_url: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        model_type: Global___Interpretation.ModelType.ValueType = ...,
+        model_type: global___Interpretation.ModelType.ValueType = ...,
         object_uid: google.protobuf.wrappers_pb2.StringValue | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["description", b"description", "file_path", b"file_path", "image_url", b"image_url", "object_uid", b"object_uid", "object_url", b"object_url", "summary", b"summary", "title", b"title"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["description", b"description", "file_path", b"file_path", "image_url", b"image_url", "interpreter_type", b"interpreter_type", "model_type", b"model_type", "object_uid", b"object_uid", "object_url", b"object_url", "summary", b"summary", "title", b"title", "type", b"type"]) -> None: ...
 
-Global___Interpretation: typing_extensions.TypeAlias = Interpretation
+global___Interpretation = Interpretation

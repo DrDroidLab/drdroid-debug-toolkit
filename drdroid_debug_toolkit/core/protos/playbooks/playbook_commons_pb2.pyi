@@ -44,7 +44,7 @@ RUNNING: PlaybookExecutionStatusType.ValueType  # 2
 FINISHED: PlaybookExecutionStatusType.ValueType  # 3
 FAILED: PlaybookExecutionStatusType.ValueType  # 4
 APPROVAL_REQUIRED: PlaybookExecutionStatusType.ValueType  # 5
-Global___PlaybookExecutionStatusType: typing_extensions.TypeAlias = PlaybookExecutionStatusType
+global___PlaybookExecutionStatusType = PlaybookExecutionStatusType
 
 class _VariableType:
     ValueType = typing.NewType("ValueType", builtins.int)
@@ -59,7 +59,7 @@ class VariableType(_VariableType, metaclass=_VariableTypeEnumTypeWrapper): ...
 
 UNKNOWN_TYPE: VariableType.ValueType  # 0
 DROPDOWN: VariableType.ValueType  # 1
-Global___VariableType: typing_extensions.TypeAlias = VariableType
+global___VariableType = VariableType
 
 class _PlaybookTaskResultType:
     ValueType = typing.NewType("ValueType", builtins.int)
@@ -84,7 +84,7 @@ API_RESPONSE: PlaybookTaskResultType.ValueType  # 3
 BASH_COMMAND_OUTPUT: PlaybookTaskResultType.ValueType  # 4
 TEXT: PlaybookTaskResultType.ValueType  # 5
 LOGS: PlaybookTaskResultType.ValueType  # 6
-Global___PlaybookTaskResultType: typing_extensions.TypeAlias = PlaybookTaskResultType
+global___PlaybookTaskResultType = PlaybookTaskResultType
 
 @typing.final
 class ExternalLink(google.protobuf.message.Message):
@@ -105,7 +105,7 @@ class ExternalLink(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["name", b"name", "url", b"url"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["name", b"name", "url", b"url"]) -> None: ...
 
-Global___ExternalLink: typing_extensions.TypeAlias = ExternalLink
+global___ExternalLink = ExternalLink
 
 @typing.final
 class LabelValuePair(google.protobuf.message.Message):
@@ -126,7 +126,7 @@ class LabelValuePair(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["name", b"name", "value", b"value"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["name", b"name", "value", b"value"]) -> None: ...
 
-Global___LabelValuePair: typing_extensions.TypeAlias = LabelValuePair
+global___LabelValuePair = LabelValuePair
 
 @typing.final
 class TimeseriesResult(google.protobuf.message.Message):
@@ -158,17 +158,17 @@ class TimeseriesResult(google.protobuf.message.Message):
         UNIT_FIELD_NUMBER: builtins.int
         DATAPOINTS_FIELD_NUMBER: builtins.int
         @property
-        def metric_label_values(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___LabelValuePair]: ...
+        def metric_label_values(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___LabelValuePair]: ...
         @property
         def unit(self) -> google.protobuf.wrappers_pb2.StringValue: ...
         @property
-        def datapoints(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___TimeseriesResult.LabeledMetricTimeseries.Datapoint]: ...
+        def datapoints(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___TimeseriesResult.LabeledMetricTimeseries.Datapoint]: ...
         def __init__(
             self,
             *,
-            metric_label_values: collections.abc.Iterable[Global___LabelValuePair] | None = ...,
+            metric_label_values: collections.abc.Iterable[global___LabelValuePair] | None = ...,
             unit: google.protobuf.wrappers_pb2.StringValue | None = ...,
-            datapoints: collections.abc.Iterable[Global___TimeseriesResult.LabeledMetricTimeseries.Datapoint] | None = ...,
+            datapoints: collections.abc.Iterable[global___TimeseriesResult.LabeledMetricTimeseries.Datapoint] | None = ...,
         ) -> None: ...
         def HasField(self, field_name: typing.Literal["unit", b"unit"]) -> builtins.bool: ...
         def ClearField(self, field_name: typing.Literal["datapoints", b"datapoints", "metric_label_values", b"metric_label_values", "unit", b"unit"]) -> None: ...
@@ -181,18 +181,18 @@ class TimeseriesResult(google.protobuf.message.Message):
     @property
     def metric_expression(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
-    def labeled_metric_timeseries(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___TimeseriesResult.LabeledMetricTimeseries]: ...
+    def labeled_metric_timeseries(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___TimeseriesResult.LabeledMetricTimeseries]: ...
     def __init__(
         self,
         *,
         metric_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
         metric_expression: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        labeled_metric_timeseries: collections.abc.Iterable[Global___TimeseriesResult.LabeledMetricTimeseries] | None = ...,
+        labeled_metric_timeseries: collections.abc.Iterable[global___TimeseriesResult.LabeledMetricTimeseries] | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["metric_expression", b"metric_expression", "metric_name", b"metric_name"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["labeled_metric_timeseries", b"labeled_metric_timeseries", "metric_expression", b"metric_expression", "metric_name", b"metric_name"]) -> None: ...
 
-Global___TimeseriesResult: typing_extensions.TypeAlias = TimeseriesResult
+global___TimeseriesResult = TimeseriesResult
 
 @typing.final
 class TableResult(google.protobuf.message.Message):
@@ -227,11 +227,11 @@ class TableResult(google.protobuf.message.Message):
 
         COLUMNS_FIELD_NUMBER: builtins.int
         @property
-        def columns(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___TableResult.TableColumn]: ...
+        def columns(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___TableResult.TableColumn]: ...
         def __init__(
             self,
             *,
-            columns: collections.abc.Iterable[Global___TableResult.TableColumn] | None = ...,
+            columns: collections.abc.Iterable[global___TableResult.TableColumn] | None = ...,
         ) -> None: ...
         def ClearField(self, field_name: typing.Literal["columns", b"columns"]) -> None: ...
 
@@ -250,7 +250,7 @@ class TableResult(google.protobuf.message.Message):
     @property
     def offset(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     @property
-    def rows(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___TableResult.TableRow]: ...
+    def rows(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___TableResult.TableRow]: ...
     @property
     def searchable(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
     def __init__(
@@ -260,13 +260,13 @@ class TableResult(google.protobuf.message.Message):
         total_count: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
         limit: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
         offset: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
-        rows: collections.abc.Iterable[Global___TableResult.TableRow] | None = ...,
+        rows: collections.abc.Iterable[global___TableResult.TableRow] | None = ...,
         searchable: google.protobuf.wrappers_pb2.BoolValue | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["limit", b"limit", "offset", b"offset", "raw_query", b"raw_query", "searchable", b"searchable", "total_count", b"total_count"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["limit", b"limit", "offset", b"offset", "raw_query", b"raw_query", "rows", b"rows", "searchable", b"searchable", "total_count", b"total_count"]) -> None: ...
 
-Global___TableResult: typing_extensions.TypeAlias = TableResult
+global___TableResult = TableResult
 
 @typing.final
 class ApiResponseResult(google.protobuf.message.Message):
@@ -307,7 +307,7 @@ class ApiResponseResult(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["error", b"error", "metadata", b"metadata", "request_method", b"request_method", "request_url", b"request_url", "response_body", b"response_body", "response_headers", b"response_headers", "response_status", b"response_status"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["error", b"error", "metadata", b"metadata", "request_method", b"request_method", "request_url", b"request_url", "response_body", b"response_body", "response_headers", b"response_headers", "response_status", b"response_status"]) -> None: ...
 
-Global___ApiResponseResult: typing_extensions.TypeAlias = ApiResponseResult
+global___ApiResponseResult = ApiResponseResult
 
 @typing.final
 class BashCommandOutputResult(google.protobuf.message.Message):
@@ -334,15 +334,15 @@ class BashCommandOutputResult(google.protobuf.message.Message):
 
     COMMAND_OUTPUTS_FIELD_NUMBER: builtins.int
     @property
-    def command_outputs(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___BashCommandOutputResult.CommandOutput]: ...
+    def command_outputs(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___BashCommandOutputResult.CommandOutput]: ...
     def __init__(
         self,
         *,
-        command_outputs: collections.abc.Iterable[Global___BashCommandOutputResult.CommandOutput] | None = ...,
+        command_outputs: collections.abc.Iterable[global___BashCommandOutputResult.CommandOutput] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["command_outputs", b"command_outputs"]) -> None: ...
 
-Global___BashCommandOutputResult: typing_extensions.TypeAlias = BashCommandOutputResult
+global___BashCommandOutputResult = BashCommandOutputResult
 
 @typing.final
 class TextResult(google.protobuf.message.Message):
@@ -359,7 +359,7 @@ class TextResult(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["output", b"output"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["output", b"output"]) -> None: ...
 
-Global___TextResult: typing_extensions.TypeAlias = TextResult
+global___TextResult = TextResult
 
 @typing.final
 class PlaybookTaskResult(google.protobuf.message.Message):
@@ -382,9 +382,9 @@ class PlaybookTaskResult(google.protobuf.message.Message):
     BASH_COMMAND_OUTPUT_FIELD_NUMBER: builtins.int
     TEXT_FIELD_NUMBER: builtins.int
     LOGS_FIELD_NUMBER: builtins.int
-    type: Global___PlaybookTaskResultType.ValueType
+    type: global___PlaybookTaskResultType.ValueType
     source: core.protos.base_pb2.Source.ValueType
-    status: Global___PlaybookExecutionStatusType.ValueType
+    status: global___PlaybookExecutionStatusType.ValueType
     @property
     def error(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
@@ -406,43 +406,43 @@ class PlaybookTaskResult(google.protobuf.message.Message):
         """metadata including signoz_url for SignOz tasks"""
 
     @property
-    def timeseries(self) -> Global___TimeseriesResult: ...
+    def timeseries(self) -> global___TimeseriesResult: ...
     @property
-    def table(self) -> Global___TableResult: ...
+    def table(self) -> global___TableResult: ...
     @property
-    def api_response(self) -> Global___ApiResponseResult: ...
+    def api_response(self) -> global___ApiResponseResult: ...
     @property
-    def bash_command_output(self) -> Global___BashCommandOutputResult: ...
+    def bash_command_output(self) -> global___BashCommandOutputResult: ...
     @property
-    def text(self) -> Global___TextResult: ...
+    def text(self) -> global___TextResult: ...
     @property
-    def logs(self) -> Global___TableResult: ...
+    def logs(self) -> global___TableResult: ...
     def __init__(
         self,
         *,
         error: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        type: Global___PlaybookTaskResultType.ValueType = ...,
+        type: global___PlaybookTaskResultType.ValueType = ...,
         source: core.protos.base_pb2.Source.ValueType = ...,
         task_local_variable_set: google.protobuf.struct_pb2.Struct | None = ...,
         result_transformer_lambda_function_variable_set: google.protobuf.struct_pb2.Struct | None = ...,
         proxy_execution_request_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        status: Global___PlaybookExecutionStatusType.ValueType = ...,
+        status: global___PlaybookExecutionStatusType.ValueType = ...,
         approval_request_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
         approval_task_description: google.protobuf.wrappers_pb2.StringValue | None = ...,
         widget_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
         metadata: google.protobuf.struct_pb2.Struct | None = ...,
-        timeseries: Global___TimeseriesResult | None = ...,
-        table: Global___TableResult | None = ...,
-        api_response: Global___ApiResponseResult | None = ...,
-        bash_command_output: Global___BashCommandOutputResult | None = ...,
-        text: Global___TextResult | None = ...,
-        logs: Global___TableResult | None = ...,
+        timeseries: global___TimeseriesResult | None = ...,
+        table: global___TableResult | None = ...,
+        api_response: global___ApiResponseResult | None = ...,
+        bash_command_output: global___BashCommandOutputResult | None = ...,
+        text: global___TextResult | None = ...,
+        logs: global___TableResult | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["api_response", b"api_response", "approval_request_id", b"approval_request_id", "approval_task_description", b"approval_task_description", "bash_command_output", b"bash_command_output", "error", b"error", "logs", b"logs", "metadata", b"metadata", "proxy_execution_request_id", b"proxy_execution_request_id", "result", b"result", "result_transformer_lambda_function_variable_set", b"result_transformer_lambda_function_variable_set", "table", b"table", "task_local_variable_set", b"task_local_variable_set", "text", b"text", "timeseries", b"timeseries", "widget_id", b"widget_id"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["api_response", b"api_response", "approval_request_id", b"approval_request_id", "approval_task_description", b"approval_task_description", "bash_command_output", b"bash_command_output", "error", b"error", "logs", b"logs", "metadata", b"metadata", "proxy_execution_request_id", b"proxy_execution_request_id", "result", b"result", "result_transformer_lambda_function_variable_set", b"result_transformer_lambda_function_variable_set", "source", b"source", "status", b"status", "table", b"table", "task_local_variable_set", b"task_local_variable_set", "text", b"text", "timeseries", b"timeseries", "type", b"type", "widget_id", b"widget_id"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["result", b"result"]) -> typing.Literal["timeseries", "table", "api_response", "bash_command_output", "text", "logs"] | None: ...
 
-Global___PlaybookTaskResult: typing_extensions.TypeAlias = PlaybookTaskResult
+global___PlaybookTaskResult = PlaybookTaskResult
 
 @typing.final
 class PlaybookSourceOptions(google.protobuf.message.Message):
@@ -513,7 +513,7 @@ class PlaybookSourceOptions(google.protobuf.message.Message):
         SUPPORTED_MODEL_TYPES_FIELD_NUMBER: builtins.int
         RESULT_TYPE_FIELD_NUMBER: builtins.int
         FORM_FIELDS_FIELD_NUMBER: builtins.int
-        result_type: Global___PlaybookTaskResultType.ValueType
+        result_type: global___PlaybookTaskResultType.ValueType
         @property
         def display_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
         @property
@@ -521,7 +521,7 @@ class PlaybookSourceOptions(google.protobuf.message.Message):
         @property
         def category(self) -> google.protobuf.wrappers_pb2.StringValue: ...
         @property
-        def supported_model_types(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___PlaybookSourceOptions.TaskTypeOption.SourceModelTypeMap]: ...
+        def supported_model_types(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___PlaybookSourceOptions.TaskTypeOption.SourceModelTypeMap]: ...
         @property
         def form_fields(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[core.protos.ui_definition_pb2.FormField]: ...
         def __init__(
@@ -530,8 +530,8 @@ class PlaybookSourceOptions(google.protobuf.message.Message):
             display_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
             task_type: google.protobuf.wrappers_pb2.StringValue | None = ...,
             category: google.protobuf.wrappers_pb2.StringValue | None = ...,
-            supported_model_types: collections.abc.Iterable[Global___PlaybookSourceOptions.TaskTypeOption.SourceModelTypeMap] | None = ...,
-            result_type: Global___PlaybookTaskResultType.ValueType = ...,
+            supported_model_types: collections.abc.Iterable[global___PlaybookSourceOptions.TaskTypeOption.SourceModelTypeMap] | None = ...,
+            result_type: global___PlaybookTaskResultType.ValueType = ...,
             form_fields: collections.abc.Iterable[core.protos.ui_definition_pb2.FormField] | None = ...,
         ) -> None: ...
         def HasField(self, field_name: typing.Literal["category", b"category", "display_name", b"display_name", "task_type", b"task_type"]) -> builtins.bool: ...
@@ -545,18 +545,18 @@ class PlaybookSourceOptions(google.protobuf.message.Message):
     @property
     def display_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
-    def supported_task_type_options(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___PlaybookSourceOptions.TaskTypeOption]: ...
+    def supported_task_type_options(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___PlaybookSourceOptions.TaskTypeOption]: ...
     @property
-    def connector_options(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___PlaybookSourceOptions.ConnectorOption]: ...
+    def connector_options(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___PlaybookSourceOptions.ConnectorOption]: ...
     def __init__(
         self,
         *,
         source: core.protos.base_pb2.Source.ValueType = ...,
         display_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        supported_task_type_options: collections.abc.Iterable[Global___PlaybookSourceOptions.TaskTypeOption] | None = ...,
-        connector_options: collections.abc.Iterable[Global___PlaybookSourceOptions.ConnectorOption] | None = ...,
+        supported_task_type_options: collections.abc.Iterable[global___PlaybookSourceOptions.TaskTypeOption] | None = ...,
+        connector_options: collections.abc.Iterable[global___PlaybookSourceOptions.ConnectorOption] | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["display_name", b"display_name"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["connector_options", b"connector_options", "display_name", b"display_name", "source", b"source", "supported_task_type_options", b"supported_task_type_options"]) -> None: ...
 
-Global___PlaybookSourceOptions: typing_extensions.TypeAlias = PlaybookSourceOptions
+global___PlaybookSourceOptions = PlaybookSourceOptions

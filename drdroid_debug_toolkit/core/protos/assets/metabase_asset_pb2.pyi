@@ -10,13 +10,7 @@ import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.message
 import google.protobuf.wrappers_pb2
-import sys
 import typing
-
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
-else:
-    import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
@@ -61,7 +55,7 @@ class MetabaseDashboardAssetModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["card_count", b"card_count", "collection_id", b"collection_id", "created_at", b"created_at", "description", b"description", "id", b"id", "name", b"name", "updated_at", b"updated_at"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["card_count", b"card_count", "collection_id", b"collection_id", "created_at", b"created_at", "description", b"description", "id", b"id", "name", b"name", "updated_at", b"updated_at"]) -> None: ...
 
-Global___MetabaseDashboardAssetModel: typing_extensions.TypeAlias = MetabaseDashboardAssetModel
+global___MetabaseDashboardAssetModel = MetabaseDashboardAssetModel
 
 @typing.final
 class MetabaseDashboardAssetOptions(google.protobuf.message.Message):
@@ -81,7 +75,7 @@ class MetabaseDashboardAssetOptions(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["collection_ids", b"collection_ids", "names", b"names"]) -> None: ...
 
-Global___MetabaseDashboardAssetOptions: typing_extensions.TypeAlias = MetabaseDashboardAssetOptions
+global___MetabaseDashboardAssetOptions = MetabaseDashboardAssetOptions
 
 @typing.final
 class MetabaseCardAssetModel(google.protobuf.message.Message):
@@ -128,7 +122,7 @@ class MetabaseCardAssetModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["collection_id", b"collection_id", "created_at", b"created_at", "database_id", b"database_id", "description", b"description", "display_type", b"display_type", "id", b"id", "name", b"name", "updated_at", b"updated_at"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["collection_id", b"collection_id", "created_at", b"created_at", "database_id", b"database_id", "description", b"description", "display_type", b"display_type", "id", b"id", "name", b"name", "updated_at", b"updated_at"]) -> None: ...
 
-Global___MetabaseCardAssetModel: typing_extensions.TypeAlias = MetabaseCardAssetModel
+global___MetabaseCardAssetModel = MetabaseCardAssetModel
 
 @typing.final
 class MetabaseCardAssetOptions(google.protobuf.message.Message):
@@ -156,7 +150,7 @@ class MetabaseCardAssetOptions(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["collection_ids", b"collection_ids", "database_ids", b"database_ids", "display_types", b"display_types", "names", b"names"]) -> None: ...
 
-Global___MetabaseCardAssetOptions: typing_extensions.TypeAlias = MetabaseCardAssetOptions
+global___MetabaseCardAssetOptions = MetabaseCardAssetOptions
 
 @typing.final
 class MetabaseDatabaseAssetModel(google.protobuf.message.Message):
@@ -195,7 +189,7 @@ class MetabaseDatabaseAssetModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["created_at", b"created_at", "engine", b"engine", "id", b"id", "name", b"name", "table_count", b"table_count", "updated_at", b"updated_at"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["created_at", b"created_at", "engine", b"engine", "id", b"id", "name", b"name", "table_count", b"table_count", "updated_at", b"updated_at"]) -> None: ...
 
-Global___MetabaseDatabaseAssetModel: typing_extensions.TypeAlias = MetabaseDatabaseAssetModel
+global___MetabaseDatabaseAssetModel = MetabaseDatabaseAssetModel
 
 @typing.final
 class MetabaseDatabaseAssetOptions(google.protobuf.message.Message):
@@ -215,7 +209,7 @@ class MetabaseDatabaseAssetOptions(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["engines", b"engines", "names", b"names"]) -> None: ...
 
-Global___MetabaseDatabaseAssetOptions: typing_extensions.TypeAlias = MetabaseDatabaseAssetOptions
+global___MetabaseDatabaseAssetOptions = MetabaseDatabaseAssetOptions
 
 @typing.final
 class MetabaseCollectionAssetModel(google.protobuf.message.Message):
@@ -250,7 +244,7 @@ class MetabaseCollectionAssetModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["description", b"description", "id", b"id", "location", b"location", "name", b"name", "parent_id", b"parent_id"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["description", b"description", "id", b"id", "location", b"location", "name", b"name", "parent_id", b"parent_id"]) -> None: ...
 
-Global___MetabaseCollectionAssetModel: typing_extensions.TypeAlias = MetabaseCollectionAssetModel
+global___MetabaseCollectionAssetModel = MetabaseCollectionAssetModel
 
 @typing.final
 class MetabaseCollectionAssetOptions(google.protobuf.message.Message):
@@ -270,7 +264,7 @@ class MetabaseCollectionAssetOptions(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["names", b"names", "parent_ids", b"parent_ids"]) -> None: ...
 
-Global___MetabaseCollectionAssetOptions: typing_extensions.TypeAlias = MetabaseCollectionAssetOptions
+global___MetabaseCollectionAssetOptions = MetabaseCollectionAssetOptions
 
 @typing.final
 class MetabaseSubscriptionAssetModel(google.protobuf.message.Message):
@@ -305,7 +299,7 @@ class MetabaseSubscriptionAssetModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["active", b"active", "created_at", b"created_at", "dashboard_id", b"dashboard_id", "id", b"id", "name", b"name"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["active", b"active", "created_at", b"created_at", "dashboard_id", b"dashboard_id", "id", b"id", "name", b"name"]) -> None: ...
 
-Global___MetabaseSubscriptionAssetModel: typing_extensions.TypeAlias = MetabaseSubscriptionAssetModel
+global___MetabaseSubscriptionAssetModel = MetabaseSubscriptionAssetModel
 
 @typing.final
 class MetabaseSubscriptionAssetOptions(google.protobuf.message.Message):
@@ -330,7 +324,7 @@ class MetabaseSubscriptionAssetOptions(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["active", b"active"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["active", b"active", "dashboard_ids", b"dashboard_ids", "names", b"names"]) -> None: ...
 
-Global___MetabaseSubscriptionAssetOptions: typing_extensions.TypeAlias = MetabaseSubscriptionAssetOptions
+global___MetabaseSubscriptionAssetOptions = MetabaseSubscriptionAssetOptions
 
 @typing.final
 class MetabaseAssetModel(google.protobuf.message.Message):
@@ -353,15 +347,15 @@ class MetabaseAssetModel(google.protobuf.message.Message):
     @property
     def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     @property
-    def metabase_dashboard(self) -> Global___MetabaseDashboardAssetModel: ...
+    def metabase_dashboard(self) -> global___MetabaseDashboardAssetModel: ...
     @property
-    def metabase_card(self) -> Global___MetabaseCardAssetModel: ...
+    def metabase_card(self) -> global___MetabaseCardAssetModel: ...
     @property
-    def metabase_database(self) -> Global___MetabaseDatabaseAssetModel: ...
+    def metabase_database(self) -> global___MetabaseDatabaseAssetModel: ...
     @property
-    def metabase_collection(self) -> Global___MetabaseCollectionAssetModel: ...
+    def metabase_collection(self) -> global___MetabaseCollectionAssetModel: ...
     @property
-    def metabase_subscription(self) -> Global___MetabaseSubscriptionAssetModel: ...
+    def metabase_subscription(self) -> global___MetabaseSubscriptionAssetModel: ...
     def __init__(
         self,
         *,
@@ -369,17 +363,17 @@ class MetabaseAssetModel(google.protobuf.message.Message):
         connector_type: core.protos.base_pb2.Source.ValueType = ...,
         type: core.protos.base_pb2.SourceModelType.ValueType = ...,
         last_updated: builtins.int = ...,
-        metabase_dashboard: Global___MetabaseDashboardAssetModel | None = ...,
-        metabase_card: Global___MetabaseCardAssetModel | None = ...,
-        metabase_database: Global___MetabaseDatabaseAssetModel | None = ...,
-        metabase_collection: Global___MetabaseCollectionAssetModel | None = ...,
-        metabase_subscription: Global___MetabaseSubscriptionAssetModel | None = ...,
+        metabase_dashboard: global___MetabaseDashboardAssetModel | None = ...,
+        metabase_card: global___MetabaseCardAssetModel | None = ...,
+        metabase_database: global___MetabaseDatabaseAssetModel | None = ...,
+        metabase_collection: global___MetabaseCollectionAssetModel | None = ...,
+        metabase_subscription: global___MetabaseSubscriptionAssetModel | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["asset", b"asset", "id", b"id", "metabase_card", b"metabase_card", "metabase_collection", b"metabase_collection", "metabase_dashboard", b"metabase_dashboard", "metabase_database", b"metabase_database", "metabase_subscription", b"metabase_subscription"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["asset", b"asset", "connector_type", b"connector_type", "id", b"id", "last_updated", b"last_updated", "metabase_card", b"metabase_card", "metabase_collection", b"metabase_collection", "metabase_dashboard", b"metabase_dashboard", "metabase_database", b"metabase_database", "metabase_subscription", b"metabase_subscription", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["asset", b"asset"]) -> typing.Literal["metabase_dashboard", "metabase_card", "metabase_database", "metabase_collection", "metabase_subscription"] | None: ...
 
-Global___MetabaseAssetModel: typing_extensions.TypeAlias = MetabaseAssetModel
+global___MetabaseAssetModel = MetabaseAssetModel
 
 @typing.final
 class MetabaseAssets(google.protobuf.message.Message):
@@ -389,12 +383,12 @@ class MetabaseAssets(google.protobuf.message.Message):
 
     ASSETS_FIELD_NUMBER: builtins.int
     @property
-    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___MetabaseAssetModel]: ...
+    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___MetabaseAssetModel]: ...
     def __init__(
         self,
         *,
-        assets: collections.abc.Iterable[Global___MetabaseAssetModel] | None = ...,
+        assets: collections.abc.Iterable[global___MetabaseAssetModel] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["assets", b"assets"]) -> None: ...
 
-Global___MetabaseAssets: typing_extensions.TypeAlias = MetabaseAssets
+global___MetabaseAssets = MetabaseAssets

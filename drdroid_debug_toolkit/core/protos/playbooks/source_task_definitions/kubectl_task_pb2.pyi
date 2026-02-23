@@ -70,20 +70,20 @@ class Kubectl(google.protobuf.message.Message):
     TYPE_FIELD_NUMBER: builtins.int
     COMMAND_FIELD_NUMBER: builtins.int
     K8S_WRITE_COMMAND_FIELD_NUMBER: builtins.int
-    type: Global___Kubectl.TaskType.ValueType
+    type: global___Kubectl.TaskType.ValueType
     @property
-    def command(self) -> Global___Kubectl.Command: ...
+    def command(self) -> global___Kubectl.Command: ...
     @property
-    def k8s_write_command(self) -> Global___Kubectl.WriteCommand: ...
+    def k8s_write_command(self) -> global___Kubectl.WriteCommand: ...
     def __init__(
         self,
         *,
-        type: Global___Kubectl.TaskType.ValueType = ...,
-        command: Global___Kubectl.Command | None = ...,
-        k8s_write_command: Global___Kubectl.WriteCommand | None = ...,
+        type: global___Kubectl.TaskType.ValueType = ...,
+        command: global___Kubectl.Command | None = ...,
+        k8s_write_command: global___Kubectl.WriteCommand | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["command", b"command", "k8s_write_command", b"k8s_write_command", "task", b"task"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["command", b"command", "k8s_write_command", b"k8s_write_command", "task", b"task", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["task", b"task"]) -> typing.Literal["command", "k8s_write_command"] | None: ...
 
-Global___Kubectl: typing_extensions.TypeAlias = Kubectl
+global___Kubectl = Kubectl

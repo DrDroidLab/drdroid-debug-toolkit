@@ -7,13 +7,7 @@ import builtins
 import google.protobuf.descriptor
 import google.protobuf.message
 import google.protobuf.wrappers_pb2
-import sys
 import typing
-
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
-else:
-    import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
@@ -40,4 +34,4 @@ class AgentLog(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["created_at", b"created_at", "message", b"message", "session_sequence", b"session_sequence"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["created_at", b"created_at", "message", b"message", "session_sequence", b"session_sequence"]) -> None: ...
 
-Global___AgentLog: typing_extensions.TypeAlias = AgentLog
+global___AgentLog = AgentLog

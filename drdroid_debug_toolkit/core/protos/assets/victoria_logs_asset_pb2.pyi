@@ -10,13 +10,7 @@ import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.message
 import google.protobuf.wrappers_pb2
-import sys
 import typing
-
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
-else:
-    import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
@@ -36,7 +30,7 @@ class VictoriaLogsFieldAssetOptions(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["fields", b"fields"]) -> None: ...
 
-Global___VictoriaLogsFieldAssetOptions: typing_extensions.TypeAlias = VictoriaLogsFieldAssetOptions
+global___VictoriaLogsFieldAssetOptions = VictoriaLogsFieldAssetOptions
 
 @typing.final
 class VictoriaLogsFieldModel(google.protobuf.message.Message):
@@ -54,7 +48,7 @@ class VictoriaLogsFieldModel(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["fields", b"fields"]) -> None: ...
 
-Global___VictoriaLogsFieldModel: typing_extensions.TypeAlias = VictoriaLogsFieldModel
+global___VictoriaLogsFieldModel = VictoriaLogsFieldModel
 
 @typing.final
 class VictoriaLogsAssetModel(google.protobuf.message.Message):
@@ -73,7 +67,7 @@ class VictoriaLogsAssetModel(google.protobuf.message.Message):
     @property
     def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     @property
-    def victoria_logs_field(self) -> Global___VictoriaLogsFieldModel: ...
+    def victoria_logs_field(self) -> global___VictoriaLogsFieldModel: ...
     def __init__(
         self,
         *,
@@ -81,13 +75,13 @@ class VictoriaLogsAssetModel(google.protobuf.message.Message):
         connector_type: core.protos.base_pb2.Source.ValueType = ...,
         type: core.protos.base_pb2.SourceModelType.ValueType = ...,
         last_updated: builtins.int = ...,
-        victoria_logs_field: Global___VictoriaLogsFieldModel | None = ...,
+        victoria_logs_field: global___VictoriaLogsFieldModel | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["asset", b"asset", "id", b"id", "victoria_logs_field", b"victoria_logs_field"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["asset", b"asset", "connector_type", b"connector_type", "id", b"id", "last_updated", b"last_updated", "type", b"type", "victoria_logs_field", b"victoria_logs_field"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["asset", b"asset"]) -> typing.Literal["victoria_logs_field"] | None: ...
 
-Global___VictoriaLogsAssetModel: typing_extensions.TypeAlias = VictoriaLogsAssetModel
+global___VictoriaLogsAssetModel = VictoriaLogsAssetModel
 
 @typing.final
 class VictoriaLogsAssets(google.protobuf.message.Message):
@@ -97,12 +91,12 @@ class VictoriaLogsAssets(google.protobuf.message.Message):
 
     ASSETS_FIELD_NUMBER: builtins.int
     @property
-    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___VictoriaLogsAssetModel]: ...
+    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___VictoriaLogsAssetModel]: ...
     def __init__(
         self,
         *,
-        assets: collections.abc.Iterable[Global___VictoriaLogsAssetModel] | None = ...,
+        assets: collections.abc.Iterable[global___VictoriaLogsAssetModel] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["assets", b"assets"]) -> None: ...
 
-Global___VictoriaLogsAssets: typing_extensions.TypeAlias = VictoriaLogsAssets
+global___VictoriaLogsAssets = VictoriaLogsAssets

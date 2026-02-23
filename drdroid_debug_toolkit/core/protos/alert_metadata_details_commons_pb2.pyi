@@ -33,7 +33,7 @@ ALERT_SEVERITY_UNKNOWN: AlertSeverity.ValueType  # 0
 ALERT_SEVERITY_INFO: AlertSeverity.ValueType  # 1
 ALERT_SEVERITY_WARNING: AlertSeverity.ValueType  # 2
 ALERT_SEVERITY_CRITICAL: AlertSeverity.ValueType  # 4
-Global___AlertSeverity: typing_extensions.TypeAlias = AlertSeverity
+global___AlertSeverity = AlertSeverity
 
 class _AlertStatus:
     ValueType = typing.NewType("ValueType", builtins.int)
@@ -60,4 +60,4 @@ ALERT_STATUS_ESCALATED: AlertStatus.ValueType  # 4
 ALERT_STATUS_REMEDIATED: AlertStatus.ValueType  # 5
 ALERT_STATUS_RESOLVED: AlertStatus.ValueType  # 6
 ALERT_STATUS_HIDDEN: AlertStatus.ValueType  # 7
-Global___AlertStatus: typing_extensions.TypeAlias = AlertStatus
+global___AlertStatus = AlertStatus

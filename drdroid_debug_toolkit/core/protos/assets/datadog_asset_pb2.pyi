@@ -11,13 +11,7 @@ import google.protobuf.internal.containers
 import google.protobuf.message
 import google.protobuf.struct_pb2
 import google.protobuf.wrappers_pb2
-import sys
 import typing
-
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
-else:
-    import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
@@ -56,18 +50,18 @@ class DatadogServiceAssetModel(google.protobuf.message.Message):
     @property
     def environments(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
     @property
-    def metrics(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___DatadogServiceAssetModel.Metric]: ...
+    def metrics(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___DatadogServiceAssetModel.Metric]: ...
     def __init__(
         self,
         *,
         service_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
         environments: collections.abc.Iterable[builtins.str] | None = ...,
-        metrics: collections.abc.Iterable[Global___DatadogServiceAssetModel.Metric] | None = ...,
+        metrics: collections.abc.Iterable[global___DatadogServiceAssetModel.Metric] | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["service_name", b"service_name"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["environments", b"environments", "metrics", b"metrics", "service_name", b"service_name"]) -> None: ...
 
-Global___DatadogServiceAssetModel: typing_extensions.TypeAlias = DatadogServiceAssetModel
+global___DatadogServiceAssetModel = DatadogServiceAssetModel
 
 @typing.final
 class DatadogServiceAssetOptions(google.protobuf.message.Message):
@@ -94,15 +88,15 @@ class DatadogServiceAssetOptions(google.protobuf.message.Message):
 
     SERVICES_FIELD_NUMBER: builtins.int
     @property
-    def services(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___DatadogServiceAssetOptions.DatadogServiceAssetOption]: ...
+    def services(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___DatadogServiceAssetOptions.DatadogServiceAssetOption]: ...
     def __init__(
         self,
         *,
-        services: collections.abc.Iterable[Global___DatadogServiceAssetOptions.DatadogServiceAssetOption] | None = ...,
+        services: collections.abc.Iterable[global___DatadogServiceAssetOptions.DatadogServiceAssetOption] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["services", b"services"]) -> None: ...
 
-Global___DatadogServiceAssetOptions: typing_extensions.TypeAlias = DatadogServiceAssetOptions
+global___DatadogServiceAssetOptions = DatadogServiceAssetOptions
 
 @typing.final
 class DatadogDashboardAssetOptions(google.protobuf.message.Message):
@@ -118,96 +112,7 @@ class DatadogDashboardAssetOptions(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["dashboards", b"dashboards"]) -> None: ...
 
-Global___DatadogDashboardAssetOptions: typing_extensions.TypeAlias = DatadogDashboardAssetOptions
-
-@typing.final
-class DatadogFieldsAssetModel(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    @typing.final
-    class FieldInfo(google.protobuf.message.Message):
-        DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-        FIELD_NAME_FIELD_NUMBER: builtins.int
-        FIELD_TYPE_FIELD_NUMBER: builtins.int
-        @property
-        def field_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-        @property
-        def field_type(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-        def __init__(
-            self,
-            *,
-            field_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
-            field_type: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        ) -> None: ...
-        def HasField(self, field_name: typing.Literal["field_name", b"field_name", "field_type", b"field_type"]) -> builtins.bool: ...
-        def ClearField(self, field_name: typing.Literal["field_name", b"field_name", "field_type", b"field_type"]) -> None: ...
-
-    @typing.final
-    class TagInfo(google.protobuf.message.Message):
-        DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-        TAG_NAME_FIELD_NUMBER: builtins.int
-        @property
-        def tag_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-        def __init__(
-            self,
-            *,
-            tag_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        ) -> None: ...
-        def HasField(self, field_name: typing.Literal["tag_name", b"tag_name"]) -> builtins.bool: ...
-        def ClearField(self, field_name: typing.Literal["tag_name", b"tag_name"]) -> None: ...
-
-    @typing.final
-    class AttributeInfo(google.protobuf.message.Message):
-        DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-        ATTRIBUTE_NAME_FIELD_NUMBER: builtins.int
-        ATTRIBUTE_TYPE_FIELD_NUMBER: builtins.int
-        @property
-        def attribute_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-        @property
-        def attribute_type(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-        def __init__(
-            self,
-            *,
-            attribute_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
-            attribute_type: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        ) -> None: ...
-        def HasField(self, field_name: typing.Literal["attribute_name", b"attribute_name", "attribute_type", b"attribute_type"]) -> builtins.bool: ...
-        def ClearField(self, field_name: typing.Literal["attribute_name", b"attribute_name", "attribute_type", b"attribute_type"]) -> None: ...
-
-    SOURCE_FIELD_NUMBER: builtins.int
-    FIELDS_FIELD_NUMBER: builtins.int
-    TAGS_FIELD_NUMBER: builtins.int
-    ATTRIBUTES_FIELD_NUMBER: builtins.int
-    TOTAL_LOGS_ANALYZED_FIELD_NUMBER: builtins.int
-    EXTRACTION_TIMESTAMP_FIELD_NUMBER: builtins.int
-    extraction_timestamp: builtins.int
-    @property
-    def source(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def fields(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___DatadogFieldsAssetModel.FieldInfo]: ...
-    @property
-    def tags(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___DatadogFieldsAssetModel.TagInfo]: ...
-    @property
-    def attributes(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___DatadogFieldsAssetModel.AttributeInfo]: ...
-    @property
-    def total_logs_analyzed(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
-    def __init__(
-        self,
-        *,
-        source: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        fields: collections.abc.Iterable[Global___DatadogFieldsAssetModel.FieldInfo] | None = ...,
-        tags: collections.abc.Iterable[Global___DatadogFieldsAssetModel.TagInfo] | None = ...,
-        attributes: collections.abc.Iterable[Global___DatadogFieldsAssetModel.AttributeInfo] | None = ...,
-        total_logs_analyzed: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
-        extraction_timestamp: builtins.int = ...,
-    ) -> None: ...
-    def HasField(self, field_name: typing.Literal["source", b"source", "total_logs_analyzed", b"total_logs_analyzed"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["attributes", b"attributes", "extraction_timestamp", b"extraction_timestamp", "fields", b"fields", "source", b"source", "tags", b"tags", "total_logs_analyzed", b"total_logs_analyzed"]) -> None: ...
-
-Global___DatadogFieldsAssetModel: typing_extensions.TypeAlias = DatadogFieldsAssetModel
+global___DatadogDashboardAssetOptions = DatadogDashboardAssetOptions
 
 @typing.final
 class DatadogDashboardModel(google.protobuf.message.Message):
@@ -258,14 +163,14 @@ class DatadogDashboardModel(google.protobuf.message.Message):
         @property
         def title(self) -> google.protobuf.wrappers_pb2.StringValue: ...
         @property
-        def widgets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___DatadogDashboardModel.Panel.Widget]: ...
+        def widgets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___DatadogDashboardModel.Panel.Widget]: ...
         @property
         def id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
         def __init__(
             self,
             *,
             title: google.protobuf.wrappers_pb2.StringValue | None = ...,
-            widgets: collections.abc.Iterable[Global___DatadogDashboardModel.Panel.Widget] | None = ...,
+            widgets: collections.abc.Iterable[global___DatadogDashboardModel.Panel.Widget] | None = ...,
             id: google.protobuf.wrappers_pb2.StringValue | None = ...,
         ) -> None: ...
         def HasField(self, field_name: typing.Literal["id", b"id", "title", b"title"]) -> builtins.bool: ...
@@ -286,7 +191,7 @@ class DatadogDashboardModel(google.protobuf.message.Message):
     @property
     def description(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
-    def panels(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___DatadogDashboardModel.Panel]: ...
+    def panels(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___DatadogDashboardModel.Panel]: ...
     @property
     def template_variables(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[google.protobuf.struct_pb2.Struct]: ...
     def __init__(
@@ -296,13 +201,13 @@ class DatadogDashboardModel(google.protobuf.message.Message):
         url: google.protobuf.wrappers_pb2.StringValue | None = ...,
         title: google.protobuf.wrappers_pb2.StringValue | None = ...,
         description: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        panels: collections.abc.Iterable[Global___DatadogDashboardModel.Panel] | None = ...,
+        panels: collections.abc.Iterable[global___DatadogDashboardModel.Panel] | None = ...,
         template_variables: collections.abc.Iterable[google.protobuf.struct_pb2.Struct] | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["description", b"description", "id", b"id", "title", b"title", "url", b"url"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["description", b"description", "id", b"id", "panels", b"panels", "template_variables", b"template_variables", "title", b"title", "url", b"url"]) -> None: ...
 
-Global___DatadogDashboardModel: typing_extensions.TypeAlias = DatadogDashboardModel
+global___DatadogDashboardModel = DatadogDashboardModel
 
 @typing.final
 class DatadogAssetModel(google.protobuf.message.Message):
@@ -314,18 +219,15 @@ class DatadogAssetModel(google.protobuf.message.Message):
     LAST_UPDATED_FIELD_NUMBER: builtins.int
     DATADOG_SERVICE_FIELD_NUMBER: builtins.int
     DATADOG_DASHBOARD_FIELD_NUMBER: builtins.int
-    DATADOG_FIELDS_FIELD_NUMBER: builtins.int
     connector_type: core.protos.base_pb2.Source.ValueType
     type: core.protos.base_pb2.SourceModelType.ValueType
     last_updated: builtins.int
     @property
     def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     @property
-    def datadog_service(self) -> Global___DatadogServiceAssetModel: ...
+    def datadog_service(self) -> global___DatadogServiceAssetModel: ...
     @property
-    def datadog_dashboard(self) -> Global___DatadogDashboardModel: ...
-    @property
-    def datadog_fields(self) -> Global___DatadogFieldsAssetModel: ...
+    def datadog_dashboard(self) -> global___DatadogDashboardModel: ...
     def __init__(
         self,
         *,
@@ -333,15 +235,14 @@ class DatadogAssetModel(google.protobuf.message.Message):
         connector_type: core.protos.base_pb2.Source.ValueType = ...,
         type: core.protos.base_pb2.SourceModelType.ValueType = ...,
         last_updated: builtins.int = ...,
-        datadog_service: Global___DatadogServiceAssetModel | None = ...,
-        datadog_dashboard: Global___DatadogDashboardModel | None = ...,
-        datadog_fields: Global___DatadogFieldsAssetModel | None = ...,
+        datadog_service: global___DatadogServiceAssetModel | None = ...,
+        datadog_dashboard: global___DatadogDashboardModel | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["asset", b"asset", "datadog_dashboard", b"datadog_dashboard", "datadog_fields", b"datadog_fields", "datadog_service", b"datadog_service", "id", b"id"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["asset", b"asset", "connector_type", b"connector_type", "datadog_dashboard", b"datadog_dashboard", "datadog_fields", b"datadog_fields", "datadog_service", b"datadog_service", "id", b"id", "last_updated", b"last_updated", "type", b"type"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing.Literal["asset", b"asset"]) -> typing.Literal["datadog_service", "datadog_dashboard", "datadog_fields"] | None: ...
+    def HasField(self, field_name: typing.Literal["asset", b"asset", "datadog_dashboard", b"datadog_dashboard", "datadog_service", b"datadog_service", "id", b"id"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["asset", b"asset", "connector_type", b"connector_type", "datadog_dashboard", b"datadog_dashboard", "datadog_service", b"datadog_service", "id", b"id", "last_updated", b"last_updated", "type", b"type"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["asset", b"asset"]) -> typing.Literal["datadog_service", "datadog_dashboard"] | None: ...
 
-Global___DatadogAssetModel: typing_extensions.TypeAlias = DatadogAssetModel
+global___DatadogAssetModel = DatadogAssetModel
 
 @typing.final
 class DatadogAssets(google.protobuf.message.Message):
@@ -349,12 +250,12 @@ class DatadogAssets(google.protobuf.message.Message):
 
     ASSETS_FIELD_NUMBER: builtins.int
     @property
-    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___DatadogAssetModel]: ...
+    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___DatadogAssetModel]: ...
     def __init__(
         self,
         *,
-        assets: collections.abc.Iterable[Global___DatadogAssetModel] | None = ...,
+        assets: collections.abc.Iterable[global___DatadogAssetModel] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["assets", b"assets"]) -> None: ...
 
-Global___DatadogAssets: typing_extensions.TypeAlias = DatadogAssets
+global___DatadogAssets = DatadogAssets

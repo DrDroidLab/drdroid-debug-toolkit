@@ -61,17 +61,17 @@ class PagerDuty(google.protobuf.message.Message):
 
     TYPE_FIELD_NUMBER: builtins.int
     SEND_NOTE_FIELD_NUMBER: builtins.int
-    type: Global___PagerDuty.TaskType.ValueType
+    type: global___PagerDuty.TaskType.ValueType
     @property
-    def send_note(self) -> Global___PagerDuty.SendNote: ...
+    def send_note(self) -> global___PagerDuty.SendNote: ...
     def __init__(
         self,
         *,
-        type: Global___PagerDuty.TaskType.ValueType = ...,
-        send_note: Global___PagerDuty.SendNote | None = ...,
+        type: global___PagerDuty.TaskType.ValueType = ...,
+        send_note: global___PagerDuty.SendNote | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["send_note", b"send_note", "task", b"task"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["send_note", b"send_note", "task", b"task", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["task", b"task"]) -> typing.Literal["send_note"] | None: ...
 
-Global___PagerDuty: typing_extensions.TypeAlias = PagerDuty
+global___PagerDuty = PagerDuty

@@ -60,17 +60,17 @@ class Zenduty(google.protobuf.message.Message):
 
     TYPE_FIELD_NUMBER: builtins.int
     SEND_NOTE_FIELD_NUMBER: builtins.int
-    type: Global___Zenduty.TaskType.ValueType
+    type: global___Zenduty.TaskType.ValueType
     @property
-    def send_note(self) -> Global___Zenduty.SendNote: ...
+    def send_note(self) -> global___Zenduty.SendNote: ...
     def __init__(
         self,
         *,
-        type: Global___Zenduty.TaskType.ValueType = ...,
-        send_note: Global___Zenduty.SendNote | None = ...,
+        type: global___Zenduty.TaskType.ValueType = ...,
+        send_note: global___Zenduty.SendNote | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["send_note", b"send_note", "task", b"task"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["send_note", b"send_note", "task", b"task", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["task", b"task"]) -> typing.Literal["send_note"] | None: ...
 
-Global___Zenduty: typing_extensions.TypeAlias = Zenduty
+global___Zenduty = Zenduty

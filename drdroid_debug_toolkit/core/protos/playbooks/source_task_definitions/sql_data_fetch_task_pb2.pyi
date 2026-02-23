@@ -72,17 +72,17 @@ class SqlDataFetch(google.protobuf.message.Message):
 
     TYPE_FIELD_NUMBER: builtins.int
     SQL_QUERY_FIELD_NUMBER: builtins.int
-    type: Global___SqlDataFetch.TaskType.ValueType
+    type: global___SqlDataFetch.TaskType.ValueType
     @property
-    def sql_query(self) -> Global___SqlDataFetch.SqlQuery: ...
+    def sql_query(self) -> global___SqlDataFetch.SqlQuery: ...
     def __init__(
         self,
         *,
-        type: Global___SqlDataFetch.TaskType.ValueType = ...,
-        sql_query: Global___SqlDataFetch.SqlQuery | None = ...,
+        type: global___SqlDataFetch.TaskType.ValueType = ...,
+        sql_query: global___SqlDataFetch.SqlQuery | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["sql_query", b"sql_query", "task", b"task"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["sql_query", b"sql_query", "task", b"task", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["task", b"task"]) -> typing.Literal["sql_query"] | None: ...
 
-Global___SqlDataFetch: typing_extensions.TypeAlias = SqlDataFetch
+global___SqlDataFetch = SqlDataFetch

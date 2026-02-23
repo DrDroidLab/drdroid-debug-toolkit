@@ -11,13 +11,7 @@ import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.message
 import google.protobuf.wrappers_pb2
-import sys
 import typing
-
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
-else:
-    import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
@@ -40,7 +34,7 @@ class GetAutoInvestigationRuleRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["meta", b"meta"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["auto_investigation_rule_ids", b"auto_investigation_rule_ids", "meta", b"meta"]) -> None: ...
 
-Global___GetAutoInvestigationRuleRequest: typing_extensions.TypeAlias = GetAutoInvestigationRuleRequest
+global___GetAutoInvestigationRuleRequest = GetAutoInvestigationRuleRequest
 
 @typing.final
 class GetAutoInvestigationRuleResponse(google.protobuf.message.Message):
@@ -61,7 +55,7 @@ class GetAutoInvestigationRuleResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["meta", b"meta"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["auto_investigation_rules", b"auto_investigation_rules", "meta", b"meta"]) -> None: ...
 
-Global___GetAutoInvestigationRuleResponse: typing_extensions.TypeAlias = GetAutoInvestigationRuleResponse
+global___GetAutoInvestigationRuleResponse = GetAutoInvestigationRuleResponse
 
 @typing.final
 class CreateAutoInvestigationRuleRequest(google.protobuf.message.Message):
@@ -81,7 +75,7 @@ class CreateAutoInvestigationRuleRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["auto_investigation_rule", b"auto_investigation_rule"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["auto_investigation_rule", b"auto_investigation_rule", "name", b"name"]) -> None: ...
 
-Global___CreateAutoInvestigationRuleRequest: typing_extensions.TypeAlias = CreateAutoInvestigationRuleRequest
+global___CreateAutoInvestigationRuleRequest = CreateAutoInvestigationRuleRequest
 
 @typing.final
 class CreateAutoInvestigationRuleResponse(google.protobuf.message.Message):
@@ -106,7 +100,7 @@ class CreateAutoInvestigationRuleResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["auto_investigation_rule", b"auto_investigation_rule", "message", b"message", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["auto_investigation_rule", b"auto_investigation_rule", "message", b"message", "success", b"success"]) -> None: ...
 
-Global___CreateAutoInvestigationRuleResponse: typing_extensions.TypeAlias = CreateAutoInvestigationRuleResponse
+global___CreateAutoInvestigationRuleResponse = CreateAutoInvestigationRuleResponse
 
 @typing.final
 class UpdateAutoInvestigationRuleRequest(google.protobuf.message.Message):
@@ -127,7 +121,7 @@ class UpdateAutoInvestigationRuleRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["auto_investigation_rule_id", b"auto_investigation_rule_id"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["auto_investigation_rule_id", b"auto_investigation_rule_id", "update_auto_investigation_rule_ops", b"update_auto_investigation_rule_ops"]) -> None: ...
 
-Global___UpdateAutoInvestigationRuleRequest: typing_extensions.TypeAlias = UpdateAutoInvestigationRuleRequest
+global___UpdateAutoInvestigationRuleRequest = UpdateAutoInvestigationRuleRequest
 
 @typing.final
 class UpdateAutoInvestigationRuleResponse(google.protobuf.message.Message):
@@ -148,4 +142,4 @@ class UpdateAutoInvestigationRuleResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["message", b"message", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["message", b"message", "success", b"success"]) -> None: ...
 
-Global___UpdateAutoInvestigationRuleResponse: typing_extensions.TypeAlias = UpdateAutoInvestigationRuleResponse
+global___UpdateAutoInvestigationRuleResponse = UpdateAutoInvestigationRuleResponse

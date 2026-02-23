@@ -51,7 +51,7 @@ class AlertIngestionRawData(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["data", b"data", "id", b"id"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["data", b"data", "id", b"id", "source", b"source", "timestamp", b"timestamp"]) -> None: ...
 
-Global___AlertIngestionRawData: typing_extensions.TypeAlias = AlertIngestionRawData
+global___AlertIngestionRawData = AlertIngestionRawData
 
 @typing.final
 class AlertIngestionParsed(google.protobuf.message.Message):
@@ -82,7 +82,7 @@ class AlertIngestionParsed(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["alert_metadata_id", b"alert_metadata_id", "id", b"id", "text", b"text", "title", b"title"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["alert_metadata_id", b"alert_metadata_id", "id", b"id", "text", b"text", "title", b"title"]) -> None: ...
 
-Global___AlertIngestionParsed: typing_extensions.TypeAlias = AlertIngestionParsed
+global___AlertIngestionParsed = AlertIngestionParsed
 
 @typing.final
 class AlertIngestionRule(google.protobuf.message.Message):
@@ -137,7 +137,7 @@ class AlertIngestionRule(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["created_by", b"created_by", "id", b"id", "is_active", b"is_active", "max_runs_in_fifteen_minutes", b"max_runs_in_fifteen_minutes", "name", b"name", "query_request", b"query_request", "user_input_prompt", b"user_input_prompt", "version", b"version"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["created_by", b"created_by", "id", b"id", "is_active", b"is_active", "max_runs_in_fifteen_minutes", b"max_runs_in_fifteen_minutes", "name", b"name", "playbook_ids", b"playbook_ids", "query_request", b"query_request", "tasks", b"tasks", "user_input_prompt", b"user_input_prompt", "version", b"version"]) -> None: ...
 
-Global___AlertIngestionRule: typing_extensions.TypeAlias = AlertIngestionRule
+global___AlertIngestionRule = AlertIngestionRule
 
 @typing.final
 class UpdateAlertIngestionRuleOp(google.protobuf.message.Message):
@@ -181,11 +181,11 @@ class UpdateAlertIngestionRuleOp(google.protobuf.message.Message):
 
         RULE_FIELD_NUMBER: builtins.int
         @property
-        def rule(self) -> Global___AlertIngestionRule: ...
+        def rule(self) -> global___AlertIngestionRule: ...
         def __init__(
             self,
             *,
-            rule: Global___AlertIngestionRule | None = ...,
+            rule: global___AlertIngestionRule | None = ...,
         ) -> None: ...
         def HasField(self, field_name: typing.Literal["rule", b"rule"]) -> builtins.bool: ...
         def ClearField(self, field_name: typing.Literal["rule", b"rule"]) -> None: ...
@@ -209,26 +209,26 @@ class UpdateAlertIngestionRuleOp(google.protobuf.message.Message):
     UPDATE_RULE_NAME_FIELD_NUMBER: builtins.int
     UPDATE_RULE_FIELD_NUMBER: builtins.int
     UPDATE_STATUS_FIELD_NUMBER: builtins.int
-    op: Global___UpdateAlertIngestionRuleOp.Op.ValueType
+    op: global___UpdateAlertIngestionRuleOp.Op.ValueType
     @property
-    def update_rule_name(self) -> Global___UpdateAlertIngestionRuleOp.UpdateRuleName: ...
+    def update_rule_name(self) -> global___UpdateAlertIngestionRuleOp.UpdateRuleName: ...
     @property
-    def update_rule(self) -> Global___UpdateAlertIngestionRuleOp.UpdateRule: ...
+    def update_rule(self) -> global___UpdateAlertIngestionRuleOp.UpdateRule: ...
     @property
-    def update_status(self) -> Global___UpdateAlertIngestionRuleOp.UpdateStatus: ...
+    def update_status(self) -> global___UpdateAlertIngestionRuleOp.UpdateStatus: ...
     def __init__(
         self,
         *,
-        op: Global___UpdateAlertIngestionRuleOp.Op.ValueType = ...,
-        update_rule_name: Global___UpdateAlertIngestionRuleOp.UpdateRuleName | None = ...,
-        update_rule: Global___UpdateAlertIngestionRuleOp.UpdateRule | None = ...,
-        update_status: Global___UpdateAlertIngestionRuleOp.UpdateStatus | None = ...,
+        op: global___UpdateAlertIngestionRuleOp.Op.ValueType = ...,
+        update_rule_name: global___UpdateAlertIngestionRuleOp.UpdateRuleName | None = ...,
+        update_rule: global___UpdateAlertIngestionRuleOp.UpdateRule | None = ...,
+        update_status: global___UpdateAlertIngestionRuleOp.UpdateStatus | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["update", b"update", "update_rule", b"update_rule", "update_rule_name", b"update_rule_name", "update_status", b"update_status"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["op", b"op", "update", b"update", "update_rule", b"update_rule", "update_rule_name", b"update_rule_name", "update_status", b"update_status"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["update", b"update"]) -> typing.Literal["update_rule_name", "update_rule", "update_status"] | None: ...
 
-Global___UpdateAlertIngestionRuleOp: typing_extensions.TypeAlias = UpdateAlertIngestionRuleOp
+global___UpdateAlertIngestionRuleOp = UpdateAlertIngestionRuleOp
 
 @typing.final
 class AlertIngestionDefinition(google.protobuf.message.Message):
@@ -282,7 +282,7 @@ class AlertIngestionDefinition(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["created_by", b"created_by", "definition", b"definition", "id", b"id", "is_active", b"is_active", "name", b"name", "priority", b"priority", "text_field", b"text_field", "title_field", b"title_field", "version", b"version"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["created_by", b"created_by", "definition", b"definition", "id", b"id", "is_active", b"is_active", "name", b"name", "priority", b"priority", "source_type", b"source_type", "text_field", b"text_field", "title_field", b"title_field", "version", b"version"]) -> None: ...
 
-Global___AlertIngestionDefinition: typing_extensions.TypeAlias = AlertIngestionDefinition
+global___AlertIngestionDefinition = AlertIngestionDefinition
 
 @typing.final
 class UpdateAlertIngestionDefinitionOp(google.protobuf.message.Message):
@@ -309,11 +309,11 @@ class UpdateAlertIngestionDefinitionOp(google.protobuf.message.Message):
 
         DEFINITION_FIELD_NUMBER: builtins.int
         @property
-        def definition(self) -> Global___AlertIngestionDefinition: ...
+        def definition(self) -> global___AlertIngestionDefinition: ...
         def __init__(
             self,
             *,
-            definition: Global___AlertIngestionDefinition | None = ...,
+            definition: global___AlertIngestionDefinition | None = ...,
         ) -> None: ...
         def HasField(self, field_name: typing.Literal["definition", b"definition"]) -> builtins.bool: ...
         def ClearField(self, field_name: typing.Literal["definition", b"definition"]) -> None: ...
@@ -337,23 +337,23 @@ class UpdateAlertIngestionDefinitionOp(google.protobuf.message.Message):
     UPDATE_DEFINITION_FIELD_NUMBER: builtins.int
     UPDATE_STATUS_FIELD_NUMBER: builtins.int
     UPDATE_RULE_FIELD_NUMBER: builtins.int
-    op: Global___UpdateAlertIngestionDefinitionOp.Op.ValueType
+    op: global___UpdateAlertIngestionDefinitionOp.Op.ValueType
     @property
-    def update_definition(self) -> Global___UpdateAlertIngestionDefinitionOp.UpdateDefinition: ...
+    def update_definition(self) -> global___UpdateAlertIngestionDefinitionOp.UpdateDefinition: ...
     @property
-    def update_status(self) -> Global___UpdateAlertIngestionDefinitionOp.UpdateStatus: ...
+    def update_status(self) -> global___UpdateAlertIngestionDefinitionOp.UpdateStatus: ...
     @property
-    def update_rule(self) -> Global___UpdateAlertIngestionDefinitionOp.UpdateDefinition: ...
+    def update_rule(self) -> global___UpdateAlertIngestionDefinitionOp.UpdateDefinition: ...
     def __init__(
         self,
         *,
-        op: Global___UpdateAlertIngestionDefinitionOp.Op.ValueType = ...,
-        update_definition: Global___UpdateAlertIngestionDefinitionOp.UpdateDefinition | None = ...,
-        update_status: Global___UpdateAlertIngestionDefinitionOp.UpdateStatus | None = ...,
-        update_rule: Global___UpdateAlertIngestionDefinitionOp.UpdateDefinition | None = ...,
+        op: global___UpdateAlertIngestionDefinitionOp.Op.ValueType = ...,
+        update_definition: global___UpdateAlertIngestionDefinitionOp.UpdateDefinition | None = ...,
+        update_status: global___UpdateAlertIngestionDefinitionOp.UpdateStatus | None = ...,
+        update_rule: global___UpdateAlertIngestionDefinitionOp.UpdateDefinition | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["update", b"update", "update_definition", b"update_definition", "update_rule", b"update_rule", "update_status", b"update_status"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["op", b"op", "update", b"update", "update_definition", b"update_definition", "update_rule", b"update_rule", "update_status", b"update_status"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["update", b"update"]) -> typing.Literal["update_definition", "update_status", "update_rule"] | None: ...
 
-Global___UpdateAlertIngestionDefinitionOp: typing_extensions.TypeAlias = UpdateAlertIngestionDefinitionOp
+global___UpdateAlertIngestionDefinitionOp = UpdateAlertIngestionDefinitionOp

@@ -15,13 +15,7 @@ import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.message
 import google.protobuf.wrappers_pb2
-import sys
 import typing
-
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
-else:
-    import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
@@ -42,7 +36,7 @@ class GetAlertMiddlewareAlertsSearchRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["meta", b"meta"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["meta", b"meta"]) -> None: ...
 
-Global___GetAlertMiddlewareAlertsSearchRequest: typing_extensions.TypeAlias = GetAlertMiddlewareAlertsSearchRequest
+global___GetAlertMiddlewareAlertsSearchRequest = GetAlertMiddlewareAlertsSearchRequest
 
 @typing.final
 class GetAlertMiddlewareAlertsSearchResponse(google.protobuf.message.Message):
@@ -71,7 +65,7 @@ class GetAlertMiddlewareAlertsSearchResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["alerts", b"alerts", "message", b"message", "meta", b"meta", "success", b"success"]) -> None: ...
 
-Global___GetAlertMiddlewareAlertsSearchResponse: typing_extensions.TypeAlias = GetAlertMiddlewareAlertsSearchResponse
+global___GetAlertMiddlewareAlertsSearchResponse = GetAlertMiddlewareAlertsSearchResponse
 
 @typing.final
 class CreateAlertMiddlewareAlertsRuleRequest(google.protobuf.message.Message):
@@ -95,7 +89,7 @@ class CreateAlertMiddlewareAlertsRuleRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["meta", b"meta", "rule", b"rule"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["meta", b"meta", "rule", b"rule", "source_type", b"source_type"]) -> None: ...
 
-Global___CreateAlertMiddlewareAlertsRuleRequest: typing_extensions.TypeAlias = CreateAlertMiddlewareAlertsRuleRequest
+global___CreateAlertMiddlewareAlertsRuleRequest = CreateAlertMiddlewareAlertsRuleRequest
 
 @typing.final
 class CreateAlertMiddlewareAlertsRuleResponse(google.protobuf.message.Message):
@@ -124,7 +118,7 @@ class CreateAlertMiddlewareAlertsRuleResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "rule", b"rule", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "rule", b"rule", "success", b"success"]) -> None: ...
 
-Global___CreateAlertMiddlewareAlertsRuleResponse: typing_extensions.TypeAlias = CreateAlertMiddlewareAlertsRuleResponse
+global___CreateAlertMiddlewareAlertsRuleResponse = CreateAlertMiddlewareAlertsRuleResponse
 
 @typing.final
 class GetAlertMiddlewareAlertsRuleRequest(google.protobuf.message.Message):
@@ -148,7 +142,7 @@ class GetAlertMiddlewareAlertsRuleRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["meta", b"meta"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["meta", b"meta", "rule_ids", b"rule_ids", "rule_name", b"rule_name"]) -> None: ...
 
-Global___GetAlertMiddlewareAlertsRuleRequest: typing_extensions.TypeAlias = GetAlertMiddlewareAlertsRuleRequest
+global___GetAlertMiddlewareAlertsRuleRequest = GetAlertMiddlewareAlertsRuleRequest
 
 @typing.final
 class GetAlertMiddlewareAlertsRuleResponse(google.protobuf.message.Message):
@@ -177,7 +171,7 @@ class GetAlertMiddlewareAlertsRuleResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "rules", b"rules", "success", b"success"]) -> None: ...
 
-Global___GetAlertMiddlewareAlertsRuleResponse: typing_extensions.TypeAlias = GetAlertMiddlewareAlertsRuleResponse
+global___GetAlertMiddlewareAlertsRuleResponse = GetAlertMiddlewareAlertsRuleResponse
 
 @typing.final
 class TestAlertMiddlewareAlertsRuleRequest(google.protobuf.message.Message):
@@ -198,7 +192,7 @@ class TestAlertMiddlewareAlertsRuleRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["meta", b"meta", "rule", b"rule"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["meta", b"meta", "rule", b"rule"]) -> None: ...
 
-Global___TestAlertMiddlewareAlertsRuleRequest: typing_extensions.TypeAlias = TestAlertMiddlewareAlertsRuleRequest
+global___TestAlertMiddlewareAlertsRuleRequest = TestAlertMiddlewareAlertsRuleRequest
 
 @typing.final
 class TestAlertMiddlewareAlertsRuleResponse(google.protobuf.message.Message):
@@ -227,7 +221,7 @@ class TestAlertMiddlewareAlertsRuleResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["alerts", b"alerts", "message", b"message", "meta", b"meta", "success", b"success"]) -> None: ...
 
-Global___TestAlertMiddlewareAlertsRuleResponse: typing_extensions.TypeAlias = TestAlertMiddlewareAlertsRuleResponse
+global___TestAlertMiddlewareAlertsRuleResponse = TestAlertMiddlewareAlertsRuleResponse
 
 @typing.final
 class UpdateAlertMiddlewareAlertsRuleRequest(google.protobuf.message.Message):
@@ -252,7 +246,7 @@ class UpdateAlertMiddlewareAlertsRuleRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["meta", b"meta", "rule_id", b"rule_id"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["meta", b"meta", "rule_id", b"rule_id", "update_rule_ops", b"update_rule_ops"]) -> None: ...
 
-Global___UpdateAlertMiddlewareAlertsRuleRequest: typing_extensions.TypeAlias = UpdateAlertMiddlewareAlertsRuleRequest
+global___UpdateAlertMiddlewareAlertsRuleRequest = UpdateAlertMiddlewareAlertsRuleRequest
 
 @typing.final
 class UpdateAlertMiddlewareAlertsRuleResponse(google.protobuf.message.Message):
@@ -281,7 +275,7 @@ class UpdateAlertMiddlewareAlertsRuleResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "rule", b"rule", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "rule", b"rule", "success", b"success"]) -> None: ...
 
-Global___UpdateAlertMiddlewareAlertsRuleResponse: typing_extensions.TypeAlias = UpdateAlertMiddlewareAlertsRuleResponse
+global___UpdateAlertMiddlewareAlertsRuleResponse = UpdateAlertMiddlewareAlertsRuleResponse
 
 @typing.final
 class GetAlertMiddlewareAlertRuleQueryOptionsRequest(google.protobuf.message.Message):
@@ -302,7 +296,7 @@ class GetAlertMiddlewareAlertRuleQueryOptionsRequest(google.protobuf.message.Mes
     def HasField(self, field_name: typing.Literal["id_literal", b"id_literal", "meta", b"meta"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["id_literal", b"id_literal", "meta", b"meta"]) -> None: ...
 
-Global___GetAlertMiddlewareAlertRuleQueryOptionsRequest: typing_extensions.TypeAlias = GetAlertMiddlewareAlertRuleQueryOptionsRequest
+global___GetAlertMiddlewareAlertRuleQueryOptionsRequest = GetAlertMiddlewareAlertRuleQueryOptionsRequest
 
 @typing.final
 class GetAlertMiddlewareAlertRuleQueryOptionsResponse(google.protobuf.message.Message):
@@ -331,7 +325,7 @@ class GetAlertMiddlewareAlertRuleQueryOptionsResponse(google.protobuf.message.Me
     def HasField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "query_options", b"query_options", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "query_options", b"query_options", "success", b"success"]) -> None: ...
 
-Global___GetAlertMiddlewareAlertRuleQueryOptionsResponse: typing_extensions.TypeAlias = GetAlertMiddlewareAlertRuleQueryOptionsResponse
+global___GetAlertMiddlewareAlertRuleQueryOptionsResponse = GetAlertMiddlewareAlertRuleQueryOptionsResponse
 
 @typing.final
 class CreateAlertMiddlewareAlertsDefinitionRequest(google.protobuf.message.Message):
@@ -352,7 +346,7 @@ class CreateAlertMiddlewareAlertsDefinitionRequest(google.protobuf.message.Messa
     def HasField(self, field_name: typing.Literal["definition", b"definition", "meta", b"meta"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["definition", b"definition", "meta", b"meta"]) -> None: ...
 
-Global___CreateAlertMiddlewareAlertsDefinitionRequest: typing_extensions.TypeAlias = CreateAlertMiddlewareAlertsDefinitionRequest
+global___CreateAlertMiddlewareAlertsDefinitionRequest = CreateAlertMiddlewareAlertsDefinitionRequest
 
 @typing.final
 class CreateAlertMiddlewareAlertsDefinitionResponse(google.protobuf.message.Message):
@@ -381,7 +375,7 @@ class CreateAlertMiddlewareAlertsDefinitionResponse(google.protobuf.message.Mess
     def HasField(self, field_name: typing.Literal["definition", b"definition", "message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["definition", b"definition", "message", b"message", "meta", b"meta", "success", b"success"]) -> None: ...
 
-Global___CreateAlertMiddlewareAlertsDefinitionResponse: typing_extensions.TypeAlias = CreateAlertMiddlewareAlertsDefinitionResponse
+global___CreateAlertMiddlewareAlertsDefinitionResponse = CreateAlertMiddlewareAlertsDefinitionResponse
 
 @typing.final
 class GetAlertMiddlewareAlertsDefinitionRequest(google.protobuf.message.Message):
@@ -405,7 +399,7 @@ class GetAlertMiddlewareAlertsDefinitionRequest(google.protobuf.message.Message)
     def HasField(self, field_name: typing.Literal["meta", b"meta"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["definition_ids", b"definition_ids", "definition_name", b"definition_name", "meta", b"meta"]) -> None: ...
 
-Global___GetAlertMiddlewareAlertsDefinitionRequest: typing_extensions.TypeAlias = GetAlertMiddlewareAlertsDefinitionRequest
+global___GetAlertMiddlewareAlertsDefinitionRequest = GetAlertMiddlewareAlertsDefinitionRequest
 
 @typing.final
 class GetAlertMiddlewareAlertsDefinitionResponse(google.protobuf.message.Message):
@@ -434,7 +428,7 @@ class GetAlertMiddlewareAlertsDefinitionResponse(google.protobuf.message.Message
     def HasField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["definitions", b"definitions", "message", b"message", "meta", b"meta", "success", b"success"]) -> None: ...
 
-Global___GetAlertMiddlewareAlertsDefinitionResponse: typing_extensions.TypeAlias = GetAlertMiddlewareAlertsDefinitionResponse
+global___GetAlertMiddlewareAlertsDefinitionResponse = GetAlertMiddlewareAlertsDefinitionResponse
 
 @typing.final
 class TestAlertMiddlewareAlertsDefinitionRequest(google.protobuf.message.Message):
@@ -459,7 +453,7 @@ class TestAlertMiddlewareAlertsDefinitionRequest(google.protobuf.message.Message
     def HasField(self, field_name: typing.Literal["alert_ingestion_id", b"alert_ingestion_id", "definition", b"definition", "meta", b"meta"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["alert_ingestion_id", b"alert_ingestion_id", "definition", b"definition", "meta", b"meta"]) -> None: ...
 
-Global___TestAlertMiddlewareAlertsDefinitionRequest: typing_extensions.TypeAlias = TestAlertMiddlewareAlertsDefinitionRequest
+global___TestAlertMiddlewareAlertsDefinitionRequest = TestAlertMiddlewareAlertsDefinitionRequest
 
 @typing.final
 class TestAlertMiddlewareAlertsDefinitionResponse(google.protobuf.message.Message):
@@ -488,7 +482,7 @@ class TestAlertMiddlewareAlertsDefinitionResponse(google.protobuf.message.Messag
     def HasField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "parsed_alert", b"parsed_alert", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "parsed_alert", b"parsed_alert", "success", b"success"]) -> None: ...
 
-Global___TestAlertMiddlewareAlertsDefinitionResponse: typing_extensions.TypeAlias = TestAlertMiddlewareAlertsDefinitionResponse
+global___TestAlertMiddlewareAlertsDefinitionResponse = TestAlertMiddlewareAlertsDefinitionResponse
 
 @typing.final
 class UpdateAlertMiddlewareAlertsDefinitionRequest(google.protobuf.message.Message):
@@ -513,7 +507,7 @@ class UpdateAlertMiddlewareAlertsDefinitionRequest(google.protobuf.message.Messa
     def HasField(self, field_name: typing.Literal["definition_id", b"definition_id", "meta", b"meta"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["definition_id", b"definition_id", "meta", b"meta", "update_definition_ops", b"update_definition_ops"]) -> None: ...
 
-Global___UpdateAlertMiddlewareAlertsDefinitionRequest: typing_extensions.TypeAlias = UpdateAlertMiddlewareAlertsDefinitionRequest
+global___UpdateAlertMiddlewareAlertsDefinitionRequest = UpdateAlertMiddlewareAlertsDefinitionRequest
 
 @typing.final
 class UpdateAlertMiddlewareAlertsDefinitionResponse(google.protobuf.message.Message):
@@ -542,4 +536,4 @@ class UpdateAlertMiddlewareAlertsDefinitionResponse(google.protobuf.message.Mess
     def HasField(self, field_name: typing.Literal["definition", b"definition", "message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["definition", b"definition", "message", b"message", "meta", b"meta", "success", b"success"]) -> None: ...
 
-Global___UpdateAlertMiddlewareAlertsDefinitionResponse: typing_extensions.TypeAlias = UpdateAlertMiddlewareAlertsDefinitionResponse
+global___UpdateAlertMiddlewareAlertsDefinitionResponse = UpdateAlertMiddlewareAlertsDefinitionResponse

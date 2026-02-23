@@ -11,13 +11,7 @@ import google.protobuf.internal.containers
 import google.protobuf.message
 import google.protobuf.struct_pb2
 import google.protobuf.wrappers_pb2
-import sys
 import typing
-
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
-else:
-    import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
@@ -79,17 +73,17 @@ class GrafanaTargetMetricPromQlAssetModel(google.protobuf.message.Message):
         @property
         def expression(self) -> google.protobuf.wrappers_pb2.StringValue: ...
         @property
-        def label_variable_map(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___GrafanaTargetMetricPromQlAssetModel.PromqlMetric.QueryLabelVariableMap]: ...
+        def label_variable_map(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___GrafanaTargetMetricPromQlAssetModel.PromqlMetric.QueryLabelVariableMap]: ...
         @property
-        def variable_values_options(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___GrafanaTargetMetricPromQlAssetModel.PromqlMetric.QueryVariableValueOptions]: ...
+        def variable_values_options(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___GrafanaTargetMetricPromQlAssetModel.PromqlMetric.QueryVariableValueOptions]: ...
         def __init__(
             self,
             *,
             target_metric_ref_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
             datasource_uid: google.protobuf.wrappers_pb2.StringValue | None = ...,
             expression: google.protobuf.wrappers_pb2.StringValue | None = ...,
-            label_variable_map: collections.abc.Iterable[Global___GrafanaTargetMetricPromQlAssetModel.PromqlMetric.QueryLabelVariableMap] | None = ...,
-            variable_values_options: collections.abc.Iterable[Global___GrafanaTargetMetricPromQlAssetModel.PromqlMetric.QueryVariableValueOptions] | None = ...,
+            label_variable_map: collections.abc.Iterable[global___GrafanaTargetMetricPromQlAssetModel.PromqlMetric.QueryLabelVariableMap] | None = ...,
+            variable_values_options: collections.abc.Iterable[global___GrafanaTargetMetricPromQlAssetModel.PromqlMetric.QueryVariableValueOptions] | None = ...,
         ) -> None: ...
         def HasField(self, field_name: typing.Literal["datasource_uid", b"datasource_uid", "expression", b"expression", "target_metric_ref_id", b"target_metric_ref_id"]) -> builtins.bool: ...
         def ClearField(self, field_name: typing.Literal["datasource_uid", b"datasource_uid", "expression", b"expression", "label_variable_map", b"label_variable_map", "target_metric_ref_id", b"target_metric_ref_id", "variable_values_options", b"variable_values_options"]) -> None: ...
@@ -106,13 +100,13 @@ class GrafanaTargetMetricPromQlAssetModel(google.protobuf.message.Message):
         @property
         def panel_title(self) -> google.protobuf.wrappers_pb2.StringValue: ...
         @property
-        def promql_metrics(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___GrafanaTargetMetricPromQlAssetModel.PromqlMetric]: ...
+        def promql_metrics(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___GrafanaTargetMetricPromQlAssetModel.PromqlMetric]: ...
         def __init__(
             self,
             *,
             panel_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
             panel_title: google.protobuf.wrappers_pb2.StringValue | None = ...,
-            promql_metrics: collections.abc.Iterable[Global___GrafanaTargetMetricPromQlAssetModel.PromqlMetric] | None = ...,
+            promql_metrics: collections.abc.Iterable[global___GrafanaTargetMetricPromQlAssetModel.PromqlMetric] | None = ...,
         ) -> None: ...
         def HasField(self, field_name: typing.Literal["panel_id", b"panel_id", "panel_title", b"panel_title"]) -> builtins.bool: ...
         def ClearField(self, field_name: typing.Literal["panel_id", b"panel_id", "panel_title", b"panel_title", "promql_metrics", b"promql_metrics"]) -> None: ...
@@ -128,19 +122,19 @@ class GrafanaTargetMetricPromQlAssetModel(google.protobuf.message.Message):
     @property
     def dashboard_url(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
-    def panel_promql_map(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___GrafanaTargetMetricPromQlAssetModel.PanelPromqlMap]: ...
+    def panel_promql_map(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___GrafanaTargetMetricPromQlAssetModel.PanelPromqlMap]: ...
     def __init__(
         self,
         *,
         dashboard_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
         dashboard_title: google.protobuf.wrappers_pb2.StringValue | None = ...,
         dashboard_url: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        panel_promql_map: collections.abc.Iterable[Global___GrafanaTargetMetricPromQlAssetModel.PanelPromqlMap] | None = ...,
+        panel_promql_map: collections.abc.Iterable[global___GrafanaTargetMetricPromQlAssetModel.PanelPromqlMap] | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["dashboard_id", b"dashboard_id", "dashboard_title", b"dashboard_title", "dashboard_url", b"dashboard_url"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["dashboard_id", b"dashboard_id", "dashboard_title", b"dashboard_title", "dashboard_url", b"dashboard_url", "panel_promql_map", b"panel_promql_map"]) -> None: ...
 
-Global___GrafanaTargetMetricPromQlAssetModel: typing_extensions.TypeAlias = GrafanaTargetMetricPromQlAssetModel
+global___GrafanaTargetMetricPromQlAssetModel = GrafanaTargetMetricPromQlAssetModel
 
 @typing.final
 class GrafanaDatasourceAssetModel(google.protobuf.message.Message):
@@ -201,7 +195,7 @@ class GrafanaDatasourceAssetModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["datasource_access", b"datasource_access", "datasource_basicAuth", b"datasource_basicAuth", "datasource_database", b"datasource_database", "datasource_id", b"datasource_id", "datasource_isDefault", b"datasource_isDefault", "datasource_name", b"datasource_name", "datasource_orgId", b"datasource_orgId", "datasource_readonly", b"datasource_readonly", "datasource_type", b"datasource_type", "datasource_typeName", b"datasource_typeName", "datasource_uid", b"datasource_uid", "datasource_url", b"datasource_url"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["datasource_access", b"datasource_access", "datasource_basicAuth", b"datasource_basicAuth", "datasource_database", b"datasource_database", "datasource_id", b"datasource_id", "datasource_isDefault", b"datasource_isDefault", "datasource_name", b"datasource_name", "datasource_orgId", b"datasource_orgId", "datasource_readonly", b"datasource_readonly", "datasource_type", b"datasource_type", "datasource_typeName", b"datasource_typeName", "datasource_uid", b"datasource_uid", "datasource_url", b"datasource_url"]) -> None: ...
 
-Global___GrafanaDatasourceAssetModel: typing_extensions.TypeAlias = GrafanaDatasourceAssetModel
+global___GrafanaDatasourceAssetModel = GrafanaDatasourceAssetModel
 
 @typing.final
 class GrafanaDashboardAssetModel(google.protobuf.message.Message):
@@ -222,7 +216,7 @@ class GrafanaDashboardAssetModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["dashboard_id", b"dashboard_id", "dashboard_json", b"dashboard_json"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["dashboard_id", b"dashboard_id", "dashboard_json", b"dashboard_json"]) -> None: ...
 
-Global___GrafanaDashboardAssetModel: typing_extensions.TypeAlias = GrafanaDashboardAssetModel
+global___GrafanaDashboardAssetModel = GrafanaDashboardAssetModel
 
 @typing.final
 class GrafanaTargetMetricPromQlAssetOptions(google.protobuf.message.Message):
@@ -262,29 +256,29 @@ class GrafanaTargetMetricPromQlAssetOptions(google.protobuf.message.Message):
         @property
         def dashboard_url(self) -> google.protobuf.wrappers_pb2.StringValue: ...
         @property
-        def panel_options(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___GrafanaTargetMetricPromQlAssetOptions.GrafanaDashboardOptions.GrafanaPanelOptions]: ...
+        def panel_options(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___GrafanaTargetMetricPromQlAssetOptions.GrafanaDashboardOptions.GrafanaPanelOptions]: ...
         def __init__(
             self,
             *,
             dashboard_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
             dashboard_title: google.protobuf.wrappers_pb2.StringValue | None = ...,
             dashboard_url: google.protobuf.wrappers_pb2.StringValue | None = ...,
-            panel_options: collections.abc.Iterable[Global___GrafanaTargetMetricPromQlAssetOptions.GrafanaDashboardOptions.GrafanaPanelOptions] | None = ...,
+            panel_options: collections.abc.Iterable[global___GrafanaTargetMetricPromQlAssetOptions.GrafanaDashboardOptions.GrafanaPanelOptions] | None = ...,
         ) -> None: ...
         def HasField(self, field_name: typing.Literal["dashboard_id", b"dashboard_id", "dashboard_title", b"dashboard_title", "dashboard_url", b"dashboard_url"]) -> builtins.bool: ...
         def ClearField(self, field_name: typing.Literal["dashboard_id", b"dashboard_id", "dashboard_title", b"dashboard_title", "dashboard_url", b"dashboard_url", "panel_options", b"panel_options"]) -> None: ...
 
     DASHBOARDS_FIELD_NUMBER: builtins.int
     @property
-    def dashboards(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___GrafanaTargetMetricPromQlAssetOptions.GrafanaDashboardOptions]: ...
+    def dashboards(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___GrafanaTargetMetricPromQlAssetOptions.GrafanaDashboardOptions]: ...
     def __init__(
         self,
         *,
-        dashboards: collections.abc.Iterable[Global___GrafanaTargetMetricPromQlAssetOptions.GrafanaDashboardOptions] | None = ...,
+        dashboards: collections.abc.Iterable[global___GrafanaTargetMetricPromQlAssetOptions.GrafanaDashboardOptions] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["dashboards", b"dashboards"]) -> None: ...
 
-Global___GrafanaTargetMetricPromQlAssetOptions: typing_extensions.TypeAlias = GrafanaTargetMetricPromQlAssetOptions
+global___GrafanaTargetMetricPromQlAssetOptions = GrafanaTargetMetricPromQlAssetOptions
 
 @typing.final
 class GrafanaDatasourceAssetOptions(google.protobuf.message.Message):
@@ -316,18 +310,18 @@ class GrafanaDatasourceAssetOptions(google.protobuf.message.Message):
     PROMETHEUS_DATASOURCES_FIELD_NUMBER: builtins.int
     LOKI_DATASOURCES_FIELD_NUMBER: builtins.int
     @property
-    def prometheus_datasources(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___GrafanaDatasourceAssetOptions.GrafanaDatasourceOptions]: ...
+    def prometheus_datasources(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___GrafanaDatasourceAssetOptions.GrafanaDatasourceOptions]: ...
     @property
-    def loki_datasources(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___GrafanaDatasourceAssetOptions.GrafanaDatasourceOptions]: ...
+    def loki_datasources(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___GrafanaDatasourceAssetOptions.GrafanaDatasourceOptions]: ...
     def __init__(
         self,
         *,
-        prometheus_datasources: collections.abc.Iterable[Global___GrafanaDatasourceAssetOptions.GrafanaDatasourceOptions] | None = ...,
-        loki_datasources: collections.abc.Iterable[Global___GrafanaDatasourceAssetOptions.GrafanaDatasourceOptions] | None = ...,
+        prometheus_datasources: collections.abc.Iterable[global___GrafanaDatasourceAssetOptions.GrafanaDatasourceOptions] | None = ...,
+        loki_datasources: collections.abc.Iterable[global___GrafanaDatasourceAssetOptions.GrafanaDatasourceOptions] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["loki_datasources", b"loki_datasources", "prometheus_datasources", b"prometheus_datasources"]) -> None: ...
 
-Global___GrafanaDatasourceAssetOptions: typing_extensions.TypeAlias = GrafanaDatasourceAssetOptions
+global___GrafanaDatasourceAssetOptions = GrafanaDatasourceAssetOptions
 
 @typing.final
 class GrafanaDashboardAssetOptions(google.protobuf.message.Message):
@@ -354,15 +348,15 @@ class GrafanaDashboardAssetOptions(google.protobuf.message.Message):
 
     DASHBOARDS_FIELD_NUMBER: builtins.int
     @property
-    def dashboards(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___GrafanaDashboardAssetOptions.GrafanaDashboardOptions]: ...
+    def dashboards(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___GrafanaDashboardAssetOptions.GrafanaDashboardOptions]: ...
     def __init__(
         self,
         *,
-        dashboards: collections.abc.Iterable[Global___GrafanaDashboardAssetOptions.GrafanaDashboardOptions] | None = ...,
+        dashboards: collections.abc.Iterable[global___GrafanaDashboardAssetOptions.GrafanaDashboardOptions] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["dashboards", b"dashboards"]) -> None: ...
 
-Global___GrafanaDashboardAssetOptions: typing_extensions.TypeAlias = GrafanaDashboardAssetOptions
+global___GrafanaDashboardAssetOptions = GrafanaDashboardAssetOptions
 
 @typing.final
 class GrafanaAlertRuleAssetModel(google.protobuf.message.Message):
@@ -383,7 +377,7 @@ class GrafanaAlertRuleAssetModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["alert_rule_id", b"alert_rule_id", "alert_rule_json", b"alert_rule_json"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["alert_rule_id", b"alert_rule_id", "alert_rule_json", b"alert_rule_json"]) -> None: ...
 
-Global___GrafanaAlertRuleAssetModel: typing_extensions.TypeAlias = GrafanaAlertRuleAssetModel
+global___GrafanaAlertRuleAssetModel = GrafanaAlertRuleAssetModel
 
 @typing.final
 class GrafanaAlertRuleAssetOptions(google.protobuf.message.Message):
@@ -410,15 +404,15 @@ class GrafanaAlertRuleAssetOptions(google.protobuf.message.Message):
 
     ALERT_RULES_FIELD_NUMBER: builtins.int
     @property
-    def alert_rules(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___GrafanaAlertRuleAssetOptions.GrafanaAlertRuleOptions]: ...
+    def alert_rules(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___GrafanaAlertRuleAssetOptions.GrafanaAlertRuleOptions]: ...
     def __init__(
         self,
         *,
-        alert_rules: collections.abc.Iterable[Global___GrafanaAlertRuleAssetOptions.GrafanaAlertRuleOptions] | None = ...,
+        alert_rules: collections.abc.Iterable[global___GrafanaAlertRuleAssetOptions.GrafanaAlertRuleOptions] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["alert_rules", b"alert_rules"]) -> None: ...
 
-Global___GrafanaAlertRuleAssetOptions: typing_extensions.TypeAlias = GrafanaAlertRuleAssetOptions
+global___GrafanaAlertRuleAssetOptions = GrafanaAlertRuleAssetOptions
 
 @typing.final
 class GrafanaAssetModel(google.protobuf.message.Message):
@@ -439,15 +433,15 @@ class GrafanaAssetModel(google.protobuf.message.Message):
     @property
     def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     @property
-    def grafana_target_metric_promql(self) -> Global___GrafanaTargetMetricPromQlAssetModel: ...
+    def grafana_target_metric_promql(self) -> global___GrafanaTargetMetricPromQlAssetModel: ...
     @property
-    def grafana_prometheus_datasource(self) -> Global___GrafanaDatasourceAssetModel: ...
+    def grafana_prometheus_datasource(self) -> global___GrafanaDatasourceAssetModel: ...
     @property
-    def grafana_loki_datasource(self) -> Global___GrafanaDatasourceAssetModel: ...
+    def grafana_loki_datasource(self) -> global___GrafanaDatasourceAssetModel: ...
     @property
-    def grafana_alert_rule(self) -> Global___GrafanaAlertRuleAssetModel: ...
+    def grafana_alert_rule(self) -> global___GrafanaAlertRuleAssetModel: ...
     @property
-    def grafana_dashboard(self) -> Global___GrafanaDashboardAssetModel: ...
+    def grafana_dashboard(self) -> global___GrafanaDashboardAssetModel: ...
     def __init__(
         self,
         *,
@@ -455,17 +449,17 @@ class GrafanaAssetModel(google.protobuf.message.Message):
         connector_type: core.protos.base_pb2.Source.ValueType = ...,
         type: core.protos.base_pb2.SourceModelType.ValueType = ...,
         last_updated: builtins.int = ...,
-        grafana_target_metric_promql: Global___GrafanaTargetMetricPromQlAssetModel | None = ...,
-        grafana_prometheus_datasource: Global___GrafanaDatasourceAssetModel | None = ...,
-        grafana_loki_datasource: Global___GrafanaDatasourceAssetModel | None = ...,
-        grafana_alert_rule: Global___GrafanaAlertRuleAssetModel | None = ...,
-        grafana_dashboard: Global___GrafanaDashboardAssetModel | None = ...,
+        grafana_target_metric_promql: global___GrafanaTargetMetricPromQlAssetModel | None = ...,
+        grafana_prometheus_datasource: global___GrafanaDatasourceAssetModel | None = ...,
+        grafana_loki_datasource: global___GrafanaDatasourceAssetModel | None = ...,
+        grafana_alert_rule: global___GrafanaAlertRuleAssetModel | None = ...,
+        grafana_dashboard: global___GrafanaDashboardAssetModel | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["asset", b"asset", "grafana_alert_rule", b"grafana_alert_rule", "grafana_dashboard", b"grafana_dashboard", "grafana_loki_datasource", b"grafana_loki_datasource", "grafana_prometheus_datasource", b"grafana_prometheus_datasource", "grafana_target_metric_promql", b"grafana_target_metric_promql", "id", b"id"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["asset", b"asset", "connector_type", b"connector_type", "grafana_alert_rule", b"grafana_alert_rule", "grafana_dashboard", b"grafana_dashboard", "grafana_loki_datasource", b"grafana_loki_datasource", "grafana_prometheus_datasource", b"grafana_prometheus_datasource", "grafana_target_metric_promql", b"grafana_target_metric_promql", "id", b"id", "last_updated", b"last_updated", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["asset", b"asset"]) -> typing.Literal["grafana_target_metric_promql", "grafana_prometheus_datasource", "grafana_loki_datasource", "grafana_alert_rule", "grafana_dashboard"] | None: ...
 
-Global___GrafanaAssetModel: typing_extensions.TypeAlias = GrafanaAssetModel
+global___GrafanaAssetModel = GrafanaAssetModel
 
 @typing.final
 class GrafanaAssets(google.protobuf.message.Message):
@@ -473,12 +467,12 @@ class GrafanaAssets(google.protobuf.message.Message):
 
     ASSETS_FIELD_NUMBER: builtins.int
     @property
-    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___GrafanaAssetModel]: ...
+    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___GrafanaAssetModel]: ...
     def __init__(
         self,
         *,
-        assets: collections.abc.Iterable[Global___GrafanaAssetModel] | None = ...,
+        assets: collections.abc.Iterable[global___GrafanaAssetModel] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["assets", b"assets"]) -> None: ...
 
-Global___GrafanaAssets: typing_extensions.TypeAlias = GrafanaAssets
+global___GrafanaAssets = GrafanaAssets

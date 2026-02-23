@@ -57,17 +57,17 @@ class MSTeams(google.protobuf.message.Message):
 
     TYPE_FIELD_NUMBER: builtins.int
     SEND_MESSAGE_WEBHOOK_FIELD_NUMBER: builtins.int
-    type: Global___MSTeams.TaskType.ValueType
+    type: global___MSTeams.TaskType.ValueType
     @property
-    def send_message_webhook(self) -> Global___MSTeams.SendMessageWebhook: ...
+    def send_message_webhook(self) -> global___MSTeams.SendMessageWebhook: ...
     def __init__(
         self,
         *,
-        type: Global___MSTeams.TaskType.ValueType = ...,
-        send_message_webhook: Global___MSTeams.SendMessageWebhook | None = ...,
+        type: global___MSTeams.TaskType.ValueType = ...,
+        send_message_webhook: global___MSTeams.SendMessageWebhook | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["send_message_webhook", b"send_message_webhook", "task", b"task"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["send_message_webhook", b"send_message_webhook", "task", b"task", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["task", b"task"]) -> typing.Literal["send_message_webhook"] | None: ...
 
-Global___MSTeams: typing_extensions.TypeAlias = MSTeams
+global___MSTeams = MSTeams

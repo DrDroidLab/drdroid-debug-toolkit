@@ -60,17 +60,17 @@ class ConfluenceCloud(google.protobuf.message.Message):
 
     TYPE_FIELD_NUMBER: builtins.int
     FETCH_DOCUMENT_CONTENT_FIELD_NUMBER: builtins.int
-    type: Global___ConfluenceCloud.TaskType.ValueType
+    type: global___ConfluenceCloud.TaskType.ValueType
     @property
-    def fetch_document_content(self) -> Global___ConfluenceCloud.FetchDocumentContent: ...
+    def fetch_document_content(self) -> global___ConfluenceCloud.FetchDocumentContent: ...
     def __init__(
         self,
         *,
-        type: Global___ConfluenceCloud.TaskType.ValueType = ...,
-        fetch_document_content: Global___ConfluenceCloud.FetchDocumentContent | None = ...,
+        type: global___ConfluenceCloud.TaskType.ValueType = ...,
+        fetch_document_content: global___ConfluenceCloud.FetchDocumentContent | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["fetch_document_content", b"fetch_document_content", "task", b"task"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["fetch_document_content", b"fetch_document_content", "task", b"task", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["task", b"task"]) -> typing.Literal["fetch_document_content"] | None: ...
 
-Global___ConfluenceCloud: typing_extensions.TypeAlias = ConfluenceCloud
+global___ConfluenceCloud = ConfluenceCloud

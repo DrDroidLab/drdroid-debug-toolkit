@@ -60,17 +60,17 @@ class GithubActions(google.protobuf.message.Message):
 
     TYPE_FIELD_NUMBER: builtins.int
     FETCH_ACTION_RUN_INFO_FIELD_NUMBER: builtins.int
-    type: Global___GithubActions.TaskType.ValueType
+    type: global___GithubActions.TaskType.ValueType
     @property
-    def fetch_action_run_info(self) -> Global___GithubActions.FetchActionRunInfo: ...
+    def fetch_action_run_info(self) -> global___GithubActions.FetchActionRunInfo: ...
     def __init__(
         self,
         *,
-        type: Global___GithubActions.TaskType.ValueType = ...,
-        fetch_action_run_info: Global___GithubActions.FetchActionRunInfo | None = ...,
+        type: global___GithubActions.TaskType.ValueType = ...,
+        fetch_action_run_info: global___GithubActions.FetchActionRunInfo | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["fetch_action_run_info", b"fetch_action_run_info", "task", b"task"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["fetch_action_run_info", b"fetch_action_run_info", "task", b"task", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["task", b"task"]) -> typing.Literal["fetch_action_run_info"] | None: ...
 
-Global___GithubActions: typing_extensions.TypeAlias = GithubActions
+global___GithubActions = GithubActions

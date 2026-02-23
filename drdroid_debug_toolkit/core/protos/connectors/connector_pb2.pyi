@@ -38,7 +38,7 @@ class ReportType(_ReportType, metaclass=_ReportTypeEnumTypeWrapper): ...
 UNKNOWN_RT: ReportType.ValueType  # 0
 INITIAL: ReportType.ValueType  # 1
 FINAL: ReportType.ValueType  # 2
-Global___ReportType: typing_extensions.TypeAlias = ReportType
+global___ReportType = ReportType
 
 @typing.final
 class ConnectorContextMemory(google.protobuf.message.Message):
@@ -66,7 +66,7 @@ class ConnectorContextMemory(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["comment", b"comment", "created_by", b"created_by", "id", b"id"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["comment", b"comment", "created_at", b"created_at", "created_by", b"created_by", "id", b"id"]) -> None: ...
 
-Global___ConnectorContextMemory: typing_extensions.TypeAlias = ConnectorContextMemory
+global___ConnectorContextMemory = ConnectorContextMemory
 
 @typing.final
 class ConnectorFormConfig(google.protobuf.message.Message):
@@ -95,7 +95,7 @@ class ConnectorFormConfig(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["description", b"description", "name", b"name", "prerequisites", b"prerequisites"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["description", b"description", "form_fields", b"form_fields", "name", b"name", "prerequisites", b"prerequisites"]) -> None: ...
 
-Global___ConnectorFormConfig: typing_extensions.TypeAlias = ConnectorFormConfig
+global___ConnectorFormConfig = ConnectorFormConfig
 
 @typing.final
 class PlaybookConnector(google.protobuf.message.Message):
@@ -116,7 +116,7 @@ class PlaybookConnector(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["playbook_id", b"playbook_id", "playbook_name", b"playbook_name"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["playbook_id", b"playbook_id", "playbook_name", b"playbook_name"]) -> None: ...
 
-Global___PlaybookConnector: typing_extensions.TypeAlias = PlaybookConnector
+global___PlaybookConnector = PlaybookConnector
 
 @typing.final
 class PeriodicRunStatus(google.protobuf.message.Message):
@@ -143,7 +143,7 @@ class PeriodicRunStatus(google.protobuf.message.Message):
         self,
     ) -> None: ...
 
-Global___PeriodicRunStatus: typing_extensions.TypeAlias = PeriodicRunStatus
+global___PeriodicRunStatus = PeriodicRunStatus
 
 @typing.final
 class ProxyAgentConnectorMetadata(google.protobuf.message.Message):
@@ -172,7 +172,7 @@ class ProxyAgentConnectorMetadata(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["is_alive", b"is_alive", "is_backup", b"is_backup", "primary_proxy_agent_connector_id", b"primary_proxy_agent_connector_id", "proxy_agent_connector_id", b"proxy_agent_connector_id"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["is_alive", b"is_alive", "is_backup", b"is_backup", "primary_proxy_agent_connector_id", b"primary_proxy_agent_connector_id", "proxy_agent_connector_id", b"proxy_agent_connector_id"]) -> None: ...
 
-Global___ProxyAgentConnectorMetadata: typing_extensions.TypeAlias = ProxyAgentConnectorMetadata
+global___ProxyAgentConnectorMetadata = ProxyAgentConnectorMetadata
 
 @typing.final
 class SlackConnectorMetadata(google.protobuf.message.Message):
@@ -209,7 +209,7 @@ class SlackConnectorMetadata(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["authed_user_id", b"authed_user_id", "bot_auth_token", b"bot_auth_token", "bot_user_id", b"bot_user_id", "is_debugger_mode_only", b"is_debugger_mode_only", "workspace_id", b"workspace_id", "workspace_name", b"workspace_name"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["authed_user_id", b"authed_user_id", "bot_auth_token", b"bot_auth_token", "bot_user_id", b"bot_user_id", "is_debugger_mode_only", b"is_debugger_mode_only", "workspace_id", b"workspace_id", "workspace_name", b"workspace_name"]) -> None: ...
 
-Global___SlackConnectorMetadata: typing_extensions.TypeAlias = SlackConnectorMetadata
+global___SlackConnectorMetadata = SlackConnectorMetadata
 
 @typing.final
 class AsanaConnectorMetadata(google.protobuf.message.Message):
@@ -226,7 +226,7 @@ class AsanaConnectorMetadata(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["access_token", b"access_token"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["access_token", b"access_token"]) -> None: ...
 
-Global___AsanaConnectorMetadata: typing_extensions.TypeAlias = AsanaConnectorMetadata
+global___AsanaConnectorMetadata = AsanaConnectorMetadata
 
 @typing.final
 class ProxyAgentMetadata(google.protobuf.message.Message):
@@ -254,7 +254,7 @@ class ProxyAgentMetadata(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["is_alive", b"is_alive", "is_backup", b"is_backup", "primary_proxy_agent_id", b"primary_proxy_agent_id"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["is_alive", b"is_alive", "is_backup", b"is_backup", "last_ping_at", b"last_ping_at", "primary_proxy_agent_id", b"primary_proxy_agent_id"]) -> None: ...
 
-Global___ProxyAgentMetadata: typing_extensions.TypeAlias = ProxyAgentMetadata
+global___ProxyAgentMetadata = ProxyAgentMetadata
 
 @typing.final
 class Connector(google.protobuf.message.Message):
@@ -302,11 +302,11 @@ class Connector(google.protobuf.message.Message):
     @property
     def category(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
-    def keys(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___ConnectorKey]: ...
+    def keys(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___ConnectorKey]: ...
     @property
     def is_proxy_enabled(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
     @property
-    def context_memory(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___ConnectorContextMemory]: ...
+    def context_memory(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___ConnectorContextMemory]: ...
     @property
     def is_agent_task_enabled(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
     @property
@@ -314,21 +314,21 @@ class Connector(google.protobuf.message.Message):
     @property
     def user_enabled(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
     @property
-    def form_configs(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___ConnectorFormConfig]: ...
+    def form_configs(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___ConnectorFormConfig]: ...
     @property
-    def connected_playbooks(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___PlaybookConnector]: ...
+    def connected_playbooks(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___PlaybookConnector]: ...
     @property
     def notes(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
     def additional_state(self) -> google.protobuf.struct_pb2.Struct: ...
     @property
-    def proxy_agent_connector_metadata(self) -> Global___ProxyAgentConnectorMetadata: ...
+    def proxy_agent_connector_metadata(self) -> global___ProxyAgentConnectorMetadata: ...
     @property
-    def slack_connector_metadata(self) -> Global___SlackConnectorMetadata: ...
+    def slack_connector_metadata(self) -> global___SlackConnectorMetadata: ...
     @property
-    def asana_connector_metadata(self) -> Global___AsanaConnectorMetadata: ...
+    def asana_connector_metadata(self) -> global___AsanaConnectorMetadata: ...
     @property
-    def proxy_agent_metadata(self) -> Global___ProxyAgentMetadata: ...
+    def proxy_agent_metadata(self) -> global___ProxyAgentMetadata: ...
     def __init__(
         self,
         *,
@@ -342,26 +342,26 @@ class Connector(google.protobuf.message.Message):
         updated_at: builtins.int = ...,
         display_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
         category: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        keys: collections.abc.Iterable[Global___ConnectorKey] | None = ...,
+        keys: collections.abc.Iterable[global___ConnectorKey] | None = ...,
         is_proxy_enabled: google.protobuf.wrappers_pb2.BoolValue | None = ...,
-        context_memory: collections.abc.Iterable[Global___ConnectorContextMemory] | None = ...,
+        context_memory: collections.abc.Iterable[global___ConnectorContextMemory] | None = ...,
         is_agent_task_enabled: google.protobuf.wrappers_pb2.BoolValue | None = ...,
         tags: collections.abc.Iterable[builtins.str] | None = ...,
         user_enabled: google.protobuf.wrappers_pb2.BoolValue | None = ...,
-        form_configs: collections.abc.Iterable[Global___ConnectorFormConfig] | None = ...,
-        connected_playbooks: collections.abc.Iterable[Global___PlaybookConnector] | None = ...,
+        form_configs: collections.abc.Iterable[global___ConnectorFormConfig] | None = ...,
+        connected_playbooks: collections.abc.Iterable[global___PlaybookConnector] | None = ...,
         notes: google.protobuf.wrappers_pb2.StringValue | None = ...,
         additional_state: google.protobuf.struct_pb2.Struct | None = ...,
-        proxy_agent_connector_metadata: Global___ProxyAgentConnectorMetadata | None = ...,
-        slack_connector_metadata: Global___SlackConnectorMetadata | None = ...,
-        asana_connector_metadata: Global___AsanaConnectorMetadata | None = ...,
-        proxy_agent_metadata: Global___ProxyAgentMetadata | None = ...,
+        proxy_agent_connector_metadata: global___ProxyAgentConnectorMetadata | None = ...,
+        slack_connector_metadata: global___SlackConnectorMetadata | None = ...,
+        asana_connector_metadata: global___AsanaConnectorMetadata | None = ...,
+        proxy_agent_metadata: global___ProxyAgentMetadata | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["account_id", b"account_id", "additional_state", b"additional_state", "asana_connector_metadata", b"asana_connector_metadata", "category", b"category", "created_by", b"created_by", "display_name", b"display_name", "id", b"id", "is_active", b"is_active", "is_agent_task_enabled", b"is_agent_task_enabled", "is_proxy_enabled", b"is_proxy_enabled", "metadata", b"metadata", "name", b"name", "notes", b"notes", "proxy_agent_connector_metadata", b"proxy_agent_connector_metadata", "proxy_agent_metadata", b"proxy_agent_metadata", "slack_connector_metadata", b"slack_connector_metadata", "user_enabled", b"user_enabled"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["account_id", b"account_id", "additional_state", b"additional_state", "asana_connector_metadata", b"asana_connector_metadata", "category", b"category", "connected_playbooks", b"connected_playbooks", "context_memory", b"context_memory", "created_at", b"created_at", "created_by", b"created_by", "display_name", b"display_name", "form_configs", b"form_configs", "id", b"id", "is_active", b"is_active", "is_agent_task_enabled", b"is_agent_task_enabled", "is_proxy_enabled", b"is_proxy_enabled", "keys", b"keys", "metadata", b"metadata", "name", b"name", "notes", b"notes", "proxy_agent_connector_metadata", b"proxy_agent_connector_metadata", "proxy_agent_metadata", b"proxy_agent_metadata", "slack_connector_metadata", b"slack_connector_metadata", "tags", b"tags", "type", b"type", "updated_at", b"updated_at", "user_enabled", b"user_enabled"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["metadata", b"metadata"]) -> typing.Literal["proxy_agent_connector_metadata", "slack_connector_metadata", "asana_connector_metadata", "proxy_agent_metadata"] | None: ...
 
-Global___Connector: typing_extensions.TypeAlias = Connector
+global___Connector = Connector
 
 @typing.final
 class UpdateConnectorOp(google.protobuf.message.Message):
@@ -426,11 +426,11 @@ class UpdateConnectorOp(google.protobuf.message.Message):
 
         CONNECTOR_KEYS_FIELD_NUMBER: builtins.int
         @property
-        def connector_keys(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___ConnectorKey]: ...
+        def connector_keys(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___ConnectorKey]: ...
         def __init__(
             self,
             *,
-            connector_keys: collections.abc.Iterable[Global___ConnectorKey] | None = ...,
+            connector_keys: collections.abc.Iterable[global___ConnectorKey] | None = ...,
         ) -> None: ...
         def ClearField(self, field_name: typing.Literal["connector_keys", b"connector_keys"]) -> None: ...
 
@@ -497,35 +497,35 @@ class UpdateConnectorOp(google.protobuf.message.Message):
     UPDATE_CONNECTOR_TAGS_FIELD_NUMBER: builtins.int
     UPDATE_BASIC_DETAILS_FIELD_NUMBER: builtins.int
     UPDATE_DEFAULT_DESTINATION_FIELD_NUMBER: builtins.int
-    op: Global___UpdateConnectorOp.Op.ValueType
+    op: global___UpdateConnectorOp.Op.ValueType
     @property
-    def update_connector_name(self) -> Global___UpdateConnectorOp.UpdateConnectorName: ...
+    def update_connector_name(self) -> global___UpdateConnectorOp.UpdateConnectorName: ...
     @property
-    def update_connector_status(self) -> Global___UpdateConnectorOp.UpdateConnectorStatus: ...
+    def update_connector_status(self) -> global___UpdateConnectorOp.UpdateConnectorStatus: ...
     @property
-    def update_connector_keys(self) -> Global___UpdateConnectorOp.UpdateConnectorKeys: ...
+    def update_connector_keys(self) -> global___UpdateConnectorOp.UpdateConnectorKeys: ...
     @property
-    def update_connector_tags(self) -> Global___UpdateConnectorOp.UpdateConnectorTags: ...
+    def update_connector_tags(self) -> global___UpdateConnectorOp.UpdateConnectorTags: ...
     @property
-    def update_basic_details(self) -> Global___UpdateConnectorOp.UpdateBasicDetails: ...
+    def update_basic_details(self) -> global___UpdateConnectorOp.UpdateBasicDetails: ...
     @property
-    def update_default_destination(self) -> Global___UpdateConnectorOp.UpdateDefaultDestination: ...
+    def update_default_destination(self) -> global___UpdateConnectorOp.UpdateDefaultDestination: ...
     def __init__(
         self,
         *,
-        op: Global___UpdateConnectorOp.Op.ValueType = ...,
-        update_connector_name: Global___UpdateConnectorOp.UpdateConnectorName | None = ...,
-        update_connector_status: Global___UpdateConnectorOp.UpdateConnectorStatus | None = ...,
-        update_connector_keys: Global___UpdateConnectorOp.UpdateConnectorKeys | None = ...,
-        update_connector_tags: Global___UpdateConnectorOp.UpdateConnectorTags | None = ...,
-        update_basic_details: Global___UpdateConnectorOp.UpdateBasicDetails | None = ...,
-        update_default_destination: Global___UpdateConnectorOp.UpdateDefaultDestination | None = ...,
+        op: global___UpdateConnectorOp.Op.ValueType = ...,
+        update_connector_name: global___UpdateConnectorOp.UpdateConnectorName | None = ...,
+        update_connector_status: global___UpdateConnectorOp.UpdateConnectorStatus | None = ...,
+        update_connector_keys: global___UpdateConnectorOp.UpdateConnectorKeys | None = ...,
+        update_connector_tags: global___UpdateConnectorOp.UpdateConnectorTags | None = ...,
+        update_basic_details: global___UpdateConnectorOp.UpdateBasicDetails | None = ...,
+        update_default_destination: global___UpdateConnectorOp.UpdateDefaultDestination | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["update", b"update", "update_basic_details", b"update_basic_details", "update_connector_keys", b"update_connector_keys", "update_connector_name", b"update_connector_name", "update_connector_status", b"update_connector_status", "update_connector_tags", b"update_connector_tags", "update_default_destination", b"update_default_destination"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["op", b"op", "update", b"update", "update_basic_details", b"update_basic_details", "update_connector_keys", b"update_connector_keys", "update_connector_name", b"update_connector_name", "update_connector_status", b"update_connector_status", "update_connector_tags", b"update_connector_tags", "update_default_destination", b"update_default_destination"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["update", b"update"]) -> typing.Literal["update_connector_name", "update_connector_status", "update_connector_keys", "update_connector_tags", "update_basic_details", "update_default_destination"] | None: ...
 
-Global___UpdateConnectorOp: typing_extensions.TypeAlias = UpdateConnectorOp
+global___UpdateConnectorOp = UpdateConnectorOp
 
 @typing.final
 class ConnectorKey(google.protobuf.message.Message):
@@ -571,4 +571,4 @@ class ConnectorKey(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["connector_id", b"connector_id", "connector_name", b"connector_name", "display_name", b"display_name", "id", b"id", "is_active", b"is_active", "key", b"key"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["connector_id", b"connector_id", "connector_name", b"connector_name", "created_at", b"created_at", "display_name", b"display_name", "id", b"id", "is_active", b"is_active", "key", b"key", "key_type", b"key_type", "updated_at", b"updated_at"]) -> None: ...
 
-Global___ConnectorKey: typing_extensions.TypeAlias = ConnectorKey
+global___ConnectorKey = ConnectorKey

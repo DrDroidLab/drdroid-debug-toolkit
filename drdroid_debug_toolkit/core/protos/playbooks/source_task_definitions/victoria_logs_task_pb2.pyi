@@ -92,20 +92,20 @@ class VictoriaLogs(google.protobuf.message.Message):
     TYPE_FIELD_NUMBER: builtins.int
     QUERY_LOGS_FIELD_NUMBER: builtins.int
     FETCH_FIELD_VALUES_FIELD_NUMBER: builtins.int
-    type: Global___VictoriaLogs.TaskType.ValueType
+    type: global___VictoriaLogs.TaskType.ValueType
     @property
-    def query_logs(self) -> Global___VictoriaLogs.QueryLogs: ...
+    def query_logs(self) -> global___VictoriaLogs.QueryLogs: ...
     @property
-    def fetch_field_values(self) -> Global___VictoriaLogs.FetchFieldValues: ...
+    def fetch_field_values(self) -> global___VictoriaLogs.FetchFieldValues: ...
     def __init__(
         self,
         *,
-        type: Global___VictoriaLogs.TaskType.ValueType = ...,
-        query_logs: Global___VictoriaLogs.QueryLogs | None = ...,
-        fetch_field_values: Global___VictoriaLogs.FetchFieldValues | None = ...,
+        type: global___VictoriaLogs.TaskType.ValueType = ...,
+        query_logs: global___VictoriaLogs.QueryLogs | None = ...,
+        fetch_field_values: global___VictoriaLogs.FetchFieldValues | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["fetch_field_values", b"fetch_field_values", "query_logs", b"query_logs", "task", b"task"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["fetch_field_values", b"fetch_field_values", "query_logs", b"query_logs", "task", b"task", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["task", b"task"]) -> typing.Literal["query_logs", "fetch_field_values"] | None: ...
 
-Global___VictoriaLogs: typing_extensions.TypeAlias = VictoriaLogs
+global___VictoriaLogs = VictoriaLogs

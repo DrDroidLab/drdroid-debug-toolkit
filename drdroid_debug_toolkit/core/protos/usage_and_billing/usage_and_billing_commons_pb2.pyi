@@ -35,7 +35,7 @@ class CreditType(_CreditType, metaclass=_CreditTypeEnumTypeWrapper): ...
 UNKNOWN_STATUS: CreditType.ValueType  # 0
 AI_INVESTIGATION: CreditType.ValueType  # 1
 BROWSER_AUTOMATION: CreditType.ValueType  # 2
-Global___CreditType: typing_extensions.TypeAlias = CreditType
+global___CreditType = CreditType
 
 @typing.final
 class BillingUsageMetrics(google.protobuf.message.Message):
@@ -60,7 +60,7 @@ class BillingUsageMetrics(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["ai_investigation_credits", b"ai_investigation_credits", "browser_automation_credits", b"browser_automation_credits", "total_credits_used", b"total_credits_used"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["ai_investigation_credits", b"ai_investigation_credits", "browser_automation_credits", b"browser_automation_credits", "total_credits_used", b"total_credits_used"]) -> None: ...
 
-Global___BillingUsageMetrics: typing_extensions.TypeAlias = BillingUsageMetrics
+global___BillingUsageMetrics = BillingUsageMetrics
 
 @typing.final
 class BillingUsageDistributionEntry(google.protobuf.message.Message):
@@ -81,7 +81,7 @@ class BillingUsageDistributionEntry(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["credits_used", b"credits_used", "timestamp", b"timestamp"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["credits_used", b"credits_used", "timestamp", b"timestamp"]) -> None: ...
 
-Global___BillingUsageDistributionEntry: typing_extensions.TypeAlias = BillingUsageDistributionEntry
+global___BillingUsageDistributionEntry = BillingUsageDistributionEntry
 
 @typing.final
 class BillingUsageDistributionGroup(google.protobuf.message.Message):
@@ -89,15 +89,15 @@ class BillingUsageDistributionGroup(google.protobuf.message.Message):
 
     CREDIT_TYPE_FIELD_NUMBER: builtins.int
     DISTRIBUTION_ENTRIES_FIELD_NUMBER: builtins.int
-    credit_type: Global___CreditType.ValueType
+    credit_type: global___CreditType.ValueType
     @property
-    def distribution_entries(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___BillingUsageDistributionEntry]: ...
+    def distribution_entries(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___BillingUsageDistributionEntry]: ...
     def __init__(
         self,
         *,
-        credit_type: Global___CreditType.ValueType = ...,
-        distribution_entries: collections.abc.Iterable[Global___BillingUsageDistributionEntry] | None = ...,
+        credit_type: global___CreditType.ValueType = ...,
+        distribution_entries: collections.abc.Iterable[global___BillingUsageDistributionEntry] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["credit_type", b"credit_type", "distribution_entries", b"distribution_entries"]) -> None: ...
 
-Global___BillingUsageDistributionGroup: typing_extensions.TypeAlias = BillingUsageDistributionGroup
+global___BillingUsageDistributionGroup = BillingUsageDistributionGroup

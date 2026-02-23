@@ -94,20 +94,20 @@ class Azure(google.protobuf.message.Message):
     TYPE_FIELD_NUMBER: builtins.int
     FILTER_LOG_EVENTS_FIELD_NUMBER: builtins.int
     FETCH_METRICS_FIELD_NUMBER: builtins.int
-    type: Global___Azure.TaskType.ValueType
+    type: global___Azure.TaskType.ValueType
     @property
-    def filter_log_events(self) -> Global___Azure.FilterLogEvents: ...
+    def filter_log_events(self) -> global___Azure.FilterLogEvents: ...
     @property
-    def fetch_metrics(self) -> Global___Azure.FetchMetrics: ...
+    def fetch_metrics(self) -> global___Azure.FetchMetrics: ...
     def __init__(
         self,
         *,
-        type: Global___Azure.TaskType.ValueType = ...,
-        filter_log_events: Global___Azure.FilterLogEvents | None = ...,
-        fetch_metrics: Global___Azure.FetchMetrics | None = ...,
+        type: global___Azure.TaskType.ValueType = ...,
+        filter_log_events: global___Azure.FilterLogEvents | None = ...,
+        fetch_metrics: global___Azure.FetchMetrics | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["fetch_metrics", b"fetch_metrics", "filter_log_events", b"filter_log_events", "task", b"task"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["fetch_metrics", b"fetch_metrics", "filter_log_events", b"filter_log_events", "task", b"task", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["task", b"task"]) -> typing.Literal["filter_log_events", "fetch_metrics"] | None: ...
 
-Global___Azure: typing_extensions.TypeAlias = Azure
+global___Azure = Azure

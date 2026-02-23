@@ -50,7 +50,7 @@ WORKFLOW_RUNNING: WorkflowExecutionStatusType.ValueType  # 2
 WORKFLOW_FINISHED: WorkflowExecutionStatusType.ValueType  # 3
 WORKFLOW_FAILED: WorkflowExecutionStatusType.ValueType  # 4
 WORKFLOW_CANCELLED: WorkflowExecutionStatusType.ValueType  # 5
-Global___WorkflowExecutionStatusType: typing_extensions.TypeAlias = WorkflowExecutionStatusType
+global___WorkflowExecutionStatusType = WorkflowExecutionStatusType
 
 @typing.final
 class WorkflowConnectorSourceProto(google.protobuf.message.Message):
@@ -74,7 +74,7 @@ class WorkflowConnectorSourceProto(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["id", b"id", "name", b"name"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["id", b"id", "name", b"name", "source", b"source"]) -> None: ...
 
-Global___WorkflowConnectorSourceProto: typing_extensions.TypeAlias = WorkflowConnectorSourceProto
+global___WorkflowConnectorSourceProto = WorkflowConnectorSourceProto
 
 @typing.final
 class WorkflowConfiguration(google.protobuf.message.Message):
@@ -105,7 +105,7 @@ class WorkflowConfiguration(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["evaluation_window_in_seconds", b"evaluation_window_in_seconds", "generate_summary", b"generate_summary", "global_variable_set", b"global_variable_set", "transformer_lambda_function", b"transformer_lambda_function"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["evaluation_window_in_seconds", b"evaluation_window_in_seconds", "generate_summary", b"generate_summary", "global_variable_set", b"global_variable_set", "transformer_lambda_function", b"transformer_lambda_function"]) -> None: ...
 
-Global___WorkflowConfiguration: typing_extensions.TypeAlias = WorkflowConfiguration
+global___WorkflowConfiguration = WorkflowConfiguration
 
 @typing.final
 class WorkflowSchedule(google.protobuf.message.Message):
@@ -134,7 +134,7 @@ class WorkflowSchedule(google.protobuf.message.Message):
     ONE_OFF_FIELD_NUMBER: builtins.int
     INTERVAL_FIELD_NUMBER: builtins.int
     CRON_FIELD_NUMBER: builtins.int
-    type: Global___WorkflowSchedule.Type.ValueType
+    type: global___WorkflowSchedule.Type.ValueType
     @property
     def one_off(self) -> core.protos.workflows.schedules.one_off_schedule_pb2.OneOffSchedule: ...
     @property
@@ -144,7 +144,7 @@ class WorkflowSchedule(google.protobuf.message.Message):
     def __init__(
         self,
         *,
-        type: Global___WorkflowSchedule.Type.ValueType = ...,
+        type: global___WorkflowSchedule.Type.ValueType = ...,
         one_off: core.protos.workflows.schedules.one_off_schedule_pb2.OneOffSchedule | None = ...,
         interval: core.protos.workflows.schedules.interval_schedule_pb2.IntervalSchedule | None = ...,
         cron: core.protos.workflows.schedules.cron_schedule_pb2.CronSchedule | None = ...,
@@ -153,7 +153,7 @@ class WorkflowSchedule(google.protobuf.message.Message):
     def ClearField(self, field_name: typing.Literal["cron", b"cron", "interval", b"interval", "one_off", b"one_off", "scheduler", b"scheduler", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["scheduler", b"scheduler"]) -> typing.Literal["one_off", "interval", "cron"] | None: ...
 
-Global___WorkflowSchedule: typing_extensions.TypeAlias = WorkflowSchedule
+global___WorkflowSchedule = WorkflowSchedule
 
 @typing.final
 class WorkflowEntryPoint(google.protobuf.message.Message):
@@ -169,7 +169,7 @@ class WorkflowEntryPoint(google.protobuf.message.Message):
     @property
     def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     @property
-    def entry_point_source(self) -> Global___WorkflowConnectorSourceProto: ...
+    def entry_point_source(self) -> global___WorkflowConnectorSourceProto: ...
     @property
     def alert_source(self) -> core.protos.workflows.source_entry_points.alert_channel_entry_point_pb2.AlertSourceEntryPoint: ...
     def __init__(
@@ -177,14 +177,14 @@ class WorkflowEntryPoint(google.protobuf.message.Message):
         *,
         id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
         source: core.protos.base_pb2.Source.ValueType = ...,
-        entry_point_source: Global___WorkflowConnectorSourceProto | None = ...,
+        entry_point_source: global___WorkflowConnectorSourceProto | None = ...,
         alert_source: core.protos.workflows.source_entry_points.alert_channel_entry_point_pb2.AlertSourceEntryPoint | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["alert_source", b"alert_source", "config", b"config", "entry_point_source", b"entry_point_source", "id", b"id"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["alert_source", b"alert_source", "config", b"config", "entry_point_source", b"entry_point_source", "id", b"id", "source", b"source"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["config", b"config"]) -> typing.Literal["alert_source"] | None: ...
 
-Global___WorkflowEntryPoint: typing_extensions.TypeAlias = WorkflowEntryPoint
+global___WorkflowEntryPoint = WorkflowEntryPoint
 
 @typing.final
 class WorkflowAction(google.protobuf.message.Message):
@@ -200,7 +200,7 @@ class WorkflowAction(google.protobuf.message.Message):
     @property
     def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     @property
-    def action_source(self) -> Global___WorkflowConnectorSourceProto: ...
+    def action_source(self) -> global___WorkflowConnectorSourceProto: ...
     @property
     def slack(self) -> core.protos.playbooks.source_task_definitions.slack_task_pb2.Slack: ...
     def __init__(
@@ -208,14 +208,14 @@ class WorkflowAction(google.protobuf.message.Message):
         *,
         id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
         source: core.protos.base_pb2.Source.ValueType = ...,
-        action_source: Global___WorkflowConnectorSourceProto | None = ...,
+        action_source: global___WorkflowConnectorSourceProto | None = ...,
         slack: core.protos.playbooks.source_task_definitions.slack_task_pb2.Slack | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["action_config", b"action_config", "action_source", b"action_source", "id", b"id", "slack", b"slack"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["action_config", b"action_config", "action_source", b"action_source", "id", b"id", "slack", b"slack", "source", b"source"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["action_config", b"action_config"]) -> typing.Literal["slack"] | None: ...
 
-Global___WorkflowAction: typing_extensions.TypeAlias = WorkflowAction
+global___WorkflowAction = WorkflowAction
 
 @typing.final
 class Workflow(google.protobuf.message.Message):
@@ -250,10 +250,10 @@ class Workflow(google.protobuf.message.Message):
     LAST_EXECUTION_TIME_FIELD_NUMBER: builtins.int
     LAST_EXECUTION_STATUS_FIELD_NUMBER: builtins.int
     CONFIGURATION_FIELD_NUMBER: builtins.int
-    type: Global___Workflow.Type.ValueType
+    type: global___Workflow.Type.ValueType
     created_at: builtins.int
     last_execution_time: builtins.int
-    last_execution_status: Global___WorkflowExecutionStatusType.ValueType
+    last_execution_status: global___WorkflowExecutionStatusType.ValueType
     @property
     def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     @property
@@ -265,37 +265,37 @@ class Workflow(google.protobuf.message.Message):
     @property
     def is_active(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
     @property
-    def schedule(self) -> Global___WorkflowSchedule: ...
+    def schedule(self) -> global___WorkflowSchedule: ...
     @property
     def playbooks(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[core.protos.playbooks.playbook_pb2.Playbook]: ...
     @property
-    def entry_points(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___WorkflowEntryPoint]: ...
+    def entry_points(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___WorkflowEntryPoint]: ...
     @property
-    def actions(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___WorkflowAction]: ...
+    def actions(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___WorkflowAction]: ...
     @property
-    def configuration(self) -> Global___WorkflowConfiguration: ...
+    def configuration(self) -> global___WorkflowConfiguration: ...
     def __init__(
         self,
         *,
         id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
         name: google.protobuf.wrappers_pb2.StringValue | None = ...,
         description: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        type: Global___Workflow.Type.ValueType = ...,
+        type: global___Workflow.Type.ValueType = ...,
         created_by: google.protobuf.wrappers_pb2.StringValue | None = ...,
         created_at: builtins.int = ...,
         is_active: google.protobuf.wrappers_pb2.BoolValue | None = ...,
-        schedule: Global___WorkflowSchedule | None = ...,
+        schedule: global___WorkflowSchedule | None = ...,
         playbooks: collections.abc.Iterable[core.protos.playbooks.playbook_pb2.Playbook] | None = ...,
-        entry_points: collections.abc.Iterable[Global___WorkflowEntryPoint] | None = ...,
-        actions: collections.abc.Iterable[Global___WorkflowAction] | None = ...,
+        entry_points: collections.abc.Iterable[global___WorkflowEntryPoint] | None = ...,
+        actions: collections.abc.Iterable[global___WorkflowAction] | None = ...,
         last_execution_time: builtins.int = ...,
-        last_execution_status: Global___WorkflowExecutionStatusType.ValueType = ...,
-        configuration: Global___WorkflowConfiguration | None = ...,
+        last_execution_status: global___WorkflowExecutionStatusType.ValueType = ...,
+        configuration: global___WorkflowConfiguration | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["configuration", b"configuration", "created_by", b"created_by", "description", b"description", "id", b"id", "is_active", b"is_active", "name", b"name", "schedule", b"schedule"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["actions", b"actions", "configuration", b"configuration", "created_at", b"created_at", "created_by", b"created_by", "description", b"description", "entry_points", b"entry_points", "id", b"id", "is_active", b"is_active", "last_execution_status", b"last_execution_status", "last_execution_time", b"last_execution_time", "name", b"name", "playbooks", b"playbooks", "schedule", b"schedule", "type", b"type"]) -> None: ...
 
-Global___Workflow: typing_extensions.TypeAlias = Workflow
+global___Workflow = Workflow
 
 @typing.final
 class UpdateWorkflowOp(google.protobuf.message.Message):
@@ -362,11 +362,11 @@ class UpdateWorkflowOp(google.protobuf.message.Message):
 
         WORKFLOW_FIELD_NUMBER: builtins.int
         @property
-        def workflow(self) -> Global___Workflow: ...
+        def workflow(self) -> global___Workflow: ...
         def __init__(
             self,
             *,
-            workflow: Global___Workflow | None = ...,
+            workflow: global___Workflow | None = ...,
         ) -> None: ...
         def HasField(self, field_name: typing.Literal["workflow", b"workflow"]) -> builtins.bool: ...
         def ClearField(self, field_name: typing.Literal["workflow", b"workflow"]) -> None: ...
@@ -435,35 +435,35 @@ class UpdateWorkflowOp(google.protobuf.message.Message):
     UPDATE_WORKFLOW_ENTRY_POINT_STATUS_FIELD_NUMBER: builtins.int
     UPDATE_WORKFLOW_ACTION_STATUS_FIELD_NUMBER: builtins.int
     UPDATE_WORKFLOW_PLAYBOOK_STATUS_FIELD_NUMBER: builtins.int
-    op: Global___UpdateWorkflowOp.Op.ValueType
+    op: global___UpdateWorkflowOp.Op.ValueType
     @property
-    def update_workflow_name(self) -> Global___UpdateWorkflowOp.UpdateWorkflowName: ...
+    def update_workflow_name(self) -> global___UpdateWorkflowOp.UpdateWorkflowName: ...
     @property
-    def update_workflow_status(self) -> Global___UpdateWorkflowOp.UpdateWorkflowStatus: ...
+    def update_workflow_status(self) -> global___UpdateWorkflowOp.UpdateWorkflowStatus: ...
     @property
-    def update_workflow(self) -> Global___UpdateWorkflowOp.UpdateWorkflow: ...
+    def update_workflow(self) -> global___UpdateWorkflowOp.UpdateWorkflow: ...
     @property
-    def update_workflow_entry_point_status(self) -> Global___UpdateWorkflowOp.UpdateWorkflowEntryPointStatus: ...
+    def update_workflow_entry_point_status(self) -> global___UpdateWorkflowOp.UpdateWorkflowEntryPointStatus: ...
     @property
-    def update_workflow_action_status(self) -> Global___UpdateWorkflowOp.UpdateWorkflowActionStatus: ...
+    def update_workflow_action_status(self) -> global___UpdateWorkflowOp.UpdateWorkflowActionStatus: ...
     @property
-    def update_workflow_playbook_status(self) -> Global___UpdateWorkflowOp.UpdateWorkflowPlaybookStatus: ...
+    def update_workflow_playbook_status(self) -> global___UpdateWorkflowOp.UpdateWorkflowPlaybookStatus: ...
     def __init__(
         self,
         *,
-        op: Global___UpdateWorkflowOp.Op.ValueType = ...,
-        update_workflow_name: Global___UpdateWorkflowOp.UpdateWorkflowName | None = ...,
-        update_workflow_status: Global___UpdateWorkflowOp.UpdateWorkflowStatus | None = ...,
-        update_workflow: Global___UpdateWorkflowOp.UpdateWorkflow | None = ...,
-        update_workflow_entry_point_status: Global___UpdateWorkflowOp.UpdateWorkflowEntryPointStatus | None = ...,
-        update_workflow_action_status: Global___UpdateWorkflowOp.UpdateWorkflowActionStatus | None = ...,
-        update_workflow_playbook_status: Global___UpdateWorkflowOp.UpdateWorkflowPlaybookStatus | None = ...,
+        op: global___UpdateWorkflowOp.Op.ValueType = ...,
+        update_workflow_name: global___UpdateWorkflowOp.UpdateWorkflowName | None = ...,
+        update_workflow_status: global___UpdateWorkflowOp.UpdateWorkflowStatus | None = ...,
+        update_workflow: global___UpdateWorkflowOp.UpdateWorkflow | None = ...,
+        update_workflow_entry_point_status: global___UpdateWorkflowOp.UpdateWorkflowEntryPointStatus | None = ...,
+        update_workflow_action_status: global___UpdateWorkflowOp.UpdateWorkflowActionStatus | None = ...,
+        update_workflow_playbook_status: global___UpdateWorkflowOp.UpdateWorkflowPlaybookStatus | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["update", b"update", "update_workflow", b"update_workflow", "update_workflow_action_status", b"update_workflow_action_status", "update_workflow_entry_point_status", b"update_workflow_entry_point_status", "update_workflow_name", b"update_workflow_name", "update_workflow_playbook_status", b"update_workflow_playbook_status", "update_workflow_status", b"update_workflow_status"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["op", b"op", "update", b"update", "update_workflow", b"update_workflow", "update_workflow_action_status", b"update_workflow_action_status", "update_workflow_entry_point_status", b"update_workflow_entry_point_status", "update_workflow_name", b"update_workflow_name", "update_workflow_playbook_status", b"update_workflow_playbook_status", "update_workflow_status", b"update_workflow_status"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["update", b"update"]) -> typing.Literal["update_workflow_name", "update_workflow_status", "update_workflow", "update_workflow_entry_point_status", "update_workflow_action_status", "update_workflow_playbook_status"] | None: ...
 
-Global___UpdateWorkflowOp: typing_extensions.TypeAlias = UpdateWorkflowOp
+global___UpdateWorkflowOp = UpdateWorkflowOp
 
 @typing.final
 class WorkflowExecutionLog(google.protobuf.message.Message):
@@ -487,7 +487,7 @@ class WorkflowExecutionLog(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["id", b"id", "playbook_execution", b"playbook_execution"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["created_at", b"created_at", "id", b"id", "playbook_execution", b"playbook_execution"]) -> None: ...
 
-Global___WorkflowExecutionLog: typing_extensions.TypeAlias = WorkflowExecutionLog
+global___WorkflowExecutionLog = WorkflowExecutionLog
 
 @typing.final
 class WorkflowExecution(google.protobuf.message.Message):
@@ -513,7 +513,7 @@ class WorkflowExecution(google.protobuf.message.Message):
         TYPE_FIELD_NUMBER: builtins.int
         EVENT_FIELD_NUMBER: builtins.int
         EVENT_CONTEXT_FIELD_NUMBER: builtins.int
-        type: Global___WorkflowExecution.WorkflowExecutionMetadata.Type.ValueType
+        type: global___WorkflowExecution.WorkflowExecutionMetadata.Type.ValueType
         @property
         def event(self) -> google.protobuf.struct_pb2.Struct: ...
         @property
@@ -521,7 +521,7 @@ class WorkflowExecution(google.protobuf.message.Message):
         def __init__(
             self,
             *,
-            type: Global___WorkflowExecution.WorkflowExecutionMetadata.Type.ValueType = ...,
+            type: global___WorkflowExecution.WorkflowExecutionMetadata.Type.ValueType = ...,
             event: google.protobuf.struct_pb2.Struct | None = ...,
             event_context: google.protobuf.struct_pb2.Struct | None = ...,
         ) -> None: ...
@@ -545,7 +545,7 @@ class WorkflowExecution(google.protobuf.message.Message):
     WORKFLOW_LOGS_FIELD_NUMBER: builtins.int
     EXECUTION_CONFIGURATION_FIELD_NUMBER: builtins.int
     METADATA_FIELD_NUMBER: builtins.int
-    status: Global___WorkflowExecutionStatusType.ValueType
+    status: global___WorkflowExecutionStatusType.ValueType
     created_at: builtins.int
     scheduled_at: builtins.int
     expiry_at: builtins.int
@@ -557,7 +557,7 @@ class WorkflowExecution(google.protobuf.message.Message):
     @property
     def workflow_run_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
-    def workflow(self) -> Global___Workflow: ...
+    def workflow(self) -> global___Workflow: ...
     @property
     def time_range(self) -> core.protos.base_pb2.TimeRange: ...
     @property
@@ -567,18 +567,18 @@ class WorkflowExecution(google.protobuf.message.Message):
     @property
     def created_by(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
-    def workflow_logs(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___WorkflowExecutionLog]: ...
+    def workflow_logs(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___WorkflowExecutionLog]: ...
     @property
-    def execution_configuration(self) -> Global___WorkflowConfiguration: ...
+    def execution_configuration(self) -> global___WorkflowConfiguration: ...
     @property
-    def metadata(self) -> Global___WorkflowExecution.WorkflowExecutionMetadata: ...
+    def metadata(self) -> global___WorkflowExecution.WorkflowExecutionMetadata: ...
     def __init__(
         self,
         *,
         id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
         workflow_run_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        workflow: Global___Workflow | None = ...,
-        status: Global___WorkflowExecutionStatusType.ValueType = ...,
+        workflow: global___Workflow | None = ...,
+        status: global___WorkflowExecutionStatusType.ValueType = ...,
         time_range: core.protos.base_pb2.TimeRange | None = ...,
         created_at: builtins.int = ...,
         scheduled_at: builtins.int = ...,
@@ -589,11 +589,11 @@ class WorkflowExecution(google.protobuf.message.Message):
         finished_at: builtins.int = ...,
         total_executions: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
         created_by: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        workflow_logs: collections.abc.Iterable[Global___WorkflowExecutionLog] | None = ...,
-        execution_configuration: Global___WorkflowConfiguration | None = ...,
-        metadata: Global___WorkflowExecution.WorkflowExecutionMetadata | None = ...,
+        workflow_logs: collections.abc.Iterable[global___WorkflowExecutionLog] | None = ...,
+        execution_configuration: global___WorkflowConfiguration | None = ...,
+        metadata: global___WorkflowExecution.WorkflowExecutionMetadata | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["created_by", b"created_by", "execution_configuration", b"execution_configuration", "id", b"id", "keep_alive", b"keep_alive", "metadata", b"metadata", "time_range", b"time_range", "total_executions", b"total_executions", "workflow", b"workflow", "workflow_run_id", b"workflow_run_id"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["created_at", b"created_at", "created_by", b"created_by", "execution_configuration", b"execution_configuration", "expiry_at", b"expiry_at", "finished_at", b"finished_at", "id", b"id", "keep_alive", b"keep_alive", "latest_scheduled_at", b"latest_scheduled_at", "metadata", b"metadata", "scheduled_at", b"scheduled_at", "started_at", b"started_at", "status", b"status", "time_range", b"time_range", "total_executions", b"total_executions", "workflow", b"workflow", "workflow_logs", b"workflow_logs", "workflow_run_id", b"workflow_run_id"]) -> None: ...
 
-Global___WorkflowExecution: typing_extensions.TypeAlias = WorkflowExecution
+global___WorkflowExecution = WorkflowExecution

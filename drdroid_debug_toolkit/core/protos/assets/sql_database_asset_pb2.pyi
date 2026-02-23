@@ -10,13 +10,7 @@ import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.message
 import google.protobuf.wrappers_pb2
-import sys
 import typing
-
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
-else:
-    import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
@@ -37,7 +31,7 @@ class SqlDatabaseAssetModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["database", b"database"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["database", b"database"]) -> None: ...
 
-Global___SqlDatabaseAssetModel: typing_extensions.TypeAlias = SqlDatabaseAssetModel
+global___SqlDatabaseAssetModel = SqlDatabaseAssetModel
 
 @typing.final
 class SqlDatabaseAssetOptions(google.protobuf.message.Message):
@@ -53,7 +47,7 @@ class SqlDatabaseAssetOptions(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["databases", b"databases"]) -> None: ...
 
-Global___SqlDatabaseAssetOptions: typing_extensions.TypeAlias = SqlDatabaseAssetOptions
+global___SqlDatabaseAssetOptions = SqlDatabaseAssetOptions
 
 @typing.final
 class SqlColumnModel(google.protobuf.message.Message):
@@ -104,7 +98,7 @@ class SqlColumnModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["data_type", b"data_type", "default_value", b"default_value", "description", b"description", "is_nullable", b"is_nullable", "is_primary_key", b"is_primary_key", "max_length", b"max_length", "name", b"name", "precision", b"precision", "scale", b"scale"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["data_type", b"data_type", "default_value", b"default_value", "description", b"description", "is_nullable", b"is_nullable", "is_primary_key", b"is_primary_key", "max_length", b"max_length", "name", b"name", "precision", b"precision", "scale", b"scale"]) -> None: ...
 
-Global___SqlColumnModel: typing_extensions.TypeAlias = SqlColumnModel
+global___SqlColumnModel = SqlColumnModel
 
 @typing.final
 class SqlForeignKeyModel(google.protobuf.message.Message):
@@ -135,7 +129,7 @@ class SqlForeignKeyModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["column_name", b"column_name", "foreign_column", b"foreign_column", "foreign_schema", b"foreign_schema", "foreign_table", b"foreign_table"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["column_name", b"column_name", "foreign_column", b"foreign_column", "foreign_schema", b"foreign_schema", "foreign_table", b"foreign_table"]) -> None: ...
 
-Global___SqlForeignKeyModel: typing_extensions.TypeAlias = SqlForeignKeyModel
+global___SqlForeignKeyModel = SqlForeignKeyModel
 
 @typing.final
 class SqlIndexModel(google.protobuf.message.Message):
@@ -166,7 +160,7 @@ class SqlIndexModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["is_unique", b"is_unique", "name", b"name", "type", b"type"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["columns", b"columns", "is_unique", b"is_unique", "name", b"name", "type", b"type"]) -> None: ...
 
-Global___SqlIndexModel: typing_extensions.TypeAlias = SqlIndexModel
+global___SqlIndexModel = SqlIndexModel
 
 @typing.final
 class SqlTableAssetModel(google.protobuf.message.Message):
@@ -193,11 +187,11 @@ class SqlTableAssetModel(google.protobuf.message.Message):
     @property
     def size(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
-    def columns(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___SqlColumnModel]: ...
+    def columns(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___SqlColumnModel]: ...
     @property
     def primary_keys(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
     @property
-    def indexes(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___SqlIndexModel]: ...
+    def indexes(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___SqlIndexModel]: ...
     def __init__(
         self,
         *,
@@ -206,14 +200,14 @@ class SqlTableAssetModel(google.protobuf.message.Message):
         schema_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
         description: google.protobuf.wrappers_pb2.StringValue | None = ...,
         size: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        columns: collections.abc.Iterable[Global___SqlColumnModel] | None = ...,
+        columns: collections.abc.Iterable[global___SqlColumnModel] | None = ...,
         primary_keys: collections.abc.Iterable[builtins.str] | None = ...,
-        indexes: collections.abc.Iterable[Global___SqlIndexModel] | None = ...,
+        indexes: collections.abc.Iterable[global___SqlIndexModel] | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["database_name", b"database_name", "description", b"description", "schema_name", b"schema_name", "size", b"size", "table_name", b"table_name"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["columns", b"columns", "database_name", b"database_name", "description", b"description", "indexes", b"indexes", "primary_keys", b"primary_keys", "schema_name", b"schema_name", "size", b"size", "table_name", b"table_name"]) -> None: ...
 
-Global___SqlTableAssetModel: typing_extensions.TypeAlias = SqlTableAssetModel
+global___SqlTableAssetModel = SqlTableAssetModel
 
 @typing.final
 class SqlTableAssetOptions(google.protobuf.message.Message):
@@ -233,7 +227,7 @@ class SqlTableAssetOptions(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["schemas", b"schemas", "tables", b"tables"]) -> None: ...
 
-Global___SqlTableAssetOptions: typing_extensions.TypeAlias = SqlTableAssetOptions
+global___SqlTableAssetOptions = SqlTableAssetOptions
 
 @typing.final
 class SqlAssetModel(google.protobuf.message.Message):
@@ -252,7 +246,7 @@ class SqlAssetModel(google.protobuf.message.Message):
     @property
     def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     @property
-    def sql_table(self) -> Global___SqlTableAssetModel: ...
+    def sql_table(self) -> global___SqlTableAssetModel: ...
     def __init__(
         self,
         *,
@@ -260,13 +254,13 @@ class SqlAssetModel(google.protobuf.message.Message):
         connector_type: core.protos.base_pb2.Source.ValueType = ...,
         type: core.protos.base_pb2.SourceModelType.ValueType = ...,
         last_updated: builtins.int = ...,
-        sql_table: Global___SqlTableAssetModel | None = ...,
+        sql_table: global___SqlTableAssetModel | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["asset", b"asset", "id", b"id", "sql_table", b"sql_table"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["asset", b"asset", "connector_type", b"connector_type", "id", b"id", "last_updated", b"last_updated", "sql_table", b"sql_table", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["asset", b"asset"]) -> typing.Literal["sql_table"] | None: ...
 
-Global___SqlAssetModel: typing_extensions.TypeAlias = SqlAssetModel
+global___SqlAssetModel = SqlAssetModel
 
 @typing.final
 class SqlAssets(google.protobuf.message.Message):
@@ -274,12 +268,12 @@ class SqlAssets(google.protobuf.message.Message):
 
     ASSETS_FIELD_NUMBER: builtins.int
     @property
-    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___SqlAssetModel]: ...
+    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___SqlAssetModel]: ...
     def __init__(
         self,
         *,
-        assets: collections.abc.Iterable[Global___SqlAssetModel] | None = ...,
+        assets: collections.abc.Iterable[global___SqlAssetModel] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["assets", b"assets"]) -> None: ...
 
-Global___SqlAssets: typing_extensions.TypeAlias = SqlAssets
+global___SqlAssets = SqlAssets

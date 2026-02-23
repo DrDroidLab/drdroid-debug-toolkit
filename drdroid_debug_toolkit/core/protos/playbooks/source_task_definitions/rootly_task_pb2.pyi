@@ -56,17 +56,17 @@ class Rootly(google.protobuf.message.Message):
 
     TYPE_FIELD_NUMBER: builtins.int
     SEND_TIMELINE_EVENT_FIELD_NUMBER: builtins.int
-    type: Global___Rootly.TaskType.ValueType
+    type: global___Rootly.TaskType.ValueType
     @property
-    def send_timeline_event(self) -> Global___Rootly.SendTimelineEvent: ...
+    def send_timeline_event(self) -> global___Rootly.SendTimelineEvent: ...
     def __init__(
         self,
         *,
-        type: Global___Rootly.TaskType.ValueType = ...,
-        send_timeline_event: Global___Rootly.SendTimelineEvent | None = ...,
+        type: global___Rootly.TaskType.ValueType = ...,
+        send_timeline_event: global___Rootly.SendTimelineEvent | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["send_timeline_event", b"send_timeline_event", "task", b"task"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["send_timeline_event", b"send_timeline_event", "task", b"task", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["task", b"task"]) -> typing.Literal["send_timeline_event"] | None: ...
 
-Global___Rootly: typing_extensions.TypeAlias = Rootly
+global___Rootly = Rootly

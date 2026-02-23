@@ -47,7 +47,7 @@ class TimeseriesResultRule(google.protobuf.message.Message):
     WINDOW_FIELD_NUMBER: builtins.int
     THRESHOLD_FIELD_NUMBER: builtins.int
     LABEL_VALUE_FILTERS_FIELD_NUMBER: builtins.int
-    type: Global___TimeseriesResultRule.Type.ValueType
+    type: global___TimeseriesResultRule.Type.ValueType
     function: core.protos.base_pb2.Function.ValueType
     operator: core.protos.base_pb2.Operator.ValueType
     @property
@@ -59,7 +59,7 @@ class TimeseriesResultRule(google.protobuf.message.Message):
     def __init__(
         self,
         *,
-        type: Global___TimeseriesResultRule.Type.ValueType = ...,
+        type: global___TimeseriesResultRule.Type.ValueType = ...,
         function: core.protos.base_pb2.Function.ValueType = ...,
         operator: core.protos.base_pb2.Operator.ValueType = ...,
         window: google.protobuf.wrappers_pb2.DoubleValue | None = ...,
@@ -69,7 +69,7 @@ class TimeseriesResultRule(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["threshold", b"threshold", "window", b"window"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["function", b"function", "label_value_filters", b"label_value_filters", "operator", b"operator", "threshold", b"threshold", "type", b"type", "window", b"window"]) -> None: ...
 
-Global___TimeseriesResultRule: typing_extensions.TypeAlias = TimeseriesResultRule
+global___TimeseriesResultRule = TimeseriesResultRule
 
 @typing.final
 class TableResultRule(google.protobuf.message.Message):
@@ -95,7 +95,7 @@ class TableResultRule(google.protobuf.message.Message):
     COLUMN_NAME_FIELD_NUMBER: builtins.int
     NUMERIC_VALUE_THRESHOLD_FIELD_NUMBER: builtins.int
     STRING_VALUE_THRESHOLD_FIELD_NUMBER: builtins.int
-    type: Global___TableResultRule.Type.ValueType
+    type: global___TableResultRule.Type.ValueType
     operator: core.protos.base_pb2.Operator.ValueType
     @property
     def column_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
@@ -106,7 +106,7 @@ class TableResultRule(google.protobuf.message.Message):
     def __init__(
         self,
         *,
-        type: Global___TableResultRule.Type.ValueType = ...,
+        type: global___TableResultRule.Type.ValueType = ...,
         operator: core.protos.base_pb2.Operator.ValueType = ...,
         column_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
         numeric_value_threshold: google.protobuf.wrappers_pb2.DoubleValue | None = ...,
@@ -116,7 +116,7 @@ class TableResultRule(google.protobuf.message.Message):
     def ClearField(self, field_name: typing.Literal["column_name", b"column_name", "numeric_value_threshold", b"numeric_value_threshold", "operator", b"operator", "string_value_threshold", b"string_value_threshold", "threshold", b"threshold", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["threshold", b"threshold"]) -> typing.Literal["numeric_value_threshold", "string_value_threshold"] | None: ...
 
-Global___TableResultRule: typing_extensions.TypeAlias = TableResultRule
+global___TableResultRule = TableResultRule
 
 @typing.final
 class BashCommandOutputResultRule(google.protobuf.message.Message):
@@ -144,7 +144,7 @@ class BashCommandOutputResultRule(google.protobuf.message.Message):
     PATTERN_FIELD_NUMBER: builtins.int
     CASE_SENSITIVE_FIELD_NUMBER: builtins.int
     THRESHOLD_FIELD_NUMBER: builtins.int
-    type: Global___BashCommandOutputResultRule.Type.ValueType
+    type: global___BashCommandOutputResultRule.Type.ValueType
     operator: core.protos.base_pb2.Operator.ValueType
     @property
     def pattern(self) -> google.protobuf.wrappers_pb2.StringValue: ...
@@ -155,7 +155,7 @@ class BashCommandOutputResultRule(google.protobuf.message.Message):
     def __init__(
         self,
         *,
-        type: Global___BashCommandOutputResultRule.Type.ValueType = ...,
+        type: global___BashCommandOutputResultRule.Type.ValueType = ...,
         operator: core.protos.base_pb2.Operator.ValueType = ...,
         pattern: google.protobuf.wrappers_pb2.StringValue | None = ...,
         case_sensitive: google.protobuf.wrappers_pb2.BoolValue | None = ...,
@@ -164,4 +164,4 @@ class BashCommandOutputResultRule(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["case_sensitive", b"case_sensitive", "pattern", b"pattern", "threshold", b"threshold"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["case_sensitive", b"case_sensitive", "operator", b"operator", "pattern", b"pattern", "threshold", b"threshold", "type", b"type"]) -> None: ...
 
-Global___BashCommandOutputResultRule: typing_extensions.TypeAlias = BashCommandOutputResultRule
+global___BashCommandOutputResultRule = BashCommandOutputResultRule

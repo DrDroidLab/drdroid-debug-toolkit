@@ -8,13 +8,7 @@ import core.protos.usage_and_billing.usage_and_billing_commons_pb2
 import google.protobuf.descriptor
 import google.protobuf.message
 import google.protobuf.wrappers_pb2
-import sys
 import typing
-
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
-else:
-    import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
@@ -49,7 +43,7 @@ class CreditTransaction(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["credits", b"credits", "session_id", b"session_id", "session_title", b"session_title"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["created_at", b"created_at", "credits", b"credits", "session_id", b"session_id", "session_title", b"session_title", "type", b"type"]) -> None: ...
 
-Global___CreditTransaction: typing_extensions.TypeAlias = CreditTransaction
+global___CreditTransaction = CreditTransaction
 
 @typing.final
 class CreditUsageBySession(google.protobuf.message.Message):
@@ -74,4 +68,4 @@ class CreditUsageBySession(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["credits_used", b"credits_used", "session_id", b"session_id", "session_title", b"session_title"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["credits_used", b"credits_used", "session_id", b"session_id", "session_title", b"session_title"]) -> None: ...
 
-Global___CreditUsageBySession: typing_extensions.TypeAlias = CreditUsageBySession
+global___CreditUsageBySession = CreditUsageBySession

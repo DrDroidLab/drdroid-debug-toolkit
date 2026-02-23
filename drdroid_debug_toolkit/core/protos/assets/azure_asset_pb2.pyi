@@ -10,13 +10,7 @@ import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.message
 import google.protobuf.wrappers_pb2
-import sys
 import typing
-
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
-else:
-    import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
@@ -39,7 +33,7 @@ class AzureWorkspaceAssetModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["name", b"name", "workspace", b"workspace"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["name", b"name", "workspace", b"workspace"]) -> None: ...
 
-Global___AzureWorkspaceAssetModel: typing_extensions.TypeAlias = AzureWorkspaceAssetModel
+global___AzureWorkspaceAssetModel = AzureWorkspaceAssetModel
 
 @typing.final
 class AzureWorkspaceAssetOptions(google.protobuf.message.Message):
@@ -47,15 +41,15 @@ class AzureWorkspaceAssetOptions(google.protobuf.message.Message):
 
     WORKSPACES_FIELD_NUMBER: builtins.int
     @property
-    def workspaces(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___AzureWorkspaceAssetModel]: ...
+    def workspaces(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___AzureWorkspaceAssetModel]: ...
     def __init__(
         self,
         *,
-        workspaces: collections.abc.Iterable[Global___AzureWorkspaceAssetModel] | None = ...,
+        workspaces: collections.abc.Iterable[global___AzureWorkspaceAssetModel] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["workspaces", b"workspaces"]) -> None: ...
 
-Global___AzureWorkspaceAssetOptions: typing_extensions.TypeAlias = AzureWorkspaceAssetOptions
+global___AzureWorkspaceAssetOptions = AzureWorkspaceAssetOptions
 
 @typing.final
 class AvailableMetrics(google.protobuf.message.Message):
@@ -71,7 +65,7 @@ class AvailableMetrics(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["metric_names", b"metric_names"]) -> None: ...
 
-Global___AvailableMetrics: typing_extensions.TypeAlias = AvailableMetrics
+global___AvailableMetrics = AvailableMetrics
 
 @typing.final
 class AzureResourceAssetModel(google.protobuf.message.Message):
@@ -91,7 +85,7 @@ class AzureResourceAssetModel(google.protobuf.message.Message):
     @property
     def location(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
-    def available_metrics(self) -> Global___AvailableMetrics: ...
+    def available_metrics(self) -> global___AvailableMetrics: ...
     def __init__(
         self,
         *,
@@ -99,12 +93,12 @@ class AzureResourceAssetModel(google.protobuf.message.Message):
         name: google.protobuf.wrappers_pb2.StringValue | None = ...,
         type: google.protobuf.wrappers_pb2.StringValue | None = ...,
         location: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        available_metrics: Global___AvailableMetrics | None = ...,
+        available_metrics: global___AvailableMetrics | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["available_metrics", b"available_metrics", "location", b"location", "name", b"name", "resource_id", b"resource_id", "type", b"type"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["available_metrics", b"available_metrics", "location", b"location", "name", b"name", "resource_id", b"resource_id", "type", b"type"]) -> None: ...
 
-Global___AzureResourceAssetModel: typing_extensions.TypeAlias = AzureResourceAssetModel
+global___AzureResourceAssetModel = AzureResourceAssetModel
 
 @typing.final
 class AzureResourceAssetOptions(google.protobuf.message.Message):
@@ -112,15 +106,15 @@ class AzureResourceAssetOptions(google.protobuf.message.Message):
 
     RESOURCES_FIELD_NUMBER: builtins.int
     @property
-    def resources(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___AzureResourceAssetModel]: ...
+    def resources(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___AzureResourceAssetModel]: ...
     def __init__(
         self,
         *,
-        resources: collections.abc.Iterable[Global___AzureResourceAssetModel] | None = ...,
+        resources: collections.abc.Iterable[global___AzureResourceAssetModel] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["resources", b"resources"]) -> None: ...
 
-Global___AzureResourceAssetOptions: typing_extensions.TypeAlias = AzureResourceAssetOptions
+global___AzureResourceAssetOptions = AzureResourceAssetOptions
 
 @typing.final
 class AzureAssetModel(google.protobuf.message.Message):
@@ -138,9 +132,9 @@ class AzureAssetModel(google.protobuf.message.Message):
     @property
     def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     @property
-    def azure_workspace(self) -> Global___AzureWorkspaceAssetModel: ...
+    def azure_workspace(self) -> global___AzureWorkspaceAssetModel: ...
     @property
-    def azure_resource(self) -> Global___AzureResourceAssetModel: ...
+    def azure_resource(self) -> global___AzureResourceAssetModel: ...
     def __init__(
         self,
         *,
@@ -148,14 +142,14 @@ class AzureAssetModel(google.protobuf.message.Message):
         connector_type: core.protos.base_pb2.Source.ValueType = ...,
         type: core.protos.base_pb2.SourceModelType.ValueType = ...,
         last_updated: builtins.int = ...,
-        azure_workspace: Global___AzureWorkspaceAssetModel | None = ...,
-        azure_resource: Global___AzureResourceAssetModel | None = ...,
+        azure_workspace: global___AzureWorkspaceAssetModel | None = ...,
+        azure_resource: global___AzureResourceAssetModel | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["asset", b"asset", "azure_resource", b"azure_resource", "azure_workspace", b"azure_workspace", "id", b"id"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["asset", b"asset", "azure_resource", b"azure_resource", "azure_workspace", b"azure_workspace", "connector_type", b"connector_type", "id", b"id", "last_updated", b"last_updated", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["asset", b"asset"]) -> typing.Literal["azure_workspace", "azure_resource"] | None: ...
 
-Global___AzureAssetModel: typing_extensions.TypeAlias = AzureAssetModel
+global___AzureAssetModel = AzureAssetModel
 
 @typing.final
 class AzureAssets(google.protobuf.message.Message):
@@ -163,12 +157,12 @@ class AzureAssets(google.protobuf.message.Message):
 
     ASSETS_FIELD_NUMBER: builtins.int
     @property
-    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___AzureAssetModel]: ...
+    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___AzureAssetModel]: ...
     def __init__(
         self,
         *,
-        assets: collections.abc.Iterable[Global___AzureAssetModel] | None = ...,
+        assets: collections.abc.Iterable[global___AzureAssetModel] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["assets", b"assets"]) -> None: ...
 
-Global___AzureAssets: typing_extensions.TypeAlias = AzureAssets
+global___AzureAssets = AzureAssets

@@ -99,20 +99,20 @@ class Slack(google.protobuf.message.Message):
     TYPE_FIELD_NUMBER: builtins.int
     SEND_MESSAGE_FIELD_NUMBER: builtins.int
     SEND_THREAD_REPLY_FIELD_NUMBER: builtins.int
-    type: Global___Slack.TaskType.ValueType
+    type: global___Slack.TaskType.ValueType
     @property
-    def send_message(self) -> Global___Slack.SendMessage: ...
+    def send_message(self) -> global___Slack.SendMessage: ...
     @property
-    def send_thread_reply(self) -> Global___Slack.SendThreadReply: ...
+    def send_thread_reply(self) -> global___Slack.SendThreadReply: ...
     def __init__(
         self,
         *,
-        type: Global___Slack.TaskType.ValueType = ...,
-        send_message: Global___Slack.SendMessage | None = ...,
-        send_thread_reply: Global___Slack.SendThreadReply | None = ...,
+        type: global___Slack.TaskType.ValueType = ...,
+        send_message: global___Slack.SendMessage | None = ...,
+        send_thread_reply: global___Slack.SendThreadReply | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["send_message", b"send_message", "send_thread_reply", b"send_thread_reply", "task", b"task"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["send_message", b"send_message", "send_thread_reply", b"send_thread_reply", "task", b"task", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["task", b"task"]) -> typing.Literal["send_message", "send_thread_reply"] | None: ...
 
-Global___Slack: typing_extensions.TypeAlias = Slack
+global___Slack = Slack

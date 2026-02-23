@@ -7,13 +7,7 @@ import builtins
 import google.protobuf.descriptor
 import google.protobuf.message
 import google.protobuf.wrappers_pb2
-import sys
 import typing
-
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
-else:
-    import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
@@ -40,4 +34,4 @@ class IntervalSchedule(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["duration_in_seconds", b"duration_in_seconds", "interval_in_seconds", b"interval_in_seconds", "keep_alive", b"keep_alive"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["duration_in_seconds", b"duration_in_seconds", "interval_in_seconds", b"interval_in_seconds", "keep_alive", b"keep_alive"]) -> None: ...
 
-Global___IntervalSchedule: typing_extensions.TypeAlias = IntervalSchedule
+global___IntervalSchedule = IntervalSchedule

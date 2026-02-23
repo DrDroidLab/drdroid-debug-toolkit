@@ -9,13 +9,7 @@ import core.protos.connectors.api_pb2
 import google.protobuf.descriptor
 import google.protobuf.message
 import google.protobuf.wrappers_pb2
-import sys
 import typing
-
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
-else:
-    import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
@@ -34,7 +28,7 @@ class StartBrowserAutomationRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["user_input_prompt", b"user_input_prompt"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["user_input_prompt", b"user_input_prompt"]) -> None: ...
 
-Global___StartBrowserAutomationRequest: typing_extensions.TypeAlias = StartBrowserAutomationRequest
+global___StartBrowserAutomationRequest = StartBrowserAutomationRequest
 
 @typing.final
 class StartBrowserAutomationResponse(google.protobuf.message.Message):
@@ -59,7 +53,7 @@ class StartBrowserAutomationResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["message", b"message", "prompt_run_id", b"prompt_run_id", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["message", b"message", "prompt_run_id", b"prompt_run_id", "success", b"success"]) -> None: ...
 
-Global___StartBrowserAutomationResponse: typing_extensions.TypeAlias = StartBrowserAutomationResponse
+global___StartBrowserAutomationResponse = StartBrowserAutomationResponse
 
 @typing.final
 class BrowserAutomationDetailsRequest(google.protobuf.message.Message):
@@ -76,7 +70,7 @@ class BrowserAutomationDetailsRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["prompt_run_id", b"prompt_run_id"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["prompt_run_id", b"prompt_run_id"]) -> None: ...
 
-Global___BrowserAutomationDetailsRequest: typing_extensions.TypeAlias = BrowserAutomationDetailsRequest
+global___BrowserAutomationDetailsRequest = BrowserAutomationDetailsRequest
 
 @typing.final
 class BrowserAutomationDetailsResponse(google.protobuf.message.Message):
@@ -101,7 +95,7 @@ class BrowserAutomationDetailsResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["browser_automation_details", b"browser_automation_details", "message", b"message", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["browser_automation_details", b"browser_automation_details", "message", b"message", "success", b"success"]) -> None: ...
 
-Global___BrowserAutomationDetailsResponse: typing_extensions.TypeAlias = BrowserAutomationDetailsResponse
+global___BrowserAutomationDetailsResponse = BrowserAutomationDetailsResponse
 
 @typing.final
 class SaveDataFromLightSaberRequest(google.protobuf.message.Message):
@@ -125,7 +119,7 @@ class SaveDataFromLightSaberRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["investigation_session_id", b"investigation_session_id", "value", b"value"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["investigation_session_id", b"investigation_session_id", "type", b"type", "value", b"value"]) -> None: ...
 
-Global___SaveDataFromLightSaberRequest: typing_extensions.TypeAlias = SaveDataFromLightSaberRequest
+global___SaveDataFromLightSaberRequest = SaveDataFromLightSaberRequest
 
 @typing.final
 class SaveDataFromLightSaberResponse(google.protobuf.message.Message):
@@ -146,4 +140,4 @@ class SaveDataFromLightSaberResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["message", b"message", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["message", b"message", "success", b"success"]) -> None: ...
 
-Global___SaveDataFromLightSaberResponse: typing_extensions.TypeAlias = SaveDataFromLightSaberResponse
+global___SaveDataFromLightSaberResponse = SaveDataFromLightSaberResponse

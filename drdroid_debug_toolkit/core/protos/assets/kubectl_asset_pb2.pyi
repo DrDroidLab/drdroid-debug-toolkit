@@ -10,13 +10,7 @@ import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.message
 import google.protobuf.wrappers_pb2
-import sys
 import typing
-
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
-else:
-    import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
@@ -26,15 +20,15 @@ class KubernetesNamespaceAssetOptions(google.protobuf.message.Message):
 
     NAMESPACES_FIELD_NUMBER: builtins.int
     @property
-    def namespaces(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___KubectlNamespace]: ...
+    def namespaces(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___KubectlNamespace]: ...
     def __init__(
         self,
         *,
-        namespaces: collections.abc.Iterable[Global___KubectlNamespace] | None = ...,
+        namespaces: collections.abc.Iterable[global___KubectlNamespace] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["namespaces", b"namespaces"]) -> None: ...
 
-Global___KubernetesNamespaceAssetOptions: typing_extensions.TypeAlias = KubernetesNamespaceAssetOptions
+global___KubernetesNamespaceAssetOptions = KubernetesNamespaceAssetOptions
 
 @typing.final
 class KubernetesServiceAssetOptions(google.protobuf.message.Message):
@@ -42,15 +36,15 @@ class KubernetesServiceAssetOptions(google.protobuf.message.Message):
 
     SERVICES_FIELD_NUMBER: builtins.int
     @property
-    def services(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___KubectlService]: ...
+    def services(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___KubectlService]: ...
     def __init__(
         self,
         *,
-        services: collections.abc.Iterable[Global___KubectlService] | None = ...,
+        services: collections.abc.Iterable[global___KubectlService] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["services", b"services"]) -> None: ...
 
-Global___KubernetesServiceAssetOptions: typing_extensions.TypeAlias = KubernetesServiceAssetOptions
+global___KubernetesServiceAssetOptions = KubernetesServiceAssetOptions
 
 @typing.final
 class KubernetesDeploymentAssetOptions(google.protobuf.message.Message):
@@ -58,15 +52,15 @@ class KubernetesDeploymentAssetOptions(google.protobuf.message.Message):
 
     DEPLOYMENTS_FIELD_NUMBER: builtins.int
     @property
-    def deployments(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___KubectlDeployment]: ...
+    def deployments(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___KubectlDeployment]: ...
     def __init__(
         self,
         *,
-        deployments: collections.abc.Iterable[Global___KubectlDeployment] | None = ...,
+        deployments: collections.abc.Iterable[global___KubectlDeployment] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["deployments", b"deployments"]) -> None: ...
 
-Global___KubernetesDeploymentAssetOptions: typing_extensions.TypeAlias = KubernetesDeploymentAssetOptions
+global___KubernetesDeploymentAssetOptions = KubernetesDeploymentAssetOptions
 
 @typing.final
 class KubernetesIngressAssetOptions(google.protobuf.message.Message):
@@ -74,15 +68,15 @@ class KubernetesIngressAssetOptions(google.protobuf.message.Message):
 
     INGRESSES_FIELD_NUMBER: builtins.int
     @property
-    def ingresses(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___KubectlIngress]: ...
+    def ingresses(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___KubectlIngress]: ...
     def __init__(
         self,
         *,
-        ingresses: collections.abc.Iterable[Global___KubectlIngress] | None = ...,
+        ingresses: collections.abc.Iterable[global___KubectlIngress] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["ingresses", b"ingresses"]) -> None: ...
 
-Global___KubernetesIngressAssetOptions: typing_extensions.TypeAlias = KubernetesIngressAssetOptions
+global___KubernetesIngressAssetOptions = KubernetesIngressAssetOptions
 
 @typing.final
 class KubernetesNetworkPolicyAssetOptions(google.protobuf.message.Message):
@@ -90,15 +84,15 @@ class KubernetesNetworkPolicyAssetOptions(google.protobuf.message.Message):
 
     NETWORK_POLICIES_FIELD_NUMBER: builtins.int
     @property
-    def network_policies(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___KubectlNetworkPolicy]: ...
+    def network_policies(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___KubectlNetworkPolicy]: ...
     def __init__(
         self,
         *,
-        network_policies: collections.abc.Iterable[Global___KubectlNetworkPolicy] | None = ...,
+        network_policies: collections.abc.Iterable[global___KubectlNetworkPolicy] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["network_policies", b"network_policies"]) -> None: ...
 
-Global___KubernetesNetworkPolicyAssetOptions: typing_extensions.TypeAlias = KubernetesNetworkPolicyAssetOptions
+global___KubernetesNetworkPolicyAssetOptions = KubernetesNetworkPolicyAssetOptions
 
 @typing.final
 class KubernetesHpaAssetOptions(google.protobuf.message.Message):
@@ -106,15 +100,15 @@ class KubernetesHpaAssetOptions(google.protobuf.message.Message):
 
     POD_AUTOSCALERS_FIELD_NUMBER: builtins.int
     @property
-    def pod_autoscalers(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___KubectlHpa]: ...
+    def pod_autoscalers(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___KubectlHpa]: ...
     def __init__(
         self,
         *,
-        pod_autoscalers: collections.abc.Iterable[Global___KubectlHpa] | None = ...,
+        pod_autoscalers: collections.abc.Iterable[global___KubectlHpa] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["pod_autoscalers", b"pod_autoscalers"]) -> None: ...
 
-Global___KubernetesHpaAssetOptions: typing_extensions.TypeAlias = KubernetesHpaAssetOptions
+global___KubernetesHpaAssetOptions = KubernetesHpaAssetOptions
 
 @typing.final
 class KubernetesReplicasetAssetOptions(google.protobuf.message.Message):
@@ -122,15 +116,15 @@ class KubernetesReplicasetAssetOptions(google.protobuf.message.Message):
 
     REPLICASETS_FIELD_NUMBER: builtins.int
     @property
-    def replicasets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___KubectlReplicaset]: ...
+    def replicasets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___KubectlReplicaset]: ...
     def __init__(
         self,
         *,
-        replicasets: collections.abc.Iterable[Global___KubectlReplicaset] | None = ...,
+        replicasets: collections.abc.Iterable[global___KubectlReplicaset] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["replicasets", b"replicasets"]) -> None: ...
 
-Global___KubernetesReplicasetAssetOptions: typing_extensions.TypeAlias = KubernetesReplicasetAssetOptions
+global___KubernetesReplicasetAssetOptions = KubernetesReplicasetAssetOptions
 
 @typing.final
 class KubernetesStatefulsetAssetOptions(google.protobuf.message.Message):
@@ -138,15 +132,15 @@ class KubernetesStatefulsetAssetOptions(google.protobuf.message.Message):
 
     STATEFULSETS_FIELD_NUMBER: builtins.int
     @property
-    def statefulsets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___KubectlStatefulset]: ...
+    def statefulsets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___KubectlStatefulset]: ...
     def __init__(
         self,
         *,
-        statefulsets: collections.abc.Iterable[Global___KubectlStatefulset] | None = ...,
+        statefulsets: collections.abc.Iterable[global___KubectlStatefulset] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["statefulsets", b"statefulsets"]) -> None: ...
 
-Global___KubernetesStatefulsetAssetOptions: typing_extensions.TypeAlias = KubernetesStatefulsetAssetOptions
+global___KubernetesStatefulsetAssetOptions = KubernetesStatefulsetAssetOptions
 
 @typing.final
 class KubernetesNetworkMapAssetOptions(google.protobuf.message.Message):
@@ -154,15 +148,15 @@ class KubernetesNetworkMapAssetOptions(google.protobuf.message.Message):
 
     NETWORK_MAPS_FIELD_NUMBER: builtins.int
     @property
-    def network_maps(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___KubectlNetworkMap]: ...
+    def network_maps(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___KubectlNetworkMap]: ...
     def __init__(
         self,
         *,
-        network_maps: collections.abc.Iterable[Global___KubectlNetworkMap] | None = ...,
+        network_maps: collections.abc.Iterable[global___KubectlNetworkMap] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["network_maps", b"network_maps"]) -> None: ...
 
-Global___KubernetesNetworkMapAssetOptions: typing_extensions.TypeAlias = KubernetesNetworkMapAssetOptions
+global___KubernetesNetworkMapAssetOptions = KubernetesNetworkMapAssetOptions
 
 @typing.final
 class KubernetesNamespaceAssetModel(google.protobuf.message.Message):
@@ -187,7 +181,7 @@ class KubernetesNamespaceAssetModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["labels", b"labels", "name", b"name", "status", b"status"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["labels", b"labels", "name", b"name", "status", b"status"]) -> None: ...
 
-Global___KubernetesNamespaceAssetModel: typing_extensions.TypeAlias = KubernetesNamespaceAssetModel
+global___KubernetesNamespaceAssetModel = KubernetesNamespaceAssetModel
 
 @typing.final
 class KubernetesServiceAssetModel(google.protobuf.message.Message):
@@ -220,7 +214,7 @@ class KubernetesServiceAssetModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["cluster_ip", b"cluster_ip", "name", b"name", "namespace", b"namespace", "ports", b"ports", "type", b"type"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["cluster_ip", b"cluster_ip", "name", b"name", "namespace", b"namespace", "ports", b"ports", "type", b"type"]) -> None: ...
 
-Global___KubernetesServiceAssetModel: typing_extensions.TypeAlias = KubernetesServiceAssetModel
+global___KubernetesServiceAssetModel = KubernetesServiceAssetModel
 
 @typing.final
 class KubernetesDeploymentAssetModel(google.protobuf.message.Message):
@@ -249,7 +243,7 @@ class KubernetesDeploymentAssetModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["containers", b"containers", "name", b"name", "namespace", b"namespace", "replicas", b"replicas"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["containers", b"containers", "name", b"name", "namespace", b"namespace", "replicas", b"replicas"]) -> None: ...
 
-Global___KubernetesDeploymentAssetModel: typing_extensions.TypeAlias = KubernetesDeploymentAssetModel
+global___KubernetesDeploymentAssetModel = KubernetesDeploymentAssetModel
 
 @typing.final
 class KubernetesIngressAssetModel(google.protobuf.message.Message):
@@ -282,7 +276,7 @@ class KubernetesIngressAssetModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["host", b"host", "name", b"name", "namespace", b"namespace", "paths", b"paths", "tls", b"tls"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["host", b"host", "name", b"name", "namespace", b"namespace", "paths", b"paths", "tls", b"tls"]) -> None: ...
 
-Global___KubernetesIngressAssetModel: typing_extensions.TypeAlias = KubernetesIngressAssetModel
+global___KubernetesIngressAssetModel = KubernetesIngressAssetModel
 
 @typing.final
 class KubernetesNetworkPolicyAssetModel(google.protobuf.message.Message):
@@ -315,7 +309,7 @@ class KubernetesNetworkPolicyAssetModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["egress_rules", b"egress_rules", "ingress_rules", b"ingress_rules", "name", b"name", "namespace", b"namespace", "pod_selector", b"pod_selector"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["egress_rules", b"egress_rules", "ingress_rules", b"ingress_rules", "name", b"name", "namespace", b"namespace", "pod_selector", b"pod_selector"]) -> None: ...
 
-Global___KubernetesNetworkPolicyAssetModel: typing_extensions.TypeAlias = KubernetesNetworkPolicyAssetModel
+global___KubernetesNetworkPolicyAssetModel = KubernetesNetworkPolicyAssetModel
 
 @typing.final
 class KubernetesHpaAssetModel(google.protobuf.message.Message):
@@ -356,7 +350,7 @@ class KubernetesHpaAssetModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["current_replicas", b"current_replicas", "max_replicas", b"max_replicas", "metrics", b"metrics", "min_replicas", b"min_replicas", "name", b"name", "namespace", b"namespace", "reference", b"reference"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["current_replicas", b"current_replicas", "max_replicas", b"max_replicas", "metrics", b"metrics", "min_replicas", b"min_replicas", "name", b"name", "namespace", b"namespace", "reference", b"reference"]) -> None: ...
 
-Global___KubernetesHpaAssetModel: typing_extensions.TypeAlias = KubernetesHpaAssetModel
+global___KubernetesHpaAssetModel = KubernetesHpaAssetModel
 
 @typing.final
 class KubernetesReplicasetAssetModel(google.protobuf.message.Message):
@@ -389,7 +383,7 @@ class KubernetesReplicasetAssetModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["current_replicas", b"current_replicas", "desired_replicas", b"desired_replicas", "name", b"name", "namespace", b"namespace", "selector", b"selector"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["current_replicas", b"current_replicas", "desired_replicas", b"desired_replicas", "name", b"name", "namespace", b"namespace", "selector", b"selector"]) -> None: ...
 
-Global___KubernetesReplicasetAssetModel: typing_extensions.TypeAlias = KubernetesReplicasetAssetModel
+global___KubernetesReplicasetAssetModel = KubernetesReplicasetAssetModel
 
 @typing.final
 class KubernetesStatefulsetAssetModel(google.protobuf.message.Message):
@@ -426,7 +420,7 @@ class KubernetesStatefulsetAssetModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["containers", b"containers", "name", b"name", "namespace", b"namespace", "replicas", b"replicas", "service_name", b"service_name", "volume_claims", b"volume_claims"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["containers", b"containers", "name", b"name", "namespace", b"namespace", "replicas", b"replicas", "service_name", b"service_name", "volume_claims", b"volume_claims"]) -> None: ...
 
-Global___KubernetesStatefulsetAssetModel: typing_extensions.TypeAlias = KubernetesStatefulsetAssetModel
+global___KubernetesStatefulsetAssetModel = KubernetesStatefulsetAssetModel
 
 @typing.final
 class KubernetesNetworkMapAssetModel(google.protobuf.message.Message):
@@ -455,7 +449,7 @@ class KubernetesNetworkMapAssetModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["description", b"description", "name", b"name", "network_map_data", b"network_map_data", "total_services", b"total_services"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["description", b"description", "name", b"name", "network_map_data", b"network_map_data", "total_services", b"total_services"]) -> None: ...
 
-Global___KubernetesNetworkMapAssetModel: typing_extensions.TypeAlias = KubernetesNetworkMapAssetModel
+global___KubernetesNetworkMapAssetModel = KubernetesNetworkMapAssetModel
 
 @typing.final
 class KubectlNamespace(google.protobuf.message.Message):
@@ -472,7 +466,7 @@ class KubectlNamespace(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["name", b"name"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["name", b"name"]) -> None: ...
 
-Global___KubectlNamespace: typing_extensions.TypeAlias = KubectlNamespace
+global___KubectlNamespace = KubectlNamespace
 
 @typing.final
 class KubectlService(google.protobuf.message.Message):
@@ -493,7 +487,7 @@ class KubectlService(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["name", b"name", "namespace", b"namespace"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["name", b"name", "namespace", b"namespace"]) -> None: ...
 
-Global___KubectlService: typing_extensions.TypeAlias = KubectlService
+global___KubectlService = KubectlService
 
 @typing.final
 class KubectlDeployment(google.protobuf.message.Message):
@@ -514,7 +508,7 @@ class KubectlDeployment(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["name", b"name", "namespace", b"namespace"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["name", b"name", "namespace", b"namespace"]) -> None: ...
 
-Global___KubectlDeployment: typing_extensions.TypeAlias = KubectlDeployment
+global___KubectlDeployment = KubectlDeployment
 
 @typing.final
 class KubectlIngress(google.protobuf.message.Message):
@@ -535,7 +529,7 @@ class KubectlIngress(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["name", b"name", "namespace", b"namespace"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["name", b"name", "namespace", b"namespace"]) -> None: ...
 
-Global___KubectlIngress: typing_extensions.TypeAlias = KubectlIngress
+global___KubectlIngress = KubectlIngress
 
 @typing.final
 class KubectlNetworkPolicy(google.protobuf.message.Message):
@@ -556,7 +550,7 @@ class KubectlNetworkPolicy(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["name", b"name", "namespace", b"namespace"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["name", b"name", "namespace", b"namespace"]) -> None: ...
 
-Global___KubectlNetworkPolicy: typing_extensions.TypeAlias = KubectlNetworkPolicy
+global___KubectlNetworkPolicy = KubectlNetworkPolicy
 
 @typing.final
 class KubectlHpa(google.protobuf.message.Message):
@@ -577,7 +571,7 @@ class KubectlHpa(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["name", b"name", "namespace", b"namespace"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["name", b"name", "namespace", b"namespace"]) -> None: ...
 
-Global___KubectlHpa: typing_extensions.TypeAlias = KubectlHpa
+global___KubectlHpa = KubectlHpa
 
 @typing.final
 class KubectlReplicaset(google.protobuf.message.Message):
@@ -598,7 +592,7 @@ class KubectlReplicaset(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["name", b"name", "namespace", b"namespace"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["name", b"name", "namespace", b"namespace"]) -> None: ...
 
-Global___KubectlReplicaset: typing_extensions.TypeAlias = KubectlReplicaset
+global___KubectlReplicaset = KubectlReplicaset
 
 @typing.final
 class KubectlStatefulset(google.protobuf.message.Message):
@@ -619,7 +613,7 @@ class KubectlStatefulset(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["name", b"name", "namespace", b"namespace"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["name", b"name", "namespace", b"namespace"]) -> None: ...
 
-Global___KubectlStatefulset: typing_extensions.TypeAlias = KubectlStatefulset
+global___KubectlStatefulset = KubectlStatefulset
 
 @typing.final
 class KubectlNetworkMap(google.protobuf.message.Message):
@@ -636,7 +630,7 @@ class KubectlNetworkMap(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["name", b"name"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["name", b"name"]) -> None: ...
 
-Global___KubectlNetworkMap: typing_extensions.TypeAlias = KubectlNetworkMap
+global___KubectlNetworkMap = KubectlNetworkMap
 
 @typing.final
 class KubernetesAssetModel(google.protobuf.message.Message):
@@ -661,23 +655,23 @@ class KubernetesAssetModel(google.protobuf.message.Message):
     @property
     def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     @property
-    def kubernetes_namespace(self) -> Global___KubernetesNamespaceAssetModel: ...
+    def kubernetes_namespace(self) -> global___KubernetesNamespaceAssetModel: ...
     @property
-    def kubernetes_service(self) -> Global___KubernetesServiceAssetModel: ...
+    def kubernetes_service(self) -> global___KubernetesServiceAssetModel: ...
     @property
-    def kubernetes_deployment(self) -> Global___KubernetesDeploymentAssetModel: ...
+    def kubernetes_deployment(self) -> global___KubernetesDeploymentAssetModel: ...
     @property
-    def kubernetes_ingress(self) -> Global___KubernetesIngressAssetModel: ...
+    def kubernetes_ingress(self) -> global___KubernetesIngressAssetModel: ...
     @property
-    def kubernetes_network_policy(self) -> Global___KubernetesNetworkPolicyAssetModel: ...
+    def kubernetes_network_policy(self) -> global___KubernetesNetworkPolicyAssetModel: ...
     @property
-    def kubernetes_hpa(self) -> Global___KubernetesHpaAssetModel: ...
+    def kubernetes_hpa(self) -> global___KubernetesHpaAssetModel: ...
     @property
-    def kubernetes_replicaset(self) -> Global___KubernetesReplicasetAssetModel: ...
+    def kubernetes_replicaset(self) -> global___KubernetesReplicasetAssetModel: ...
     @property
-    def kubernetes_statefulset(self) -> Global___KubernetesStatefulsetAssetModel: ...
+    def kubernetes_statefulset(self) -> global___KubernetesStatefulsetAssetModel: ...
     @property
-    def kubernetes_network_map(self) -> Global___KubernetesNetworkMapAssetModel: ...
+    def kubernetes_network_map(self) -> global___KubernetesNetworkMapAssetModel: ...
     def __init__(
         self,
         *,
@@ -685,21 +679,21 @@ class KubernetesAssetModel(google.protobuf.message.Message):
         connector_type: core.protos.base_pb2.Source.ValueType = ...,
         type: core.protos.base_pb2.SourceModelType.ValueType = ...,
         last_updated: builtins.int = ...,
-        kubernetes_namespace: Global___KubernetesNamespaceAssetModel | None = ...,
-        kubernetes_service: Global___KubernetesServiceAssetModel | None = ...,
-        kubernetes_deployment: Global___KubernetesDeploymentAssetModel | None = ...,
-        kubernetes_ingress: Global___KubernetesIngressAssetModel | None = ...,
-        kubernetes_network_policy: Global___KubernetesNetworkPolicyAssetModel | None = ...,
-        kubernetes_hpa: Global___KubernetesHpaAssetModel | None = ...,
-        kubernetes_replicaset: Global___KubernetesReplicasetAssetModel | None = ...,
-        kubernetes_statefulset: Global___KubernetesStatefulsetAssetModel | None = ...,
-        kubernetes_network_map: Global___KubernetesNetworkMapAssetModel | None = ...,
+        kubernetes_namespace: global___KubernetesNamespaceAssetModel | None = ...,
+        kubernetes_service: global___KubernetesServiceAssetModel | None = ...,
+        kubernetes_deployment: global___KubernetesDeploymentAssetModel | None = ...,
+        kubernetes_ingress: global___KubernetesIngressAssetModel | None = ...,
+        kubernetes_network_policy: global___KubernetesNetworkPolicyAssetModel | None = ...,
+        kubernetes_hpa: global___KubernetesHpaAssetModel | None = ...,
+        kubernetes_replicaset: global___KubernetesReplicasetAssetModel | None = ...,
+        kubernetes_statefulset: global___KubernetesStatefulsetAssetModel | None = ...,
+        kubernetes_network_map: global___KubernetesNetworkMapAssetModel | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["asset", b"asset", "id", b"id", "kubernetes_deployment", b"kubernetes_deployment", "kubernetes_hpa", b"kubernetes_hpa", "kubernetes_ingress", b"kubernetes_ingress", "kubernetes_namespace", b"kubernetes_namespace", "kubernetes_network_map", b"kubernetes_network_map", "kubernetes_network_policy", b"kubernetes_network_policy", "kubernetes_replicaset", b"kubernetes_replicaset", "kubernetes_service", b"kubernetes_service", "kubernetes_statefulset", b"kubernetes_statefulset"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["asset", b"asset", "connector_type", b"connector_type", "id", b"id", "kubernetes_deployment", b"kubernetes_deployment", "kubernetes_hpa", b"kubernetes_hpa", "kubernetes_ingress", b"kubernetes_ingress", "kubernetes_namespace", b"kubernetes_namespace", "kubernetes_network_map", b"kubernetes_network_map", "kubernetes_network_policy", b"kubernetes_network_policy", "kubernetes_replicaset", b"kubernetes_replicaset", "kubernetes_service", b"kubernetes_service", "kubernetes_statefulset", b"kubernetes_statefulset", "last_updated", b"last_updated", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["asset", b"asset"]) -> typing.Literal["kubernetes_namespace", "kubernetes_service", "kubernetes_deployment", "kubernetes_ingress", "kubernetes_network_policy", "kubernetes_hpa", "kubernetes_replicaset", "kubernetes_statefulset", "kubernetes_network_map"] | None: ...
 
-Global___KubernetesAssetModel: typing_extensions.TypeAlias = KubernetesAssetModel
+global___KubernetesAssetModel = KubernetesAssetModel
 
 @typing.final
 class KubernetesAssets(google.protobuf.message.Message):
@@ -707,12 +701,12 @@ class KubernetesAssets(google.protobuf.message.Message):
 
     ASSETS_FIELD_NUMBER: builtins.int
     @property
-    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___KubernetesAssetModel]: ...
+    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___KubernetesAssetModel]: ...
     def __init__(
         self,
         *,
-        assets: collections.abc.Iterable[Global___KubernetesAssetModel] | None = ...,
+        assets: collections.abc.Iterable[global___KubernetesAssetModel] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["assets", b"assets"]) -> None: ...
 
-Global___KubernetesAssets: typing_extensions.TypeAlias = KubernetesAssets
+global___KubernetesAssets = KubernetesAssets

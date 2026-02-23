@@ -11,13 +11,7 @@ import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.message
 import google.protobuf.wrappers_pb2
-import sys
 import typing
-
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
-else:
-    import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
@@ -53,7 +47,7 @@ class AsanaProjectAssetModel(google.protobuf.message.Message):
     @property
     def project_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
-    def workspace(self) -> Global___AsanaProjectAssetModel.Workspace: ...
+    def workspace(self) -> global___AsanaProjectAssetModel.Workspace: ...
     @property
     def alert_ops_configuration(self) -> core.protos.connectors.api_pb2.AsanaAlertOpsConfiguration: ...
     def __init__(
@@ -61,13 +55,13 @@ class AsanaProjectAssetModel(google.protobuf.message.Message):
         *,
         project_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
         project_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        workspace: Global___AsanaProjectAssetModel.Workspace | None = ...,
+        workspace: global___AsanaProjectAssetModel.Workspace | None = ...,
         alert_ops_configuration: core.protos.connectors.api_pb2.AsanaAlertOpsConfiguration | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["alert_ops_configuration", b"alert_ops_configuration", "project_id", b"project_id", "project_name", b"project_name", "workspace", b"workspace"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["alert_ops_configuration", b"alert_ops_configuration", "project_id", b"project_id", "project_name", b"project_name", "workspace", b"workspace"]) -> None: ...
 
-Global___AsanaProjectAssetModel: typing_extensions.TypeAlias = AsanaProjectAssetModel
+global___AsanaProjectAssetModel = AsanaProjectAssetModel
 
 @typing.final
 class AsanaProjectAssetOptions(google.protobuf.message.Message):
@@ -83,7 +77,7 @@ class AsanaProjectAssetOptions(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["project_ids", b"project_ids"]) -> None: ...
 
-Global___AsanaProjectAssetOptions: typing_extensions.TypeAlias = AsanaProjectAssetOptions
+global___AsanaProjectAssetOptions = AsanaProjectAssetOptions
 
 @typing.final
 class AsanaAssetModel(google.protobuf.message.Message):
@@ -100,7 +94,7 @@ class AsanaAssetModel(google.protobuf.message.Message):
     @property
     def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     @property
-    def asana_project(self) -> Global___AsanaProjectAssetModel: ...
+    def asana_project(self) -> global___AsanaProjectAssetModel: ...
     def __init__(
         self,
         *,
@@ -108,13 +102,13 @@ class AsanaAssetModel(google.protobuf.message.Message):
         connector_type: core.protos.base_pb2.Source.ValueType = ...,
         type: core.protos.base_pb2.SourceModelType.ValueType = ...,
         last_updated: builtins.int = ...,
-        asana_project: Global___AsanaProjectAssetModel | None = ...,
+        asana_project: global___AsanaProjectAssetModel | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["asana_project", b"asana_project", "asset", b"asset", "id", b"id"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["asana_project", b"asana_project", "asset", b"asset", "connector_type", b"connector_type", "id", b"id", "last_updated", b"last_updated", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["asset", b"asset"]) -> typing.Literal["asana_project"] | None: ...
 
-Global___AsanaAssetModel: typing_extensions.TypeAlias = AsanaAssetModel
+global___AsanaAssetModel = AsanaAssetModel
 
 @typing.final
 class AsanaAssets(google.protobuf.message.Message):
@@ -122,12 +116,12 @@ class AsanaAssets(google.protobuf.message.Message):
 
     ASSETS_FIELD_NUMBER: builtins.int
     @property
-    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___AsanaAssetModel]: ...
+    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___AsanaAssetModel]: ...
     def __init__(
         self,
         *,
-        assets: collections.abc.Iterable[Global___AsanaAssetModel] | None = ...,
+        assets: collections.abc.Iterable[global___AsanaAssetModel] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["assets", b"assets"]) -> None: ...
 
-Global___AsanaAssets: typing_extensions.TypeAlias = AsanaAssets
+global___AsanaAssets = AsanaAssets

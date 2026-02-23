@@ -41,7 +41,7 @@ STATUS: BrowserAutomationDataType.ValueType  # 2
 IMAGE_URLS: BrowserAutomationDataType.ValueType  # 3
 IMAGE_HYPERLINK_URLS: BrowserAutomationDataType.ValueType  # 4
 INVESTIGATION_MESSAGES: BrowserAutomationDataType.ValueType  # 5
-Global___BrowserAutomationDataType: typing_extensions.TypeAlias = BrowserAutomationDataType
+global___BrowserAutomationDataType = BrowserAutomationDataType
 
 @typing.final
 class BrowserAutomationDetails(google.protobuf.message.Message):
@@ -78,4 +78,4 @@ class BrowserAutomationDetails(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["live_url", b"live_url", "prompt_run_id", b"prompt_run_id", "status", b"status"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["image_hyperlink_urls", b"image_hyperlink_urls", "image_urls", b"image_urls", "investigation_messages", b"investigation_messages", "live_url", b"live_url", "prompt_run_id", b"prompt_run_id", "status", b"status"]) -> None: ...
 
-Global___BrowserAutomationDetails: typing_extensions.TypeAlias = BrowserAutomationDetails
+global___BrowserAutomationDetails = BrowserAutomationDetails

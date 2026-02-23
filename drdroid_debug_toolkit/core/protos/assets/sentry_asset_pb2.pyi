@@ -10,13 +10,7 @@ import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.message
 import google.protobuf.wrappers_pb2
-import sys
 import typing
-
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
-else:
-    import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
@@ -51,7 +45,7 @@ class SentryProjectAssetModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["id", b"id", "name", b"name", "organization_slug", b"organization_slug", "platform", b"platform", "slug", b"slug"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["id", b"id", "name", b"name", "organization_slug", b"organization_slug", "platform", b"platform", "slug", b"slug"]) -> None: ...
 
-Global___SentryProjectAssetModel: typing_extensions.TypeAlias = SentryProjectAssetModel
+global___SentryProjectAssetModel = SentryProjectAssetModel
 
 @typing.final
 class SentryProjectAssetOptions(google.protobuf.message.Message):
@@ -67,7 +61,7 @@ class SentryProjectAssetOptions(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["slugs", b"slugs"]) -> None: ...
 
-Global___SentryProjectAssetOptions: typing_extensions.TypeAlias = SentryProjectAssetOptions
+global___SentryProjectAssetOptions = SentryProjectAssetOptions
 
 @typing.final
 class SentryAssetModel(google.protobuf.message.Message):
@@ -84,7 +78,7 @@ class SentryAssetModel(google.protobuf.message.Message):
     @property
     def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     @property
-    def sentry_project(self) -> Global___SentryProjectAssetModel: ...
+    def sentry_project(self) -> global___SentryProjectAssetModel: ...
     def __init__(
         self,
         *,
@@ -92,13 +86,13 @@ class SentryAssetModel(google.protobuf.message.Message):
         connector_type: core.protos.base_pb2.Source.ValueType = ...,
         type: core.protos.base_pb2.SourceModelType.ValueType = ...,
         last_updated: builtins.int = ...,
-        sentry_project: Global___SentryProjectAssetModel | None = ...,
+        sentry_project: global___SentryProjectAssetModel | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["asset", b"asset", "id", b"id", "sentry_project", b"sentry_project"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["asset", b"asset", "connector_type", b"connector_type", "id", b"id", "last_updated", b"last_updated", "sentry_project", b"sentry_project", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["asset", b"asset"]) -> typing.Literal["sentry_project"] | None: ...
 
-Global___SentryAssetModel: typing_extensions.TypeAlias = SentryAssetModel
+global___SentryAssetModel = SentryAssetModel
 
 @typing.final
 class SentryAssets(google.protobuf.message.Message):
@@ -106,12 +100,12 @@ class SentryAssets(google.protobuf.message.Message):
 
     ASSETS_FIELD_NUMBER: builtins.int
     @property
-    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___SentryAssetModel]: ...
+    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___SentryAssetModel]: ...
     def __init__(
         self,
         *,
-        assets: collections.abc.Iterable[Global___SentryAssetModel] | None = ...,
+        assets: collections.abc.Iterable[global___SentryAssetModel] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["assets", b"assets"]) -> None: ...
 
-Global___SentryAssets: typing_extensions.TypeAlias = SentryAssets
+global___SentryAssets = SentryAssets

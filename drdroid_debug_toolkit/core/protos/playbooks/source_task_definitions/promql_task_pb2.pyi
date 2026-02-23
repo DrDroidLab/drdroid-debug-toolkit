@@ -70,17 +70,17 @@ class PromQl(google.protobuf.message.Message):
 
     TYPE_FIELD_NUMBER: builtins.int
     PROMQL_METRIC_EXECUTION_FIELD_NUMBER: builtins.int
-    type: Global___PromQl.TaskType.ValueType
+    type: global___PromQl.TaskType.ValueType
     @property
-    def promql_metric_execution(self) -> Global___PromQl.PromQlMetricExecution: ...
+    def promql_metric_execution(self) -> global___PromQl.PromQlMetricExecution: ...
     def __init__(
         self,
         *,
-        type: Global___PromQl.TaskType.ValueType = ...,
-        promql_metric_execution: Global___PromQl.PromQlMetricExecution | None = ...,
+        type: global___PromQl.TaskType.ValueType = ...,
+        promql_metric_execution: global___PromQl.PromQlMetricExecution | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["promql_metric_execution", b"promql_metric_execution", "task", b"task"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["promql_metric_execution", b"promql_metric_execution", "task", b"task", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["task", b"task"]) -> typing.Literal["promql_metric_execution"] | None: ...
 
-Global___PromQl: typing_extensions.TypeAlias = PromQl
+global___PromQl = PromQl

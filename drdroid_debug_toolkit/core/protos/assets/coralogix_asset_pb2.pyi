@@ -11,13 +11,7 @@ import google.protobuf.internal.containers
 import google.protobuf.message
 import google.protobuf.struct_pb2
 import google.protobuf.wrappers_pb2
-import sys
 import typing
-
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
-else:
-    import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
@@ -71,19 +65,19 @@ class CoralogixDashboardWidgetAssetModel(google.protobuf.message.Message):
     @property
     def dashboard_json(self) -> google.protobuf.struct_pb2.Struct: ...
     @property
-    def widgets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___CoralogixDashboardWidgetAssetModel.Widget]: ...
+    def widgets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___CoralogixDashboardWidgetAssetModel.Widget]: ...
     def __init__(
         self,
         *,
         dashboard_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
         dashboard_title: google.protobuf.wrappers_pb2.StringValue | None = ...,
         dashboard_json: google.protobuf.struct_pb2.Struct | None = ...,
-        widgets: collections.abc.Iterable[Global___CoralogixDashboardWidgetAssetModel.Widget] | None = ...,
+        widgets: collections.abc.Iterable[global___CoralogixDashboardWidgetAssetModel.Widget] | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["dashboard_id", b"dashboard_id", "dashboard_json", b"dashboard_json", "dashboard_title", b"dashboard_title"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["dashboard_id", b"dashboard_id", "dashboard_json", b"dashboard_json", "dashboard_title", b"dashboard_title", "widgets", b"widgets"]) -> None: ...
 
-Global___CoralogixDashboardWidgetAssetModel: typing_extensions.TypeAlias = CoralogixDashboardWidgetAssetModel
+global___CoralogixDashboardWidgetAssetModel = CoralogixDashboardWidgetAssetModel
 
 @typing.final
 class CoralogixDashboardAssetOptions(google.protobuf.message.Message):
@@ -110,15 +104,15 @@ class CoralogixDashboardAssetOptions(google.protobuf.message.Message):
 
     DASHBOARDS_FIELD_NUMBER: builtins.int
     @property
-    def dashboards(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___CoralogixDashboardAssetOptions.CoralogixDashboardOptions]: ...
+    def dashboards(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___CoralogixDashboardAssetOptions.CoralogixDashboardOptions]: ...
     def __init__(
         self,
         *,
-        dashboards: collections.abc.Iterable[Global___CoralogixDashboardAssetOptions.CoralogixDashboardOptions] | None = ...,
+        dashboards: collections.abc.Iterable[global___CoralogixDashboardAssetOptions.CoralogixDashboardOptions] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["dashboards", b"dashboards"]) -> None: ...
 
-Global___CoralogixDashboardAssetOptions: typing_extensions.TypeAlias = CoralogixDashboardAssetOptions
+global___CoralogixDashboardAssetOptions = CoralogixDashboardAssetOptions
 
 @typing.final
 class CoralogixAssetModel(google.protobuf.message.Message):
@@ -136,9 +130,9 @@ class CoralogixAssetModel(google.protobuf.message.Message):
     @property
     def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     @property
-    def coralogix_dashboard(self) -> Global___CoralogixDashboardWidgetAssetModel: ...
+    def coralogix_dashboard(self) -> global___CoralogixDashboardWidgetAssetModel: ...
     @property
-    def coralogix_index_mapping(self) -> Global___CoralogixIndexMappingAssetModel: ...
+    def coralogix_index_mapping(self) -> global___CoralogixIndexMappingAssetModel: ...
     def __init__(
         self,
         *,
@@ -146,14 +140,14 @@ class CoralogixAssetModel(google.protobuf.message.Message):
         connector_type: core.protos.base_pb2.Source.ValueType = ...,
         type: core.protos.base_pb2.SourceModelType.ValueType = ...,
         last_updated: builtins.int = ...,
-        coralogix_dashboard: Global___CoralogixDashboardWidgetAssetModel | None = ...,
-        coralogix_index_mapping: Global___CoralogixIndexMappingAssetModel | None = ...,
+        coralogix_dashboard: global___CoralogixDashboardWidgetAssetModel | None = ...,
+        coralogix_index_mapping: global___CoralogixIndexMappingAssetModel | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["asset", b"asset", "coralogix_dashboard", b"coralogix_dashboard", "coralogix_index_mapping", b"coralogix_index_mapping", "id", b"id"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["asset", b"asset", "connector_type", b"connector_type", "coralogix_dashboard", b"coralogix_dashboard", "coralogix_index_mapping", b"coralogix_index_mapping", "id", b"id", "last_updated", b"last_updated", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["asset", b"asset"]) -> typing.Literal["coralogix_dashboard", "coralogix_index_mapping"] | None: ...
 
-Global___CoralogixAssetModel: typing_extensions.TypeAlias = CoralogixAssetModel
+global___CoralogixAssetModel = CoralogixAssetModel
 
 @typing.final
 class CoralogixIndexMappingAssetModel(google.protobuf.message.Message):
@@ -186,7 +180,7 @@ class CoralogixIndexMappingAssetModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["description", b"description", "index_name", b"index_name", "index_pattern", b"index_pattern", "mapping_data", b"mapping_data", "mapping_type", b"mapping_type"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["description", b"description", "index_name", b"index_name", "index_pattern", b"index_pattern", "mapping_data", b"mapping_data", "mapping_type", b"mapping_type"]) -> None: ...
 
-Global___CoralogixIndexMappingAssetModel: typing_extensions.TypeAlias = CoralogixIndexMappingAssetModel
+global___CoralogixIndexMappingAssetModel = CoralogixIndexMappingAssetModel
 
 @typing.final
 class CoralogixIndexMappingAssetOptions(google.protobuf.message.Message):
@@ -213,15 +207,15 @@ class CoralogixIndexMappingAssetOptions(google.protobuf.message.Message):
 
     INDEX_MAPPINGS_FIELD_NUMBER: builtins.int
     @property
-    def index_mappings(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___CoralogixIndexMappingAssetOptions.CoralogixIndexMappingOptions]: ...
+    def index_mappings(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___CoralogixIndexMappingAssetOptions.CoralogixIndexMappingOptions]: ...
     def __init__(
         self,
         *,
-        index_mappings: collections.abc.Iterable[Global___CoralogixIndexMappingAssetOptions.CoralogixIndexMappingOptions] | None = ...,
+        index_mappings: collections.abc.Iterable[global___CoralogixIndexMappingAssetOptions.CoralogixIndexMappingOptions] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["index_mappings", b"index_mappings"]) -> None: ...
 
-Global___CoralogixIndexMappingAssetOptions: typing_extensions.TypeAlias = CoralogixIndexMappingAssetOptions
+global___CoralogixIndexMappingAssetOptions = CoralogixIndexMappingAssetOptions
 
 @typing.final
 class CoralogixAssets(google.protobuf.message.Message):
@@ -229,12 +223,12 @@ class CoralogixAssets(google.protobuf.message.Message):
 
     ASSETS_FIELD_NUMBER: builtins.int
     @property
-    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___CoralogixAssetModel]: ...
+    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___CoralogixAssetModel]: ...
     def __init__(
         self,
         *,
-        assets: collections.abc.Iterable[Global___CoralogixAssetModel] | None = ...,
+        assets: collections.abc.Iterable[global___CoralogixAssetModel] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["assets", b"assets"]) -> None: ...
 
-Global___CoralogixAssets: typing_extensions.TypeAlias = CoralogixAssets
+global___CoralogixAssets = CoralogixAssets

@@ -31,4 +31,4 @@ class EventType(_EventType, metaclass=_EventTypeEnumTypeWrapper): ...
 UNKNOWN_ET: EventType.ValueType  # 0
 OAUTH_CALLBACK: EventType.ValueType  # 1
 EVENT_CALLBACK: EventType.ValueType  # 2
-Global___EventType: typing_extensions.TypeAlias = EventType
+global___EventType = EventType

@@ -11,13 +11,7 @@ import google.protobuf.internal.containers
 import google.protobuf.message
 import google.protobuf.struct_pb2
 import google.protobuf.wrappers_pb2
-import sys
 import typing
-
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
-else:
-    import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
@@ -60,7 +54,7 @@ class LinearTeamAssetModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["description", b"description", "id", b"id", "key", b"key", "metadata", b"metadata", "name", b"name"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["description", b"description", "id", b"id", "key", b"key", "metadata", b"metadata", "name", b"name"]) -> None: ...
 
-Global___LinearTeamAssetModel: typing_extensions.TypeAlias = LinearTeamAssetModel
+global___LinearTeamAssetModel = LinearTeamAssetModel
 
 @typing.final
 class LinearUserAssetModel(google.protobuf.message.Message):
@@ -84,7 +78,7 @@ class LinearUserAssetModel(google.protobuf.message.Message):
     @property
     def active(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
     @property
-    def teams(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___LinearTeamReference]:
+    def teams(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___LinearTeamReference]:
         """Teams this user belongs to"""
 
     @property
@@ -99,13 +93,13 @@ class LinearUserAssetModel(google.protobuf.message.Message):
         email: google.protobuf.wrappers_pb2.StringValue | None = ...,
         display_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
         active: google.protobuf.wrappers_pb2.BoolValue | None = ...,
-        teams: collections.abc.Iterable[Global___LinearTeamReference] | None = ...,
+        teams: collections.abc.Iterable[global___LinearTeamReference] | None = ...,
         metadata: google.protobuf.struct_pb2.Struct | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["active", b"active", "display_name", b"display_name", "email", b"email", "id", b"id", "metadata", b"metadata", "name", b"name"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["active", b"active", "display_name", b"display_name", "email", b"email", "id", b"id", "metadata", b"metadata", "name", b"name", "teams", b"teams"]) -> None: ...
 
-Global___LinearUserAssetModel: typing_extensions.TypeAlias = LinearUserAssetModel
+global___LinearUserAssetModel = LinearUserAssetModel
 
 @typing.final
 class LinearProjectAssetModel(google.protobuf.message.Message):
@@ -126,7 +120,7 @@ class LinearProjectAssetModel(google.protobuf.message.Message):
     @property
     def state(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
-    def teams(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___LinearTeamReference]:
+    def teams(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___LinearTeamReference]:
         """Teams this project belongs to"""
 
     @property
@@ -140,13 +134,13 @@ class LinearProjectAssetModel(google.protobuf.message.Message):
         name: google.protobuf.wrappers_pb2.StringValue | None = ...,
         description: google.protobuf.wrappers_pb2.StringValue | None = ...,
         state: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        teams: collections.abc.Iterable[Global___LinearTeamReference] | None = ...,
+        teams: collections.abc.Iterable[global___LinearTeamReference] | None = ...,
         metadata: google.protobuf.struct_pb2.Struct | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["description", b"description", "id", b"id", "metadata", b"metadata", "name", b"name", "state", b"state"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["description", b"description", "id", b"id", "metadata", b"metadata", "name", b"name", "state", b"state", "teams", b"teams"]) -> None: ...
 
-Global___LinearProjectAssetModel: typing_extensions.TypeAlias = LinearProjectAssetModel
+global___LinearProjectAssetModel = LinearProjectAssetModel
 
 @typing.final
 class LinearTeamReference(google.protobuf.message.Message):
@@ -169,7 +163,7 @@ class LinearTeamReference(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["id", b"id", "name", b"name"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["id", b"id", "name", b"name"]) -> None: ...
 
-Global___LinearTeamReference: typing_extensions.TypeAlias = LinearTeamReference
+global___LinearTeamReference = LinearTeamReference
 
 @typing.final
 class LinearAssetModel(google.protobuf.message.Message):
@@ -200,11 +194,11 @@ class LinearAssetModel(google.protobuf.message.Message):
         """Linear resource ID (team id, user id, or project id)"""
 
     @property
-    def linear_team(self) -> Global___LinearTeamAssetModel: ...
+    def linear_team(self) -> global___LinearTeamAssetModel: ...
     @property
-    def linear_user(self) -> Global___LinearUserAssetModel: ...
+    def linear_user(self) -> global___LinearUserAssetModel: ...
     @property
-    def linear_project(self) -> Global___LinearProjectAssetModel: ...
+    def linear_project(self) -> global___LinearProjectAssetModel: ...
     def __init__(
         self,
         *,
@@ -214,15 +208,15 @@ class LinearAssetModel(google.protobuf.message.Message):
         last_updated: builtins.int = ...,
         name: google.protobuf.wrappers_pb2.StringValue | None = ...,
         linear_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        linear_team: Global___LinearTeamAssetModel | None = ...,
-        linear_user: Global___LinearUserAssetModel | None = ...,
-        linear_project: Global___LinearProjectAssetModel | None = ...,
+        linear_team: global___LinearTeamAssetModel | None = ...,
+        linear_user: global___LinearUserAssetModel | None = ...,
+        linear_project: global___LinearProjectAssetModel | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["id", b"id", "linear", b"linear", "linear_id", b"linear_id", "linear_project", b"linear_project", "linear_team", b"linear_team", "linear_user", b"linear_user", "name", b"name"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["connector_type", b"connector_type", "id", b"id", "last_updated", b"last_updated", "linear", b"linear", "linear_id", b"linear_id", "linear_project", b"linear_project", "linear_team", b"linear_team", "linear_user", b"linear_user", "name", b"name", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["linear", b"linear"]) -> typing.Literal["linear_team", "linear_user", "linear_project"] | None: ...
 
-Global___LinearAssetModel: typing_extensions.TypeAlias = LinearAssetModel
+global___LinearAssetModel = LinearAssetModel
 
 @typing.final
 class LinearAssets(google.protobuf.message.Message):
@@ -232,15 +226,15 @@ class LinearAssets(google.protobuf.message.Message):
 
     ASSETS_FIELD_NUMBER: builtins.int
     @property
-    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___LinearAssetModel]: ...
+    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___LinearAssetModel]: ...
     def __init__(
         self,
         *,
-        assets: collections.abc.Iterable[Global___LinearAssetModel] | None = ...,
+        assets: collections.abc.Iterable[global___LinearAssetModel] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["assets", b"assets"]) -> None: ...
 
-Global___LinearAssets: typing_extensions.TypeAlias = LinearAssets
+global___LinearAssets = LinearAssets
 
 @typing.final
 class LinearTeamAssetOptions(google.protobuf.message.Message):
@@ -262,7 +256,7 @@ class LinearTeamAssetOptions(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["team_ids", b"team_ids", "team_names", b"team_names"]) -> None: ...
 
-Global___LinearTeamAssetOptions: typing_extensions.TypeAlias = LinearTeamAssetOptions
+global___LinearTeamAssetOptions = LinearTeamAssetOptions
 
 @typing.final
 class LinearUserAssetOptions(google.protobuf.message.Message):
@@ -284,7 +278,7 @@ class LinearUserAssetOptions(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["team_ids", b"team_ids", "user_ids", b"user_ids"]) -> None: ...
 
-Global___LinearUserAssetOptions: typing_extensions.TypeAlias = LinearUserAssetOptions
+global___LinearUserAssetOptions = LinearUserAssetOptions
 
 @typing.final
 class LinearProjectAssetOptions(google.protobuf.message.Message):
@@ -312,4 +306,4 @@ class LinearProjectAssetOptions(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["project_ids", b"project_ids", "states", b"states", "team_ids", b"team_ids"]) -> None: ...
 
-Global___LinearProjectAssetOptions: typing_extensions.TypeAlias = LinearProjectAssetOptions
+global___LinearProjectAssetOptions = LinearProjectAssetOptions

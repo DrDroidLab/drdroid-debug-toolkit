@@ -89,7 +89,7 @@ class Grafana(google.protobuf.message.Message):
         @property
         def promql_expression(self) -> google.protobuf.wrappers_pb2.StringValue: ...
         @property
-        def promql_label_option_values(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___Grafana.PromQlMetricExecution.LabelValue]: ...
+        def promql_label_option_values(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___Grafana.PromQlMetricExecution.LabelValue]: ...
         @property
         def dashboard_uid(self) -> google.protobuf.wrappers_pb2.StringValue: ...
         @property
@@ -107,7 +107,7 @@ class Grafana(google.protobuf.message.Message):
             *,
             datasource_uid: google.protobuf.wrappers_pb2.StringValue | None = ...,
             promql_expression: google.protobuf.wrappers_pb2.StringValue | None = ...,
-            promql_label_option_values: collections.abc.Iterable[Global___Grafana.PromQlMetricExecution.LabelValue] | None = ...,
+            promql_label_option_values: collections.abc.Iterable[global___Grafana.PromQlMetricExecution.LabelValue] | None = ...,
             dashboard_uid: google.protobuf.wrappers_pb2.StringValue | None = ...,
             dashboard_title: google.protobuf.wrappers_pb2.StringValue | None = ...,
             panel_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
@@ -146,7 +146,7 @@ class Grafana(google.protobuf.message.Message):
         PANEL_ID_FIELD_NUMBER: builtins.int
         DATASOURCE_UID_FIELD_NUMBER: builtins.int
         @property
-        def queries(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___Grafana.QueryDashboardPanelMetricTask.Query]: ...
+        def queries(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___Grafana.QueryDashboardPanelMetricTask.Query]: ...
         @property
         def dashboard_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
         @property
@@ -156,7 +156,7 @@ class Grafana(google.protobuf.message.Message):
         def __init__(
             self,
             *,
-            queries: collections.abc.Iterable[Global___Grafana.QueryDashboardPanelMetricTask.Query] | None = ...,
+            queries: collections.abc.Iterable[global___Grafana.QueryDashboardPanelMetricTask.Query] | None = ...,
             dashboard_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
             panel_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
             datasource_uid: google.protobuf.wrappers_pb2.StringValue | None = ...,
@@ -273,38 +273,38 @@ class Grafana(google.protobuf.message.Message):
     FETCH_DASHBOARD_VARIABLES_FIELD_NUMBER: builtins.int
     LOKI_DATASOURCE_LOG_QUERY_FIELD_NUMBER: builtins.int
     FETCH_ALERT_RULES_FIELD_NUMBER: builtins.int
-    type: Global___Grafana.TaskType.ValueType
+    type: global___Grafana.TaskType.ValueType
     @property
-    def promql_metric_execution(self) -> Global___Grafana.PromQlMetricExecution: ...
+    def promql_metric_execution(self) -> global___Grafana.PromQlMetricExecution: ...
     @property
     def prometheus_datasource_metric_execution(self) -> core.protos.playbooks.source_task_definitions.promql_task_pb2.PromQl.PromQlMetricExecution: ...
     @property
-    def query_dashboard_panel_metric(self) -> Global___Grafana.QueryDashboardPanelMetricTask: ...
+    def query_dashboard_panel_metric(self) -> global___Grafana.QueryDashboardPanelMetricTask: ...
     @property
-    def execute_all_dashboard_panels(self) -> Global___Grafana.ExecuteAllDashboardPanelsTask: ...
+    def execute_all_dashboard_panels(self) -> global___Grafana.ExecuteAllDashboardPanelsTask: ...
     @property
-    def fetch_dashboard_variable_label_values(self) -> Global___Grafana.FetchDashboardVariableLabelValuesTask: ...
+    def fetch_dashboard_variable_label_values(self) -> global___Grafana.FetchDashboardVariableLabelValuesTask: ...
     @property
-    def fetch_dashboard_variables(self) -> Global___Grafana.FetchDashboardVariablesTask: ...
+    def fetch_dashboard_variables(self) -> global___Grafana.FetchDashboardVariablesTask: ...
     @property
-    def loki_datasource_log_query(self) -> Global___Grafana.LokiDatasourceLogQueryTask: ...
+    def loki_datasource_log_query(self) -> global___Grafana.LokiDatasourceLogQueryTask: ...
     @property
-    def fetch_alert_rules(self) -> Global___Grafana.FetchAlertRulesTask: ...
+    def fetch_alert_rules(self) -> global___Grafana.FetchAlertRulesTask: ...
     def __init__(
         self,
         *,
-        type: Global___Grafana.TaskType.ValueType = ...,
-        promql_metric_execution: Global___Grafana.PromQlMetricExecution | None = ...,
+        type: global___Grafana.TaskType.ValueType = ...,
+        promql_metric_execution: global___Grafana.PromQlMetricExecution | None = ...,
         prometheus_datasource_metric_execution: core.protos.playbooks.source_task_definitions.promql_task_pb2.PromQl.PromQlMetricExecution | None = ...,
-        query_dashboard_panel_metric: Global___Grafana.QueryDashboardPanelMetricTask | None = ...,
-        execute_all_dashboard_panels: Global___Grafana.ExecuteAllDashboardPanelsTask | None = ...,
-        fetch_dashboard_variable_label_values: Global___Grafana.FetchDashboardVariableLabelValuesTask | None = ...,
-        fetch_dashboard_variables: Global___Grafana.FetchDashboardVariablesTask | None = ...,
-        loki_datasource_log_query: Global___Grafana.LokiDatasourceLogQueryTask | None = ...,
-        fetch_alert_rules: Global___Grafana.FetchAlertRulesTask | None = ...,
+        query_dashboard_panel_metric: global___Grafana.QueryDashboardPanelMetricTask | None = ...,
+        execute_all_dashboard_panels: global___Grafana.ExecuteAllDashboardPanelsTask | None = ...,
+        fetch_dashboard_variable_label_values: global___Grafana.FetchDashboardVariableLabelValuesTask | None = ...,
+        fetch_dashboard_variables: global___Grafana.FetchDashboardVariablesTask | None = ...,
+        loki_datasource_log_query: global___Grafana.LokiDatasourceLogQueryTask | None = ...,
+        fetch_alert_rules: global___Grafana.FetchAlertRulesTask | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["execute_all_dashboard_panels", b"execute_all_dashboard_panels", "fetch_alert_rules", b"fetch_alert_rules", "fetch_dashboard_variable_label_values", b"fetch_dashboard_variable_label_values", "fetch_dashboard_variables", b"fetch_dashboard_variables", "loki_datasource_log_query", b"loki_datasource_log_query", "prometheus_datasource_metric_execution", b"prometheus_datasource_metric_execution", "promql_metric_execution", b"promql_metric_execution", "query_dashboard_panel_metric", b"query_dashboard_panel_metric", "task", b"task"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["execute_all_dashboard_panels", b"execute_all_dashboard_panels", "fetch_alert_rules", b"fetch_alert_rules", "fetch_dashboard_variable_label_values", b"fetch_dashboard_variable_label_values", "fetch_dashboard_variables", b"fetch_dashboard_variables", "loki_datasource_log_query", b"loki_datasource_log_query", "prometheus_datasource_metric_execution", b"prometheus_datasource_metric_execution", "promql_metric_execution", b"promql_metric_execution", "query_dashboard_panel_metric", b"query_dashboard_panel_metric", "task", b"task", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["task", b"task"]) -> typing.Literal["promql_metric_execution", "prometheus_datasource_metric_execution", "query_dashboard_panel_metric", "execute_all_dashboard_panels", "fetch_dashboard_variable_label_values", "fetch_dashboard_variables", "loki_datasource_log_query", "fetch_alert_rules"] | None: ...
 
-Global___Grafana: typing_extensions.TypeAlias = Grafana
+global___Grafana = Grafana

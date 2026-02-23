@@ -64,17 +64,17 @@ class BigQuery(google.protobuf.message.Message):
 
     TYPE_FIELD_NUMBER: builtins.int
     QUERY_TABLE_FIELD_NUMBER: builtins.int
-    type: Global___BigQuery.TaskType.ValueType
+    type: global___BigQuery.TaskType.ValueType
     @property
-    def query_table(self) -> Global___BigQuery.QueryTable: ...
+    def query_table(self) -> global___BigQuery.QueryTable: ...
     def __init__(
         self,
         *,
-        type: Global___BigQuery.TaskType.ValueType = ...,
-        query_table: Global___BigQuery.QueryTable | None = ...,
+        type: global___BigQuery.TaskType.ValueType = ...,
+        query_table: global___BigQuery.QueryTable | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["query_table", b"query_table", "task", b"task"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["query_table", b"query_table", "task", b"task", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["task", b"task"]) -> typing.Literal["query_table"] | None: ...
 
-Global___BigQuery: typing_extensions.TypeAlias = BigQuery
+global___BigQuery = BigQuery

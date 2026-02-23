@@ -38,7 +38,7 @@ UNKNOWN_OPT_IN: OptInType.ValueType  # 0
 AIOPS: OptInType.ValueType  # 1
 PLAYBOOKS: OptInType.ValueType  # 2
 DYNAMIC_ALERTING: OptInType.ValueType  # 3
-Global___OptInType: typing_extensions.TypeAlias = OptInType
+global___OptInType = OptInType
 
 class _AccountFeatureType:
     ValueType = typing.NewType("ValueType", builtins.int)
@@ -53,7 +53,7 @@ class AccountFeatureType(_AccountFeatureType, metaclass=_AccountFeatureTypeEnumT
 
 UNKNOWN_FEATURE: AccountFeatureType.ValueType  # 0
 ALERT_GROUPING_ENABLED: AccountFeatureType.ValueType  # 1
-Global___AccountFeatureType: typing_extensions.TypeAlias = AccountFeatureType
+global___AccountFeatureType = AccountFeatureType
 
 @typing.final
 class AccountApiToken(google.protobuf.message.Message):
@@ -79,7 +79,7 @@ class AccountApiToken(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["created_at", b"created_at"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["account_id", b"account_id", "created_at", b"created_at", "created_by", b"created_by", "key", b"key"]) -> None: ...
 
-Global___AccountApiToken: typing_extensions.TypeAlias = AccountApiToken
+global___AccountApiToken = AccountApiToken
 
 @typing.final
 class UserFlags(google.protobuf.message.Message):
@@ -100,7 +100,7 @@ class UserFlags(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["is_account_owner", b"is_account_owner", "is_email_verified", b"is_email_verified"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["is_account_owner", b"is_account_owner", "is_email_verified", b"is_email_verified"]) -> None: ...
 
-Global___UserFlags: typing_extensions.TypeAlias = UserFlags
+global___UserFlags = UserFlags
 
 @typing.final
 class User(google.protobuf.message.Message):
@@ -116,7 +116,7 @@ class User(google.protobuf.message.Message):
     first_name: builtins.str
     last_name: builtins.str
     @property
-    def user_flags(self) -> Global___UserFlags: ...
+    def user_flags(self) -> global___UserFlags: ...
     def __init__(
         self,
         *,
@@ -124,12 +124,12 @@ class User(google.protobuf.message.Message):
         email: builtins.str = ...,
         first_name: builtins.str = ...,
         last_name: builtins.str = ...,
-        user_flags: Global___UserFlags | None = ...,
+        user_flags: global___UserFlags | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["user_flags", b"user_flags"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["email", b"email", "first_name", b"first_name", "id", b"id", "last_name", b"last_name", "user_flags", b"user_flags"]) -> None: ...
 
-Global___User: typing_extensions.TypeAlias = User
+global___User = User
 
 @typing.final
 class OptInPreference(google.protobuf.message.Message):
@@ -137,19 +137,19 @@ class OptInPreference(google.protobuf.message.Message):
 
     TYPE_FIELD_NUMBER: builtins.int
     IS_OPTED_IN_FIELD_NUMBER: builtins.int
-    type: Global___OptInType.ValueType
+    type: global___OptInType.ValueType
     @property
     def is_opted_in(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
     def __init__(
         self,
         *,
-        type: Global___OptInType.ValueType = ...,
+        type: global___OptInType.ValueType = ...,
         is_opted_in: google.protobuf.wrappers_pb2.BoolValue | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["is_opted_in", b"is_opted_in"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["is_opted_in", b"is_opted_in", "type", b"type"]) -> None: ...
 
-Global___OptInPreference: typing_extensions.TypeAlias = OptInPreference
+global___OptInPreference = OptInPreference
 
 @typing.final
 class OrgDetails(google.protobuf.message.Message):
@@ -197,20 +197,20 @@ class OrgDetails(google.protobuf.message.Message):
     NAME_FIELD_NUMBER: builtins.int
     TYPE_FIELD_NUMBER: builtins.int
     DETAILS_FIELD_NUMBER: builtins.int
-    type: Global___OrgDetails.Type.ValueType
+    type: global___OrgDetails.Type.ValueType
     @property
     def name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
-    def details(self) -> Global___OrgDetails.Details: ...
+    def details(self) -> global___OrgDetails.Details: ...
     def __init__(
         self,
         *,
         name: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        type: Global___OrgDetails.Type.ValueType = ...,
-        details: Global___OrgDetails.Details | None = ...,
+        type: global___OrgDetails.Type.ValueType = ...,
+        details: global___OrgDetails.Details | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["content", b"content", "details", b"details", "name", b"name"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["content", b"content", "details", b"details", "name", b"name", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["content", b"content"]) -> typing.Literal["details"] | None: ...
 
-Global___OrgDetails: typing_extensions.TypeAlias = OrgDetails
+global___OrgDetails = OrgDetails

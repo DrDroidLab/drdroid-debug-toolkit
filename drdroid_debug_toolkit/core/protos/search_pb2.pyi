@@ -7,13 +7,7 @@ import builtins
 import core.protos.base_pb2
 import google.protobuf.descriptor
 import google.protobuf.message
-import sys
 import typing
-
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
-else:
-    import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
@@ -33,4 +27,4 @@ class FuzzySearchRequest(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["context", b"context", "pattern", b"pattern"]) -> None: ...
 
-Global___FuzzySearchRequest: typing_extensions.TypeAlias = FuzzySearchRequest
+global___FuzzySearchRequest = FuzzySearchRequest

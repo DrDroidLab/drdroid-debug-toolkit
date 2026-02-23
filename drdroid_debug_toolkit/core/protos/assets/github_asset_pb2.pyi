@@ -10,13 +10,7 @@ import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.message
 import google.protobuf.wrappers_pb2
-import sys
 import typing
-
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
-else:
-    import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
@@ -35,7 +29,7 @@ class GithubMember(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["login", b"login"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["login", b"login"]) -> None: ...
 
-Global___GithubMember: typing_extensions.TypeAlias = GithubMember
+global___GithubMember = GithubMember
 
 @typing.final
 class GithubRepositoryAssetModel(google.protobuf.message.Message):
@@ -61,7 +55,7 @@ class GithubRepositoryAssetModel(google.protobuf.message.Message):
     @property
     def topics(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
     @property
-    def owner(self) -> Global___GithubMember: ...
+    def owner(self) -> global___GithubMember: ...
     def __init__(
         self,
         *,
@@ -71,12 +65,12 @@ class GithubRepositoryAssetModel(google.protobuf.message.Message):
         html_url: google.protobuf.wrappers_pb2.StringValue | None = ...,
         description: google.protobuf.wrappers_pb2.StringValue | None = ...,
         topics: collections.abc.Iterable[builtins.str] | None = ...,
-        owner: Global___GithubMember | None = ...,
+        owner: global___GithubMember | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["description", b"description", "full_name", b"full_name", "html_url", b"html_url", "id", b"id", "name", b"name", "owner", b"owner"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["description", b"description", "full_name", b"full_name", "html_url", b"html_url", "id", b"id", "name", b"name", "owner", b"owner", "topics", b"topics"]) -> None: ...
 
-Global___GithubRepositoryAssetModel: typing_extensions.TypeAlias = GithubRepositoryAssetModel
+global___GithubRepositoryAssetModel = GithubRepositoryAssetModel
 
 @typing.final
 class GithubMemberAssetModel(google.protobuf.message.Message):
@@ -101,7 +95,7 @@ class GithubMemberAssetModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["html_url", b"html_url", "id", b"id", "login", b"login"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["html_url", b"html_url", "id", b"id", "login", b"login"]) -> None: ...
 
-Global___GithubMemberAssetModel: typing_extensions.TypeAlias = GithubMemberAssetModel
+global___GithubMemberAssetModel = GithubMemberAssetModel
 
 @typing.final
 class GithubRepositoryAssetOptions(google.protobuf.message.Message):
@@ -124,15 +118,15 @@ class GithubRepositoryAssetOptions(google.protobuf.message.Message):
 
     REPOSITORIES_FIELD_NUMBER: builtins.int
     @property
-    def repositories(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___GithubRepositoryAssetOptions.GithubRepository]: ...
+    def repositories(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___GithubRepositoryAssetOptions.GithubRepository]: ...
     def __init__(
         self,
         *,
-        repositories: collections.abc.Iterable[Global___GithubRepositoryAssetOptions.GithubRepository] | None = ...,
+        repositories: collections.abc.Iterable[global___GithubRepositoryAssetOptions.GithubRepository] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["repositories", b"repositories"]) -> None: ...
 
-Global___GithubRepositoryAssetOptions: typing_extensions.TypeAlias = GithubRepositoryAssetOptions
+global___GithubRepositoryAssetOptions = GithubRepositoryAssetOptions
 
 @typing.final
 class GithubMemberAssetOptions(google.protobuf.message.Message):
@@ -140,15 +134,15 @@ class GithubMemberAssetOptions(google.protobuf.message.Message):
 
     MEMBERS_FIELD_NUMBER: builtins.int
     @property
-    def members(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___GithubMember]: ...
+    def members(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___GithubMember]: ...
     def __init__(
         self,
         *,
-        members: collections.abc.Iterable[Global___GithubMember] | None = ...,
+        members: collections.abc.Iterable[global___GithubMember] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["members", b"members"]) -> None: ...
 
-Global___GithubMemberAssetOptions: typing_extensions.TypeAlias = GithubMemberAssetOptions
+global___GithubMemberAssetOptions = GithubMemberAssetOptions
 
 @typing.final
 class GithubAssetModel(google.protobuf.message.Message):
@@ -166,9 +160,9 @@ class GithubAssetModel(google.protobuf.message.Message):
     @property
     def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     @property
-    def github_repository(self) -> Global___GithubRepositoryAssetModel: ...
+    def github_repository(self) -> global___GithubRepositoryAssetModel: ...
     @property
-    def github_member(self) -> Global___GithubMemberAssetModel: ...
+    def github_member(self) -> global___GithubMemberAssetModel: ...
     def __init__(
         self,
         *,
@@ -176,14 +170,14 @@ class GithubAssetModel(google.protobuf.message.Message):
         connector_type: core.protos.base_pb2.Source.ValueType = ...,
         type: core.protos.base_pb2.SourceModelType.ValueType = ...,
         last_updated: builtins.int = ...,
-        github_repository: Global___GithubRepositoryAssetModel | None = ...,
-        github_member: Global___GithubMemberAssetModel | None = ...,
+        github_repository: global___GithubRepositoryAssetModel | None = ...,
+        github_member: global___GithubMemberAssetModel | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["asset", b"asset", "github_member", b"github_member", "github_repository", b"github_repository", "id", b"id"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["asset", b"asset", "connector_type", b"connector_type", "github_member", b"github_member", "github_repository", b"github_repository", "id", b"id", "last_updated", b"last_updated", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["asset", b"asset"]) -> typing.Literal["github_repository", "github_member"] | None: ...
 
-Global___GithubAssetModel: typing_extensions.TypeAlias = GithubAssetModel
+global___GithubAssetModel = GithubAssetModel
 
 @typing.final
 class GithubAssets(google.protobuf.message.Message):
@@ -191,12 +185,12 @@ class GithubAssets(google.protobuf.message.Message):
 
     ASSETS_FIELD_NUMBER: builtins.int
     @property
-    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___GithubAssetModel]: ...
+    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___GithubAssetModel]: ...
     def __init__(
         self,
         *,
-        assets: collections.abc.Iterable[Global___GithubAssetModel] | None = ...,
+        assets: collections.abc.Iterable[global___GithubAssetModel] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["assets", b"assets"]) -> None: ...
 
-Global___GithubAssets: typing_extensions.TypeAlias = GithubAssets
+global___GithubAssets = GithubAssets

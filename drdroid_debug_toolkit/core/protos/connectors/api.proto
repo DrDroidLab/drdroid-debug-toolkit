@@ -1260,37 +1260,3 @@ message ProxyAgentApiToken {
   google.protobuf.BoolValue is_kubernetes = 9;
   google.protobuf.Struct metadata = 10;
 }
-
-message GetRecentCommitsRequest {
-}
-
-message GetRecentCommitsResponse {
-  message Commit {
-    google.protobuf.StringValue sha = 1;
-    google.protobuf.StringValue commit_date = 2;
-  }
-  google.protobuf.BoolValue success = 1;
-  Message message = 2;
-  repeated Commit commits = 3;
-}
-
-message GithubAppInstallRequest {
-}
-
-message GithubAppInstallResponse {
-  google.protobuf.BoolValue success = 1;
-  google.protobuf.StringValue install_url = 2;
-  google.protobuf.StringValue session_id = 3;
-  Message message = 4;
-}
-
-message GithubAppCreateConnectorFromInstallationRequest {
-  google.protobuf.StringValue installation_id = 1;
-  google.protobuf.StringValue org_name = 2;
-}
-
-message GithubAppCreateConnectorFromInstallationResponse {
-  google.protobuf.BoolValue success = 1;
-  Message message = 2;
-  google.protobuf.UInt64Value connector_id = 3;
-}

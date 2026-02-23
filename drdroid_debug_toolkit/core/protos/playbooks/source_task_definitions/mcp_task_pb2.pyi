@@ -73,20 +73,20 @@ class McpServer(google.protobuf.message.Message):
     TYPE_FIELD_NUMBER: builtins.int
     LIST_TOOLS_FIELD_NUMBER: builtins.int
     EXECUTE_TOOL_FIELD_NUMBER: builtins.int
-    type: Global___McpServer.TaskType.ValueType
+    type: global___McpServer.TaskType.ValueType
     @property
-    def list_tools(self) -> Global___McpServer.ListToolsTask: ...
+    def list_tools(self) -> global___McpServer.ListToolsTask: ...
     @property
-    def execute_tool(self) -> Global___McpServer.ExecuteToolTask: ...
+    def execute_tool(self) -> global___McpServer.ExecuteToolTask: ...
     def __init__(
         self,
         *,
-        type: Global___McpServer.TaskType.ValueType = ...,
-        list_tools: Global___McpServer.ListToolsTask | None = ...,
-        execute_tool: Global___McpServer.ExecuteToolTask | None = ...,
+        type: global___McpServer.TaskType.ValueType = ...,
+        list_tools: global___McpServer.ListToolsTask | None = ...,
+        execute_tool: global___McpServer.ExecuteToolTask | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["execute_tool", b"execute_tool", "list_tools", b"list_tools", "task", b"task"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["execute_tool", b"execute_tool", "list_tools", b"list_tools", "task", b"task", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["task", b"task"]) -> typing.Literal["list_tools", "execute_tool"] | None: ...
 
-Global___McpServer: typing_extensions.TypeAlias = McpServer
+global___McpServer = McpServer

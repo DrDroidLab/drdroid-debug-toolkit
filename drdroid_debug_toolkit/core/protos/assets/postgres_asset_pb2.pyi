@@ -10,13 +10,7 @@ import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.message
 import google.protobuf.wrappers_pb2
-import sys
 import typing
-
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
-else:
-    import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
@@ -35,7 +29,7 @@ class PostgresDatabaseAssetModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["database", b"database"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["database", b"database"]) -> None: ...
 
-Global___PostgresDatabaseAssetModel: typing_extensions.TypeAlias = PostgresDatabaseAssetModel
+global___PostgresDatabaseAssetModel = PostgresDatabaseAssetModel
 
 @typing.final
 class PostgresDatabaseAssetOptions(google.protobuf.message.Message):
@@ -51,7 +45,7 @@ class PostgresDatabaseAssetOptions(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["databases", b"databases"]) -> None: ...
 
-Global___PostgresDatabaseAssetOptions: typing_extensions.TypeAlias = PostgresDatabaseAssetOptions
+global___PostgresDatabaseAssetOptions = PostgresDatabaseAssetOptions
 
 @typing.final
 class PostgresColumnModel(google.protobuf.message.Message):
@@ -102,7 +96,7 @@ class PostgresColumnModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["data_type", b"data_type", "default_value", b"default_value", "description", b"description", "is_nullable", b"is_nullable", "is_primary_key", b"is_primary_key", "max_length", b"max_length", "name", b"name", "precision", b"precision", "scale", b"scale"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["data_type", b"data_type", "default_value", b"default_value", "description", b"description", "is_nullable", b"is_nullable", "is_primary_key", b"is_primary_key", "max_length", b"max_length", "name", b"name", "precision", b"precision", "scale", b"scale"]) -> None: ...
 
-Global___PostgresColumnModel: typing_extensions.TypeAlias = PostgresColumnModel
+global___PostgresColumnModel = PostgresColumnModel
 
 @typing.final
 class PostgresForeignKeyModel(google.protobuf.message.Message):
@@ -133,7 +127,7 @@ class PostgresForeignKeyModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["column_name", b"column_name", "foreign_column", b"foreign_column", "foreign_schema", b"foreign_schema", "foreign_table", b"foreign_table"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["column_name", b"column_name", "foreign_column", b"foreign_column", "foreign_schema", b"foreign_schema", "foreign_table", b"foreign_table"]) -> None: ...
 
-Global___PostgresForeignKeyModel: typing_extensions.TypeAlias = PostgresForeignKeyModel
+global___PostgresForeignKeyModel = PostgresForeignKeyModel
 
 @typing.final
 class PostgresIndexModel(google.protobuf.message.Message):
@@ -164,7 +158,7 @@ class PostgresIndexModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["is_unique", b"is_unique", "name", b"name", "type", b"type"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["columns", b"columns", "is_unique", b"is_unique", "name", b"name", "type", b"type"]) -> None: ...
 
-Global___PostgresIndexModel: typing_extensions.TypeAlias = PostgresIndexModel
+global___PostgresIndexModel = PostgresIndexModel
 
 @typing.final
 class PostgresTableAssetModel(google.protobuf.message.Message):
@@ -191,11 +185,11 @@ class PostgresTableAssetModel(google.protobuf.message.Message):
     @property
     def size(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
-    def columns(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___PostgresColumnModel]: ...
+    def columns(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___PostgresColumnModel]: ...
     @property
     def primary_keys(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
     @property
-    def indexes(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___PostgresIndexModel]: ...
+    def indexes(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___PostgresIndexModel]: ...
     def __init__(
         self,
         *,
@@ -204,14 +198,14 @@ class PostgresTableAssetModel(google.protobuf.message.Message):
         schema_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
         description: google.protobuf.wrappers_pb2.StringValue | None = ...,
         size: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        columns: collections.abc.Iterable[Global___PostgresColumnModel] | None = ...,
+        columns: collections.abc.Iterable[global___PostgresColumnModel] | None = ...,
         primary_keys: collections.abc.Iterable[builtins.str] | None = ...,
-        indexes: collections.abc.Iterable[Global___PostgresIndexModel] | None = ...,
+        indexes: collections.abc.Iterable[global___PostgresIndexModel] | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["database_name", b"database_name", "description", b"description", "schema_name", b"schema_name", "size", b"size", "table_name", b"table_name"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["columns", b"columns", "database_name", b"database_name", "description", b"description", "indexes", b"indexes", "primary_keys", b"primary_keys", "schema_name", b"schema_name", "size", b"size", "table_name", b"table_name"]) -> None: ...
 
-Global___PostgresTableAssetModel: typing_extensions.TypeAlias = PostgresTableAssetModel
+global___PostgresTableAssetModel = PostgresTableAssetModel
 
 @typing.final
 class PostgresTableAssetOptions(google.protobuf.message.Message):
@@ -231,7 +225,7 @@ class PostgresTableAssetOptions(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["schemas", b"schemas", "tables", b"tables"]) -> None: ...
 
-Global___PostgresTableAssetOptions: typing_extensions.TypeAlias = PostgresTableAssetOptions
+global___PostgresTableAssetOptions = PostgresTableAssetOptions
 
 @typing.final
 class PostgresAssetModel(google.protobuf.message.Message):
@@ -248,7 +242,7 @@ class PostgresAssetModel(google.protobuf.message.Message):
     @property
     def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     @property
-    def postgres_table(self) -> Global___PostgresTableAssetModel: ...
+    def postgres_table(self) -> global___PostgresTableAssetModel: ...
     def __init__(
         self,
         *,
@@ -256,13 +250,13 @@ class PostgresAssetModel(google.protobuf.message.Message):
         connector_type: core.protos.base_pb2.Source.ValueType = ...,
         type: core.protos.base_pb2.SourceModelType.ValueType = ...,
         last_updated: builtins.int = ...,
-        postgres_table: Global___PostgresTableAssetModel | None = ...,
+        postgres_table: global___PostgresTableAssetModel | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["asset", b"asset", "id", b"id", "postgres_table", b"postgres_table"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["asset", b"asset", "connector_type", b"connector_type", "id", b"id", "last_updated", b"last_updated", "postgres_table", b"postgres_table", "type", b"type"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["asset", b"asset"]) -> typing.Literal["postgres_table"] | None: ...
 
-Global___PostgresAssetModel: typing_extensions.TypeAlias = PostgresAssetModel
+global___PostgresAssetModel = PostgresAssetModel
 
 @typing.final
 class PostgresAssets(google.protobuf.message.Message):
@@ -270,12 +264,12 @@ class PostgresAssets(google.protobuf.message.Message):
 
     ASSETS_FIELD_NUMBER: builtins.int
     @property
-    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[Global___PostgresAssetModel]: ...
+    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___PostgresAssetModel]: ...
     def __init__(
         self,
         *,
-        assets: collections.abc.Iterable[Global___PostgresAssetModel] | None = ...,
+        assets: collections.abc.Iterable[global___PostgresAssetModel] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["assets", b"assets"]) -> None: ...
 
-Global___PostgresAssets: typing_extensions.TypeAlias = PostgresAssets
+global___PostgresAssets = PostgresAssets

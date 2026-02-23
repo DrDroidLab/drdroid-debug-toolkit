@@ -10,13 +10,7 @@ import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.message
 import google.protobuf.wrappers_pb2
-import sys
 import typing
-
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
-else:
-    import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
@@ -43,7 +37,7 @@ class TriggerAuditLogRequest(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["meta", b"meta"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["meta", b"meta", "recipient_email_ids", b"recipient_email_ids", "users", b"users"]) -> None: ...
 
-Global___TriggerAuditLogRequest: typing_extensions.TypeAlias = TriggerAuditLogRequest
+global___TriggerAuditLogRequest = TriggerAuditLogRequest
 
 @typing.final
 class TriggerAuditLogResponse(google.protobuf.message.Message):
@@ -68,4 +62,4 @@ class TriggerAuditLogResponse(google.protobuf.message.Message):
     def HasField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["message", b"message", "meta", b"meta", "success", b"success"]) -> None: ...
 
-Global___TriggerAuditLogResponse: typing_extensions.TypeAlias = TriggerAuditLogResponse
+global___TriggerAuditLogResponse = TriggerAuditLogResponse
