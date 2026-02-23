@@ -3,6 +3,7 @@ package core.protos.connectors;
 
 import "google/protobuf/wrappers.proto";
 import "core/protos/base.proto";
+import "core/protos/connectors/connector.proto";
 
 message PosthogPropertyAssetModel {
   google.protobuf.StringValue id = 1;
@@ -19,6 +20,33 @@ message PosthogPropertyAssetOptions {
   repeated string tags = 3;
 }
 
+message PosthogDashboardAssetModel {
+  google.protobuf.StringValue id = 1;
+  google.protobuf.StringValue name = 2;
+  google.protobuf.StringValue description = 3;
+  google.protobuf.BoolValue pinned = 4;
+  repeated string tags = 5;
+  google.protobuf.StringValue created_at = 6;
+}
+
+message PosthogDashboardAssetOptions {
+  repeated string names = 1;
+  repeated string tags = 2;
+  google.protobuf.BoolValue pinned = 3;
+}
+
+message PosthogProjectAssetModel {
+  google.protobuf.StringValue id = 1;
+  google.protobuf.StringValue name = 2;
+  google.protobuf.StringValue uuid = 3;
+  google.protobuf.StringValue timezone = 4;
+  google.protobuf.StringValue created_at = 5;
+}
+
+message PosthogProjectAssetOptions {
+  repeated string names = 1;
+}
+
 message PosthogAssetModel {
   google.protobuf.UInt64Value id = 1;
   Source connector_type = 2;
@@ -26,9 +54,11 @@ message PosthogAssetModel {
   sfixed64 last_updated = 4;
   oneof asset {
     PosthogPropertyAssetModel posthog_property = 101;
+    PosthogDashboardAssetModel posthog_dashboard = 102;
+    PosthogProjectAssetModel posthog_project = 103;
   }
 }
 
 message PosthogAssets {
   repeated PosthogAssetModel assets = 1;
-} 
+}

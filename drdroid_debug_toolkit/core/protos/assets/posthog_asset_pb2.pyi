@@ -80,6 +80,117 @@ class PosthogPropertyAssetOptions(google.protobuf.message.Message):
 global___PosthogPropertyAssetOptions = PosthogPropertyAssetOptions
 
 @typing_extensions.final
+class PosthogDashboardAssetModel(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    ID_FIELD_NUMBER: builtins.int
+    NAME_FIELD_NUMBER: builtins.int
+    DESCRIPTION_FIELD_NUMBER: builtins.int
+    PINNED_FIELD_NUMBER: builtins.int
+    TAGS_FIELD_NUMBER: builtins.int
+    CREATED_AT_FIELD_NUMBER: builtins.int
+    @property
+    def id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    @property
+    def name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    @property
+    def description(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    @property
+    def pinned(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def tags(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+    @property
+    def created_at(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    def __init__(
+        self,
+        *,
+        id: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        name: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        description: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        pinned: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        tags: collections.abc.Iterable[builtins.str] | None = ...,
+        created_at: google.protobuf.wrappers_pb2.StringValue | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["created_at", b"created_at", "description", b"description", "id", b"id", "name", b"name", "pinned", b"pinned"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["created_at", b"created_at", "description", b"description", "id", b"id", "name", b"name", "pinned", b"pinned", "tags", b"tags"]) -> None: ...
+
+global___PosthogDashboardAssetModel = PosthogDashboardAssetModel
+
+@typing_extensions.final
+class PosthogDashboardAssetOptions(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    NAMES_FIELD_NUMBER: builtins.int
+    TAGS_FIELD_NUMBER: builtins.int
+    PINNED_FIELD_NUMBER: builtins.int
+    @property
+    def names(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+    @property
+    def tags(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+    @property
+    def pinned(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    def __init__(
+        self,
+        *,
+        names: collections.abc.Iterable[builtins.str] | None = ...,
+        tags: collections.abc.Iterable[builtins.str] | None = ...,
+        pinned: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["pinned", b"pinned"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["names", b"names", "pinned", b"pinned", "tags", b"tags"]) -> None: ...
+
+global___PosthogDashboardAssetOptions = PosthogDashboardAssetOptions
+
+@typing_extensions.final
+class PosthogProjectAssetModel(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    ID_FIELD_NUMBER: builtins.int
+    NAME_FIELD_NUMBER: builtins.int
+    UUID_FIELD_NUMBER: builtins.int
+    TIMEZONE_FIELD_NUMBER: builtins.int
+    CREATED_AT_FIELD_NUMBER: builtins.int
+    @property
+    def id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    @property
+    def name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    @property
+    def uuid(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    @property
+    def timezone(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    @property
+    def created_at(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    def __init__(
+        self,
+        *,
+        id: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        name: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        uuid: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        timezone: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        created_at: google.protobuf.wrappers_pb2.StringValue | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["created_at", b"created_at", "id", b"id", "name", b"name", "timezone", b"timezone", "uuid", b"uuid"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["created_at", b"created_at", "id", b"id", "name", b"name", "timezone", b"timezone", "uuid", b"uuid"]) -> None: ...
+
+global___PosthogProjectAssetModel = PosthogProjectAssetModel
+
+@typing_extensions.final
+class PosthogProjectAssetOptions(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    NAMES_FIELD_NUMBER: builtins.int
+    @property
+    def names(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+    def __init__(
+        self,
+        *,
+        names: collections.abc.Iterable[builtins.str] | None = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["names", b"names"]) -> None: ...
+
+global___PosthogProjectAssetOptions = PosthogProjectAssetOptions
+
+@typing_extensions.final
 class PosthogAssetModel(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -88,6 +199,8 @@ class PosthogAssetModel(google.protobuf.message.Message):
     TYPE_FIELD_NUMBER: builtins.int
     LAST_UPDATED_FIELD_NUMBER: builtins.int
     POSTHOG_PROPERTY_FIELD_NUMBER: builtins.int
+    POSTHOG_DASHBOARD_FIELD_NUMBER: builtins.int
+    POSTHOG_PROJECT_FIELD_NUMBER: builtins.int
     @property
     def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     connector_type: core.protos.base_pb2.Source.ValueType
@@ -95,6 +208,10 @@ class PosthogAssetModel(google.protobuf.message.Message):
     last_updated: builtins.int
     @property
     def posthog_property(self) -> global___PosthogPropertyAssetModel: ...
+    @property
+    def posthog_dashboard(self) -> global___PosthogDashboardAssetModel: ...
+    @property
+    def posthog_project(self) -> global___PosthogProjectAssetModel: ...
     def __init__(
         self,
         *,
@@ -103,10 +220,12 @@ class PosthogAssetModel(google.protobuf.message.Message):
         type: core.protos.base_pb2.SourceModelType.ValueType = ...,
         last_updated: builtins.int = ...,
         posthog_property: global___PosthogPropertyAssetModel | None = ...,
+        posthog_dashboard: global___PosthogDashboardAssetModel | None = ...,
+        posthog_project: global___PosthogProjectAssetModel | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["asset", b"asset", "id", b"id", "posthog_property", b"posthog_property"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["asset", b"asset", "connector_type", b"connector_type", "id", b"id", "last_updated", b"last_updated", "posthog_property", b"posthog_property", "type", b"type"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing_extensions.Literal["asset", b"asset"]) -> typing_extensions.Literal["posthog_property"] | None: ...
+    def HasField(self, field_name: typing_extensions.Literal["asset", b"asset", "id", b"id", "posthog_dashboard", b"posthog_dashboard", "posthog_project", b"posthog_project", "posthog_property", b"posthog_property"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["asset", b"asset", "connector_type", b"connector_type", "id", b"id", "last_updated", b"last_updated", "posthog_dashboard", b"posthog_dashboard", "posthog_project", b"posthog_project", "posthog_property", b"posthog_property", "type", b"type"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing_extensions.Literal["asset", b"asset"]) -> typing_extensions.Literal["posthog_property", "posthog_dashboard", "posthog_project"] | None: ...
 
 global___PosthogAssetModel = PosthogAssetModel
 

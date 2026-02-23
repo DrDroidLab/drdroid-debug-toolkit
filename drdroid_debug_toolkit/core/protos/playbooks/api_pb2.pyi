@@ -83,6 +83,7 @@ class ApiRunPlaybookTaskRequest(google.protobuf.message.Message):
     INVESTIGATION_SESSION_ID_FIELD_NUMBER: builtins.int
     CREATED_BY_FIELD_NUMBER: builtins.int
     PLAYBOOK_TASK_FIELD_NUMBER: builtins.int
+    USER_EMAIL_FIELD_NUMBER: builtins.int
     @property
     def meta(self) -> core.protos.connectors.api_pb2.Meta: ...
     @property
@@ -95,6 +96,8 @@ class ApiRunPlaybookTaskRequest(google.protobuf.message.Message):
     def created_by(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     @property
     def playbook_task(self) -> core.protos.playbooks.playbook_pb2.PlaybookTask: ...
+    @property
+    def user_email(self) -> google.protobuf.wrappers_pb2.StringValue: ...
     def __init__(
         self,
         *,
@@ -104,9 +107,10 @@ class ApiRunPlaybookTaskRequest(google.protobuf.message.Message):
         investigation_session_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
         created_by: google.protobuf.wrappers_pb2.StringValue | None = ...,
         playbook_task: core.protos.playbooks.playbook_pb2.PlaybookTask | None = ...,
+        user_email: google.protobuf.wrappers_pb2.StringValue | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["account_id", b"account_id", "created_by", b"created_by", "global_variable_set", b"global_variable_set", "investigation_session_id", b"investigation_session_id", "meta", b"meta", "playbook_task", b"playbook_task"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["account_id", b"account_id", "created_by", b"created_by", "global_variable_set", b"global_variable_set", "investigation_session_id", b"investigation_session_id", "meta", b"meta", "playbook_task", b"playbook_task"]) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["account_id", b"account_id", "created_by", b"created_by", "global_variable_set", b"global_variable_set", "investigation_session_id", b"investigation_session_id", "meta", b"meta", "playbook_task", b"playbook_task", "user_email", b"user_email"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["account_id", b"account_id", "created_by", b"created_by", "global_variable_set", b"global_variable_set", "investigation_session_id", b"investigation_session_id", "meta", b"meta", "playbook_task", b"playbook_task", "user_email", b"user_email"]) -> None: ...
 
 global___ApiRunPlaybookTaskRequest = ApiRunPlaybookTaskRequest
 
