@@ -301,14 +301,15 @@ class AWSBoto3ApiProcessor(Processor):
             logger.error(f"Exception occurred while fetching all CloudWatch alarms. Error: {e}")
             raise e
 
-    def cloudwatch_list_metrics(self, namespace, token=None):
+    def cloudwatch_list_metrics(self, namespace=None, token=None):
         try:
             client = self.get_connection()
+            kwargs = {}
+            if namespace:
+                kwargs['Namespace'] = namespace
             if token:
-                metrics = client.list_metrics(NextToken=token, Namespace=namespace)
-            else:
-                metrics = client.list_metrics(Namespace=namespace)
-            return metrics
+                kwargs['NextToken'] = token
+            return client.list_metrics(**kwargs)
         except Exception as e:
             logger.error(f"Exception occurred while fetching cloudwatch metrics with error: {e}")
             raise e
