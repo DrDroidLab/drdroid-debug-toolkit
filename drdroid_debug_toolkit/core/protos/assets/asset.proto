@@ -33,6 +33,7 @@ import "core/protos/assets/coralogix_asset.proto";
 import "core/protos/assets/sentry_asset.proto";
 import "core/protos/assets/victoria_logs_asset.proto";
 import "core/protos/assets/linear_asset.proto";
+import "core/protos/assets/metabase_asset.proto";
 
 message ConnectorModelTypeOptions {
   SourceModelType model_type = 1;
@@ -109,6 +110,11 @@ message ConnectorModelTypeOptions {
     LinearProjectAssetOptions linear_project_model_options = 109;
     PosthogDashboardAssetOptions posthog_dashboard_model_options = 110;
     PosthogProjectAssetOptions posthog_project_model_options = 111;
+    MetabaseDashboardAssetOptions metabase_dashboard_model_options = 112;
+    MetabaseCardAssetOptions metabase_card_model_options = 113;
+    MetabaseDatabaseAssetOptions metabase_database_model_options = 114;
+    MetabaseCollectionAssetOptions metabase_collection_model_options = 115;
+    MetabaseSubscriptionAssetOptions metabase_subscription_model_options = 116;
   }
 }
 
@@ -196,6 +202,11 @@ message AccountConnectorAssetsModelFilters {
     LinearProjectAssetOptions linear_project_model_filters = 189;
     PosthogDashboardAssetOptions posthog_dashboard_model_filters = 190;
     PosthogProjectAssetOptions posthog_project_model_filters = 191;
+    MetabaseDashboardAssetOptions metabase_dashboard_model_filters = 192;
+    MetabaseCardAssetOptions metabase_card_model_filters = 193;
+    MetabaseDatabaseAssetOptions metabase_database_model_filters = 194;
+    MetabaseCollectionAssetOptions metabase_collection_model_filters = 195;
+    MetabaseSubscriptionAssetOptions metabase_subscription_model_filters = 196;
   }
 }
 
@@ -231,6 +242,7 @@ message AccountConnectorAssets {
     CoralogixAssets coralogix = 28;
     VictoriaLogsAssets victoria_logs = 29;
     LinearAssets linear = 30;
+    MetabaseAssets metabase = 31;
   }
 }
 
