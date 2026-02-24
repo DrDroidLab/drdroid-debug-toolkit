@@ -238,9 +238,15 @@ class MetabaseApiProcessor(Processor):
         out_native = dict(native)
         if "template-tags" not in out_native:
             out_native["template-tags"] = {}
+        db = dataset_query.get("database")
+        if db is not None and not isinstance(db, int):
+            try:
+                db = int(db)
+            except (TypeError, ValueError):
+                pass
         return {
             "type": "native",
-            "database": dataset_query.get("database"),
+            "database": db,
             "native": out_native,
         }
 
@@ -260,8 +266,22 @@ class MetabaseApiProcessor(Processor):
             body["display"] = "table"
         if "visualization_settings" not in body or body["visualization_settings"] is None:
             body["visualization_settings"] = {}
+        if "collection_id" not in body:
+            body["collection_id"] = None
         url = f"{self.__host}/api/card/"
         response = requests.post(url, headers=self.headers, json=body, timeout=EXTERNAL_CALL_TIMEOUT)
+        if not response.ok:
+            try:
+                err_body = response.text
+                if response.headers.get("content-type", "").startswith("application/json"):
+                    err_body = response.json()
+            except Exception:
+                err_body = response.text
+            logger.error(
+                "MetabaseApiProcessor.create_card: Metabase returned %s: %s",
+                response.status_code,
+                err_body,
+            )
         response.raise_for_status()
         return response.json()
 
