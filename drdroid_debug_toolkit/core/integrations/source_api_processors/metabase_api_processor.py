@@ -256,36 +256,14 @@ class MetabaseApiProcessor(Processor):
             logger.error(f"MetabaseApiProcessor.get_card:: Error getting card {card_id}: {e}")
             raise
 
-    def _normalize_native_dataset_query(self, dataset_query):
-        """
-        Return dataset_query in the format Metabase PUT /api/card/{id} accepts for
-        native questions: type, database, native { query, template-tags }.
-        """
-        if not isinstance(dataset_query, dict) or dataset_query.get("type") != "native":
-            return dataset_query
-        native = dataset_query.get("native")
-        if not isinstance(native, dict) or "query" not in native:
-            return dataset_query
-        out_native = dict(native)
-        if "template-tags" not in out_native:
-            out_native["template-tags"] = {}
-        return {
-            "type": "native",
-            "database": dataset_query.get("database"),
-            "native": out_native,
-        }
-
     def update_card(self, card_id, payload):
         """
-        Update a card. PUT /api/card/{id} with the given payload.
-        No GET: caller sends the exact body to send. dataset_query is normalized
-        to legacy format (type, native, database + template-tags) so Metabase persists it.
+        Update a card. PUT /api/card/{id} with the given payload as-is (no normalization).
         """
         if not isinstance(payload, dict):
             payload = {}
         body = dict(payload)
-        if "dataset_query" in body and body["dataset_query"] is not None:
-            body["dataset_query"] = self._normalize_native_dataset_query(body["dataset_query"])
+        logger.info(f"MetabaseApiProcessor.update_card: card_id={card_id} body={body}")
         url = f"{self.__host}/api/card/{card_id}"
         response = requests.put(url, headers=self.headers, json=body, timeout=EXTERNAL_CALL_TIMEOUT)
         response.raise_for_status()
