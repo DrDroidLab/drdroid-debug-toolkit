@@ -289,31 +289,45 @@ class MetabaseApiProcessor(Processor):
             return merged_dq
         return legacy_dq
 
+    # Fields we send in PUT body (per API docs). Excludes read-only/server fields.
+    _CARD_PUT_WHITELIST = frozenset({
+        "name", "description", "display", "dataset_query", "visualization_settings",
+        "collection_id", "collection_position", "parameters", "parameter_mappings",
+        "cache_ttl", "archived", "enable_embedding", "embedding_params", "embedding_type",
+        "result_metadata", "type",
+    })
+
     def update_card(self, card_id, payload):
         """
-        Update a card by ID. Compliant with Metabase API PUT /api/card/{id}.
-        See: https://www.metabase.com/docs/latest/api#tag/apicard/put/api/card/{id}
-
-        Fetches the full card first (GET /api/card/{id}), merges payload into it,
-        then PUTs the full object. Sending a partial body can cause Metabase to clear
-        fields like dataset_query; merging avoids that so execute works after update.
-        Auth: x-api-key header (API key). Response may redact dataset_query; the
-        update is still persisted when the request body is valid.
+        Update a card by ID. PUT /api/card/{id}. Builds a minimal body from whitelisted
+        fields only so we never send read-only fields that can cause dataset_query to
+        be cleared; overlays payload (with normalized dataset_query) then PUTs.
         """
         try:
             existing = self.get_card(card_id)
-            # Merge payload into existing so we never send a partial card
-            if isinstance(existing, dict) and isinstance(payload, dict):
-                merged = dict(existing)
-                for key, value in payload.items():
-                    if value is not None:
+            if not isinstance(existing, dict):
+                existing = {}
+            if not isinstance(payload, dict):
+                payload = {}
+            merged = {}
+            for key in self._CARD_PUT_WHITELIST:
+                if key in existing and existing[key] is not None:
+                    merged[key] = existing[key]
+            for key, value in payload.items():
+                if value is not None:
+                    if key not in self._CARD_PUT_WHITELIST:
+                        merged[key] = value  # allow extra keys from payload (e.g. dataset_query)
+                    else:
                         if key == "dataset_query":
                             value = self._normalize_dataset_query_for_update(
                                 merged.get(key) or {}, value
                             )
+                            if isinstance(value, dict) and value.get("database") is None:
+                                value["database"] = existing.get("database_id")
                         merged[key] = value
-            else:
-                merged = payload
+            dq = merged.get("dataset_query")
+            if isinstance(dq, dict) and dq.get("database") is None and existing.get("database_id") is not None:
+                dq["database"] = existing["database_id"]
             url = f"{self.__host}/api/card/{card_id}"
             response = requests.put(url, headers=self.headers, json=merged, timeout=EXTERNAL_CALL_TIMEOUT)
             response.raise_for_status()
