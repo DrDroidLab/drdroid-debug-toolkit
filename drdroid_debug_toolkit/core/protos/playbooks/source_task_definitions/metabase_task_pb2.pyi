@@ -39,6 +39,29 @@ class Metabase(google.protobuf.message.Message):
         CREATE_PULSE: Metabase._TaskType.ValueType  # 8
         UPDATE_PULSE: Metabase._TaskType.ValueType  # 9
         DELETE_PULSE: Metabase._TaskType.ValueType  # 10
+        LIST_DASHBOARDS: Metabase._TaskType.ValueType  # 11
+        """Dashboards"""
+        CREATE_DASHBOARD: Metabase._TaskType.ValueType  # 12
+        UPDATE_DASHBOARD: Metabase._TaskType.ValueType  # 13
+        GET_DASHBOARD_CARDS: Metabase._TaskType.ValueType  # 14
+        ADD_CARD_TO_DASHBOARD: Metabase._TaskType.ValueType  # 15
+        REMOVE_CARD_FROM_DASHBOARD: Metabase._TaskType.ValueType  # 16
+        UPDATE_DASHBOARD_CARD: Metabase._TaskType.ValueType  # 17
+        LIST_QUESTIONS: Metabase._TaskType.ValueType  # 18
+        """Questions/Cards"""
+        GET_QUESTION: Metabase._TaskType.ValueType  # 28
+        CREATE_QUESTION: Metabase._TaskType.ValueType  # 19
+        UPDATE_QUESTION: Metabase._TaskType.ValueType  # 20
+        EXECUTE_QUESTION: Metabase._TaskType.ValueType  # 21
+        LIST_DATABASES: Metabase._TaskType.ValueType  # 22
+        """Databases"""
+        EXECUTE_SQL_QUERY: Metabase._TaskType.ValueType  # 23
+        GET_DATABASE_SCHEMA: Metabase._TaskType.ValueType  # 24
+        GET_DATABASE_TABLES: Metabase._TaskType.ValueType  # 25
+        LIST_COLLECTIONS: Metabase._TaskType.ValueType  # 26
+        """Collections"""
+        SEARCH_CONTENT: Metabase._TaskType.ValueType  # 27
+        """Search"""
 
     class TaskType(_TaskType, metaclass=_TaskTypeEnumTypeWrapper): ...
     UNKNOWN: Metabase.TaskType.ValueType  # 0
@@ -52,6 +75,29 @@ class Metabase(google.protobuf.message.Message):
     CREATE_PULSE: Metabase.TaskType.ValueType  # 8
     UPDATE_PULSE: Metabase.TaskType.ValueType  # 9
     DELETE_PULSE: Metabase.TaskType.ValueType  # 10
+    LIST_DASHBOARDS: Metabase.TaskType.ValueType  # 11
+    """Dashboards"""
+    CREATE_DASHBOARD: Metabase.TaskType.ValueType  # 12
+    UPDATE_DASHBOARD: Metabase.TaskType.ValueType  # 13
+    GET_DASHBOARD_CARDS: Metabase.TaskType.ValueType  # 14
+    ADD_CARD_TO_DASHBOARD: Metabase.TaskType.ValueType  # 15
+    REMOVE_CARD_FROM_DASHBOARD: Metabase.TaskType.ValueType  # 16
+    UPDATE_DASHBOARD_CARD: Metabase.TaskType.ValueType  # 17
+    LIST_QUESTIONS: Metabase.TaskType.ValueType  # 18
+    """Questions/Cards"""
+    GET_QUESTION: Metabase.TaskType.ValueType  # 28
+    CREATE_QUESTION: Metabase.TaskType.ValueType  # 19
+    UPDATE_QUESTION: Metabase.TaskType.ValueType  # 20
+    EXECUTE_QUESTION: Metabase.TaskType.ValueType  # 21
+    LIST_DATABASES: Metabase.TaskType.ValueType  # 22
+    """Databases"""
+    EXECUTE_SQL_QUERY: Metabase.TaskType.ValueType  # 23
+    GET_DATABASE_SCHEMA: Metabase.TaskType.ValueType  # 24
+    GET_DATABASE_TABLES: Metabase.TaskType.ValueType  # 25
+    LIST_COLLECTIONS: Metabase.TaskType.ValueType  # 26
+    """Collections"""
+    SEARCH_CONTENT: Metabase.TaskType.ValueType  # 27
+    """Search"""
 
     @typing_extensions.final
     class ListAlerts(google.protobuf.message.Message):
@@ -243,6 +289,304 @@ class Metabase(google.protobuf.message.Message):
         def HasField(self, field_name: typing_extensions.Literal["pulse_id", b"pulse_id"]) -> builtins.bool: ...
         def ClearField(self, field_name: typing_extensions.Literal["pulse_id", b"pulse_id"]) -> None: ...
 
+    @typing_extensions.final
+    class ListDashboards(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        def __init__(
+            self,
+        ) -> None: ...
+
+    @typing_extensions.final
+    class CreateDashboard(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        PAYLOAD_FIELD_NUMBER: builtins.int
+        @property
+        def payload(self) -> google.protobuf.struct_pb2.Struct: ...
+        def __init__(
+            self,
+            *,
+            payload: google.protobuf.struct_pb2.Struct | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["payload", b"payload"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["payload", b"payload"]) -> None: ...
+
+    @typing_extensions.final
+    class UpdateDashboard(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        DASHBOARD_ID_FIELD_NUMBER: builtins.int
+        UPDATES_FIELD_NUMBER: builtins.int
+        @property
+        def dashboard_id(self) -> google.protobuf.wrappers_pb2.Int64Value: ...
+        @property
+        def updates(self) -> google.protobuf.struct_pb2.Struct: ...
+        def __init__(
+            self,
+            *,
+            dashboard_id: google.protobuf.wrappers_pb2.Int64Value | None = ...,
+            updates: google.protobuf.struct_pb2.Struct | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["dashboard_id", b"dashboard_id", "updates", b"updates"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["dashboard_id", b"dashboard_id", "updates", b"updates"]) -> None: ...
+
+    @typing_extensions.final
+    class GetDashboardCards(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        DASHBOARD_ID_FIELD_NUMBER: builtins.int
+        @property
+        def dashboard_id(self) -> google.protobuf.wrappers_pb2.Int64Value: ...
+        def __init__(
+            self,
+            *,
+            dashboard_id: google.protobuf.wrappers_pb2.Int64Value | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["dashboard_id", b"dashboard_id"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["dashboard_id", b"dashboard_id"]) -> None: ...
+
+    @typing_extensions.final
+    class AddCardToDashboard(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        DASHBOARD_ID_FIELD_NUMBER: builtins.int
+        CARD_ID_FIELD_NUMBER: builtins.int
+        ROW_FIELD_NUMBER: builtins.int
+        COL_FIELD_NUMBER: builtins.int
+        SIZE_X_FIELD_NUMBER: builtins.int
+        SIZE_Y_FIELD_NUMBER: builtins.int
+        @property
+        def dashboard_id(self) -> google.protobuf.wrappers_pb2.Int64Value: ...
+        @property
+        def card_id(self) -> google.protobuf.wrappers_pb2.Int64Value: ...
+        @property
+        def row(self) -> google.protobuf.wrappers_pb2.Int64Value: ...
+        @property
+        def col(self) -> google.protobuf.wrappers_pb2.Int64Value: ...
+        @property
+        def size_x(self) -> google.protobuf.wrappers_pb2.Int64Value: ...
+        @property
+        def size_y(self) -> google.protobuf.wrappers_pb2.Int64Value: ...
+        def __init__(
+            self,
+            *,
+            dashboard_id: google.protobuf.wrappers_pb2.Int64Value | None = ...,
+            card_id: google.protobuf.wrappers_pb2.Int64Value | None = ...,
+            row: google.protobuf.wrappers_pb2.Int64Value | None = ...,
+            col: google.protobuf.wrappers_pb2.Int64Value | None = ...,
+            size_x: google.protobuf.wrappers_pb2.Int64Value | None = ...,
+            size_y: google.protobuf.wrappers_pb2.Int64Value | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["_col", b"_col", "_row", b"_row", "_size_x", b"_size_x", "_size_y", b"_size_y", "card_id", b"card_id", "col", b"col", "dashboard_id", b"dashboard_id", "row", b"row", "size_x", b"size_x", "size_y", b"size_y"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["_col", b"_col", "_row", b"_row", "_size_x", b"_size_x", "_size_y", b"_size_y", "card_id", b"card_id", "col", b"col", "dashboard_id", b"dashboard_id", "row", b"row", "size_x", b"size_x", "size_y", b"size_y"]) -> None: ...
+        @typing.overload
+        def WhichOneof(self, oneof_group: typing_extensions.Literal["_col", b"_col"]) -> typing_extensions.Literal["col"] | None: ...
+        @typing.overload
+        def WhichOneof(self, oneof_group: typing_extensions.Literal["_row", b"_row"]) -> typing_extensions.Literal["row"] | None: ...
+        @typing.overload
+        def WhichOneof(self, oneof_group: typing_extensions.Literal["_size_x", b"_size_x"]) -> typing_extensions.Literal["size_x"] | None: ...
+        @typing.overload
+        def WhichOneof(self, oneof_group: typing_extensions.Literal["_size_y", b"_size_y"]) -> typing_extensions.Literal["size_y"] | None: ...
+
+    @typing_extensions.final
+    class RemoveCardFromDashboard(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        DASHBOARD_ID_FIELD_NUMBER: builtins.int
+        DASHCARD_ID_FIELD_NUMBER: builtins.int
+        @property
+        def dashboard_id(self) -> google.protobuf.wrappers_pb2.Int64Value: ...
+        @property
+        def dashcard_id(self) -> google.protobuf.wrappers_pb2.Int64Value: ...
+        def __init__(
+            self,
+            *,
+            dashboard_id: google.protobuf.wrappers_pb2.Int64Value | None = ...,
+            dashcard_id: google.protobuf.wrappers_pb2.Int64Value | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["dashboard_id", b"dashboard_id", "dashcard_id", b"dashcard_id"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["dashboard_id", b"dashboard_id", "dashcard_id", b"dashcard_id"]) -> None: ...
+
+    @typing_extensions.final
+    class UpdateDashboardCard(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        DASHBOARD_ID_FIELD_NUMBER: builtins.int
+        DASHCARD_ID_FIELD_NUMBER: builtins.int
+        UPDATES_FIELD_NUMBER: builtins.int
+        @property
+        def dashboard_id(self) -> google.protobuf.wrappers_pb2.Int64Value: ...
+        @property
+        def dashcard_id(self) -> google.protobuf.wrappers_pb2.Int64Value: ...
+        @property
+        def updates(self) -> google.protobuf.struct_pb2.Struct: ...
+        def __init__(
+            self,
+            *,
+            dashboard_id: google.protobuf.wrappers_pb2.Int64Value | None = ...,
+            dashcard_id: google.protobuf.wrappers_pb2.Int64Value | None = ...,
+            updates: google.protobuf.struct_pb2.Struct | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["dashboard_id", b"dashboard_id", "dashcard_id", b"dashcard_id", "updates", b"updates"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["dashboard_id", b"dashboard_id", "dashcard_id", b"dashcard_id", "updates", b"updates"]) -> None: ...
+
+    @typing_extensions.final
+    class ListQuestions(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        def __init__(
+            self,
+        ) -> None: ...
+
+    @typing_extensions.final
+    class GetQuestion(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        CARD_ID_FIELD_NUMBER: builtins.int
+        @property
+        def card_id(self) -> google.protobuf.wrappers_pb2.Int64Value: ...
+        def __init__(
+            self,
+            *,
+            card_id: google.protobuf.wrappers_pb2.Int64Value | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["card_id", b"card_id"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["card_id", b"card_id"]) -> None: ...
+
+    @typing_extensions.final
+    class CreateQuestion(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        PAYLOAD_FIELD_NUMBER: builtins.int
+        @property
+        def payload(self) -> google.protobuf.struct_pb2.Struct: ...
+        def __init__(
+            self,
+            *,
+            payload: google.protobuf.struct_pb2.Struct | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["payload", b"payload"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["payload", b"payload"]) -> None: ...
+
+    @typing_extensions.final
+    class UpdateQuestion(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        CARD_ID_FIELD_NUMBER: builtins.int
+        UPDATES_FIELD_NUMBER: builtins.int
+        @property
+        def card_id(self) -> google.protobuf.wrappers_pb2.Int64Value: ...
+        @property
+        def updates(self) -> google.protobuf.struct_pb2.Struct: ...
+        def __init__(
+            self,
+            *,
+            card_id: google.protobuf.wrappers_pb2.Int64Value | None = ...,
+            updates: google.protobuf.struct_pb2.Struct | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["card_id", b"card_id", "updates", b"updates"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["card_id", b"card_id", "updates", b"updates"]) -> None: ...
+
+    @typing_extensions.final
+    class ExecuteQuestion(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        CARD_ID_FIELD_NUMBER: builtins.int
+        PARAMETERS_FIELD_NUMBER: builtins.int
+        @property
+        def card_id(self) -> google.protobuf.wrappers_pb2.Int64Value: ...
+        @property
+        def parameters(self) -> google.protobuf.struct_pb2.Struct: ...
+        def __init__(
+            self,
+            *,
+            card_id: google.protobuf.wrappers_pb2.Int64Value | None = ...,
+            parameters: google.protobuf.struct_pb2.Struct | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["card_id", b"card_id", "parameters", b"parameters"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["card_id", b"card_id", "parameters", b"parameters"]) -> None: ...
+
+    @typing_extensions.final
+    class ListDatabases(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        def __init__(
+            self,
+        ) -> None: ...
+
+    @typing_extensions.final
+    class ExecuteSqlQuery(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        DATABASE_ID_FIELD_NUMBER: builtins.int
+        QUERY_FIELD_NUMBER: builtins.int
+        @property
+        def database_id(self) -> google.protobuf.wrappers_pb2.Int64Value: ...
+        @property
+        def query(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        def __init__(
+            self,
+            *,
+            database_id: google.protobuf.wrappers_pb2.Int64Value | None = ...,
+            query: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["database_id", b"database_id", "query", b"query"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["database_id", b"database_id", "query", b"query"]) -> None: ...
+
+    @typing_extensions.final
+    class GetDatabaseSchema(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        DATABASE_ID_FIELD_NUMBER: builtins.int
+        @property
+        def database_id(self) -> google.protobuf.wrappers_pb2.Int64Value: ...
+        def __init__(
+            self,
+            *,
+            database_id: google.protobuf.wrappers_pb2.Int64Value | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["database_id", b"database_id"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["database_id", b"database_id"]) -> None: ...
+
+    @typing_extensions.final
+    class GetDatabaseTables(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        DATABASE_ID_FIELD_NUMBER: builtins.int
+        @property
+        def database_id(self) -> google.protobuf.wrappers_pb2.Int64Value: ...
+        def __init__(
+            self,
+            *,
+            database_id: google.protobuf.wrappers_pb2.Int64Value | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["database_id", b"database_id"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["database_id", b"database_id"]) -> None: ...
+
+    @typing_extensions.final
+    class ListCollections(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        def __init__(
+            self,
+        ) -> None: ...
+
+    @typing_extensions.final
+    class SearchContent(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        Q_FIELD_NUMBER: builtins.int
+        @property
+        def q(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        def __init__(
+            self,
+            *,
+            q: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["q", b"q"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["q", b"q"]) -> None: ...
+
     TYPE_FIELD_NUMBER: builtins.int
     LIST_ALERTS_FIELD_NUMBER: builtins.int
     GET_ALERT_FIELD_NUMBER: builtins.int
@@ -254,6 +598,24 @@ class Metabase(google.protobuf.message.Message):
     CREATE_PULSE_FIELD_NUMBER: builtins.int
     UPDATE_PULSE_FIELD_NUMBER: builtins.int
     DELETE_PULSE_FIELD_NUMBER: builtins.int
+    LIST_DASHBOARDS_FIELD_NUMBER: builtins.int
+    CREATE_DASHBOARD_FIELD_NUMBER: builtins.int
+    UPDATE_DASHBOARD_FIELD_NUMBER: builtins.int
+    GET_DASHBOARD_CARDS_FIELD_NUMBER: builtins.int
+    ADD_CARD_TO_DASHBOARD_FIELD_NUMBER: builtins.int
+    REMOVE_CARD_FROM_DASHBOARD_FIELD_NUMBER: builtins.int
+    UPDATE_DASHBOARD_CARD_FIELD_NUMBER: builtins.int
+    LIST_QUESTIONS_FIELD_NUMBER: builtins.int
+    GET_QUESTION_FIELD_NUMBER: builtins.int
+    CREATE_QUESTION_FIELD_NUMBER: builtins.int
+    UPDATE_QUESTION_FIELD_NUMBER: builtins.int
+    EXECUTE_QUESTION_FIELD_NUMBER: builtins.int
+    LIST_DATABASES_FIELD_NUMBER: builtins.int
+    EXECUTE_SQL_QUERY_FIELD_NUMBER: builtins.int
+    GET_DATABASE_SCHEMA_FIELD_NUMBER: builtins.int
+    GET_DATABASE_TABLES_FIELD_NUMBER: builtins.int
+    LIST_COLLECTIONS_FIELD_NUMBER: builtins.int
+    SEARCH_CONTENT_FIELD_NUMBER: builtins.int
     type: global___Metabase.TaskType.ValueType
     @property
     def list_alerts(self) -> global___Metabase.ListAlerts: ...
@@ -275,6 +637,42 @@ class Metabase(google.protobuf.message.Message):
     def update_pulse(self) -> global___Metabase.UpdatePulse: ...
     @property
     def delete_pulse(self) -> global___Metabase.DeletePulse: ...
+    @property
+    def list_dashboards(self) -> global___Metabase.ListDashboards: ...
+    @property
+    def create_dashboard(self) -> global___Metabase.CreateDashboard: ...
+    @property
+    def update_dashboard(self) -> global___Metabase.UpdateDashboard: ...
+    @property
+    def get_dashboard_cards(self) -> global___Metabase.GetDashboardCards: ...
+    @property
+    def add_card_to_dashboard(self) -> global___Metabase.AddCardToDashboard: ...
+    @property
+    def remove_card_from_dashboard(self) -> global___Metabase.RemoveCardFromDashboard: ...
+    @property
+    def update_dashboard_card(self) -> global___Metabase.UpdateDashboardCard: ...
+    @property
+    def list_questions(self) -> global___Metabase.ListQuestions: ...
+    @property
+    def get_question(self) -> global___Metabase.GetQuestion: ...
+    @property
+    def create_question(self) -> global___Metabase.CreateQuestion: ...
+    @property
+    def update_question(self) -> global___Metabase.UpdateQuestion: ...
+    @property
+    def execute_question(self) -> global___Metabase.ExecuteQuestion: ...
+    @property
+    def list_databases(self) -> global___Metabase.ListDatabases: ...
+    @property
+    def execute_sql_query(self) -> global___Metabase.ExecuteSqlQuery: ...
+    @property
+    def get_database_schema(self) -> global___Metabase.GetDatabaseSchema: ...
+    @property
+    def get_database_tables(self) -> global___Metabase.GetDatabaseTables: ...
+    @property
+    def list_collections(self) -> global___Metabase.ListCollections: ...
+    @property
+    def search_content(self) -> global___Metabase.SearchContent: ...
     def __init__(
         self,
         *,
@@ -289,9 +687,27 @@ class Metabase(google.protobuf.message.Message):
         create_pulse: global___Metabase.CreatePulse | None = ...,
         update_pulse: global___Metabase.UpdatePulse | None = ...,
         delete_pulse: global___Metabase.DeletePulse | None = ...,
+        list_dashboards: global___Metabase.ListDashboards | None = ...,
+        create_dashboard: global___Metabase.CreateDashboard | None = ...,
+        update_dashboard: global___Metabase.UpdateDashboard | None = ...,
+        get_dashboard_cards: global___Metabase.GetDashboardCards | None = ...,
+        add_card_to_dashboard: global___Metabase.AddCardToDashboard | None = ...,
+        remove_card_from_dashboard: global___Metabase.RemoveCardFromDashboard | None = ...,
+        update_dashboard_card: global___Metabase.UpdateDashboardCard | None = ...,
+        list_questions: global___Metabase.ListQuestions | None = ...,
+        get_question: global___Metabase.GetQuestion | None = ...,
+        create_question: global___Metabase.CreateQuestion | None = ...,
+        update_question: global___Metabase.UpdateQuestion | None = ...,
+        execute_question: global___Metabase.ExecuteQuestion | None = ...,
+        list_databases: global___Metabase.ListDatabases | None = ...,
+        execute_sql_query: global___Metabase.ExecuteSqlQuery | None = ...,
+        get_database_schema: global___Metabase.GetDatabaseSchema | None = ...,
+        get_database_tables: global___Metabase.GetDatabaseTables | None = ...,
+        list_collections: global___Metabase.ListCollections | None = ...,
+        search_content: global___Metabase.SearchContent | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["create_alert", b"create_alert", "create_pulse", b"create_pulse", "delete_alert", b"delete_alert", "delete_pulse", b"delete_pulse", "get_alert", b"get_alert", "get_pulse", b"get_pulse", "list_alerts", b"list_alerts", "list_pulses", b"list_pulses", "task", b"task", "update_alert", b"update_alert", "update_pulse", b"update_pulse"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["create_alert", b"create_alert", "create_pulse", b"create_pulse", "delete_alert", b"delete_alert", "delete_pulse", b"delete_pulse", "get_alert", b"get_alert", "get_pulse", b"get_pulse", "list_alerts", b"list_alerts", "list_pulses", b"list_pulses", "task", b"task", "type", b"type", "update_alert", b"update_alert", "update_pulse", b"update_pulse"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing_extensions.Literal["task", b"task"]) -> typing_extensions.Literal["list_alerts", "get_alert", "create_alert", "update_alert", "delete_alert", "list_pulses", "get_pulse", "create_pulse", "update_pulse", "delete_pulse"] | None: ...
+    def HasField(self, field_name: typing_extensions.Literal["add_card_to_dashboard", b"add_card_to_dashboard", "create_alert", b"create_alert", "create_dashboard", b"create_dashboard", "create_pulse", b"create_pulse", "create_question", b"create_question", "delete_alert", b"delete_alert", "delete_pulse", b"delete_pulse", "execute_question", b"execute_question", "execute_sql_query", b"execute_sql_query", "get_alert", b"get_alert", "get_dashboard_cards", b"get_dashboard_cards", "get_database_schema", b"get_database_schema", "get_database_tables", b"get_database_tables", "get_pulse", b"get_pulse", "get_question", b"get_question", "list_alerts", b"list_alerts", "list_collections", b"list_collections", "list_dashboards", b"list_dashboards", "list_databases", b"list_databases", "list_pulses", b"list_pulses", "list_questions", b"list_questions", "remove_card_from_dashboard", b"remove_card_from_dashboard", "search_content", b"search_content", "task", b"task", "update_alert", b"update_alert", "update_dashboard", b"update_dashboard", "update_dashboard_card", b"update_dashboard_card", "update_pulse", b"update_pulse", "update_question", b"update_question"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["add_card_to_dashboard", b"add_card_to_dashboard", "create_alert", b"create_alert", "create_dashboard", b"create_dashboard", "create_pulse", b"create_pulse", "create_question", b"create_question", "delete_alert", b"delete_alert", "delete_pulse", b"delete_pulse", "execute_question", b"execute_question", "execute_sql_query", b"execute_sql_query", "get_alert", b"get_alert", "get_dashboard_cards", b"get_dashboard_cards", "get_database_schema", b"get_database_schema", "get_database_tables", b"get_database_tables", "get_pulse", b"get_pulse", "get_question", b"get_question", "list_alerts", b"list_alerts", "list_collections", b"list_collections", "list_dashboards", b"list_dashboards", "list_databases", b"list_databases", "list_pulses", b"list_pulses", "list_questions", b"list_questions", "remove_card_from_dashboard", b"remove_card_from_dashboard", "search_content", b"search_content", "task", b"task", "type", b"type", "update_alert", b"update_alert", "update_dashboard", b"update_dashboard", "update_dashboard_card", b"update_dashboard_card", "update_pulse", b"update_pulse", "update_question", b"update_question"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing_extensions.Literal["task", b"task"]) -> typing_extensions.Literal["list_alerts", "get_alert", "create_alert", "update_alert", "delete_alert", "list_pulses", "get_pulse", "create_pulse", "update_pulse", "delete_pulse", "list_dashboards", "create_dashboard", "update_dashboard", "get_dashboard_cards", "add_card_to_dashboard", "remove_card_from_dashboard", "update_dashboard_card", "list_questions", "get_question", "create_question", "update_question", "execute_question", "list_databases", "execute_sql_query", "get_database_schema", "get_database_tables", "list_collections", "search_content"] | None: ...
 
 global___Metabase = Metabase

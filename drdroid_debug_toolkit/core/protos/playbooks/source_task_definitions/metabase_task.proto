@@ -17,6 +17,29 @@ message Metabase {
     CREATE_PULSE = 8;
     UPDATE_PULSE = 9;
     DELETE_PULSE = 10;
+    // Dashboards
+    LIST_DASHBOARDS = 11;
+    CREATE_DASHBOARD = 12;
+    UPDATE_DASHBOARD = 13;
+    GET_DASHBOARD_CARDS = 14;
+    ADD_CARD_TO_DASHBOARD = 15;
+    REMOVE_CARD_FROM_DASHBOARD = 16;
+    UPDATE_DASHBOARD_CARD = 17;
+    // Questions/Cards
+    LIST_QUESTIONS = 18;
+    GET_QUESTION = 28;
+    CREATE_QUESTION = 19;
+    UPDATE_QUESTION = 20;
+    EXECUTE_QUESTION = 21;
+    // Databases
+    LIST_DATABASES = 22;
+    EXECUTE_SQL_QUERY = 23;
+    GET_DATABASE_SCHEMA = 24;
+    GET_DATABASE_TABLES = 25;
+    // Collections
+    LIST_COLLECTIONS = 26;
+    // Search
+    SEARCH_CONTENT = 27;
   }
 
   message ListAlerts {}
@@ -66,6 +89,82 @@ message Metabase {
     google.protobuf.Int64Value pulse_id = 1;
   }
 
+  message ListDashboards {}
+
+  message CreateDashboard {
+    google.protobuf.Struct payload = 1;
+  }
+
+  message UpdateDashboard {
+    google.protobuf.Int64Value dashboard_id = 1;
+    google.protobuf.Struct updates = 2;
+  }
+
+  message GetDashboardCards {
+    google.protobuf.Int64Value dashboard_id = 1;
+  }
+
+  message AddCardToDashboard {
+    google.protobuf.Int64Value dashboard_id = 1;
+    google.protobuf.Int64Value card_id = 2;
+    optional google.protobuf.Int64Value row = 3;
+    optional google.protobuf.Int64Value col = 4;
+    optional google.protobuf.Int64Value size_x = 5;
+    optional google.protobuf.Int64Value size_y = 6;
+  }
+
+  message RemoveCardFromDashboard {
+    google.protobuf.Int64Value dashboard_id = 1;
+    google.protobuf.Int64Value dashcard_id = 2;
+  }
+
+  message UpdateDashboardCard {
+    google.protobuf.Int64Value dashboard_id = 1;
+    google.protobuf.Int64Value dashcard_id = 2;
+    google.protobuf.Struct updates = 3;
+  }
+
+  message ListQuestions {}
+
+  message GetQuestion {
+    google.protobuf.Int64Value card_id = 1;
+  }
+
+  message CreateQuestion {
+    google.protobuf.Struct payload = 1;
+  }
+
+  message UpdateQuestion {
+    google.protobuf.Int64Value card_id = 1;
+    google.protobuf.Struct updates = 2;
+  }
+
+  message ExecuteQuestion {
+    google.protobuf.Int64Value card_id = 1;
+    google.protobuf.Struct parameters = 2;
+  }
+
+  message ListDatabases {}
+
+  message ExecuteSqlQuery {
+    google.protobuf.Int64Value database_id = 1;
+    google.protobuf.StringValue query = 2;
+  }
+
+  message GetDatabaseSchema {
+    google.protobuf.Int64Value database_id = 1;
+  }
+
+  message GetDatabaseTables {
+    google.protobuf.Int64Value database_id = 1;
+  }
+
+  message ListCollections {}
+
+  message SearchContent {
+    google.protobuf.StringValue q = 1;
+  }
+
   TaskType type = 1;
   oneof task {
     ListAlerts list_alerts = 2;
@@ -78,5 +177,23 @@ message Metabase {
     CreatePulse create_pulse = 9;
     UpdatePulse update_pulse = 10;
     DeletePulse delete_pulse = 11;
+    ListDashboards list_dashboards = 12;
+    CreateDashboard create_dashboard = 13;
+    UpdateDashboard update_dashboard = 14;
+    GetDashboardCards get_dashboard_cards = 15;
+    AddCardToDashboard add_card_to_dashboard = 16;
+    RemoveCardFromDashboard remove_card_from_dashboard = 17;
+    UpdateDashboardCard update_dashboard_card = 18;
+    ListQuestions list_questions = 19;
+    GetQuestion get_question = 29;
+    CreateQuestion create_question = 20;
+    UpdateQuestion update_question = 21;
+    ExecuteQuestion execute_question = 22;
+    ListDatabases list_databases = 23;
+    ExecuteSqlQuery execute_sql_query = 24;
+    GetDatabaseSchema get_database_schema = 25;
+    GetDatabaseTables get_database_tables = 26;
+    ListCollections list_collections = 27;
+    SearchContent search_content = 28;
   }
 }

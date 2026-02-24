@@ -26,7 +26,7 @@ from google.protobuf import wrappers_pb2 as google_dot_protobuf_dot_wrappers__pb
 from google.protobuf import struct_pb2 as google_dot_protobuf_dot_struct__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\nAcore/protos/playbooks/source_task_definitions/metabase_task.proto\x12\x15\x63ore.protos.playbooks\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1cgoogle/protobuf/struct.proto\"\xbd\x10\n\x08Metabase\x12\x36\n\x04type\x18\x01 \x01(\x0e\x32(.core.protos.playbooks.Metabase.TaskType\x12\x41\n\x0blist_alerts\x18\x02 \x01(\x0b\x32*.core.protos.playbooks.Metabase.ListAlertsH\x00\x12=\n\tget_alert\x18\x03 \x01(\x0b\x32(.core.protos.playbooks.Metabase.GetAlertH\x00\x12\x43\n\x0c\x63reate_alert\x18\x04 \x01(\x0b\x32+.core.protos.playbooks.Metabase.CreateAlertH\x00\x12\x43\n\x0cupdate_alert\x18\x05 \x01(\x0b\x32+.core.protos.playbooks.Metabase.UpdateAlertH\x00\x12\x43\n\x0c\x64\x65lete_alert\x18\x06 \x01(\x0b\x32+.core.protos.playbooks.Metabase.DeleteAlertH\x00\x12\x41\n\x0blist_pulses\x18\x07 \x01(\x0b\x32*.core.protos.playbooks.Metabase.ListPulsesH\x00\x12=\n\tget_pulse\x18\x08 \x01(\x0b\x32(.core.protos.playbooks.Metabase.GetPulseH\x00\x12\x43\n\x0c\x63reate_pulse\x18\t \x01(\x0b\x32+.core.protos.playbooks.Metabase.CreatePulseH\x00\x12\x43\n\x0cupdate_pulse\x18\n \x01(\x0b\x32+.core.protos.playbooks.Metabase.UpdatePulseH\x00\x12\x43\n\x0c\x64\x65lete_pulse\x18\x0b \x01(\x0b\x32+.core.protos.playbooks.Metabase.DeletePulseH\x00\x1a\x0c\n\nListAlerts\x1a\x39\n\x08GetAlert\x12-\n\x08\x61lert_id\x18\x01 \x01(\x0b\x32\x1b.google.protobuf.Int64Value\x1a\xbd\x02\n\x0b\x43reateAlert\x12,\n\x07\x63\x61rd_id\x18\x01 \x01(\x0b\x32\x1b.google.protobuf.Int64Value\x12\x35\n\x0f\x61lert_condition\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x39\n\x10\x61lert_above_goal\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.BoolValueH\x00\x88\x01\x01\x12\x39\n\x10\x61lert_first_only\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.BoolValueH\x01\x88\x01\x01\x12)\n\x08\x63hannels\x18\x05 \x01(\x0b\x32\x17.google.protobuf.StructB\x13\n\x11_alert_above_goalB\x13\n\x11_alert_first_only\x1a\x66\n\x0bUpdateAlert\x12-\n\x08\x61lert_id\x18\x01 \x01(\x0b\x32\x1b.google.protobuf.Int64Value\x12(\n\x07updates\x18\x02 \x01(\x0b\x32\x17.google.protobuf.Struct\x1a<\n\x0b\x44\x65leteAlert\x12-\n\x08\x61lert_id\x18\x01 \x01(\x0b\x32\x1b.google.protobuf.Int64Value\x1a\x0c\n\nListPulses\x1a\x39\n\x08GetPulse\x12-\n\x08pulse_id\x18\x01 \x01(\x0b\x32\x1b.google.protobuf.Int64Value\x1a\xea\x02\n\x0b\x43reatePulse\x12*\n\x04name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x36\n\x0c\x64\x61shboard_id\x18\x02 \x01(\x0b\x32\x1b.google.protobuf.Int64ValueH\x00\x88\x01\x01\x12\x37\n\rcollection_id\x18\x03 \x01(\x0b\x32\x1b.google.protobuf.Int64ValueH\x01\x88\x01\x01\x12&\n\x05\x63\x61rds\x18\x04 \x01(\x0b\x32\x17.google.protobuf.Struct\x12)\n\x08\x63hannels\x18\x05 \x01(\x0b\x32\x17.google.protobuf.Struct\x12\x36\n\rskip_if_empty\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.BoolValueH\x02\x88\x01\x01\x42\x0f\n\r_dashboard_idB\x10\n\x0e_collection_idB\x10\n\x0e_skip_if_empty\x1a\x66\n\x0bUpdatePulse\x12-\n\x08pulse_id\x18\x01 \x01(\x0b\x32\x1b.google.protobuf.Int64Value\x12(\n\x07updates\x18\x02 \x01(\x0b\x32\x17.google.protobuf.Struct\x1a<\n\x0b\x44\x65letePulse\x12-\n\x08pulse_id\x18\x01 \x01(\x0b\x32\x1b.google.protobuf.Int64Value\"\xc3\x01\n\x08TaskType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x0f\n\x0bLIST_ALERTS\x10\x01\x12\r\n\tGET_ALERT\x10\x02\x12\x10\n\x0c\x43REATE_ALERT\x10\x03\x12\x10\n\x0cUPDATE_ALERT\x10\x04\x12\x10\n\x0c\x44\x45LETE_ALERT\x10\x05\x12\x0f\n\x0bLIST_PULSES\x10\x06\x12\r\n\tGET_PULSE\x10\x07\x12\x10\n\x0c\x43REATE_PULSE\x10\x08\x12\x10\n\x0cUPDATE_PULSE\x10\t\x12\x10\n\x0c\x44\x45LETE_PULSE\x10\nB\x06\n\x04taskb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\nAcore/protos/playbooks/source_task_definitions/metabase_task.proto\x12\x15\x63ore.protos.playbooks\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1cgoogle/protobuf/struct.proto\"\xab+\n\x08Metabase\x12\x36\n\x04type\x18\x01 \x01(\x0e\x32(.core.protos.playbooks.Metabase.TaskType\x12\x41\n\x0blist_alerts\x18\x02 \x01(\x0b\x32*.core.protos.playbooks.Metabase.ListAlertsH\x00\x12=\n\tget_alert\x18\x03 \x01(\x0b\x32(.core.protos.playbooks.Metabase.GetAlertH\x00\x12\x43\n\x0c\x63reate_alert\x18\x04 \x01(\x0b\x32+.core.protos.playbooks.Metabase.CreateAlertH\x00\x12\x43\n\x0cupdate_alert\x18\x05 \x01(\x0b\x32+.core.protos.playbooks.Metabase.UpdateAlertH\x00\x12\x43\n\x0c\x64\x65lete_alert\x18\x06 \x01(\x0b\x32+.core.protos.playbooks.Metabase.DeleteAlertH\x00\x12\x41\n\x0blist_pulses\x18\x07 \x01(\x0b\x32*.core.protos.playbooks.Metabase.ListPulsesH\x00\x12=\n\tget_pulse\x18\x08 \x01(\x0b\x32(.core.protos.playbooks.Metabase.GetPulseH\x00\x12\x43\n\x0c\x63reate_pulse\x18\t \x01(\x0b\x32+.core.protos.playbooks.Metabase.CreatePulseH\x00\x12\x43\n\x0cupdate_pulse\x18\n \x01(\x0b\x32+.core.protos.playbooks.Metabase.UpdatePulseH\x00\x12\x43\n\x0c\x64\x65lete_pulse\x18\x0b \x01(\x0b\x32+.core.protos.playbooks.Metabase.DeletePulseH\x00\x12I\n\x0flist_dashboards\x18\x0c \x01(\x0b\x32..core.protos.playbooks.Metabase.ListDashboardsH\x00\x12K\n\x10\x63reate_dashboard\x18\r \x01(\x0b\x32/.core.protos.playbooks.Metabase.CreateDashboardH\x00\x12K\n\x10update_dashboard\x18\x0e \x01(\x0b\x32/.core.protos.playbooks.Metabase.UpdateDashboardH\x00\x12P\n\x13get_dashboard_cards\x18\x0f \x01(\x0b\x32\x31.core.protos.playbooks.Metabase.GetDashboardCardsH\x00\x12S\n\x15\x61\x64\x64_card_to_dashboard\x18\x10 \x01(\x0b\x32\x32.core.protos.playbooks.Metabase.AddCardToDashboardH\x00\x12]\n\x1aremove_card_from_dashboard\x18\x11 \x01(\x0b\x32\x37.core.protos.playbooks.Metabase.RemoveCardFromDashboardH\x00\x12T\n\x15update_dashboard_card\x18\x12 \x01(\x0b\x32\x33.core.protos.playbooks.Metabase.UpdateDashboardCardH\x00\x12G\n\x0elist_questions\x18\x13 \x01(\x0b\x32-.core.protos.playbooks.Metabase.ListQuestionsH\x00\x12\x43\n\x0cget_question\x18\x1d \x01(\x0b\x32+.core.protos.playbooks.Metabase.GetQuestionH\x00\x12I\n\x0f\x63reate_question\x18\x14 \x01(\x0b\x32..core.protos.playbooks.Metabase.CreateQuestionH\x00\x12I\n\x0fupdate_question\x18\x15 \x01(\x0b\x32..core.protos.playbooks.Metabase.UpdateQuestionH\x00\x12K\n\x10\x65xecute_question\x18\x16 \x01(\x0b\x32/.core.protos.playbooks.Metabase.ExecuteQuestionH\x00\x12G\n\x0elist_databases\x18\x17 \x01(\x0b\x32-.core.protos.playbooks.Metabase.ListDatabasesH\x00\x12L\n\x11\x65xecute_sql_query\x18\x18 \x01(\x0b\x32/.core.protos.playbooks.Metabase.ExecuteSqlQueryH\x00\x12P\n\x13get_database_schema\x18\x19 \x01(\x0b\x32\x31.core.protos.playbooks.Metabase.GetDatabaseSchemaH\x00\x12P\n\x13get_database_tables\x18\x1a \x01(\x0b\x32\x31.core.protos.playbooks.Metabase.GetDatabaseTablesH\x00\x12K\n\x10list_collections\x18\x1b \x01(\x0b\x32/.core.protos.playbooks.Metabase.ListCollectionsH\x00\x12G\n\x0esearch_content\x18\x1c \x01(\x0b\x32-.core.protos.playbooks.Metabase.SearchContentH\x00\x1a\x0c\n\nListAlerts\x1a\x39\n\x08GetAlert\x12-\n\x08\x61lert_id\x18\x01 \x01(\x0b\x32\x1b.google.protobuf.Int64Value\x1a\xbd\x02\n\x0b\x43reateAlert\x12,\n\x07\x63\x61rd_id\x18\x01 \x01(\x0b\x32\x1b.google.protobuf.Int64Value\x12\x35\n\x0f\x61lert_condition\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x39\n\x10\x61lert_above_goal\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.BoolValueH\x00\x88\x01\x01\x12\x39\n\x10\x61lert_first_only\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.BoolValueH\x01\x88\x01\x01\x12)\n\x08\x63hannels\x18\x05 \x01(\x0b\x32\x17.google.protobuf.StructB\x13\n\x11_alert_above_goalB\x13\n\x11_alert_first_only\x1a\x66\n\x0bUpdateAlert\x12-\n\x08\x61lert_id\x18\x01 \x01(\x0b\x32\x1b.google.protobuf.Int64Value\x12(\n\x07updates\x18\x02 \x01(\x0b\x32\x17.google.protobuf.Struct\x1a<\n\x0b\x44\x65leteAlert\x12-\n\x08\x61lert_id\x18\x01 \x01(\x0b\x32\x1b.google.protobuf.Int64Value\x1a\x0c\n\nListPulses\x1a\x39\n\x08GetPulse\x12-\n\x08pulse_id\x18\x01 \x01(\x0b\x32\x1b.google.protobuf.Int64Value\x1a\xea\x02\n\x0b\x43reatePulse\x12*\n\x04name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x36\n\x0c\x64\x61shboard_id\x18\x02 \x01(\x0b\x32\x1b.google.protobuf.Int64ValueH\x00\x88\x01\x01\x12\x37\n\rcollection_id\x18\x03 \x01(\x0b\x32\x1b.google.protobuf.Int64ValueH\x01\x88\x01\x01\x12&\n\x05\x63\x61rds\x18\x04 \x01(\x0b\x32\x17.google.protobuf.Struct\x12)\n\x08\x63hannels\x18\x05 \x01(\x0b\x32\x17.google.protobuf.Struct\x12\x36\n\rskip_if_empty\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.BoolValueH\x02\x88\x01\x01\x42\x0f\n\r_dashboard_idB\x10\n\x0e_collection_idB\x10\n\x0e_skip_if_empty\x1a\x66\n\x0bUpdatePulse\x12-\n\x08pulse_id\x18\x01 \x01(\x0b\x32\x1b.google.protobuf.Int64Value\x12(\n\x07updates\x18\x02 \x01(\x0b\x32\x17.google.protobuf.Struct\x1a<\n\x0b\x44\x65letePulse\x12-\n\x08pulse_id\x18\x01 \x01(\x0b\x32\x1b.google.protobuf.Int64Value\x1a\x10\n\x0eListDashboards\x1a;\n\x0f\x43reateDashboard\x12(\n\x07payload\x18\x01 \x01(\x0b\x32\x17.google.protobuf.Struct\x1an\n\x0fUpdateDashboard\x12\x31\n\x0c\x64\x61shboard_id\x18\x01 \x01(\x0b\x32\x1b.google.protobuf.Int64Value\x12(\n\x07updates\x18\x02 \x01(\x0b\x32\x17.google.protobuf.Struct\x1a\x46\n\x11GetDashboardCards\x12\x31\n\x0c\x64\x61shboard_id\x18\x01 \x01(\x0b\x32\x1b.google.protobuf.Int64Value\x1a\xdd\x02\n\x12\x41\x64\x64\x43\x61rdToDashboard\x12\x31\n\x0c\x64\x61shboard_id\x18\x01 \x01(\x0b\x32\x1b.google.protobuf.Int64Value\x12,\n\x07\x63\x61rd_id\x18\x02 \x01(\x0b\x32\x1b.google.protobuf.Int64Value\x12-\n\x03row\x18\x03 \x01(\x0b\x32\x1b.google.protobuf.Int64ValueH\x00\x88\x01\x01\x12-\n\x03\x63ol\x18\x04 \x01(\x0b\x32\x1b.google.protobuf.Int64ValueH\x01\x88\x01\x01\x12\x30\n\x06size_x\x18\x05 \x01(\x0b\x32\x1b.google.protobuf.Int64ValueH\x02\x88\x01\x01\x12\x30\n\x06size_y\x18\x06 \x01(\x0b\x32\x1b.google.protobuf.Int64ValueH\x03\x88\x01\x01\x42\x06\n\x04_rowB\x06\n\x04_colB\t\n\x07_size_xB\t\n\x07_size_y\x1a~\n\x17RemoveCardFromDashboard\x12\x31\n\x0c\x64\x61shboard_id\x18\x01 \x01(\x0b\x32\x1b.google.protobuf.Int64Value\x12\x30\n\x0b\x64\x61shcard_id\x18\x02 \x01(\x0b\x32\x1b.google.protobuf.Int64Value\x1a\xa4\x01\n\x13UpdateDashboardCard\x12\x31\n\x0c\x64\x61shboard_id\x18\x01 \x01(\x0b\x32\x1b.google.protobuf.Int64Value\x12\x30\n\x0b\x64\x61shcard_id\x18\x02 \x01(\x0b\x32\x1b.google.protobuf.Int64Value\x12(\n\x07updates\x18\x03 \x01(\x0b\x32\x17.google.protobuf.Struct\x1a\x0f\n\rListQuestions\x1a;\n\x0bGetQuestion\x12,\n\x07\x63\x61rd_id\x18\x01 \x01(\x0b\x32\x1b.google.protobuf.Int64Value\x1a:\n\x0e\x43reateQuestion\x12(\n\x07payload\x18\x01 \x01(\x0b\x32\x17.google.protobuf.Struct\x1ah\n\x0eUpdateQuestion\x12,\n\x07\x63\x61rd_id\x18\x01 \x01(\x0b\x32\x1b.google.protobuf.Int64Value\x12(\n\x07updates\x18\x02 \x01(\x0b\x32\x17.google.protobuf.Struct\x1al\n\x0f\x45xecuteQuestion\x12,\n\x07\x63\x61rd_id\x18\x01 \x01(\x0b\x32\x1b.google.protobuf.Int64Value\x12+\n\nparameters\x18\x02 \x01(\x0b\x32\x17.google.protobuf.Struct\x1a\x0f\n\rListDatabases\x1ap\n\x0f\x45xecuteSqlQuery\x12\x30\n\x0b\x64\x61tabase_id\x18\x01 \x01(\x0b\x32\x1b.google.protobuf.Int64Value\x12+\n\x05query\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1a\x45\n\x11GetDatabaseSchema\x12\x30\n\x0b\x64\x61tabase_id\x18\x01 \x01(\x0b\x32\x1b.google.protobuf.Int64Value\x1a\x45\n\x11GetDatabaseTables\x12\x30\n\x0b\x64\x61tabase_id\x18\x01 \x01(\x0b\x32\x1b.google.protobuf.Int64Value\x1a\x11\n\x0fListCollections\x1a\x38\n\rSearchContent\x12\'\n\x01q\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"\xe0\x04\n\x08TaskType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x0f\n\x0bLIST_ALERTS\x10\x01\x12\r\n\tGET_ALERT\x10\x02\x12\x10\n\x0c\x43REATE_ALERT\x10\x03\x12\x10\n\x0cUPDATE_ALERT\x10\x04\x12\x10\n\x0c\x44\x45LETE_ALERT\x10\x05\x12\x0f\n\x0bLIST_PULSES\x10\x06\x12\r\n\tGET_PULSE\x10\x07\x12\x10\n\x0c\x43REATE_PULSE\x10\x08\x12\x10\n\x0cUPDATE_PULSE\x10\t\x12\x10\n\x0c\x44\x45LETE_PULSE\x10\n\x12\x13\n\x0fLIST_DASHBOARDS\x10\x0b\x12\x14\n\x10\x43REATE_DASHBOARD\x10\x0c\x12\x14\n\x10UPDATE_DASHBOARD\x10\r\x12\x17\n\x13GET_DASHBOARD_CARDS\x10\x0e\x12\x19\n\x15\x41\x44\x44_CARD_TO_DASHBOARD\x10\x0f\x12\x1e\n\x1aREMOVE_CARD_FROM_DASHBOARD\x10\x10\x12\x19\n\x15UPDATE_DASHBOARD_CARD\x10\x11\x12\x12\n\x0eLIST_QUESTIONS\x10\x12\x12\x10\n\x0cGET_QUESTION\x10\x1c\x12\x13\n\x0f\x43REATE_QUESTION\x10\x13\x12\x13\n\x0fUPDATE_QUESTION\x10\x14\x12\x14\n\x10\x45XECUTE_QUESTION\x10\x15\x12\x12\n\x0eLIST_DATABASES\x10\x16\x12\x15\n\x11\x45XECUTE_SQL_QUERY\x10\x17\x12\x17\n\x13GET_DATABASE_SCHEMA\x10\x18\x12\x17\n\x13GET_DATABASE_TABLES\x10\x19\x12\x14\n\x10LIST_COLLECTIONS\x10\x1a\x12\x12\n\x0eSEARCH_CONTENT\x10\x1b\x42\x06\n\x04taskb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -34,27 +34,63 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'core.protos.playbooks.sourc
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
   _globals['_METABASE']._serialized_start=155
-  _globals['_METABASE']._serialized_end=2264
-  _globals['_METABASE_LISTALERTS']._serialized_start=897
-  _globals['_METABASE_LISTALERTS']._serialized_end=909
-  _globals['_METABASE_GETALERT']._serialized_start=911
-  _globals['_METABASE_GETALERT']._serialized_end=968
-  _globals['_METABASE_CREATEALERT']._serialized_start=971
-  _globals['_METABASE_CREATEALERT']._serialized_end=1288
-  _globals['_METABASE_UPDATEALERT']._serialized_start=1290
-  _globals['_METABASE_UPDATEALERT']._serialized_end=1392
-  _globals['_METABASE_DELETEALERT']._serialized_start=1394
-  _globals['_METABASE_DELETEALERT']._serialized_end=1454
-  _globals['_METABASE_LISTPULSES']._serialized_start=1456
-  _globals['_METABASE_LISTPULSES']._serialized_end=1468
-  _globals['_METABASE_GETPULSE']._serialized_start=1470
-  _globals['_METABASE_GETPULSE']._serialized_end=1527
-  _globals['_METABASE_CREATEPULSE']._serialized_start=1530
-  _globals['_METABASE_CREATEPULSE']._serialized_end=1892
-  _globals['_METABASE_UPDATEPULSE']._serialized_start=1894
-  _globals['_METABASE_UPDATEPULSE']._serialized_end=1996
-  _globals['_METABASE_DELETEPULSE']._serialized_start=1998
-  _globals['_METABASE_DELETEPULSE']._serialized_end=2058
-  _globals['_METABASE_TASKTYPE']._serialized_start=2061
-  _globals['_METABASE_TASKTYPE']._serialized_end=2256
+  _globals['_METABASE']._serialized_end=5702
+  _globals['_METABASE_LISTALERTS']._serialized_start=2308
+  _globals['_METABASE_LISTALERTS']._serialized_end=2320
+  _globals['_METABASE_GETALERT']._serialized_start=2322
+  _globals['_METABASE_GETALERT']._serialized_end=2379
+  _globals['_METABASE_CREATEALERT']._serialized_start=2382
+  _globals['_METABASE_CREATEALERT']._serialized_end=2699
+  _globals['_METABASE_UPDATEALERT']._serialized_start=2701
+  _globals['_METABASE_UPDATEALERT']._serialized_end=2803
+  _globals['_METABASE_DELETEALERT']._serialized_start=2805
+  _globals['_METABASE_DELETEALERT']._serialized_end=2865
+  _globals['_METABASE_LISTPULSES']._serialized_start=2867
+  _globals['_METABASE_LISTPULSES']._serialized_end=2879
+  _globals['_METABASE_GETPULSE']._serialized_start=2881
+  _globals['_METABASE_GETPULSE']._serialized_end=2938
+  _globals['_METABASE_CREATEPULSE']._serialized_start=2941
+  _globals['_METABASE_CREATEPULSE']._serialized_end=3303
+  _globals['_METABASE_UPDATEPULSE']._serialized_start=3305
+  _globals['_METABASE_UPDATEPULSE']._serialized_end=3407
+  _globals['_METABASE_DELETEPULSE']._serialized_start=3409
+  _globals['_METABASE_DELETEPULSE']._serialized_end=3469
+  _globals['_METABASE_LISTDASHBOARDS']._serialized_start=3471
+  _globals['_METABASE_LISTDASHBOARDS']._serialized_end=3487
+  _globals['_METABASE_CREATEDASHBOARD']._serialized_start=3489
+  _globals['_METABASE_CREATEDASHBOARD']._serialized_end=3548
+  _globals['_METABASE_UPDATEDASHBOARD']._serialized_start=3550
+  _globals['_METABASE_UPDATEDASHBOARD']._serialized_end=3660
+  _globals['_METABASE_GETDASHBOARDCARDS']._serialized_start=3662
+  _globals['_METABASE_GETDASHBOARDCARDS']._serialized_end=3732
+  _globals['_METABASE_ADDCARDTODASHBOARD']._serialized_start=3735
+  _globals['_METABASE_ADDCARDTODASHBOARD']._serialized_end=4084
+  _globals['_METABASE_REMOVECARDFROMDASHBOARD']._serialized_start=4086
+  _globals['_METABASE_REMOVECARDFROMDASHBOARD']._serialized_end=4212
+  _globals['_METABASE_UPDATEDASHBOARDCARD']._serialized_start=4215
+  _globals['_METABASE_UPDATEDASHBOARDCARD']._serialized_end=4379
+  _globals['_METABASE_LISTQUESTIONS']._serialized_start=4381
+  _globals['_METABASE_LISTQUESTIONS']._serialized_end=4396
+  _globals['_METABASE_GETQUESTION']._serialized_start=4398
+  _globals['_METABASE_GETQUESTION']._serialized_end=4457
+  _globals['_METABASE_CREATEQUESTION']._serialized_start=4459
+  _globals['_METABASE_CREATEQUESTION']._serialized_end=4517
+  _globals['_METABASE_UPDATEQUESTION']._serialized_start=4519
+  _globals['_METABASE_UPDATEQUESTION']._serialized_end=4623
+  _globals['_METABASE_EXECUTEQUESTION']._serialized_start=4625
+  _globals['_METABASE_EXECUTEQUESTION']._serialized_end=4733
+  _globals['_METABASE_LISTDATABASES']._serialized_start=4735
+  _globals['_METABASE_LISTDATABASES']._serialized_end=4750
+  _globals['_METABASE_EXECUTESQLQUERY']._serialized_start=4752
+  _globals['_METABASE_EXECUTESQLQUERY']._serialized_end=4864
+  _globals['_METABASE_GETDATABASESCHEMA']._serialized_start=4866
+  _globals['_METABASE_GETDATABASESCHEMA']._serialized_end=4935
+  _globals['_METABASE_GETDATABASETABLES']._serialized_start=4937
+  _globals['_METABASE_GETDATABASETABLES']._serialized_end=5006
+  _globals['_METABASE_LISTCOLLECTIONS']._serialized_start=5008
+  _globals['_METABASE_LISTCOLLECTIONS']._serialized_end=5025
+  _globals['_METABASE_SEARCHCONTENT']._serialized_start=5027
+  _globals['_METABASE_SEARCHCONTENT']._serialized_end=5083
+  _globals['_METABASE_TASKTYPE']._serialized_start=5086
+  _globals['_METABASE_TASKTYPE']._serialized_end=5694
 # @@protoc_insertion_point(module_scope)
