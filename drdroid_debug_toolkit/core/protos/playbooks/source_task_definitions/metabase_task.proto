@@ -1,0 +1,82 @@
+syntax = "proto3";
+package core.protos.playbooks;
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/struct.proto";
+
+message Metabase {
+  enum TaskType {
+    UNKNOWN = 0;
+    LIST_ALERTS = 1;
+    GET_ALERT = 2;
+    CREATE_ALERT = 3;
+    UPDATE_ALERT = 4;
+    DELETE_ALERT = 5;
+    LIST_PULSES = 6;
+    GET_PULSE = 7;
+    CREATE_PULSE = 8;
+    UPDATE_PULSE = 9;
+    DELETE_PULSE = 10;
+  }
+
+  message ListAlerts {}
+
+  message GetAlert {
+    google.protobuf.Int64Value alert_id = 1;
+  }
+
+  message CreateAlert {
+    google.protobuf.Int64Value card_id = 1;
+    google.protobuf.StringValue alert_condition = 2;
+    optional google.protobuf.BoolValue alert_above_goal = 3;
+    optional google.protobuf.BoolValue alert_first_only = 4;
+    google.protobuf.Struct channels = 5;
+  }
+
+  message UpdateAlert {
+    google.protobuf.Int64Value alert_id = 1;
+    google.protobuf.Struct updates = 2;
+  }
+
+  message DeleteAlert {
+    google.protobuf.Int64Value alert_id = 1;
+  }
+
+  message ListPulses {}
+
+  message GetPulse {
+    google.protobuf.Int64Value pulse_id = 1;
+  }
+
+  message CreatePulse {
+    google.protobuf.StringValue name = 1;
+    optional google.protobuf.Int64Value dashboard_id = 2;
+    optional google.protobuf.Int64Value collection_id = 3;
+    google.protobuf.Struct cards = 4;
+    google.protobuf.Struct channels = 5;
+    optional google.protobuf.BoolValue skip_if_empty = 6;
+  }
+
+  message UpdatePulse {
+    google.protobuf.Int64Value pulse_id = 1;
+    google.protobuf.Struct updates = 2;
+  }
+
+  message DeletePulse {
+    google.protobuf.Int64Value pulse_id = 1;
+  }
+
+  TaskType type = 1;
+  oneof task {
+    ListAlerts list_alerts = 2;
+    GetAlert get_alert = 3;
+    CreateAlert create_alert = 4;
+    UpdateAlert update_alert = 5;
+    DeleteAlert delete_alert = 6;
+    ListPulses list_pulses = 7;
+    GetPulse get_pulse = 8;
+    CreatePulse create_pulse = 9;
+    UpdatePulse update_pulse = 10;
+    DeletePulse delete_pulse = 11;
+  }
+}

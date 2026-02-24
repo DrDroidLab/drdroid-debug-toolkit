@@ -5,7 +5,7 @@ set -ex
 
 repo_root="$(git rev-parse --show-toplevel)"
 PROTO_REPO_DIR="$repo_root/drdroid_debug_toolkit/core/protos"
-venv_dir="/Users/apple/DroidSpace/sdk-dev/drdroid_debug_toolkit/.venv"
+venv_dir="$(git rev-parse --show-toplevel)/venv"
 
 
 cd "$repo_root/drdroid_debug_toolkit/core/"

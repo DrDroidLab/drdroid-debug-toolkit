@@ -841,6 +841,12 @@ class _SourceModelTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper
     """Linear Models"""
     LINEAR_USERS: _SourceModelType.ValueType  # 9202
     LINEAR_PROJECTS: _SourceModelType.ValueType  # 9203
+    METABASE_DASHBOARD: _SourceModelType.ValueType  # 9301
+    """Metabase Models"""
+    METABASE_CARD: _SourceModelType.ValueType  # 9302
+    METABASE_DATABASE: _SourceModelType.ValueType  # 9303
+    METABASE_COLLECTION: _SourceModelType.ValueType  # 9304
+    METABASE_SUBSCRIPTION: _SourceModelType.ValueType  # 9305
 
 class SourceModelType(_SourceModelType, metaclass=_SourceModelTypeEnumTypeWrapper): ...
 
@@ -1056,6 +1062,12 @@ LINEAR_TEAMS: SourceModelType.ValueType  # 9201
 """Linear Models"""
 LINEAR_USERS: SourceModelType.ValueType  # 9202
 LINEAR_PROJECTS: SourceModelType.ValueType  # 9203
+METABASE_DASHBOARD: SourceModelType.ValueType  # 9301
+"""Metabase Models"""
+METABASE_CARD: SourceModelType.ValueType  # 9302
+METABASE_DATABASE: SourceModelType.ValueType  # 9303
+METABASE_COLLECTION: SourceModelType.ValueType  # 9304
+METABASE_SUBSCRIPTION: SourceModelType.ValueType  # 9305
 global___SourceModelType = SourceModelType
 
 class _Context:

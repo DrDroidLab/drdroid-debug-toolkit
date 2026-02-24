@@ -1,0 +1,104 @@
+syntax = "proto3";
+package core.protos.connectors;
+
+import "google/protobuf/wrappers.proto";
+import "core/protos/base.proto";
+
+// Dashboard asset model
+message MetabaseDashboardAssetModel {
+  google.protobuf.StringValue id = 1;
+  google.protobuf.StringValue name = 2;
+  google.protobuf.StringValue description = 3;
+  google.protobuf.StringValue collection_id = 4;
+  google.protobuf.StringValue created_at = 5;
+  google.protobuf.StringValue updated_at = 6;
+  google.protobuf.Int32Value card_count = 7;
+}
+
+message MetabaseDashboardAssetOptions {
+  repeated string names = 1;
+  repeated string collection_ids = 2;
+}
+
+// Card (Question) asset model
+message MetabaseCardAssetModel {
+  google.protobuf.StringValue id = 1;
+  google.protobuf.StringValue name = 2;
+  google.protobuf.StringValue description = 3;
+  google.protobuf.StringValue display_type = 4;
+  google.protobuf.StringValue collection_id = 5;
+  google.protobuf.StringValue database_id = 6;
+  google.protobuf.StringValue created_at = 7;
+  google.protobuf.StringValue updated_at = 8;
+}
+
+message MetabaseCardAssetOptions {
+  repeated string names = 1;
+  repeated string collection_ids = 2;
+  repeated string database_ids = 3;
+  repeated string display_types = 4;
+}
+
+// Database asset model
+message MetabaseDatabaseAssetModel {
+  google.protobuf.StringValue id = 1;
+  google.protobuf.StringValue name = 2;
+  google.protobuf.StringValue engine = 3;
+  google.protobuf.StringValue created_at = 4;
+  google.protobuf.StringValue updated_at = 5;
+  google.protobuf.Int32Value table_count = 6;
+}
+
+message MetabaseDatabaseAssetOptions {
+  repeated string names = 1;
+  repeated string engines = 2;
+}
+
+// Collection asset model
+message MetabaseCollectionAssetModel {
+  google.protobuf.StringValue id = 1;
+  google.protobuf.StringValue name = 2;
+  google.protobuf.StringValue description = 3;
+  google.protobuf.StringValue parent_id = 4;
+  google.protobuf.StringValue location = 5;
+}
+
+message MetabaseCollectionAssetOptions {
+  repeated string names = 1;
+  repeated string parent_ids = 2;
+}
+
+// Subscription (Alert) asset model
+message MetabaseSubscriptionAssetModel {
+  google.protobuf.StringValue id = 1;
+  google.protobuf.StringValue name = 2;
+  google.protobuf.StringValue dashboard_id = 3;
+  google.protobuf.BoolValue active = 4;
+  google.protobuf.StringValue created_at = 5;
+}
+
+message MetabaseSubscriptionAssetOptions {
+  repeated string names = 1;
+  repeated string dashboard_ids = 2;
+  google.protobuf.BoolValue active = 3;
+}
+
+// Generic asset model container
+message MetabaseAssetModel {
+  google.protobuf.UInt64Value id = 1;
+  core.protos.Source connector_type = 2;
+  core.protos.SourceModelType type = 3;
+  sfixed64 last_updated = 4;
+  oneof asset {
+    MetabaseDashboardAssetModel metabase_dashboard = 101;
+    MetabaseCardAssetModel metabase_card = 102;
+    MetabaseDatabaseAssetModel metabase_database = 103;
+    MetabaseCollectionAssetModel metabase_collection = 104;
+    MetabaseSubscriptionAssetModel metabase_subscription = 105;
+  }
+}
+
+// Assets container
+message MetabaseAssets {
+  repeated MetabaseAssetModel assets = 1;
+}
