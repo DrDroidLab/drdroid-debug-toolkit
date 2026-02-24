@@ -1,3 +1,4 @@
+import copy
 import logging
 
 import requests
@@ -245,10 +246,51 @@ class MetabaseApiProcessor(Processor):
             logger.error(f"MetabaseApiProcessor.get_card:: Error getting card {card_id}: {e}")
             raise
 
+    def _normalize_dataset_query_for_update(self, existing_dq, new_dq):
+        """
+        When updating with a simple native dataset_query (type/native/database), preserve
+        the existing card's internal structure (e.g. lib/type, stages) so execute doesn't
+        get "missing or invalid query type". If existing uses stages, inject new query
+        into stages[0].native; otherwise pass new_dq through.
+        """
+        if not isinstance(new_dq, dict) or new_dq.get("type") != "native":
+            return new_dq
+        native_query = None
+        if isinstance(new_dq.get("native"), dict) and "query" in new_dq["native"]:
+            native_query = new_dq["native"]["query"]
+        if not native_query:
+            return new_dq
+        if not isinstance(existing_dq, dict):
+            return new_dq
+        # Preserve existing structure (lib/type, stages) and only set the native SQL
+        if "stages" in existing_dq and isinstance(existing_dq["stages"], list) and len(existing_dq["stages"]) > 0:
+            merged_dq = copy.deepcopy(existing_dq)
+            merged_dq["database"] = new_dq.get("database", existing_dq.get("database"))
+            if isinstance(merged_dq["stages"][0], dict) and "native" in merged_dq["stages"][0]:
+                merged_dq["stages"][0]["native"] = native_query
+            return merged_dq
+        return new_dq
+
     def update_card(self, card_id, payload):
+        """
+        Update a card by ID. Fetches the full card first and merges payload into it,
+        then PUTs the full object. Sending a partial payload can cause Metabase to
+        clear fields like dataset_query, which then breaks execute (missing query type).
+        """
         try:
+            existing = self.get_card(card_id)
+            # Merge payload into existing so we never send a partial card
+            if isinstance(existing, dict) and isinstance(payload, dict):
+                merged = dict(existing)
+                for key, value in payload.items():
+                    if value is not None:
+                        if key == "dataset_query" and key in merged and merged[key]:
+                            value = self._normalize_dataset_query_for_update(merged[key], value)
+                        merged[key] = value
+            else:
+                merged = payload
             url = f"{self.__host}/api/card/{card_id}"
-            response = requests.put(url, headers=self.headers, json=payload, timeout=EXTERNAL_CALL_TIMEOUT)
+            response = requests.put(url, headers=self.headers, json=merged, timeout=EXTERNAL_CALL_TIMEOUT)
             response.raise_for_status()
             return response.json()
         except Exception as e:
