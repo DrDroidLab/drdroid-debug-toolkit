@@ -35,6 +35,7 @@ import "core/protos/assets/victoria_logs_asset.proto";
 import "core/protos/assets/linear_asset.proto";
 import "core/protos/assets/metabase_asset.proto";
 
+
 message ConnectorModelTypeOptions {
   SourceModelType model_type = 1;
   oneof options {

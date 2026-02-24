@@ -130,7 +130,6 @@ source_facade.register(Source.AZURE, AzureSourceManager())
 source_facade.register(Source.GKE, GkeSourceManager())
 source_facade.register(Source.GCM, GcmSourceManager())
 source_facade.register(Source.GRAFANA_LOKI, GrafanaLokiSourceManager())
-
 source_facade.register(Source.POSTGRES, PostgresSourceManager())
 source_facade.register(Source.CLICKHOUSE, ClickhouseSourceManager())
 source_facade.register(Source.SQL_DATABASE_CONNECTION, SqlDatabaseConnectionSourceManager())

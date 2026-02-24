@@ -473,6 +473,27 @@ class GrafanaSourceMetadataExtractor(SourceMetadataExtractor):
     #     return model_data
 
     @log_function_call
+    def extract_tempo_data_source(self):
+        model_type = SourceModelType.GRAFANA_TEMPO_DATASOURCE
+        try:
+            all_data_sources = self.__grafana_api_processor.fetch_data_sources()
+            if not all_data_sources:
+                return
+            all_tempo_data_sources = [ds for ds in all_data_sources if ds['type'] == 'tempo']
+        except Exception as e:
+            logger.error(f'Error fetching grafana tempo data sources: {e}')
+            return
+        if not all_tempo_data_sources:
+            return
+        model_data = {}
+        for ds in all_tempo_data_sources:
+            datasource_id = ds['uid']
+            model_data[datasource_id] = ds
+        if len(model_data) > 0:
+            self.create_or_update_model_metadata(model_type, model_data)
+        return model_data
+
+    @log_function_call
     def extract_alert_rules(self):
         model_type = SourceModelType.GRAFANA_ALERT_RULE
         try:

@@ -439,6 +439,200 @@ class GrafanaSourceManager(SourceManager):
                 "category": "Alerts",
                 "form_fields": [],
             },
+            Grafana.TaskType.TEMPO_DATASOURCE_TRACE_SEARCH: {
+                "executor": self.execute_tempo_datasource_trace_search,
+                "model_types": [SourceModelType.GRAFANA_TEMPO_DATASOURCE],
+                "result_type": PlaybookTaskResultType.TABLE,
+                "display_name": "Search Traces from Tempo Data Source",
+                "category": "Traces",
+                "form_fields": [
+                    FormField(
+                        key_name=StringValue(value="datasource_uid"),
+                        display_name=StringValue(value="Data Source UID"),
+                        description=StringValue(value="Select Tempo Data Source UID"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TYPING_DROPDOWN_FT,
+                    ),
+                    FormField(
+                        key_name=StringValue(value="traceql_query"),
+                        display_name=StringValue(value="TraceQL Query"),
+                        description=StringValue(value='Enter TraceQL query expression (e.g. {resource.service.name="checkout"})'),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.MULTILINE_FT,
+                    ),
+                    FormField(
+                        key_name=StringValue(value="limit"),
+                        display_name=StringValue(value="Limit"),
+                        description=StringValue(value="Maximum number of traces to return (default: 20)"),
+                        data_type=LiteralType.LONG,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=True,
+                    ),
+                    FormField(
+                        key_name=StringValue(value="spss"),
+                        display_name=StringValue(value="Spans per Span Set"),
+                        description=StringValue(value="Maximum number of spans per span set (default: 3)"),
+                        data_type=LiteralType.LONG,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=True,
+                    ),
+                ],
+            },
+            Grafana.TaskType.TEMPO_DATASOURCE_GET_TRACE: {
+                "executor": self.execute_tempo_datasource_get_trace,
+                "model_types": [SourceModelType.GRAFANA_TEMPO_DATASOURCE],
+                "result_type": PlaybookTaskResultType.TABLE,
+                "display_name": "Get Trace by ID from Tempo Data Source",
+                "category": "Traces",
+                "form_fields": [
+                    FormField(
+                        key_name=StringValue(value="datasource_uid"),
+                        display_name=StringValue(value="Data Source UID"),
+                        description=StringValue(value="Select Tempo Data Source UID"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TYPING_DROPDOWN_FT,
+                    ),
+                    FormField(
+                        key_name=StringValue(value="trace_id"),
+                        display_name=StringValue(value="Trace ID"),
+                        description=StringValue(value="Enter the Trace ID hex string"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                    ),
+                ],
+            },
+            Grafana.TaskType.TEMPO_DATASOURCE_METRICS_QUERY_RANGE: {
+                "executor": self.execute_tempo_datasource_metrics_query_range,
+                "model_types": [SourceModelType.GRAFANA_TEMPO_DATASOURCE],
+                "result_type": PlaybookTaskResultType.TIMESERIES,
+                "display_name": "Metrics Query Range from Tempo Data Source",
+                "category": "Traces",
+                "form_fields": [
+                    FormField(
+                        key_name=StringValue(value="datasource_uid"),
+                        display_name=StringValue(value="Data Source UID"),
+                        description=StringValue(value="Select Tempo Data Source UID"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TYPING_DROPDOWN_FT,
+                    ),
+                    FormField(
+                        key_name=StringValue(value="traceql_metrics_query"),
+                        display_name=StringValue(value="TraceQL Metrics Query"),
+                        description=StringValue(value='Enter TraceQL metrics expression (e.g. {resource.service.name="foo"} | rate())'),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.MULTILINE_FT,
+                    ),
+                    FormField(
+                        key_name=StringValue(value="step"),
+                        display_name=StringValue(value="Step (seconds)"),
+                        description=StringValue(value="Step size for range query in seconds (default: 60)"),
+                        data_type=LiteralType.LONG,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=True,
+                    ),
+                ],
+            },
+            Grafana.TaskType.TEMPO_DATASOURCE_METRICS_QUERY_INSTANT: {
+                "executor": self.execute_tempo_datasource_metrics_query_instant,
+                "model_types": [SourceModelType.GRAFANA_TEMPO_DATASOURCE],
+                "result_type": PlaybookTaskResultType.TABLE,
+                "display_name": "Metrics Query Instant from Tempo Data Source",
+                "category": "Traces",
+                "form_fields": [
+                    FormField(
+                        key_name=StringValue(value="datasource_uid"),
+                        display_name=StringValue(value="Data Source UID"),
+                        description=StringValue(value="Select Tempo Data Source UID"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TYPING_DROPDOWN_FT,
+                    ),
+                    FormField(
+                        key_name=StringValue(value="traceql_metrics_query"),
+                        display_name=StringValue(value="TraceQL Metrics Query"),
+                        description=StringValue(value='Enter TraceQL metrics expression (e.g. {resource.service.name="foo"} | rate())'),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.MULTILINE_FT,
+                    ),
+                ],
+            },
+            Grafana.TaskType.TEMPO_DATASOURCE_GET_SERVICES: {
+                "executor": self.execute_tempo_datasource_get_services,
+                "model_types": [SourceModelType.GRAFANA_TEMPO_DATASOURCE],
+                "result_type": PlaybookTaskResultType.TABLE,
+                "display_name": "Get Services from Tempo Data Source",
+                "category": "Traces",
+                "form_fields": [
+                    FormField(
+                        key_name=StringValue(value="datasource_uid"),
+                        display_name=StringValue(value="Data Source UID"),
+                        description=StringValue(value="Select Tempo Data Source UID"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TYPING_DROPDOWN_FT,
+                    ),
+                ],
+            },
+            Grafana.TaskType.TEMPO_DATASOURCE_GET_TAGS: {
+                "executor": self.execute_tempo_datasource_get_tags,
+                "model_types": [SourceModelType.GRAFANA_TEMPO_DATASOURCE],
+                "result_type": PlaybookTaskResultType.TABLE,
+                "display_name": "Get Tags from Tempo Data Source",
+                "category": "Traces",
+                "form_fields": [
+                    FormField(
+                        key_name=StringValue(value="datasource_uid"),
+                        display_name=StringValue(value="Data Source UID"),
+                        description=StringValue(value="Select Tempo Data Source UID"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TYPING_DROPDOWN_FT,
+                    ),
+                    FormField(
+                        key_name=StringValue(value="scope"),
+                        display_name=StringValue(value="Scope"),
+                        description=StringValue(value="Tag scope filter"),
+                        data_type=LiteralType.STRING,
+                        default_value=Literal(type=LiteralType.STRING, string=StringValue(value="none")),
+                        valid_values=[
+                            Literal(type=LiteralType.STRING, string=StringValue(value="none")),
+                            Literal(type=LiteralType.STRING, string=StringValue(value="resource")),
+                            Literal(type=LiteralType.STRING, string=StringValue(value="span")),
+                            Literal(type=LiteralType.STRING, string=StringValue(value="intrinsic")),
+                        ],
+                        form_field_type=FormFieldType.DROPDOWN_FT,
+                        is_optional=True,
+                    ),
+                ],
+            },
+            Grafana.TaskType.TEMPO_DATASOURCE_GET_TAG_VALUES: {
+                "executor": self.execute_tempo_datasource_get_tag_values,
+                "model_types": [SourceModelType.GRAFANA_TEMPO_DATASOURCE],
+                "result_type": PlaybookTaskResultType.TABLE,
+                "display_name": "Get Tag Values from Tempo Data Source",
+                "category": "Traces",
+                "form_fields": [
+                    FormField(
+                        key_name=StringValue(value="datasource_uid"),
+                        display_name=StringValue(value="Data Source UID"),
+                        description=StringValue(value="Select Tempo Data Source UID"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TYPING_DROPDOWN_FT,
+                    ),
+                    FormField(
+                        key_name=StringValue(value="tag_name"),
+                        display_name=StringValue(value="Tag Name"),
+                        description=StringValue(value="Enter the tag name (e.g. service.name, http.method)"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                    ),
+                    FormField(
+                        key_name=StringValue(value="traceql_filter"),
+                        display_name=StringValue(value="TraceQL Filter"),
+                        description=StringValue(value='Optional TraceQL filter to scope tag values (e.g. {resource.service.name="foo"})'),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.MULTILINE_FT,
+                        is_optional=True,
+                    ),
+                ],
+            },
         }
         self.connector_form_configs = [
             {
@@ -2755,3 +2949,654 @@ class GrafanaSourceManager(SourceManager):
             total_count=UInt64Value(value=len(parsed_logs)),
             rows=table_rows
         )
+
+    def execute_tempo_datasource_trace_search(self, time_range: TimeRange, grafana_task: Grafana,
+                                              grafana_connector: ConnectorProto):
+        """Executes a TraceQL search query against a Tempo datasource via Grafana proxy."""
+        datasource_uid = None
+        traceql_query = None
+        try:
+            if not grafana_connector:
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value="Task execution Failed:: No Grafana source found")),
+                    source=self.source
+                )
+
+            task = grafana_task.tempo_datasource_trace_search
+            datasource_uid = task.datasource_uid.value
+            traceql_query = task.traceql_query.value
+            limit = task.limit.value if task.limit and task.limit.value else 20
+            spss = task.spss.value if task.spss and task.spss.value else 3
+
+            grafana_api_processor = self.get_connector_processor(grafana_connector)
+
+            print(
+                f"Playbook Task Downstream Request: Type -> Grafana Tempo Search, Datasource_Uid -> {datasource_uid}, "
+                f"TraceQL_Query -> {traceql_query}, Limit -> {limit}, Spss -> {spss}",
+                flush=True,
+            )
+
+            start = int(time_range.time_geq) if time_range and time_range.time_geq else None
+            end = int(time_range.time_lt) if time_range and time_range.time_lt else None
+
+            response = grafana_api_processor.tempo_search_traces(
+                datasource_uid, traceql_query, start=start, end=end, limit=limit, spss=spss
+            )
+
+            metadata = self._create_metadata_with_grafana_url(grafana_connector, "explore", {
+                "datasource_uid": datasource_uid,
+                "query": traceql_query,
+                "orgId": "1",
+                **self._get_grafana_time_params(time_range)
+            })
+
+            if not response or 'traces' not in response or not response['traces']:
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value=f"No traces found for query: {traceql_query}")),
+                    source=self.source,
+                    metadata=metadata
+                )
+
+            traces = response['traces']
+            table_rows = []
+            for trace in traces:
+                trace_id = trace.get('traceID', '')
+                root_service = trace.get('rootServiceName', '')
+                root_trace = trace.get('rootTraceName', '')
+                start_time_ns = trace.get('startTimeUnixNano', '')
+                duration_ms = trace.get('durationMs', 0)
+                span_sets = trace.get('spanSets', trace.get('spanSet', None))
+                if isinstance(span_sets, dict):
+                    span_sets = [span_sets]
+                elif not span_sets:
+                    span_sets = []
+                matched_spans = sum(len(ss.get('spans', [])) for ss in span_sets) if span_sets else 0
+
+                # Format start time
+                start_time_str = ''
+                if start_time_ns:
+                    try:
+                        from datetime import datetime
+                        ts_seconds = int(start_time_ns) / 1e9
+                        start_time_str = datetime.utcfromtimestamp(ts_seconds).strftime('%Y-%m-%d %H:%M:%S UTC')
+                    except Exception:
+                        start_time_str = str(start_time_ns)
+
+                table_columns = [
+                    TableResult.TableColumn(name=StringValue(value="traceID"), value=StringValue(value=str(trace_id))),
+                    TableResult.TableColumn(name=StringValue(value="rootServiceName"), value=StringValue(value=str(root_service))),
+                    TableResult.TableColumn(name=StringValue(value="rootTraceName"), value=StringValue(value=str(root_trace))),
+                    TableResult.TableColumn(name=StringValue(value="startTime"), value=StringValue(value=start_time_str)),
+                    TableResult.TableColumn(name=StringValue(value="durationMs"), value=StringValue(value=str(duration_ms))),
+                    TableResult.TableColumn(name=StringValue(value="matchedSpans"), value=StringValue(value=str(matched_spans))),
+                ]
+                table_rows.append(TableResult.TableRow(columns=table_columns))
+
+            table_result = TableResult(
+                raw_query=StringValue(value=f"TraceQL: ```{traceql_query}```"),
+                total_count=UInt64Value(value=len(traces)),
+                rows=table_rows
+            )
+            return PlaybookTaskResult(
+                source=self.source, type=PlaybookTaskResultType.TABLE,
+                table=table_result, metadata=metadata
+            )
+
+        except Exception as e:
+            time_params = self._get_grafana_time_params(time_range)
+            metadata = self._create_metadata_with_grafana_url(grafana_connector, "explore", {
+                "datasource_uid": datasource_uid or "",
+                "query": traceql_query or "",
+                "orgId": "1",
+                **time_params
+            })
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.TEXT,
+                text=TextResult(output=StringValue(value=f"Error while executing Grafana Tempo trace search: {e}")),
+                source=self.source,
+                metadata=metadata
+            )
+
+    def execute_tempo_datasource_get_trace(self, time_range: TimeRange, grafana_task: Grafana,
+                                           grafana_connector: ConnectorProto):
+        """Fetches a single trace by ID from a Tempo datasource via Grafana proxy."""
+        datasource_uid = None
+        trace_id = None
+        try:
+            if not grafana_connector:
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value="Task execution Failed:: No Grafana source found")),
+                    source=self.source
+                )
+
+            task = grafana_task.tempo_datasource_get_trace
+            datasource_uid = task.datasource_uid.value
+            trace_id = task.trace_id.value
+
+            grafana_api_processor = self.get_connector_processor(grafana_connector)
+
+            print(
+                f"Playbook Task Downstream Request: Type -> Grafana Tempo Get Trace, "
+                f"Datasource_Uid -> {datasource_uid}, Trace_ID -> {trace_id}",
+                flush=True,
+            )
+
+            response = grafana_api_processor.tempo_get_trace(datasource_uid, trace_id)
+
+            metadata = self._create_metadata_with_grafana_url(grafana_connector, "explore", {
+                "datasource_uid": datasource_uid,
+                "query": trace_id,
+                "orgId": "1",
+                **self._get_grafana_time_params(time_range)
+            })
+
+            if not response:
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value=f"No trace found for ID: {trace_id}")),
+                    source=self.source,
+                    metadata=metadata
+                )
+
+            # Parse OTLP trace response - flatten spans into table rows
+            table_rows = []
+            batches = response.get('batches', [])
+            for batch in batches:
+                resource = batch.get('resource', {})
+                resource_attrs = {}
+                for attr in resource.get('attributes', []):
+                    key = attr.get('key', '')
+                    val = attr.get('value', {})
+                    resource_attrs[key] = val.get('stringValue', val.get('intValue', val.get('boolValue', '')))
+
+                service_name = resource_attrs.get('service.name', '')
+
+                scope_spans_list = batch.get('scopeSpans', batch.get('instrumentationLibrarySpans', []))
+                for scope_spans in scope_spans_list:
+                    for span in scope_spans.get('spans', []):
+                        span_id = span.get('spanId', '')
+                        operation_name = span.get('name', '')
+                        start_time_ns = span.get('startTimeUnixNano', '')
+                        end_time_ns = span.get('endTimeUnixNano', '')
+                        status = span.get('status', {}).get('code', 'UNSET')
+
+                        # Calculate duration
+                        duration_str = ''
+                        if start_time_ns and end_time_ns:
+                            try:
+                                duration_ns = int(end_time_ns) - int(start_time_ns)
+                                duration_ms = duration_ns / 1e6
+                                duration_str = f"{duration_ms:.2f}ms"
+                            except Exception:
+                                duration_str = ''
+
+                        # Format start time
+                        start_time_str = ''
+                        if start_time_ns:
+                            try:
+                                from datetime import datetime
+                                ts_seconds = int(start_time_ns) / 1e9
+                                start_time_str = datetime.utcfromtimestamp(ts_seconds).strftime('%Y-%m-%d %H:%M:%S.%f UTC')
+                            except Exception:
+                                start_time_str = str(start_time_ns)
+
+                        table_columns = [
+                            TableResult.TableColumn(name=StringValue(value="spanID"), value=StringValue(value=str(span_id))),
+                            TableResult.TableColumn(name=StringValue(value="serviceName"), value=StringValue(value=str(service_name))),
+                            TableResult.TableColumn(name=StringValue(value="operationName"), value=StringValue(value=str(operation_name))),
+                            TableResult.TableColumn(name=StringValue(value="startTime"), value=StringValue(value=start_time_str)),
+                            TableResult.TableColumn(name=StringValue(value="duration"), value=StringValue(value=duration_str)),
+                            TableResult.TableColumn(name=StringValue(value="status"), value=StringValue(value=str(status))),
+                        ]
+                        table_rows.append(TableResult.TableRow(columns=table_columns))
+
+            if not table_rows:
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value=f"Trace {trace_id} found but contains no spans")),
+                    source=self.source,
+                    metadata=metadata
+                )
+
+            table_result = TableResult(
+                raw_query=StringValue(value=f"Trace ID: ```{trace_id}```"),
+                total_count=UInt64Value(value=len(table_rows)),
+                rows=table_rows
+            )
+            return PlaybookTaskResult(
+                source=self.source, type=PlaybookTaskResultType.TABLE,
+                table=table_result, metadata=metadata
+            )
+
+        except Exception as e:
+            time_params = self._get_grafana_time_params(time_range)
+            metadata = self._create_metadata_with_grafana_url(grafana_connector, "explore", {
+                "datasource_uid": datasource_uid or "",
+                "query": trace_id or "",
+                "orgId": "1",
+                **time_params
+            })
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.TEXT,
+                text=TextResult(output=StringValue(value=f"Error while fetching Grafana Tempo trace: {e}")),
+                source=self.source,
+                metadata=metadata
+            )
+
+    def execute_tempo_datasource_metrics_query_range(self, time_range: TimeRange, grafana_task: Grafana,
+                                                     grafana_connector: ConnectorProto):
+        """Executes a TraceQL metrics range query against a Tempo datasource via Grafana proxy."""
+        datasource_uid = None
+        metrics_query = None
+        try:
+            if not grafana_connector:
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value="Task execution Failed:: No Grafana source found")),
+                    source=self.source
+                )
+
+            task = grafana_task.tempo_datasource_metrics_query_range
+            datasource_uid = task.datasource_uid.value
+            metrics_query = task.traceql_metrics_query.value
+            step = task.step.value if task.step and task.step.value else 60
+
+            grafana_api_processor = self.get_connector_processor(grafana_connector)
+
+            start = int(time_range.time_geq) if time_range and time_range.time_geq else None
+            end = int(time_range.time_lt) if time_range and time_range.time_lt else None
+
+            print(
+                f"Playbook Task Downstream Request: Type -> Grafana Tempo Metrics Range, "
+                f"Datasource_Uid -> {datasource_uid}, Query -> {metrics_query}, Step -> {step}",
+                flush=True,
+            )
+
+            response = grafana_api_processor.tempo_metrics_query_range(
+                datasource_uid, metrics_query, start=start, end=end, step=step
+            )
+
+            metadata = self._create_metadata_with_grafana_url(grafana_connector, "explore", {
+                "datasource_uid": datasource_uid,
+                "query": metrics_query,
+                "orgId": "1",
+                **self._get_grafana_time_params(time_range)
+            })
+
+            if not response or 'series' not in response or not response['series']:
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value=f"No metrics data returned for query: {metrics_query}")),
+                    source=self.source,
+                    metadata=metadata
+                )
+
+            # Parse Prometheus-style range response into timeseries
+            timeseries_list = []
+            for series in response.get('series', []):
+                labels = series.get('labels', {})
+                label_pairs = [
+                    LabelValuePair(name=StringValue(value=str(k)), value=StringValue(value=str(v)))
+                    for k, v in labels.items()
+                ]
+                metric_name = ", ".join(f'{k}={v}' for k, v in labels.items()) or "value"
+
+                datapoints = []
+                samples = series.get('samples', [])
+                for sample in samples:
+                    ts = sample.get('timestampMs', 0)
+                    val = sample.get('value', 0.0)
+                    datapoints.append(
+                        TimeseriesResult.LabeledMetricTimeseries.Datapoint(
+                            timestamp=int(ts) // 1000 if ts > 1e12 else int(ts),
+                            value=DoubleValue(value=float(val))
+                        )
+                    )
+
+                timeseries_list.append(
+                    TimeseriesResult.LabeledMetricTimeseries(
+                        metric_name=StringValue(value=metric_name),
+                        metric_expression=StringValue(value=metrics_query),
+                        label_pairs=label_pairs,
+                        unit=StringValue(value=""),
+                        datapoints=datapoints
+                    )
+                )
+
+            timeseries_result = TimeseriesResult(
+                metric_expression=StringValue(value=metrics_query),
+                labeled_metric_timeseries=timeseries_list
+            )
+            return PlaybookTaskResult(
+                source=self.source, type=PlaybookTaskResultType.TIMESERIES,
+                timeseries=timeseries_result, metadata=metadata
+            )
+
+        except Exception as e:
+            time_params = self._get_grafana_time_params(time_range)
+            metadata = self._create_metadata_with_grafana_url(grafana_connector, "explore", {
+                "datasource_uid": datasource_uid or "",
+                "query": metrics_query or "",
+                "orgId": "1",
+                **time_params
+            })
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.TEXT,
+                text=TextResult(output=StringValue(value=f"Error while executing Tempo metrics range query: {e}")),
+                source=self.source,
+                metadata=metadata
+            )
+
+    def execute_tempo_datasource_metrics_query_instant(self, time_range: TimeRange, grafana_task: Grafana,
+                                                       grafana_connector: ConnectorProto):
+        """Executes a TraceQL metrics instant query against a Tempo datasource via Grafana proxy."""
+        datasource_uid = None
+        metrics_query = None
+        try:
+            if not grafana_connector:
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value="Task execution Failed:: No Grafana source found")),
+                    source=self.source
+                )
+
+            task = grafana_task.tempo_datasource_metrics_query_instant
+            datasource_uid = task.datasource_uid.value
+            metrics_query = task.traceql_metrics_query.value
+
+            grafana_api_processor = self.get_connector_processor(grafana_connector)
+
+            start = int(time_range.time_geq) if time_range and time_range.time_geq else None
+            end = int(time_range.time_lt) if time_range and time_range.time_lt else None
+
+            print(
+                f"Playbook Task Downstream Request: Type -> Grafana Tempo Metrics Instant, "
+                f"Datasource_Uid -> {datasource_uid}, Query -> {metrics_query}",
+                flush=True,
+            )
+
+            response = grafana_api_processor.tempo_metrics_query_instant(
+                datasource_uid, metrics_query, start=start, end=end
+            )
+
+            metadata = self._create_metadata_with_grafana_url(grafana_connector, "explore", {
+                "datasource_uid": datasource_uid,
+                "query": metrics_query,
+                "orgId": "1",
+                **self._get_grafana_time_params(time_range)
+            })
+
+            if not response or 'series' not in response or not response['series']:
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value=f"No metrics data returned for query: {metrics_query}")),
+                    source=self.source,
+                    metadata=metadata
+                )
+
+            # Parse instant query response into table
+            table_rows = []
+            for series in response.get('series', []):
+                labels = series.get('labels', {})
+                samples = series.get('samples', [])
+                value = samples[-1].get('value', 0.0) if samples else 0.0
+
+                table_columns = []
+                for k, v in labels.items():
+                    table_columns.append(
+                        TableResult.TableColumn(name=StringValue(value=str(k)), value=StringValue(value=str(v)))
+                    )
+                table_columns.append(
+                    TableResult.TableColumn(name=StringValue(value="value"), value=StringValue(value=str(value)))
+                )
+                table_rows.append(TableResult.TableRow(columns=table_columns))
+
+            table_result = TableResult(
+                raw_query=StringValue(value=f"TraceQL Metrics: ```{metrics_query}```"),
+                total_count=UInt64Value(value=len(table_rows)),
+                rows=table_rows
+            )
+            return PlaybookTaskResult(
+                source=self.source, type=PlaybookTaskResultType.TABLE,
+                table=table_result, metadata=metadata
+            )
+
+        except Exception as e:
+            time_params = self._get_grafana_time_params(time_range)
+            metadata = self._create_metadata_with_grafana_url(grafana_connector, "explore", {
+                "datasource_uid": datasource_uid or "",
+                "query": metrics_query or "",
+                "orgId": "1",
+                **time_params
+            })
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.TEXT,
+                text=TextResult(output=StringValue(value=f"Error while executing Tempo metrics instant query: {e}")),
+                source=self.source,
+                metadata=metadata
+            )
+
+    def execute_tempo_datasource_get_services(self, time_range: TimeRange, grafana_task: Grafana,
+                                              grafana_connector: ConnectorProto):
+        """Fetches service names from a Tempo datasource via Grafana proxy."""
+        datasource_uid = None
+        try:
+            if not grafana_connector:
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value="Task execution Failed:: No Grafana source found")),
+                    source=self.source
+                )
+
+            task = grafana_task.tempo_datasource_get_services
+            datasource_uid = task.datasource_uid.value
+
+            grafana_api_processor = self.get_connector_processor(grafana_connector)
+
+            print(
+                f"Playbook Task Downstream Request: Type -> Grafana Tempo Get Services, "
+                f"Datasource_Uid -> {datasource_uid}",
+                flush=True,
+            )
+
+            response = grafana_api_processor.tempo_get_services(datasource_uid)
+
+            metadata = self._create_metadata_with_grafana_url(grafana_connector, "explore", {
+                "datasource_uid": datasource_uid,
+                "orgId": "1",
+                **self._get_grafana_time_params(time_range)
+            })
+
+            tag_values = response.get('tagValues', [])
+            if not tag_values:
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value="No services found in Tempo")),
+                    source=self.source,
+                    metadata=metadata
+                )
+
+            table_rows = []
+            for tv in tag_values:
+                value = tv.get('value', '') if isinstance(tv, dict) else str(tv)
+                table_columns = [
+                    TableResult.TableColumn(name=StringValue(value="service.name"), value=StringValue(value=str(value))),
+                ]
+                table_rows.append(TableResult.TableRow(columns=table_columns))
+
+            table_result = TableResult(
+                raw_query=StringValue(value="Tempo: GET service.name values"),
+                total_count=UInt64Value(value=len(table_rows)),
+                rows=table_rows
+            )
+            return PlaybookTaskResult(
+                source=self.source, type=PlaybookTaskResultType.TABLE,
+                table=table_result, metadata=metadata
+            )
+
+        except Exception as e:
+            metadata = self._create_metadata_with_grafana_url(grafana_connector, "explore", {
+                "datasource_uid": datasource_uid or "",
+                "orgId": "1",
+                **self._get_grafana_time_params(time_range)
+            })
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.TEXT,
+                text=TextResult(output=StringValue(value=f"Error while fetching Tempo services: {e}")),
+                source=self.source,
+                metadata=metadata
+            )
+
+    def execute_tempo_datasource_get_tags(self, time_range: TimeRange, grafana_task: Grafana,
+                                          grafana_connector: ConnectorProto):
+        """Fetches available tags from a Tempo datasource via Grafana proxy."""
+        datasource_uid = None
+        try:
+            if not grafana_connector:
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value="Task execution Failed:: No Grafana source found")),
+                    source=self.source
+                )
+
+            task = grafana_task.tempo_datasource_get_tags
+            datasource_uid = task.datasource_uid.value
+            scope = task.scope.value if task.scope and task.scope.value and task.scope.value != 'none' else None
+
+            grafana_api_processor = self.get_connector_processor(grafana_connector)
+
+            print(
+                f"Playbook Task Downstream Request: Type -> Grafana Tempo Get Tags, "
+                f"Datasource_Uid -> {datasource_uid}, Scope -> {scope}",
+                flush=True,
+            )
+
+            response = grafana_api_processor.tempo_get_tags(datasource_uid, scope=scope)
+
+            metadata = self._create_metadata_with_grafana_url(grafana_connector, "explore", {
+                "datasource_uid": datasource_uid,
+                "orgId": "1",
+                **self._get_grafana_time_params(time_range)
+            })
+
+            scopes = response.get('scopes', [])
+            if not scopes:
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value="No tags found in Tempo")),
+                    source=self.source,
+                    metadata=metadata
+                )
+
+            table_rows = []
+            for scope_entry in scopes:
+                scope_name = scope_entry.get('name', '')
+                for tag in scope_entry.get('tags', []):
+                    tag_name = tag.get('name', '') if isinstance(tag, dict) else str(tag)
+                    table_columns = [
+                        TableResult.TableColumn(name=StringValue(value="scope"), value=StringValue(value=str(scope_name))),
+                        TableResult.TableColumn(name=StringValue(value="tag"), value=StringValue(value=str(tag_name))),
+                    ]
+                    table_rows.append(TableResult.TableRow(columns=table_columns))
+
+            table_result = TableResult(
+                raw_query=StringValue(value=f"Tempo: GET tags (scope={scope or 'all'})"),
+                total_count=UInt64Value(value=len(table_rows)),
+                rows=table_rows
+            )
+            return PlaybookTaskResult(
+                source=self.source, type=PlaybookTaskResultType.TABLE,
+                table=table_result, metadata=metadata
+            )
+
+        except Exception as e:
+            metadata = self._create_metadata_with_grafana_url(grafana_connector, "explore", {
+                "datasource_uid": datasource_uid or "",
+                "orgId": "1",
+                **self._get_grafana_time_params(time_range)
+            })
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.TEXT,
+                text=TextResult(output=StringValue(value=f"Error while fetching Tempo tags: {e}")),
+                source=self.source,
+                metadata=metadata
+            )
+
+    def execute_tempo_datasource_get_tag_values(self, time_range: TimeRange, grafana_task: Grafana,
+                                                grafana_connector: ConnectorProto):
+        """Fetches values for a specific tag from a Tempo datasource via Grafana proxy."""
+        datasource_uid = None
+        tag_name = None
+        try:
+            if not grafana_connector:
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value="Task execution Failed:: No Grafana source found")),
+                    source=self.source
+                )
+
+            task = grafana_task.tempo_datasource_get_tag_values
+            datasource_uid = task.datasource_uid.value
+            tag_name = task.tag_name.value
+            traceql_filter = task.traceql_filter.value if task.traceql_filter and task.traceql_filter.value else None
+
+            grafana_api_processor = self.get_connector_processor(grafana_connector)
+
+            print(
+                f"Playbook Task Downstream Request: Type -> Grafana Tempo Get Tag Values, "
+                f"Datasource_Uid -> {datasource_uid}, Tag -> {tag_name}, Filter -> {traceql_filter}",
+                flush=True,
+            )
+
+            response = grafana_api_processor.tempo_get_tag_values(
+                datasource_uid, tag_name, traceql_filter=traceql_filter
+            )
+
+            metadata = self._create_metadata_with_grafana_url(grafana_connector, "explore", {
+                "datasource_uid": datasource_uid,
+                "orgId": "1",
+                **self._get_grafana_time_params(time_range)
+            })
+
+            tag_values = response.get('tagValues', [])
+            if not tag_values:
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value=f"No values found for tag: {tag_name}")),
+                    source=self.source,
+                    metadata=metadata
+                )
+
+            table_rows = []
+            for tv in tag_values:
+                value = tv.get('value', '') if isinstance(tv, dict) else str(tv)
+                table_columns = [
+                    TableResult.TableColumn(name=StringValue(value=str(tag_name)), value=StringValue(value=str(value))),
+                ]
+                table_rows.append(TableResult.TableRow(columns=table_columns))
+
+            table_result = TableResult(
+                raw_query=StringValue(value=f"Tempo: GET tag values for {tag_name}"),
+                total_count=UInt64Value(value=len(table_rows)),
+                rows=table_rows
+            )
+            return PlaybookTaskResult(
+                source=self.source, type=PlaybookTaskResultType.TABLE,
+                table=table_result, metadata=metadata
+            )
+
+        except Exception as e:
+            metadata = self._create_metadata_with_grafana_url(grafana_connector, "explore", {
+                "datasource_uid": datasource_uid or "",
+                "orgId": "1",
+                **self._get_grafana_time_params(time_range)
+            })
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.TEXT,
+                text=TextResult(output=StringValue(value=f"Error while fetching Tempo tag values: {e}")),
+                source=self.source,
+                metadata=metadata
+            )
