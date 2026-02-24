@@ -508,7 +508,6 @@ model_type_display_name_maps = {
     SourceModelType.GITHUB_REPOSITORY: "Repository",
     SourceModelType.GRAFANA_TEMPO_DATASOURCE: "Tempo Data Sources",
     SourceModelType.GRAFANA_TEMPO_SERVICE: "Tempo Services",
-    SourceModelType.GRAFANA_TEMPO_TAG: "Tempo Tags",
 }
 
 masked_keys_types = [SourceKeyType.DATADOG_APP_KEY,

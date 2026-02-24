@@ -669,7 +669,6 @@ class _SourceModelTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper
     GRAFANA_LOKI_DATASOURCE: _SourceModelType.ValueType  # 306
     GRAFANA_TEMPO_DATASOURCE: _SourceModelType.ValueType  # 307
     GRAFANA_TEMPO_SERVICE: _SourceModelType.ValueType  # 308
-    GRAFANA_TEMPO_TAG: _SourceModelType.ValueType  # 309
     CLICKHOUSE_DATABASE: _SourceModelType.ValueType  # 401
     """Clickhouse Models"""
     CLICKHOUSE_TABLE: _SourceModelType.ValueType  # 402
@@ -893,7 +892,6 @@ GRAFANA_ALERT_RULE: SourceModelType.ValueType  # 305
 GRAFANA_LOKI_DATASOURCE: SourceModelType.ValueType  # 306
 GRAFANA_TEMPO_DATASOURCE: SourceModelType.ValueType  # 307
 GRAFANA_TEMPO_SERVICE: SourceModelType.ValueType  # 308
-GRAFANA_TEMPO_TAG: SourceModelType.ValueType  # 309
 CLICKHOUSE_DATABASE: SourceModelType.ValueType  # 401
 """Clickhouse Models"""
 CLICKHOUSE_TABLE: SourceModelType.ValueType  # 402
