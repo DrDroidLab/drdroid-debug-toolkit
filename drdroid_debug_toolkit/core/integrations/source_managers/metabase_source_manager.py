@@ -1025,14 +1025,12 @@ class MetabaseSourceManager(SourceManager):
                     source=self.source
                 )
             processor = self.get_connector_processor(metabase_connector)
-            dashboard = processor.get_dashboard(dashboard_id)
-            cards = _normalize_dashboard_cards_list(dashboard)
             row = task.row.value if task.HasField('row') else 0
             col = task.col.value if task.HasField('col') else 0
             size_x = task.size_x.value if task.HasField('size_x') else 4
             size_y = task.size_y.value if task.HasField('size_y') else 4
-            # New dashcard: omit id so Metabase assigns one; include required layout fields
-            new_dashcard = {
+            # Build dashcard payload in snake_case; processor normalizes for Metabase API
+            dashcard_payload = {
                 "card_id": card_id,
                 "row": row,
                 "col": col,
@@ -1042,12 +1040,9 @@ class MetabaseSourceManager(SourceManager):
                 "parameter_mappings": [],
                 "visualization_settings": {},
             }
-            cards.append(new_dashcard)
-            # Use PUT /api/dashboard/:id (supported) instead of deprecated PUT .../cards
-            dashboard = dict(dashboard)
-            dashboard[_dashboard_cards_key(dashboard)] = cards
-            result = processor.update_dashboard(dashboard_id, dashboard)
-            response_struct = dict_to_proto({'cards': result.get(_dashboard_cards_key(result), result), 'status': 'Added card'}, Struct)
+            # Use POST /api/dashboard/:id/cards to add a new dashcard
+            result = processor.add_card_to_dashboard(dashboard_id, dashcard_payload)
+            response_struct = dict_to_proto({'dashcard': result, 'status': 'Added card'}, Struct)
             return PlaybookTaskResult(
                 type=PlaybookTaskResultType.API_RESPONSE,
                 source=self.source,

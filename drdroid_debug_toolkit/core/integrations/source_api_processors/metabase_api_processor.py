@@ -209,6 +209,56 @@ class MetabaseApiProcessor(Processor):
             logger.error(f"MetabaseApiProcessor.get_dashboard:: Error getting dashboard {dashboard_id}: {e}")
             raise
 
+    def add_card_to_dashboard(self, dashboard_id, dashcard_payload):
+        """
+        Add a card to a dashboard via POST /api/dashboard/{id}/cards.
+
+        Expects dashcard_payload in snake_case from callers:
+        card_id, row, col, size_x, size_y, parameter_mappings, series, visualization_settings.
+        """
+        if not isinstance(dashcard_payload, dict):
+            dashcard_payload = {}
+        card_id = dashcard_payload.get("card_id")
+        if card_id is None:
+            raise ValueError("card_id is required to add a card to a dashboard")
+        row = dashcard_payload.get("row", 0)
+        col = dashcard_payload.get("col", 0)
+        size_x = dashcard_payload.get("size_x", 4)
+        size_y = dashcard_payload.get("size_y", 4)
+        series = dashcard_payload.get("series", [])
+        parameter_mappings = dashcard_payload.get("parameter_mappings", [])
+        visualization_settings = dashcard_payload.get("visualization_settings", {})
+
+        body = {
+            "cardId": card_id,
+            "dashboardId": dashboard_id,
+            "row": row,
+            "col": col,
+            "sizeX": size_x,
+            "sizeY": size_y,
+            "series": series,
+            "parameter_mappings": parameter_mappings,
+            "visualization_settings": visualization_settings,
+        }
+        try:
+            url = f"{self.__host}/api/dashboard/{dashboard_id}/cards"
+            response = requests.post(url, headers=self.headers, json=body, timeout=EXTERNAL_CALL_TIMEOUT)
+            self._raise_for_status_with_body(
+                response,
+                context=f"MetabaseApiProcessor.add_card_to_dashboard (dashboard {dashboard_id}, card {card_id})",
+            )
+            return response.json()
+        except requests.exceptions.HTTPError:
+            raise
+        except Exception as e:
+            logger.error(
+                "MetabaseApiProcessor.add_card_to_dashboard:: Error adding card %s to dashboard %s: %s",
+                card_id,
+                dashboard_id,
+                e,
+            )
+            raise
+
     def update_dashboard(self, dashboard_id, payload):
         try:
             url = f"{self.__host}/api/dashboard/{dashboard_id}"
