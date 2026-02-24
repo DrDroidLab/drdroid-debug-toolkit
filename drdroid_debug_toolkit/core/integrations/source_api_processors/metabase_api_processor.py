@@ -148,3 +148,202 @@ class MetabaseApiProcessor(Processor):
         except Exception as e:
             logger.error(f"MetabaseApiProcessor.delete_pulse:: Error deleting pulse {pulse_id}: {e}")
             raise
+
+    # Dashboard endpoints (https://www.metabase.com/docs/latest/api/dashboard)
+
+    def list_dashboards(self):
+        try:
+            url = f"{self.__host}/api/dashboard/"
+            response = requests.get(url, headers=self.headers, timeout=EXTERNAL_CALL_TIMEOUT)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            logger.error(f"MetabaseApiProcessor.list_dashboards:: Error listing dashboards: {e}")
+            raise
+
+    def create_dashboard(self, payload):
+        try:
+            url = f"{self.__host}/api/dashboard/"
+            response = requests.post(url, headers=self.headers, json=payload, timeout=EXTERNAL_CALL_TIMEOUT)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            logger.error(f"MetabaseApiProcessor.create_dashboard:: Error creating dashboard: {e}")
+            raise
+
+    def get_dashboard(self, dashboard_id):
+        try:
+            url = f"{self.__host}/api/dashboard/{dashboard_id}"
+            response = requests.get(url, headers=self.headers, timeout=EXTERNAL_CALL_TIMEOUT)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            logger.error(f"MetabaseApiProcessor.get_dashboard:: Error getting dashboard {dashboard_id}: {e}")
+            raise
+
+    def update_dashboard(self, dashboard_id, payload):
+        try:
+            url = f"{self.__host}/api/dashboard/{dashboard_id}"
+            response = requests.put(url, headers=self.headers, json=payload, timeout=EXTERNAL_CALL_TIMEOUT)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            logger.error(f"MetabaseApiProcessor.update_dashboard:: Error updating dashboard {dashboard_id}: {e}")
+            raise
+
+    def get_dashboard_cards(self, dashboard_id):
+        """Get all cards (dashcards) in a dashboard. GET /api/dashboard/{id}/items"""
+        try:
+            url = f"{self.__host}/api/dashboard/{dashboard_id}/items"
+            response = requests.get(url, headers=self.headers, timeout=EXTERNAL_CALL_TIMEOUT)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            logger.error(f"MetabaseApiProcessor.get_dashboard_cards:: Error getting dashboard cards {dashboard_id}: {e}")
+            raise
+
+    def update_dashboard_cards(self, dashboard_id, cards_payload):
+        """Replace/update cards on a dashboard. PUT /api/dashboard/{id}/cards. Body is array of dashcards."""
+        try:
+            url = f"{self.__host}/api/dashboard/{dashboard_id}/cards"
+            response = requests.put(url, headers=self.headers, json=cards_payload, timeout=EXTERNAL_CALL_TIMEOUT)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            logger.error(f"MetabaseApiProcessor.update_dashboard_cards:: Error updating dashboard cards {dashboard_id}: {e}")
+            raise
+
+    # Card/Question endpoints (https://www.metabase.com/docs/latest/api/card)
+
+    def list_cards(self):
+        try:
+            url = f"{self.__host}/api/card/"
+            response = requests.get(url, headers=self.headers, timeout=EXTERNAL_CALL_TIMEOUT)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            logger.error(f"MetabaseApiProcessor.list_cards:: Error listing cards: {e}")
+            raise
+
+    def create_card(self, payload):
+        try:
+            url = f"{self.__host}/api/card/"
+            response = requests.post(url, headers=self.headers, json=payload, timeout=EXTERNAL_CALL_TIMEOUT)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            logger.error(f"MetabaseApiProcessor.create_card:: Error creating card: {e}")
+            raise
+
+    def get_card(self, card_id):
+        try:
+            url = f"{self.__host}/api/card/{card_id}"
+            response = requests.get(url, headers=self.headers, timeout=EXTERNAL_CALL_TIMEOUT)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            logger.error(f"MetabaseApiProcessor.get_card:: Error getting card {card_id}: {e}")
+            raise
+
+    def update_card(self, card_id, payload):
+        try:
+            url = f"{self.__host}/api/card/{card_id}"
+            response = requests.put(url, headers=self.headers, json=payload, timeout=EXTERNAL_CALL_TIMEOUT)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            logger.error(f"MetabaseApiProcessor.update_card:: Error updating card {card_id}: {e}")
+            raise
+
+    def execute_card(self, card_id, parameters=None):
+        """Execute a question/card. POST /api/card/{card-id}/query. parameters: list of param values."""
+        try:
+            url = f"{self.__host}/api/card/{card_id}/query"
+            body = {}
+            if parameters is not None:
+                body["parameters"] = parameters if isinstance(parameters, list) else []
+            response = requests.post(url, headers=self.headers, json=body, timeout=EXTERNAL_CALL_TIMEOUT)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            logger.error(f"MetabaseApiProcessor.execute_card:: Error executing card {card_id}: {e}")
+            raise
+
+    # Database endpoints (https://www.metabase.com/docs/latest/api/database)
+
+    def list_databases(self):
+        try:
+            url = f"{self.__host}/api/database/"
+            response = requests.get(url, headers=self.headers, timeout=EXTERNAL_CALL_TIMEOUT)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            logger.error(f"MetabaseApiProcessor.list_databases:: Error listing databases: {e}")
+            raise
+
+    def get_database_metadata(self, database_id):
+        """Get database metadata (schemas, tables). GET /api/database/{id}/metadata"""
+        try:
+            url = f"{self.__host}/api/database/{database_id}/metadata"
+            response = requests.get(url, headers=self.headers, timeout=EXTERNAL_CALL_TIMEOUT)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            logger.error(f"MetabaseApiProcessor.get_database_metadata:: Error getting metadata for db {database_id}: {e}")
+            raise
+
+    def get_database_schemas(self, database_id):
+        """GET /api/database/{id}/schemas"""
+        try:
+            url = f"{self.__host}/api/database/{database_id}/schemas"
+            response = requests.get(url, headers=self.headers, timeout=EXTERNAL_CALL_TIMEOUT)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            logger.error(f"MetabaseApiProcessor.get_database_schemas:: Error getting schemas for db {database_id}: {e}")
+            raise
+
+    # Dataset endpoint for native SQL (https://www.metabase.com/docs/latest/api/dataset)
+
+    def execute_native_query(self, database_id, query):
+        """Execute raw SQL. POST /api/dataset/native. Body: database, type: native, native: { query }."""
+        try:
+            url = f"{self.__host}/api/dataset/native"
+            body = {
+                "database": database_id,
+                "type": "native",
+                "native": {
+                    "query": query,
+                }
+            }
+            response = requests.post(url, headers=self.headers, json=body, timeout=EXTERNAL_CALL_TIMEOUT)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            logger.error(f"MetabaseApiProcessor.execute_native_query:: Error executing SQL: {e}")
+            raise
+
+    # Collection endpoints (https://www.metabase.com/docs/latest/api/collection)
+
+    def list_collections(self):
+        try:
+            url = f"{self.__host}/api/collection/"
+            response = requests.get(url, headers=self.headers, timeout=EXTERNAL_CALL_TIMEOUT)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            logger.error(f"MetabaseApiProcessor.list_collections:: Error listing collections: {e}")
+            raise
+
+    # Search (https://www.metabase.com/docs/latest/api/search)
+
+    def search(self, q):
+        """Search across Metabase content. GET /api/search/?q=..."""
+        try:
+            url = f"{self.__host}/api/search/"
+            response = requests.get(url, headers=self.headers, params={"q": q}, timeout=EXTERNAL_CALL_TIMEOUT)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            logger.error(f"MetabaseApiProcessor.search:: Error searching: {e}")
+            raise

@@ -19,6 +19,17 @@ from core.utils.proto_utils import dict_to_proto, proto_to_dict
 logger = logging.getLogger(__name__)
 
 
+def _normalize_dashboard_cards_list(response):
+    """Extract list of dashcards from dashboard items/cards API response."""
+    if isinstance(response, list):
+        return list(response)
+    if isinstance(response, dict):
+        for key in ('data', 'cards', 'ordered_cards', 'dashcards'):
+            if key in response and isinstance(response[key], list):
+                return list(response[key])
+    return []
+
+
 class MetabaseSourceManager(SourceManager):
 
     def __init__(self):
@@ -272,6 +283,192 @@ class MetabaseSourceManager(SourceManager):
                         data_type=LiteralType.LONG,
                         form_field_type=FormFieldType.TEXT_FT
                     ),
+                ]
+            },
+            # Dashboards
+            Metabase.TaskType.LIST_DASHBOARDS: {
+                'executor': self.list_dashboards,
+                'model_types': [SourceModelType.METABASE_DASHBOARD],
+                'result_type': PlaybookTaskResultType.API_RESPONSE,
+                'display_name': 'List Dashboards',
+                'category': 'Dashboards',
+                'form_fields': []
+            },
+            Metabase.TaskType.CREATE_DASHBOARD: {
+                'executor': self.create_dashboard,
+                'model_types': [SourceModelType.METABASE_DASHBOARD],
+                'result_type': PlaybookTaskResultType.API_RESPONSE,
+                'display_name': 'Create Dashboard',
+                'category': 'Dashboards',
+                'form_fields': [
+                    FormField(
+                        key_name=StringValue(value="payload"),
+                        display_name=StringValue(value="Payload (JSON)"),
+                        description=StringValue(value='e.g. {"name": "My Dashboard", "description": "...", "collection_id": 1}'),
+                        helper_text=StringValue(value='JSON with name, description, collection_id'),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.MULTILINE_FT
+                    ),
+                ]
+            },
+            Metabase.TaskType.UPDATE_DASHBOARD: {
+                'executor': self.update_dashboard,
+                'model_types': [SourceModelType.METABASE_DASHBOARD],
+                'result_type': PlaybookTaskResultType.API_RESPONSE,
+                'display_name': 'Update Dashboard',
+                'category': 'Dashboards',
+                'form_fields': [
+                    FormField(key_name=StringValue(value="dashboard_id"), display_name=StringValue(value="Dashboard ID"), data_type=LiteralType.LONG, form_field_type=FormFieldType.TEXT_FT),
+                    FormField(key_name=StringValue(value="updates"), display_name=StringValue(value="Updates (JSON)"), data_type=LiteralType.STRING, form_field_type=FormFieldType.MULTILINE_FT),
+                ]
+            },
+            Metabase.TaskType.GET_DASHBOARD_CARDS: {
+                'executor': self.get_dashboard_cards,
+                'model_types': [SourceModelType.METABASE_DASHBOARD],
+                'result_type': PlaybookTaskResultType.API_RESPONSE,
+                'display_name': 'Get All Cards in Dashboard',
+                'category': 'Dashboards',
+                'form_fields': [
+                    FormField(key_name=StringValue(value="dashboard_id"), display_name=StringValue(value="Dashboard ID"), data_type=LiteralType.LONG, form_field_type=FormFieldType.TEXT_FT),
+                ]
+            },
+            Metabase.TaskType.ADD_CARD_TO_DASHBOARD: {
+                'executor': self.add_card_to_dashboard,
+                'model_types': [SourceModelType.METABASE_DASHBOARD, SourceModelType.METABASE_CARD],
+                'result_type': PlaybookTaskResultType.API_RESPONSE,
+                'display_name': 'Add Card to Dashboard',
+                'category': 'Dashboards',
+                'form_fields': [
+                    FormField(key_name=StringValue(value="dashboard_id"), display_name=StringValue(value="Dashboard ID"), data_type=LiteralType.LONG, form_field_type=FormFieldType.TEXT_FT),
+                    FormField(key_name=StringValue(value="card_id"), display_name=StringValue(value="Card ID"), data_type=LiteralType.LONG, form_field_type=FormFieldType.TEXT_FT),
+                    FormField(key_name=StringValue(value="row"), display_name=StringValue(value="Row"), data_type=LiteralType.LONG, form_field_type=FormFieldType.TEXT_FT, is_optional=True),
+                    FormField(key_name=StringValue(value="col"), display_name=StringValue(value="Col"), data_type=LiteralType.LONG, form_field_type=FormFieldType.TEXT_FT, is_optional=True),
+                    FormField(key_name=StringValue(value="size_x"), display_name=StringValue(value="Size X"), data_type=LiteralType.LONG, form_field_type=FormFieldType.TEXT_FT, is_optional=True),
+                    FormField(key_name=StringValue(value="size_y"), display_name=StringValue(value="Size Y"), data_type=LiteralType.LONG, form_field_type=FormFieldType.TEXT_FT, is_optional=True),
+                ]
+            },
+            Metabase.TaskType.REMOVE_CARD_FROM_DASHBOARD: {
+                'executor': self.remove_card_from_dashboard,
+                'model_types': [SourceModelType.METABASE_DASHBOARD],
+                'result_type': PlaybookTaskResultType.API_RESPONSE,
+                'display_name': 'Remove Card from Dashboard',
+                'category': 'Dashboards',
+                'form_fields': [
+                    FormField(key_name=StringValue(value="dashboard_id"), display_name=StringValue(value="Dashboard ID"), data_type=LiteralType.LONG, form_field_type=FormFieldType.TEXT_FT),
+                    FormField(key_name=StringValue(value="dashcard_id"), display_name=StringValue(value="Dashcard ID"), description=StringValue(value='ID of the card on the dashboard'), data_type=LiteralType.LONG, form_field_type=FormFieldType.TEXT_FT),
+                ]
+            },
+            Metabase.TaskType.UPDATE_DASHBOARD_CARD: {
+                'executor': self.update_dashboard_card,
+                'model_types': [SourceModelType.METABASE_DASHBOARD],
+                'result_type': PlaybookTaskResultType.API_RESPONSE,
+                'display_name': 'Update Card in Dashboard',
+                'category': 'Dashboards',
+                'form_fields': [
+                    FormField(key_name=StringValue(value="dashboard_id"), display_name=StringValue(value="Dashboard ID"), data_type=LiteralType.LONG, form_field_type=FormFieldType.TEXT_FT),
+                    FormField(key_name=StringValue(value="dashcard_id"), display_name=StringValue(value="Dashcard ID"), data_type=LiteralType.LONG, form_field_type=FormFieldType.TEXT_FT),
+                    FormField(key_name=StringValue(value="updates"), display_name=StringValue(value="Updates (JSON)"), data_type=LiteralType.STRING, form_field_type=FormFieldType.MULTILINE_FT),
+                ]
+            },
+            # Questions/Cards
+            Metabase.TaskType.LIST_QUESTIONS: {
+                'executor': self.list_questions,
+                'model_types': [SourceModelType.METABASE_CARD],
+                'result_type': PlaybookTaskResultType.API_RESPONSE,
+                'display_name': 'List All Questions',
+                'category': 'Questions',
+                'form_fields': []
+            },
+            Metabase.TaskType.CREATE_QUESTION: {
+                'executor': self.create_question,
+                'model_types': [SourceModelType.METABASE_CARD],
+                'result_type': PlaybookTaskResultType.API_RESPONSE,
+                'display_name': 'Create Question',
+                'category': 'Questions',
+                'form_fields': [
+                    FormField(key_name=StringValue(value="payload"), display_name=StringValue(value="Payload (JSON)"), description=StringValue(value='name, dataset_query, visualization_settings, etc.'), data_type=LiteralType.STRING, form_field_type=FormFieldType.MULTILINE_FT),
+                ]
+            },
+            Metabase.TaskType.UPDATE_QUESTION: {
+                'executor': self.update_question,
+                'model_types': [SourceModelType.METABASE_CARD],
+                'result_type': PlaybookTaskResultType.API_RESPONSE,
+                'display_name': 'Update Question',
+                'category': 'Questions',
+                'form_fields': [
+                    FormField(key_name=StringValue(value="card_id"), display_name=StringValue(value="Card ID"), data_type=LiteralType.LONG, form_field_type=FormFieldType.TEXT_FT),
+                    FormField(key_name=StringValue(value="updates"), display_name=StringValue(value="Updates (JSON)"), data_type=LiteralType.STRING, form_field_type=FormFieldType.MULTILINE_FT),
+                ]
+            },
+            Metabase.TaskType.EXECUTE_QUESTION: {
+                'executor': self.execute_question,
+                'model_types': [SourceModelType.METABASE_CARD],
+                'result_type': PlaybookTaskResultType.API_RESPONSE,
+                'display_name': 'Execute Question/Card',
+                'category': 'Questions',
+                'form_fields': [
+                    FormField(key_name=StringValue(value="card_id"), display_name=StringValue(value="Card ID"), data_type=LiteralType.LONG, form_field_type=FormFieldType.TEXT_FT),
+                    FormField(key_name=StringValue(value="parameters"), display_name=StringValue(value="Parameters (JSON)"), description=StringValue(value='Array of param values, e.g. [{"type":"date","value":"2024-01-01"}]'), data_type=LiteralType.STRING, form_field_type=FormFieldType.MULTILINE_FT, is_optional=True),
+                ]
+            },
+            # Databases
+            Metabase.TaskType.LIST_DATABASES: {
+                'executor': self.list_databases,
+                'model_types': [SourceModelType.METABASE_DATABASE],
+                'result_type': PlaybookTaskResultType.API_RESPONSE,
+                'display_name': 'List Databases',
+                'category': 'Databases',
+                'form_fields': []
+            },
+            Metabase.TaskType.EXECUTE_SQL_QUERY: {
+                'executor': self.execute_sql_query,
+                'model_types': [SourceModelType.METABASE_DATABASE],
+                'result_type': PlaybookTaskResultType.API_RESPONSE,
+                'display_name': 'Execute SQL Query',
+                'category': 'Databases',
+                'form_fields': [
+                    FormField(key_name=StringValue(value="database_id"), display_name=StringValue(value="Database ID"), data_type=LiteralType.LONG, form_field_type=FormFieldType.TEXT_FT),
+                    FormField(key_name=StringValue(value="query"), display_name=StringValue(value="SQL Query"), data_type=LiteralType.STRING, form_field_type=FormFieldType.MULTILINE_FT),
+                ]
+            },
+            Metabase.TaskType.GET_DATABASE_SCHEMA: {
+                'executor': self.get_database_schema,
+                'model_types': [SourceModelType.METABASE_DATABASE],
+                'result_type': PlaybookTaskResultType.API_RESPONSE,
+                'display_name': 'Get Database Schema',
+                'category': 'Databases',
+                'form_fields': [
+                    FormField(key_name=StringValue(value="database_id"), display_name=StringValue(value="Database ID"), data_type=LiteralType.LONG, form_field_type=FormFieldType.TEXT_FT),
+                ]
+            },
+            Metabase.TaskType.GET_DATABASE_TABLES: {
+                'executor': self.get_database_tables,
+                'model_types': [SourceModelType.METABASE_DATABASE],
+                'result_type': PlaybookTaskResultType.API_RESPONSE,
+                'display_name': 'Get Tables in Database',
+                'category': 'Databases',
+                'form_fields': [
+                    FormField(key_name=StringValue(value="database_id"), display_name=StringValue(value="Database ID"), data_type=LiteralType.LONG, form_field_type=FormFieldType.TEXT_FT),
+                ]
+            },
+            # Collections
+            Metabase.TaskType.LIST_COLLECTIONS: {
+                'executor': self.list_collections,
+                'model_types': [SourceModelType.METABASE_COLLECTION],
+                'result_type': PlaybookTaskResultType.API_RESPONSE,
+                'display_name': 'List Collections',
+                'category': 'Collections',
+                'form_fields': []
+            },
+            # Search
+            Metabase.TaskType.SEARCH_CONTENT: {
+                'executor': self.search_content,
+                'model_types': [],
+                'result_type': PlaybookTaskResultType.API_RESPONSE,
+                'display_name': 'Search Metabase Content',
+                'category': 'Search',
+                'form_fields': [
+                    FormField(key_name=StringValue(value="q"), display_name=StringValue(value="Search Query"), data_type=LiteralType.STRING, form_field_type=FormFieldType.TEXT_FT),
                 ]
             },
         }
@@ -679,5 +876,518 @@ class MetabaseSourceManager(SourceManager):
             return PlaybookTaskResult(
                 type=PlaybookTaskResultType.TEXT,
                 text=TextResult(output=StringValue(value=error_msg)),
+                source=self.source
+            )
+
+    # Dashboard executors
+
+    def list_dashboards(self, time_range: TimeRange, metabase_task: Metabase,
+                        metabase_connector: ConnectorProto):
+        try:
+            if not metabase_connector:
+                raise ValueError("No Metabase source found")
+            processor = self.get_connector_processor(metabase_connector)
+            result = processor.list_dashboards()
+            response_struct = dict_to_proto({'dashboards': result}, Struct)
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                source=self.source,
+                api_response=ApiResponseResult(response_body=response_struct)
+            )
+        except Exception as e:
+            logger.error(f"Error listing dashboards: {e}", exc_info=True)
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.TEXT,
+                text=TextResult(output=StringValue(value=str(e))),
+                source=self.source
+            )
+
+    def create_dashboard(self, time_range: TimeRange, metabase_task: Metabase,
+                          metabase_connector: ConnectorProto):
+        try:
+            if not metabase_connector:
+                raise ValueError("No Metabase source found")
+            task = metabase_task.create_dashboard
+            payload = proto_to_dict(task.payload) if task.HasField('payload') else {}
+            if not payload:
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value="Missing required field: payload (JSON with name, etc.)")),
+                    source=self.source
+                )
+            processor = self.get_connector_processor(metabase_connector)
+            result = processor.create_dashboard(payload)
+            response_struct = dict_to_proto({'dashboard': result, 'status': 'Created'}, Struct)
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                source=self.source,
+                api_response=ApiResponseResult(response_body=response_struct)
+            )
+        except Exception as e:
+            logger.error(f"Error creating dashboard: {e}", exc_info=True)
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.TEXT,
+                text=TextResult(output=StringValue(value=str(e))),
+                source=self.source
+            )
+
+    def update_dashboard(self, time_range: TimeRange, metabase_task: Metabase,
+                          metabase_connector: ConnectorProto):
+        try:
+            if not metabase_connector:
+                raise ValueError("No Metabase source found")
+            task = metabase_task.update_dashboard
+            dashboard_id = task.dashboard_id.value if task.HasField('dashboard_id') else None
+            if not dashboard_id:
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value="Missing required field: dashboard_id")),
+                    source=self.source
+                )
+            updates = proto_to_dict(task.updates) if task.HasField('updates') else {}
+            processor = self.get_connector_processor(metabase_connector)
+            result = processor.update_dashboard(dashboard_id, updates)
+            response_struct = dict_to_proto({'dashboard': result, 'status': 'Updated'}, Struct)
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                source=self.source,
+                api_response=ApiResponseResult(response_body=response_struct)
+            )
+        except Exception as e:
+            logger.error(f"Error updating dashboard: {e}", exc_info=True)
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.TEXT,
+                text=TextResult(output=StringValue(value=str(e))),
+                source=self.source
+            )
+
+    def get_dashboard_cards(self, time_range: TimeRange, metabase_task: Metabase,
+                            metabase_connector: ConnectorProto):
+        try:
+            if not metabase_connector:
+                raise ValueError("No Metabase source found")
+            task = metabase_task.get_dashboard_cards
+            dashboard_id = task.dashboard_id.value if task.HasField('dashboard_id') else None
+            if not dashboard_id:
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value="Missing required field: dashboard_id")),
+                    source=self.source
+                )
+            processor = self.get_connector_processor(metabase_connector)
+            result = processor.get_dashboard_cards(dashboard_id)
+            response_struct = dict_to_proto({'cards': result}, Struct)
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                source=self.source,
+                api_response=ApiResponseResult(response_body=response_struct)
+            )
+        except Exception as e:
+            logger.error(f"Error getting dashboard cards: {e}", exc_info=True)
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.TEXT,
+                text=TextResult(output=StringValue(value=str(e))),
+                source=self.source
+            )
+
+    def add_card_to_dashboard(self, time_range: TimeRange, metabase_task: Metabase,
+                              metabase_connector: ConnectorProto):
+        try:
+            if not metabase_connector:
+                raise ValueError("No Metabase source found")
+            task = metabase_task.add_card_to_dashboard
+            dashboard_id = task.dashboard_id.value if task.HasField('dashboard_id') else None
+            card_id = task.card_id.value if task.HasField('card_id') else None
+            if not dashboard_id or not card_id:
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value="Missing required fields: dashboard_id, card_id")),
+                    source=self.source
+                )
+            processor = self.get_connector_processor(metabase_connector)
+            existing = processor.get_dashboard_cards(dashboard_id)
+            cards = _normalize_dashboard_cards_list(existing)
+            row = task.row.value if task.HasField('row') else 0
+            col = task.col.value if task.HasField('col') else 0
+            size_x = task.size_x.value if task.HasField('size_x') else 4
+            size_y = task.size_y.value if task.HasField('size_y') else 4
+            new_dashcard = {
+                "id": None,
+                "card_id": card_id,
+                "row": row,
+                "col": col,
+                "size_x": size_x,
+                "size_y": size_y,
+                "series": [],
+                "parameter_mappings": [],
+            }
+            cards.append(new_dashcard)
+            result = processor.update_dashboard_cards(dashboard_id, cards)
+            response_struct = dict_to_proto({'cards': result, 'status': 'Added card'}, Struct)
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                source=self.source,
+                api_response=ApiResponseResult(response_body=response_struct)
+            )
+        except Exception as e:
+            logger.error(f"Error adding card to dashboard: {e}", exc_info=True)
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.TEXT,
+                text=TextResult(output=StringValue(value=str(e))),
+                source=self.source
+            )
+
+    def remove_card_from_dashboard(self, time_range: TimeRange, metabase_task: Metabase,
+                                   metabase_connector: ConnectorProto):
+        try:
+            if not metabase_connector:
+                raise ValueError("No Metabase source found")
+            task = metabase_task.remove_card_from_dashboard
+            dashboard_id = task.dashboard_id.value if task.HasField('dashboard_id') else None
+            dashcard_id = task.dashcard_id.value if task.HasField('dashcard_id') else None
+            if not dashboard_id or not dashcard_id:
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value="Missing required fields: dashboard_id, dashcard_id")),
+                    source=self.source
+                )
+            processor = self.get_connector_processor(metabase_connector)
+            existing = processor.get_dashboard_cards(dashboard_id)
+            cards = [c for c in _normalize_dashboard_cards_list(existing) if c.get('id') != dashcard_id]
+            result = processor.update_dashboard_cards(dashboard_id, cards)
+            response_struct = dict_to_proto({'cards': result, 'status': 'Removed card'}, Struct)
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                source=self.source,
+                api_response=ApiResponseResult(response_body=response_struct)
+            )
+        except Exception as e:
+            logger.error(f"Error removing card from dashboard: {e}", exc_info=True)
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.TEXT,
+                text=TextResult(output=StringValue(value=str(e))),
+                source=self.source
+            )
+
+    def update_dashboard_card(self, time_range: TimeRange, metabase_task: Metabase,
+                               metabase_connector: ConnectorProto):
+        try:
+            if not metabase_connector:
+                raise ValueError("No Metabase source found")
+            task = metabase_task.update_dashboard_card
+            dashboard_id = task.dashboard_id.value if task.HasField('dashboard_id') else None
+            dashcard_id = task.dashcard_id.value if task.HasField('dashcard_id') else None
+            updates = proto_to_dict(task.updates) if task.HasField('updates') else {}
+            if not dashboard_id or not dashcard_id:
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value="Missing required fields: dashboard_id, dashcard_id")),
+                    source=self.source
+                )
+            processor = self.get_connector_processor(metabase_connector)
+            existing = processor.get_dashboard_cards(dashboard_id)
+            cards = _normalize_dashboard_cards_list(existing)
+            updated = False
+            for c in cards:
+                if c.get('id') == dashcard_id:
+                    c.update(updates)
+                    updated = True
+                    break
+            if not updated:
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value=f"Dashcard id {dashcard_id} not found on dashboard")),
+                    source=self.source
+                )
+            result = processor.update_dashboard_cards(dashboard_id, cards)
+            response_struct = dict_to_proto({'cards': result, 'status': 'Updated'}, Struct)
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                source=self.source,
+                api_response=ApiResponseResult(response_body=response_struct)
+            )
+        except Exception as e:
+            logger.error(f"Error updating dashboard card: {e}", exc_info=True)
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.TEXT,
+                text=TextResult(output=StringValue(value=str(e))),
+                source=self.source
+            )
+
+    # Question/Card executors
+
+    def list_questions(self, time_range: TimeRange, metabase_task: Metabase,
+                       metabase_connector: ConnectorProto):
+        try:
+            if not metabase_connector:
+                raise ValueError("No Metabase source found")
+            processor = self.get_connector_processor(metabase_connector)
+            result = processor.list_cards()
+            response_struct = dict_to_proto({'cards': result}, Struct)
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                source=self.source,
+                api_response=ApiResponseResult(response_body=response_struct)
+            )
+        except Exception as e:
+            logger.error(f"Error listing questions: {e}", exc_info=True)
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.TEXT,
+                text=TextResult(output=StringValue(value=str(e))),
+                source=self.source
+            )
+
+    def create_question(self, time_range: TimeRange, metabase_task: Metabase,
+                        metabase_connector: ConnectorProto):
+        try:
+            if not metabase_connector:
+                raise ValueError("No Metabase source found")
+            task = metabase_task.create_question
+            payload = proto_to_dict(task.payload) if task.HasField('payload') else {}
+            if not payload:
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value="Missing required field: payload (JSON)")),
+                    source=self.source
+                )
+            processor = self.get_connector_processor(metabase_connector)
+            result = processor.create_card(payload)
+            response_struct = dict_to_proto({'card': result, 'status': 'Created'}, Struct)
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                source=self.source,
+                api_response=ApiResponseResult(response_body=response_struct)
+            )
+        except Exception as e:
+            logger.error(f"Error creating question: {e}", exc_info=True)
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.TEXT,
+                text=TextResult(output=StringValue(value=str(e))),
+                source=self.source
+            )
+
+    def update_question(self, time_range: TimeRange, metabase_task: Metabase,
+                        metabase_connector: ConnectorProto):
+        try:
+            if not metabase_connector:
+                raise ValueError("No Metabase source found")
+            task = metabase_task.update_question
+            card_id = task.card_id.value if task.HasField('card_id') else None
+            updates = proto_to_dict(task.updates) if task.HasField('updates') else {}
+            if not card_id:
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value="Missing required field: card_id")),
+                    source=self.source
+                )
+            processor = self.get_connector_processor(metabase_connector)
+            result = processor.update_card(card_id, updates)
+            response_struct = dict_to_proto({'card': result, 'status': 'Updated'}, Struct)
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                source=self.source,
+                api_response=ApiResponseResult(response_body=response_struct)
+            )
+        except Exception as e:
+            logger.error(f"Error updating question: {e}", exc_info=True)
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.TEXT,
+                text=TextResult(output=StringValue(value=str(e))),
+                source=self.source
+            )
+
+    def execute_question(self, time_range: TimeRange, metabase_task: Metabase,
+                         metabase_connector: ConnectorProto):
+        try:
+            if not metabase_connector:
+                raise ValueError("No Metabase source found")
+            task = metabase_task.execute_question
+            card_id = task.card_id.value if task.HasField('card_id') else None
+            if not card_id:
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value="Missing required field: card_id")),
+                    source=self.source
+                )
+            parameters = []
+            if task.HasField('parameters'):
+                params_dict = proto_to_dict(task.parameters)
+                if isinstance(params_dict.get('parameters'), list):
+                    parameters = params_dict['parameters']
+                elif isinstance(params_dict, list):
+                    parameters = params_dict
+            processor = self.get_connector_processor(metabase_connector)
+            result = processor.execute_card(card_id, parameters)
+            response_struct = dict_to_proto({'result': result}, Struct)
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                source=self.source,
+                api_response=ApiResponseResult(response_body=response_struct)
+            )
+        except Exception as e:
+            logger.error(f"Error executing question: {e}", exc_info=True)
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.TEXT,
+                text=TextResult(output=StringValue(value=str(e))),
+                source=self.source
+            )
+
+    # Database executors
+
+    def list_databases(self, time_range: TimeRange, metabase_task: Metabase,
+                       metabase_connector: ConnectorProto):
+        try:
+            if not metabase_connector:
+                raise ValueError("No Metabase source found")
+            processor = self.get_connector_processor(metabase_connector)
+            result = processor.list_databases()
+            response_struct = dict_to_proto({'databases': result}, Struct)
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                source=self.source,
+                api_response=ApiResponseResult(response_body=response_struct)
+            )
+        except Exception as e:
+            logger.error(f"Error listing databases: {e}", exc_info=True)
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.TEXT,
+                text=TextResult(output=StringValue(value=str(e))),
+                source=self.source
+            )
+
+    def execute_sql_query(self, time_range: TimeRange, metabase_task: Metabase,
+                          metabase_connector: ConnectorProto):
+        try:
+            if not metabase_connector:
+                raise ValueError("No Metabase source found")
+            task = metabase_task.execute_sql_query
+            database_id = task.database_id.value if task.HasField('database_id') else None
+            query = task.query.value if task.HasField('query') else None
+            if not database_id or not query:
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value="Missing required fields: database_id, query")),
+                    source=self.source
+                )
+            processor = self.get_connector_processor(metabase_connector)
+            result = processor.execute_native_query(database_id, query)
+            response_struct = dict_to_proto({'result': result}, Struct)
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                source=self.source,
+                api_response=ApiResponseResult(response_body=response_struct)
+            )
+        except Exception as e:
+            logger.error(f"Error executing SQL: {e}", exc_info=True)
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.TEXT,
+                text=TextResult(output=StringValue(value=str(e))),
+                source=self.source
+            )
+
+    def get_database_schema(self, time_range: TimeRange, metabase_task: Metabase,
+                            metabase_connector: ConnectorProto):
+        try:
+            if not metabase_connector:
+                raise ValueError("No Metabase source found")
+            task = metabase_task.get_database_schema
+            database_id = task.database_id.value if task.HasField('database_id') else None
+            if not database_id:
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value="Missing required field: database_id")),
+                    source=self.source
+                )
+            processor = self.get_connector_processor(metabase_connector)
+            result = processor.get_database_metadata(database_id)
+            response_struct = dict_to_proto({'metadata': result}, Struct)
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                source=self.source,
+                api_response=ApiResponseResult(response_body=response_struct)
+            )
+        except Exception as e:
+            logger.error(f"Error getting database schema: {e}", exc_info=True)
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.TEXT,
+                text=TextResult(output=StringValue(value=str(e))),
+                source=self.source
+            )
+
+    def get_database_tables(self, time_range: TimeRange, metabase_task: Metabase,
+                            metabase_connector: ConnectorProto):
+        try:
+            if not metabase_connector:
+                raise ValueError("No Metabase source found")
+            task = metabase_task.get_database_tables
+            database_id = task.database_id.value if task.HasField('database_id') else None
+            if not database_id:
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value="Missing required field: database_id")),
+                    source=self.source
+                )
+            processor = self.get_connector_processor(metabase_connector)
+            metadata = processor.get_database_metadata(database_id)
+            tables = metadata.get('tables', []) if isinstance(metadata, dict) else []
+            response_struct = dict_to_proto({'tables': tables}, Struct)
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                source=self.source,
+                api_response=ApiResponseResult(response_body=response_struct)
+            )
+        except Exception as e:
+            logger.error(f"Error getting database tables: {e}", exc_info=True)
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.TEXT,
+                text=TextResult(output=StringValue(value=str(e))),
+                source=self.source
+            )
+
+    # Collection executor
+
+    def list_collections(self, time_range: TimeRange, metabase_task: Metabase,
+                         metabase_connector: ConnectorProto):
+        try:
+            if not metabase_connector:
+                raise ValueError("No Metabase source found")
+            processor = self.get_connector_processor(metabase_connector)
+            result = processor.list_collections()
+            response_struct = dict_to_proto({'collections': result}, Struct)
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                source=self.source,
+                api_response=ApiResponseResult(response_body=response_struct)
+            )
+        except Exception as e:
+            logger.error(f"Error listing collections: {e}", exc_info=True)
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.TEXT,
+                text=TextResult(output=StringValue(value=str(e))),
+                source=self.source
+            )
+
+    # Search executor
+
+    def search_content(self, time_range: TimeRange, metabase_task: Metabase,
+                       metabase_connector: ConnectorProto):
+        try:
+            if not metabase_connector:
+                raise ValueError("No Metabase source found")
+            task = metabase_task.search_content
+            q = task.q.value if task.HasField('q') else ''
+            processor = self.get_connector_processor(metabase_connector)
+            result = processor.search(q)
+            response_struct = dict_to_proto({'results': result}, Struct)
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                source=self.source,
+                api_response=ApiResponseResult(response_body=response_struct)
+            )
+        except Exception as e:
+            logger.error(f"Error searching content: {e}", exc_info=True)
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.TEXT,
+                text=TextResult(output=StringValue(value=str(e))),
                 source=self.source
             )
