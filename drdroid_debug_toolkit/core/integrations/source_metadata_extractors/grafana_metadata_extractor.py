@@ -494,6 +494,72 @@ class GrafanaSourceMetadataExtractor(SourceMetadataExtractor):
         return model_data
 
     @log_function_call
+    def extract_tempo_services(self):
+        """Discover services from all Tempo datasources."""
+        model_type = SourceModelType.GRAFANA_TEMPO_SERVICE
+        tempo_datasources = self.extract_tempo_data_source()
+        if not tempo_datasources:
+            return
+        model_data = {}
+        for ds_uid, ds in tempo_datasources.items():
+            try:
+                services = self.__grafana_api_processor.tempo_get_services(ds_uid)
+                for svc in services:
+                    svc_name = svc.get('value', svc) if isinstance(svc, dict) else svc
+                    model_uid = f"{ds_uid}::{svc_name}"
+                    model_data[model_uid] = {
+                        'datasource_uid': ds_uid,
+                        'datasource_name': ds.get('name', ''),
+                        'service_name': svc_name,
+                        'type': svc.get('type', 'string') if isinstance(svc, dict) else 'string'
+                    }
+            except Exception as e:
+                logger.error(f'Error fetching tempo services for {ds_uid}: {e}')
+        if model_data:
+            self.create_or_update_model_metadata(model_type, model_data)
+        return model_data
+
+    @log_function_call
+    def extract_tempo_tags(self):
+        """Discover available tags from all Tempo datasources."""
+        model_type = SourceModelType.GRAFANA_TEMPO_TAG
+        tempo_datasources = self.extract_tempo_data_source()
+        if not tempo_datasources:
+            return
+        model_data = {}
+        for ds_uid, ds in tempo_datasources.items():
+            try:
+                tags_response = self.__grafana_api_processor.tempo_get_tags(ds_uid, scope=None)
+                scopes = tags_response.get('scopes', [])
+                for scope_obj in scopes:
+                    scope_name = scope_obj.get('name', '')
+                    for tag in scope_obj.get('tags', []):
+                        model_uid = f"{ds_uid}::{scope_name}.{tag}"
+                        model_data[model_uid] = {
+                            'datasource_uid': ds_uid,
+                            'datasource_name': ds.get('name', ''),
+                            'tag_name': tag,
+                            'scope': scope_name,
+                            'intrinsic': False
+                        }
+                # Handle intrinsic tags if present
+                intrinsics = tags_response.get('intrinsic', [])
+                for tag in intrinsics:
+                    model_uid = f"{ds_uid}::intrinsic.{tag}"
+                    model_data[model_uid] = {
+                        'datasource_uid': ds_uid,
+                        'datasource_name': ds.get('name', ''),
+                        'tag_name': tag,
+                        'scope': 'intrinsic',
+                        'intrinsic': True
+                    }
+            except Exception as e:
+                logger.error(f'Error fetching tempo tags for {ds_uid}: {e}')
+        if model_data:
+            self.create_or_update_model_metadata(model_type, model_data)
+        return model_data
+
+    @log_function_call
     def extract_alert_rules(self):
         model_type = SourceModelType.GRAFANA_ALERT_RULE
         try:
