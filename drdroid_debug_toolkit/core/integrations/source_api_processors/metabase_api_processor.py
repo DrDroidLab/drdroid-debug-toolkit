@@ -17,6 +17,34 @@ class MetabaseApiProcessor(Processor):
             "Content-Type": "application/json"
         }
 
+    @staticmethod
+    def _response_error_message(response):
+        """
+        Extract a readable error string from a non-2xx response so we can pass
+        the API error back to the caller instead of a generic status line.
+        """
+        try:
+            text = (response.text or "").strip()
+            if response.headers.get("content-type", "").startswith("application/json") and text:
+                data = response.json()
+                if isinstance(data, dict):
+                    msg = data.get("message") or data.get("msg") or data.get("error")
+                    if msg:
+                        return str(msg)
+                return text
+            return text or response.reason or f"HTTP {response.status_code}"
+        except Exception:
+            return response.text or response.reason or f"HTTP {response.status_code}"
+
+    def _raise_for_status_with_body(self, response, context="Metabase API"):
+        """If response is not ok, log and raise HTTPError with API body in the message."""
+        if response.ok:
+            return
+        msg = self._response_error_message(response)
+        full = f"{context} ({response.status_code}): {msg}"
+        logger.error("%s", full)
+        raise requests.exceptions.HTTPError(full, response=response)
+
     def test_connection(self):
         """
         Test connection to Metabase by calling the /api/user/current endpoint.
@@ -185,8 +213,13 @@ class MetabaseApiProcessor(Processor):
         try:
             url = f"{self.__host}/api/dashboard/{dashboard_id}"
             response = requests.put(url, headers=self.headers, json=payload, timeout=EXTERNAL_CALL_TIMEOUT)
-            response.raise_for_status()
+            self._raise_for_status_with_body(
+                response,
+                context=f"MetabaseApiProcessor.update_dashboard (dashboard {dashboard_id})",
+            )
             return response.json()
+        except requests.exceptions.HTTPError:
+            raise
         except Exception as e:
             logger.error(f"MetabaseApiProcessor.update_dashboard:: Error updating dashboard {dashboard_id}: {e}")
             raise
@@ -207,8 +240,13 @@ class MetabaseApiProcessor(Processor):
         try:
             url = f"{self.__host}/api/dashboard/{dashboard_id}/cards"
             response = requests.put(url, headers=self.headers, json=cards_payload, timeout=EXTERNAL_CALL_TIMEOUT)
-            response.raise_for_status()
+            self._raise_for_status_with_body(
+                response,
+                context=f"MetabaseApiProcessor.update_dashboard_cards (dashboard {dashboard_id})",
+            )
             return response.json()
+        except requests.exceptions.HTTPError:
+            raise
         except Exception as e:
             logger.error(f"MetabaseApiProcessor.update_dashboard_cards:: Error updating dashboard cards {dashboard_id}: {e}")
             raise
@@ -270,19 +308,7 @@ class MetabaseApiProcessor(Processor):
             body["collection_id"] = None
         url = f"{self.__host}/api/card/"
         response = requests.post(url, headers=self.headers, json=body, timeout=EXTERNAL_CALL_TIMEOUT)
-        if not response.ok:
-            try:
-                err_body = response.text
-                if response.headers.get("content-type", "").startswith("application/json"):
-                    err_body = response.json()
-            except Exception:
-                err_body = response.text
-            logger.error(
-                "MetabaseApiProcessor.create_card: Metabase returned %s: %s",
-                response.status_code,
-                err_body,
-            )
-        response.raise_for_status()
+        self._raise_for_status_with_body(response, context="MetabaseApiProcessor.create_card")
         return response.json()
 
     def get_card(self, card_id):
@@ -306,7 +332,10 @@ class MetabaseApiProcessor(Processor):
             body["dataset_query"] = self._normalize_native_dataset_query(body["dataset_query"])
         url = f"{self.__host}/api/card/{card_id}"
         response = requests.put(url, headers=self.headers, json=body, timeout=EXTERNAL_CALL_TIMEOUT)
-        response.raise_for_status()
+        self._raise_for_status_with_body(
+            response,
+            context=f"MetabaseApiProcessor.update_card (card {card_id})",
+        )
         return response.json()
 
     def execute_card(self, card_id, parameters=None):
