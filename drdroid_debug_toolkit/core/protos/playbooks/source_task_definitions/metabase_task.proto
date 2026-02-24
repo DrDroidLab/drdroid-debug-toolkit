@@ -27,6 +27,7 @@ message Metabase {
     UPDATE_DASHBOARD_CARD = 17;
     // Questions/Cards
     LIST_QUESTIONS = 18;
+    GET_QUESTION = 28;
     CREATE_QUESTION = 19;
     UPDATE_QUESTION = 20;
     EXECUTE_QUESTION = 21;
@@ -125,6 +126,10 @@ message Metabase {
 
   message ListQuestions {}
 
+  message GetQuestion {
+    google.protobuf.Int64Value card_id = 1;
+  }
+
   message CreateQuestion {
     google.protobuf.Struct payload = 1;
   }
@@ -180,6 +185,7 @@ message Metabase {
     RemoveCardFromDashboard remove_card_from_dashboard = 17;
     UpdateDashboardCard update_dashboard_card = 18;
     ListQuestions list_questions = 19;
+    GetQuestion get_question = 29;
     CreateQuestion create_question = 20;
     UpdateQuestion update_question = 21;
     ExecuteQuestion execute_question = 22;

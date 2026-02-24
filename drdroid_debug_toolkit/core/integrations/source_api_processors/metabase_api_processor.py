@@ -1,4 +1,3 @@
-import copy
 import logging
 
 import requests
@@ -227,14 +226,25 @@ class MetabaseApiProcessor(Processor):
             raise
 
     def create_card(self, payload):
-        try:
-            url = f"{self.__host}/api/card/"
-            response = requests.post(url, headers=self.headers, json=payload, timeout=EXTERNAL_CALL_TIMEOUT)
-            response.raise_for_status()
-            return response.json()
-        except Exception as e:
-            logger.error(f"MetabaseApiProcessor.create_card:: Error creating card: {e}")
-            raise
+        """
+        Create a card. POST /api/card/. Normalizes dataset_query and sets safe defaults
+        for required fields (name, display, visualization_settings) so Metabase doesn't 500.
+        """
+        if not isinstance(payload, dict):
+            payload = {}
+        body = dict(payload)
+        if "dataset_query" in body and body["dataset_query"] is not None:
+            body["dataset_query"] = self._normalize_native_dataset_query(body["dataset_query"])
+        if body.get("name") is None or body.get("name") == "":
+            body["name"] = "New question"
+        if body.get("display") is None or body.get("display") == "":
+            body["display"] = "table"
+        if "visualization_settings" not in body or body["visualization_settings"] is None:
+            body["visualization_settings"] = {}
+        url = f"{self.__host}/api/card/"
+        response = requests.post(url, headers=self.headers, json=body, timeout=EXTERNAL_CALL_TIMEOUT)
+        response.raise_for_status()
+        return response.json()
 
     def get_card(self, card_id):
         try:
@@ -246,95 +256,40 @@ class MetabaseApiProcessor(Processor):
             logger.error(f"MetabaseApiProcessor.get_card:: Error getting card {card_id}: {e}")
             raise
 
-    def _normalize_dataset_query_for_update(self, existing_dq, new_dq):
+    def _normalize_native_dataset_query(self, dataset_query):
         """
-        Ensure dataset_query is in the legacy API format (type, native, database) that
-        Metabase PUT /api/card/{id} accepts and persists. Do NOT send internal keys
-        like "lib/type" or "stages" - they can cause the API to reject or clear the
-        query and break the card in the UI and on execute.
-        If existing has full "stages" structure (GET returned it), preserve it and
-        only update the native SQL; otherwise send only legacy format.
+        Return dataset_query in the format Metabase PUT /api/card/{id} accepts for
+        native questions: type, database, native { query, template-tags }.
         """
-        if not isinstance(new_dq, dict) or new_dq.get("type") != "native":
-            return new_dq
-        native_block = new_dq.get("native")
-        if not isinstance(native_block, dict) or "query" not in native_block:
-            return new_dq
-        database_id = new_dq.get("database")
-        # Ensure native has template-tags (API expects it for native questions)
-        native = dict(native_block)
-        if "template-tags" not in native:
-            native["template-tags"] = {}
-        legacy_dq = {
+        if not isinstance(dataset_query, dict) or dataset_query.get("type") != "native":
+            return dataset_query
+        native = dataset_query.get("native")
+        if not isinstance(native, dict) or "query" not in native:
+            return dataset_query
+        out_native = dict(native)
+        if "template-tags" not in out_native:
+            out_native["template-tags"] = {}
+        return {
             "type": "native",
-            "database": database_id,
-            "native": native,
+            "database": dataset_query.get("database"),
+            "native": out_native,
         }
-        # If existing has full stages structure (rare - GET often returns {}), reuse it
-        # and only set the native SQL so we don't lose any extra keys Metabase stores
-        if (
-            isinstance(existing_dq, dict)
-            and existing_dq
-            and "stages" in existing_dq
-            and isinstance(existing_dq["stages"], list)
-            and len(existing_dq["stages"]) > 0
-            and isinstance(existing_dq["stages"][0], dict)
-        ):
-            merged_dq = copy.deepcopy(existing_dq)
-            merged_dq["database"] = database_id or merged_dq.get("database")
-            merged_dq["type"] = "native"
-            merged_dq["native"] = native
-            merged_dq["stages"][0]["native"] = native_block["query"]
-            merged_dq["stages"][0]["template-tags"] = native.get("template-tags", {})
-            return merged_dq
-        return legacy_dq
-
-    # Fields we send in PUT body (per API docs). Excludes read-only/server fields.
-    _CARD_PUT_WHITELIST = frozenset({
-        "name", "description", "display", "dataset_query", "visualization_settings",
-        "collection_id", "collection_position", "parameters", "parameter_mappings",
-        "cache_ttl", "archived", "enable_embedding", "embedding_params", "embedding_type",
-        "result_metadata", "type",
-    })
 
     def update_card(self, card_id, payload):
         """
-        Update a card by ID. PUT /api/card/{id}. Builds a minimal body from whitelisted
-        fields only so we never send read-only fields that can cause dataset_query to
-        be cleared; overlays payload (with normalized dataset_query) then PUTs.
+        Update a card. PUT /api/card/{id} with the given payload.
+        No GET: caller sends the exact body to send. dataset_query is normalized
+        to legacy format (type, native, database + template-tags) so Metabase persists it.
         """
-        try:
-            existing = self.get_card(card_id)
-            if not isinstance(existing, dict):
-                existing = {}
-            if not isinstance(payload, dict):
-                payload = {}
-            merged = {}
-            for key in self._CARD_PUT_WHITELIST:
-                if key in existing and existing[key] is not None:
-                    merged[key] = existing[key]
-            for key, value in payload.items():
-                if value is not None:
-                    if key not in self._CARD_PUT_WHITELIST:
-                        merged[key] = value  # allow extra keys from payload (e.g. dataset_query)
-                    else:
-                        if key == "dataset_query":
-                            value = self._normalize_dataset_query_for_update(
-                                merged.get(key) or {}, value
-                            )
-                            if isinstance(value, dict) and value.get("database") is None:
-                                value["database"] = existing.get("database_id")
-                        merged[key] = value
-            dq = merged.get("dataset_query")
-            if isinstance(dq, dict) and dq.get("database") is None and existing.get("database_id") is not None:
-                dq["database"] = existing["database_id"]
-            url = f"{self.__host}/api/card/{card_id}"
-            response = requests.put(url, headers=self.headers, json=merged, timeout=EXTERNAL_CALL_TIMEOUT)
-            response.raise_for_status()
-            return response.json()
-        except Exception as e:
-            logger.error(f"MetabaseApiProcessor.update_card:: Error updating card {card_id}: {e}")
-            raise
+        if not isinstance(payload, dict):
+            payload = {}
+        body = dict(payload)
+        if "dataset_query" in body and body["dataset_query"] is not None:
+            body["dataset_query"] = self._normalize_native_dataset_query(body["dataset_query"])
+        url = f"{self.__host}/api/card/{card_id}"
+        response = requests.put(url, headers=self.headers, json=body, timeout=EXTERNAL_CALL_TIMEOUT)
+        response.raise_for_status()
+        return response.json()
 
     def execute_card(self, card_id, parameters=None):
         """Execute a question/card. POST /api/card/{card-id}/query. parameters: list of param values."""

@@ -379,6 +379,16 @@ class MetabaseSourceManager(SourceManager):
                 'category': 'Questions',
                 'form_fields': []
             },
+            Metabase.TaskType.GET_QUESTION: {
+                'executor': self.get_question,
+                'model_types': [SourceModelType.METABASE_CARD],
+                'result_type': PlaybookTaskResultType.API_RESPONSE,
+                'display_name': 'Get Question/Card',
+                'category': 'Questions',
+                'form_fields': [
+                    FormField(key_name=StringValue(value="card_id"), display_name=StringValue(value="Card ID"), data_type=LiteralType.LONG, form_field_type=FormFieldType.TEXT_FT),
+                ]
+            },
             Metabase.TaskType.CREATE_QUESTION: {
                 'executor': self.create_question,
                 'model_types': [SourceModelType.METABASE_CARD],
@@ -1131,6 +1141,35 @@ class MetabaseSourceManager(SourceManager):
             )
         except Exception as e:
             logger.error(f"Error listing questions: {e}", exc_info=True)
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.TEXT,
+                text=TextResult(output=StringValue(value=str(e))),
+                source=self.source
+            )
+
+    def get_question(self, time_range: TimeRange, metabase_task: Metabase,
+                     metabase_connector: ConnectorProto):
+        try:
+            if not metabase_connector:
+                raise ValueError("No Metabase source found")
+            task = metabase_task.get_question
+            card_id = task.card_id.value if task.HasField('card_id') else None
+            if not card_id:
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value="Missing required field: card_id")),
+                    source=self.source
+                )
+            processor = self.get_connector_processor(metabase_connector)
+            result = processor.get_card(card_id)
+            response_struct = dict_to_proto({'card': result}, Struct)
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                source=self.source,
+                api_response=ApiResponseResult(response_body=response_struct)
+            )
+        except Exception as e:
+            logger.error(f"Error getting question: {e}", exc_info=True)
             return PlaybookTaskResult(
                 type=PlaybookTaskResultType.TEXT,
                 text=TextResult(output=StringValue(value=str(e))),
