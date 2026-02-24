@@ -503,8 +503,11 @@ class GrafanaSourceMetadataExtractor(SourceMetadataExtractor):
         model_data = {}
         for ds_uid, ds in tempo_datasources.items():
             try:
-                services = self.__grafana_api_processor.tempo_get_services(ds_uid)
-                for svc in services:
+                services_response = self.__grafana_api_processor.tempo_get_services(ds_uid)
+                service_list = services_response.get('tagValues', services_response) if isinstance(services_response, dict) else services_response
+                if not isinstance(service_list, list):
+                    service_list = []
+                for svc in service_list:
                     svc_name = svc.get('value', svc) if isinstance(svc, dict) else svc
                     model_uid = f"{ds_uid}::{svc_name}"
                     model_data[model_uid] = {
@@ -533,6 +536,7 @@ class GrafanaSourceMetadataExtractor(SourceMetadataExtractor):
                 scopes = tags_response.get('scopes', [])
                 for scope_obj in scopes:
                     scope_name = scope_obj.get('name', '')
+                    is_intrinsic = scope_name == 'intrinsic'
                     for tag in scope_obj.get('tags', []):
                         model_uid = f"{ds_uid}::{scope_name}.{tag}"
                         model_data[model_uid] = {
@@ -540,19 +544,8 @@ class GrafanaSourceMetadataExtractor(SourceMetadataExtractor):
                             'datasource_name': ds.get('name', ''),
                             'tag_name': tag,
                             'scope': scope_name,
-                            'intrinsic': False
+                            'intrinsic': is_intrinsic
                         }
-                # Handle intrinsic tags if present
-                intrinsics = tags_response.get('intrinsic', [])
-                for tag in intrinsics:
-                    model_uid = f"{ds_uid}::intrinsic.{tag}"
-                    model_data[model_uid] = {
-                        'datasource_uid': ds_uid,
-                        'datasource_name': ds.get('name', ''),
-                        'tag_name': tag,
-                        'scope': 'intrinsic',
-                        'intrinsic': True
-                    }
             except Exception as e:
                 logger.error(f'Error fetching tempo tags for {ds_uid}: {e}')
         if model_data:
