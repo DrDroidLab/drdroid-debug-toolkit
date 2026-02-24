@@ -246,51 +246,35 @@ class MetabaseApiProcessor(Processor):
             logger.error(f"MetabaseApiProcessor.get_card:: Error getting card {card_id}: {e}")
             raise
 
-    def _native_dataset_query_to_lib_format(self, new_dq):
-        """
-        Convert simple native dataset_query (type/native/database) to Metabase's
-        internal lib format (lib/type + stages) so it is persisted and execute works.
-        GET /api/card often returns dataset_query: {}, so we can't rely on existing
-        structure; we always build the format the query processor expects.
-        """
-        if not isinstance(new_dq, dict) or new_dq.get("type") != "native":
-            return new_dq
-        native_block = new_dq.get("native")
-        if not isinstance(native_block, dict) or "query" not in native_block:
-            return new_dq
-        query_text = native_block["query"]
-        database_id = new_dq.get("database")
-        # Format that Metabase v0.58+ persists and runs (from card run payloads)
-        return {
-            "database": database_id,
-            "type": "native",
-            "native": native_block,
-            "lib/type": "mbql/query",
-            "stages": [
-                {
-                    "lib/type": "mbql.stage/native",
-                    "native": query_text,
-                    "template-tags": native_block.get("template-tags", {}),
-                }
-            ],
-        }
-
     def _normalize_dataset_query_for_update(self, existing_dq, new_dq):
         """
-        When updating with a simple native dataset_query, use internal lib format
-        so Metabase persists it and execute doesn't get "missing or invalid query type".
-        If existing has stages we preserve extra keys; otherwise we build lib format.
+        Ensure dataset_query is in the legacy API format (type, native, database) that
+        Metabase PUT /api/card/{id} accepts and persists. Do NOT send internal keys
+        like "lib/type" or "stages" - they can cause the API to reject or clear the
+        query and break the card in the UI and on execute.
+        If existing has full "stages" structure (GET returned it), preserve it and
+        only update the native SQL; otherwise send only legacy format.
         """
         if not isinstance(new_dq, dict) or new_dq.get("type") != "native":
             return new_dq
         native_block = new_dq.get("native")
         if not isinstance(native_block, dict) or "query" not in native_block:
             return new_dq
-        query_text = native_block["query"]
         database_id = new_dq.get("database")
-        # If existing has full stages structure, reuse it and only set native SQL
+        # Ensure native has template-tags (API expects it for native questions)
+        native = dict(native_block)
+        if "template-tags" not in native:
+            native["template-tags"] = {}
+        legacy_dq = {
+            "type": "native",
+            "database": database_id,
+            "native": native,
+        }
+        # If existing has full stages structure (rare - GET often returns {}), reuse it
+        # and only set the native SQL so we don't lose any extra keys Metabase stores
         if (
             isinstance(existing_dq, dict)
+            and existing_dq
             and "stages" in existing_dq
             and isinstance(existing_dq["stages"], list)
             and len(existing_dq["stages"]) > 0
@@ -298,11 +282,12 @@ class MetabaseApiProcessor(Processor):
         ):
             merged_dq = copy.deepcopy(existing_dq)
             merged_dq["database"] = database_id or merged_dq.get("database")
-            merged_dq["stages"][0]["native"] = query_text
-            merged_dq["stages"][0]["template-tags"] = native_block.get("template-tags", {})
+            merged_dq["type"] = "native"
+            merged_dq["native"] = native
+            merged_dq["stages"][0]["native"] = native_block["query"]
+            merged_dq["stages"][0]["template-tags"] = native.get("template-tags", {})
             return merged_dq
-        # No usable existing structure (e.g. GET returned {}): send lib format
-        return self._native_dataset_query_to_lib_format(new_dq)
+        return legacy_dq
 
     def update_card(self, card_id, payload):
         """
