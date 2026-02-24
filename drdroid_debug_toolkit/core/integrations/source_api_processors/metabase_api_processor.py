@@ -275,12 +275,23 @@ class MetabaseApiProcessor(Processor):
             raise
 
     def get_dashboard_cards(self, dashboard_id):
-        """Get all cards (dashcards) in a dashboard. GET /api/dashboard/{id}/items"""
+        """
+        Get all dashcards (cards on the dashboard). Uses GET /api/dashboard/{id}
+        and returns the dashcards array so it matches what the Metabase UI shows.
+        In Metabase, a 'question' is a card (type=question); dashcards reference
+        card_id, so questions on a dashboard are returned here.
+        """
         try:
-            url = f"{self.__host}/api/dashboard/{dashboard_id}/items"
+            url = f"{self.__host}/api/dashboard/{dashboard_id}"
             response = requests.get(url, headers=self.headers, timeout=EXTERNAL_CALL_TIMEOUT)
             response.raise_for_status()
-            return response.json()
+            data = response.json()
+            if isinstance(data, list):
+                return data
+            for key in ("dashcards", "ordered_cards", "cards", "data"):
+                if key in data and isinstance(data[key], list):
+                    return data[key]
+            return []
         except Exception as e:
             logger.error(f"MetabaseApiProcessor.get_dashboard_cards:: Error getting dashboard cards {dashboard_id}: {e}")
             raise
