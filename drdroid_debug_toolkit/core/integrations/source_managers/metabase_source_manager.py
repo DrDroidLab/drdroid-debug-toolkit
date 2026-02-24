@@ -30,6 +30,16 @@ def _normalize_dashboard_cards_list(response):
     return []
 
 
+def _dashboard_cards_key(dashboard):
+    """Return the key used for dashcards in a GET dashboard response (for PUT body)."""
+    if not isinstance(dashboard, dict):
+        return 'dashcards'
+    for key in ('dashcards', 'ordered_cards', 'cards', 'data'):
+        if key in dashboard and isinstance(dashboard[key], list):
+            return key
+    return 'dashcards'
+
+
 class MetabaseSourceManager(SourceManager):
 
     def __init__(self):
@@ -1015,14 +1025,14 @@ class MetabaseSourceManager(SourceManager):
                     source=self.source
                 )
             processor = self.get_connector_processor(metabase_connector)
-            existing = processor.get_dashboard_cards(dashboard_id)
-            cards = _normalize_dashboard_cards_list(existing)
+            dashboard = processor.get_dashboard(dashboard_id)
+            cards = _normalize_dashboard_cards_list(dashboard)
             row = task.row.value if task.HasField('row') else 0
             col = task.col.value if task.HasField('col') else 0
             size_x = task.size_x.value if task.HasField('size_x') else 4
             size_y = task.size_y.value if task.HasField('size_y') else 4
+            # New dashcard: omit id so Metabase assigns one; include required layout fields
             new_dashcard = {
-                "id": None,
                 "card_id": card_id,
                 "row": row,
                 "col": col,
@@ -1030,10 +1040,14 @@ class MetabaseSourceManager(SourceManager):
                 "size_y": size_y,
                 "series": [],
                 "parameter_mappings": [],
+                "visualization_settings": {},
             }
             cards.append(new_dashcard)
-            result = processor.update_dashboard_cards(dashboard_id, cards)
-            response_struct = dict_to_proto({'cards': result, 'status': 'Added card'}, Struct)
+            # Use PUT /api/dashboard/:id (supported) instead of deprecated PUT .../cards
+            dashboard = dict(dashboard)
+            dashboard[_dashboard_cards_key(dashboard)] = cards
+            result = processor.update_dashboard(dashboard_id, dashboard)
+            response_struct = dict_to_proto({'cards': result.get(_dashboard_cards_key(result), result), 'status': 'Added card'}, Struct)
             return PlaybookTaskResult(
                 type=PlaybookTaskResultType.API_RESPONSE,
                 source=self.source,
@@ -1062,10 +1076,12 @@ class MetabaseSourceManager(SourceManager):
                     source=self.source
                 )
             processor = self.get_connector_processor(metabase_connector)
-            existing = processor.get_dashboard_cards(dashboard_id)
-            cards = [c for c in _normalize_dashboard_cards_list(existing) if c.get('id') != dashcard_id]
-            result = processor.update_dashboard_cards(dashboard_id, cards)
-            response_struct = dict_to_proto({'cards': result, 'status': 'Removed card'}, Struct)
+            dashboard = processor.get_dashboard(dashboard_id)
+            cards = [c for c in _normalize_dashboard_cards_list(dashboard) if c.get('id') != dashcard_id]
+            dashboard = dict(dashboard)
+            dashboard[_dashboard_cards_key(dashboard)] = cards
+            result = processor.update_dashboard(dashboard_id, dashboard)
+            response_struct = dict_to_proto({'cards': result.get(_dashboard_cards_key(result), result), 'status': 'Removed card'}, Struct)
             return PlaybookTaskResult(
                 type=PlaybookTaskResultType.API_RESPONSE,
                 source=self.source,
@@ -1095,8 +1111,8 @@ class MetabaseSourceManager(SourceManager):
                     source=self.source
                 )
             processor = self.get_connector_processor(metabase_connector)
-            existing = processor.get_dashboard_cards(dashboard_id)
-            cards = _normalize_dashboard_cards_list(existing)
+            dashboard = processor.get_dashboard(dashboard_id)
+            cards = _normalize_dashboard_cards_list(dashboard)
             updated = False
             for c in cards:
                 if c.get('id') == dashcard_id:
@@ -1109,8 +1125,10 @@ class MetabaseSourceManager(SourceManager):
                     text=TextResult(output=StringValue(value=f"Dashcard id {dashcard_id} not found on dashboard")),
                     source=self.source
                 )
-            result = processor.update_dashboard_cards(dashboard_id, cards)
-            response_struct = dict_to_proto({'cards': result, 'status': 'Updated'}, Struct)
+            dashboard = dict(dashboard)
+            dashboard[_dashboard_cards_key(dashboard)] = cards
+            result = processor.update_dashboard(dashboard_id, dashboard)
+            response_struct = dict_to_proto({'cards': result.get(_dashboard_cards_key(result), result), 'status': 'Updated'}, Struct)
             return PlaybookTaskResult(
                 type=PlaybookTaskResultType.API_RESPONSE,
                 source=self.source,
