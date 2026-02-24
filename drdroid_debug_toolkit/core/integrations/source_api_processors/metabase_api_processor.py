@@ -306,9 +306,14 @@ class MetabaseApiProcessor(Processor):
 
     def update_card(self, card_id, payload):
         """
-        Update a card by ID. Fetches the full card first and merges payload into it,
-        then PUTs the full object. Sending a partial payload can cause Metabase to
-        clear fields like dataset_query, which then breaks execute (missing query type).
+        Update a card by ID. Compliant with Metabase API PUT /api/card/{id}.
+        See: https://www.metabase.com/docs/latest/api#tag/apicard/put/api/card/{id}
+
+        Fetches the full card first (GET /api/card/{id}), merges payload into it,
+        then PUTs the full object. Sending a partial body can cause Metabase to clear
+        fields like dataset_query; merging avoids that so execute works after update.
+        Auth: x-api-key header (API key). Response may redact dataset_query; the
+        update is still persisted when the request body is valid.
         """
         try:
             existing = self.get_card(card_id)
