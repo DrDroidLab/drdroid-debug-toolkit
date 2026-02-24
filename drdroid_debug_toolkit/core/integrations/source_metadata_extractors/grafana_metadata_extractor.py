@@ -1,4 +1,5 @@
 import re
+import time
 import logging
 
 from core.integrations.source_metadata_extractor import SourceMetadataExtractor
@@ -495,12 +496,14 @@ class GrafanaSourceMetadataExtractor(SourceMetadataExtractor):
 
     @log_function_call
     def extract_tempo_services(self):
-        """Discover services from all Tempo datasources."""
+        """Discover services from all Tempo datasources with span metrics and dependencies."""
         model_type = SourceModelType.GRAFANA_TEMPO_SERVICE
         tempo_datasources = self.extract_tempo_data_source()
         if not tempo_datasources:
             return
         model_data = {}
+        now = int(time.time())
+        one_hour_ago = now - 3600
         for ds_uid, ds in tempo_datasources.items():
             try:
                 services_response = self.__grafana_api_processor.tempo_get_services(ds_uid)
@@ -510,12 +513,61 @@ class GrafanaSourceMetadataExtractor(SourceMetadataExtractor):
                 for svc in service_list:
                     svc_name = svc.get('value', svc) if isinstance(svc, dict) else svc
                     model_uid = f"{ds_uid}::{svc_name}"
-                    model_data[model_uid] = {
+                    service_meta = {
                         'datasource_uid': ds_uid,
                         'datasource_name': ds.get('name', ''),
                         'service_name': svc_name,
-                        'type': svc.get('type', 'string') if isinstance(svc, dict) else 'string'
                     }
+                    # Enrich with span count, error rate, p99 latency and dependencies
+                    try:
+                        search_result = self.__grafana_api_processor.tempo_search_traces(
+                            ds_uid, f'{{resource.service.name="{svc_name}"}}',
+                            start=one_hour_ago, end=now, limit=50, spss=3
+                        )
+                        traces = search_result.get('traces', [])
+                        service_meta['span_count'] = sum(
+                            t.get('spanSets', [{}])[0].get('matched', 0) if t.get('spanSets') else 0
+                            for t in traces
+                        )
+                        service_meta['trace_count'] = len(traces)
+                        # Extract dependent services from trace spans
+                        dep_services = set()
+                        for trace in traces:
+                            root_svc = trace.get('rootServiceName', '')
+                            if root_svc and root_svc != svc_name:
+                                dep_services.add(root_svc)
+                        service_meta['dependent_services'] = list(dep_services)
+                    except Exception as e:
+                        logger.warning(f'Could not enrich service {svc_name} with trace data: {e}')
+                    # Get p99 latency via metrics API
+                    try:
+                        metrics_result = self.__grafana_api_processor.tempo_metrics_query_instant(
+                            ds_uid,
+                            f'{{resource.service.name="{svc_name}"}} | quantile_over_time(duration, 0.99)',
+                            start=one_hour_ago, end=now
+                        )
+                        series = metrics_result.get('series', [])
+                        if series:
+                            values = series[0].get('values', [])
+                            if values:
+                                service_meta['p99_latency_ns'] = values[-1]
+                    except Exception as e:
+                        logger.warning(f'Could not fetch p99 latency for {svc_name}: {e}')
+                    # Get error rate via metrics API
+                    try:
+                        error_result = self.__grafana_api_processor.tempo_metrics_query_instant(
+                            ds_uid,
+                            f'{{resource.service.name="{svc_name}" && status=error}} | count_over_time()',
+                            start=one_hour_ago, end=now
+                        )
+                        error_series = error_result.get('series', [])
+                        if error_series:
+                            error_values = error_series[0].get('values', [])
+                            if error_values:
+                                service_meta['error_count'] = error_values[-1]
+                    except Exception as e:
+                        logger.warning(f'Could not fetch error count for {svc_name}: {e}')
+                    model_data[model_uid] = service_meta
             except Exception as e:
                 logger.error(f'Error fetching tempo services for {ds_uid}: {e}')
         if model_data:
