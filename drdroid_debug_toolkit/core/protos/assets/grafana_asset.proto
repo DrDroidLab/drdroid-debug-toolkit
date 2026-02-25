@@ -47,6 +47,7 @@ message GrafanaDatasourceAssetModel {
   google.protobuf.StringValue datasource_typeName = 11;
   google.protobuf.BoolValue datasource_basicAuth = 12;
   google.protobuf.BoolValue datasource_isDefault = 13;
+  repeated string available_labels = 14;
 }
 
 message GrafanaDashboardAssetModel {
