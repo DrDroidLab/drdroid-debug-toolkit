@@ -156,6 +156,7 @@ class GrafanaDatasourceAssetModel(google.protobuf.message.Message):
     DATASOURCE_TYPENAME_FIELD_NUMBER: builtins.int
     DATASOURCE_BASICAUTH_FIELD_NUMBER: builtins.int
     DATASOURCE_ISDEFAULT_FIELD_NUMBER: builtins.int
+    AVAILABLE_LABELS_FIELD_NUMBER: builtins.int
     @property
     def datasource_id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     @property
@@ -180,6 +181,8 @@ class GrafanaDatasourceAssetModel(google.protobuf.message.Message):
     def datasource_basicAuth(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
     @property
     def datasource_isDefault(self) -> google.protobuf.wrappers_pb2.BoolValue: ...
+    @property
+    def available_labels(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
     def __init__(
         self,
         *,
@@ -195,9 +198,10 @@ class GrafanaDatasourceAssetModel(google.protobuf.message.Message):
         datasource_typeName: google.protobuf.wrappers_pb2.StringValue | None = ...,
         datasource_basicAuth: google.protobuf.wrappers_pb2.BoolValue | None = ...,
         datasource_isDefault: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        available_labels: collections.abc.Iterable[builtins.str] | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing_extensions.Literal["datasource_access", b"datasource_access", "datasource_basicAuth", b"datasource_basicAuth", "datasource_database", b"datasource_database", "datasource_id", b"datasource_id", "datasource_isDefault", b"datasource_isDefault", "datasource_name", b"datasource_name", "datasource_orgId", b"datasource_orgId", "datasource_readonly", b"datasource_readonly", "datasource_type", b"datasource_type", "datasource_typeName", b"datasource_typeName", "datasource_uid", b"datasource_uid", "datasource_url", b"datasource_url"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["datasource_access", b"datasource_access", "datasource_basicAuth", b"datasource_basicAuth", "datasource_database", b"datasource_database", "datasource_id", b"datasource_id", "datasource_isDefault", b"datasource_isDefault", "datasource_name", b"datasource_name", "datasource_orgId", b"datasource_orgId", "datasource_readonly", b"datasource_readonly", "datasource_type", b"datasource_type", "datasource_typeName", b"datasource_typeName", "datasource_uid", b"datasource_uid", "datasource_url", b"datasource_url"]) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["available_labels", b"available_labels", "datasource_access", b"datasource_access", "datasource_basicAuth", b"datasource_basicAuth", "datasource_database", b"datasource_database", "datasource_id", b"datasource_id", "datasource_isDefault", b"datasource_isDefault", "datasource_name", b"datasource_name", "datasource_orgId", b"datasource_orgId", "datasource_readonly", b"datasource_readonly", "datasource_type", b"datasource_type", "datasource_typeName", b"datasource_typeName", "datasource_uid", b"datasource_uid", "datasource_url", b"datasource_url"]) -> None: ...
 
 global___GrafanaDatasourceAssetModel = GrafanaDatasourceAssetModel
 
