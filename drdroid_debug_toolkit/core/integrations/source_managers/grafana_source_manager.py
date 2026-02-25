@@ -3186,6 +3186,18 @@ class GrafanaSourceManager(SourceManager):
                 metadata=metadata
             )
 
+    @staticmethod
+    def _normalize_tempo_labels(labels):
+        """Convert Tempo labels from list format to dict.
+        Tempo returns [{"key": "k", "value": {"stringValue": "v"}}] but code expects {"k": "v"}.
+        """
+        if isinstance(labels, list):
+            return {
+                item.get("key", ""): item.get("value", {}).get("stringValue", str(item.get("value", "")))
+                for item in labels
+            }
+        return labels
+
     def execute_tempo_datasource_metrics_query_range(self, time_range: TimeRange, grafana_task: Grafana,
                                                      grafana_connector: ConnectorProto):
         """Executes a TraceQL metrics range query against a Tempo datasource via Grafana proxy."""
@@ -3237,7 +3249,7 @@ class GrafanaSourceManager(SourceManager):
             # Parse Prometheus-style range response into timeseries
             timeseries_list = []
             for series in response.get('series', []):
-                labels = series.get('labels', {})
+                labels = self._normalize_tempo_labels(series.get('labels', {}))
                 label_pairs = [
                     LabelValuePair(name=StringValue(value=str(k)), value=StringValue(value=str(v)))
                     for k, v in labels.items()
@@ -3247,26 +3259,25 @@ class GrafanaSourceManager(SourceManager):
                 datapoints = []
                 samples = series.get('samples', [])
                 for sample in samples:
-                    ts = sample.get('timestampMs', 0)
-                    val = sample.get('value', 0.0)
+                    ts = int(sample.get('timestampMs', 0))
+                    val = float(sample.get('value', 0.0))
                     datapoints.append(
                         TimeseriesResult.LabeledMetricTimeseries.Datapoint(
-                            timestamp=int(ts) // 1000 if ts > 1e12 else int(ts),
-                            value=DoubleValue(value=float(val))
+                            timestamp=ts // 1000 if ts > 1e12 else ts,
+                            value=DoubleValue(value=val)
                         )
                     )
 
                 timeseries_list.append(
                     TimeseriesResult.LabeledMetricTimeseries(
-                        metric_name=StringValue(value=metric_name),
-                        metric_expression=StringValue(value=metrics_query),
-                        label_pairs=label_pairs,
+                        metric_label_values=label_pairs,
                         unit=StringValue(value=""),
                         datapoints=datapoints
                     )
                 )
 
             timeseries_result = TimeseriesResult(
+                metric_name=StringValue(value=metric_name),
                 metric_expression=StringValue(value=metrics_query),
                 labeled_metric_timeseries=timeseries_list
             )
@@ -3340,7 +3351,7 @@ class GrafanaSourceManager(SourceManager):
             # Parse instant query response into table
             table_rows = []
             for series in response.get('series', []):
-                labels = series.get('labels', {})
+                labels = self._normalize_tempo_labels(series.get('labels', {}))
                 samples = series.get('samples', [])
                 value = samples[-1].get('value', 0.0) if samples else 0.0
 
