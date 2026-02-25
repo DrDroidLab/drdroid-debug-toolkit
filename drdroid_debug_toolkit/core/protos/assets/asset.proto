@@ -35,6 +35,7 @@ import "core/protos/assets/victoria_logs_asset.proto";
 import "core/protos/assets/linear_asset.proto";
 import "core/protos/assets/metabase_asset.proto";
 
+
 message ConnectorModelTypeOptions {
   SourceModelType model_type = 1;
   oneof options {
@@ -115,6 +116,8 @@ message ConnectorModelTypeOptions {
     MetabaseDatabaseAssetOptions metabase_database_model_options = 114;
     MetabaseCollectionAssetOptions metabase_collection_model_options = 115;
     MetabaseSubscriptionAssetOptions metabase_subscription_model_options = 116;
+    GrafanaDatasourceAssetOptions grafana_tempo_datasource_model_options = 117;
+    GrafanaTempoServiceAssetOptions grafana_tempo_service_model_options = 118;
   }
 }
 
@@ -207,6 +210,8 @@ message AccountConnectorAssetsModelFilters {
     MetabaseDatabaseAssetOptions metabase_database_model_filters = 194;
     MetabaseCollectionAssetOptions metabase_collection_model_filters = 195;
     MetabaseSubscriptionAssetOptions metabase_subscription_model_filters = 196;
+    GrafanaDatasourceAssetOptions grafana_tempo_datasource_model_filters = 197;
+    GrafanaTempoServiceAssetOptions grafana_tempo_service_model_filters = 198;
   }
 }
 

@@ -506,6 +506,8 @@ model_type_display_name_maps = {
     SourceModelType.SSH_SERVER: "SSH Server",
     SourceModelType.OPEN_SEARCH_INDEX: "Open Search Index",
     SourceModelType.GITHUB_REPOSITORY: "Repository",
+    SourceModelType.GRAFANA_TEMPO_DATASOURCE: "Tempo Data Sources",
+    SourceModelType.GRAFANA_TEMPO_SERVICE: "Tempo Services",
 }
 
 masked_keys_types = [SourceKeyType.DATADOG_APP_KEY,

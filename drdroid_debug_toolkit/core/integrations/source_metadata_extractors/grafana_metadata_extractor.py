@@ -1,4 +1,5 @@
 import re
+import time
 import logging
 
 from core.integrations.source_metadata_extractor import SourceMetadataExtractor
@@ -471,6 +472,161 @@ class GrafanaSourceMetadataExtractor(SourceMetadataExtractor):
     #         except Exception as e:
     #             capture_exception(Exception(f'Error extracting grafana target metric promql: {e}'))
     #     return model_data
+
+    @log_function_call
+    def extract_tempo_data_source(self):
+        model_type = SourceModelType.GRAFANA_TEMPO_DATASOURCE
+        try:
+            all_data_sources = self.__grafana_api_processor.fetch_data_sources()
+            if not all_data_sources:
+                return
+            all_tempo_data_sources = [ds for ds in all_data_sources if ds['type'] == 'tempo']
+        except Exception as e:
+            logger.error(f'Error fetching grafana tempo data sources: {e}')
+            return
+        if not all_tempo_data_sources:
+            return
+        model_data = {}
+        for ds in all_tempo_data_sources:
+            datasource_id = ds['uid']
+            model_data[datasource_id] = ds
+        if len(model_data) > 0:
+            self.create_or_update_model_metadata(model_type, model_data)
+        return model_data
+
+    @log_function_call
+    def extract_tempo_services(self):
+        """Discover services from all Tempo datasources with traces, metrics and dependency graph."""
+        model_type = SourceModelType.GRAFANA_TEMPO_SERVICE
+        tempo_datasources = self.extract_tempo_data_source()
+        if not tempo_datasources:
+            return
+        model_data = {}
+        now = int(time.time())
+        one_hour_ago = now - 3600
+        for ds_uid, ds in tempo_datasources.items():
+            try:
+                services_response = self.__grafana_api_processor.tempo_get_services(ds_uid)
+                service_list = services_response.get('tagValues', services_response) if isinstance(services_response, dict) else services_response
+                if not isinstance(service_list, list):
+                    service_list = []
+
+                # Build node graph edges across all services
+                # edges[caller] = set of callees
+                node_graph_edges = {}
+
+                for svc in service_list:
+                    svc_name = svc.get('value', svc) if isinstance(svc, dict) else svc
+                    model_uid = f"{ds_uid}::{svc_name}"
+                    service_meta = {
+                        'datasource_uid': ds_uid,
+                        'datasource_name': ds.get('name', ''),
+                        'service_name': svc_name,
+                    }
+                    # Search recent traces for this service
+                    try:
+                        search_result = self.__grafana_api_processor.tempo_search_traces(
+                            ds_uid, f'{{resource.service.name="{svc_name}"}}',
+                            start=one_hour_ago, end=now, limit=20, spss=3
+                        )
+                        traces = search_result.get('traces', [])
+                        service_meta['trace_count'] = len(traces)
+                        # Store recent traces summary
+                        recent_traces = []
+                        dep_services = set()
+                        for trace in traces:
+                            trace_summary = {
+                                'traceID': trace.get('traceID', ''),
+                                'rootServiceName': trace.get('rootServiceName', ''),
+                                'rootTraceName': trace.get('rootTraceName', ''),
+                                'durationMs': trace.get('durationMs', 0),
+                                'startTimeUnixNano': trace.get('startTimeUnixNano', ''),
+                            }
+                            recent_traces.append(trace_summary)
+                            root_svc = trace.get('rootServiceName', '')
+                            if root_svc and root_svc != svc_name:
+                                dep_services.add(root_svc)
+                        service_meta['recent_traces'] = recent_traces[:10]
+                        service_meta['dependent_services'] = list(dep_services)
+                        # Fetch a few full traces to build node graph
+                        sampled_trace_ids = [t.get('traceID') for t in traces[:3] if t.get('traceID')]
+                        services_in_traces = set()
+                        for trace_id in sampled_trace_ids:
+                            try:
+                                full_trace = self.__grafana_api_processor.tempo_get_trace(ds_uid, trace_id)
+                                batches = full_trace.get('batches', [])
+                                for batch in batches:
+                                    resource = batch.get('resource', {})
+                                    attrs = resource.get('attributes', [])
+                                    batch_svc = ''
+                                    for attr in attrs:
+                                        if attr.get('key') == 'service.name':
+                                            batch_svc = attr.get('value', {}).get('stringValue', '')
+                                            break
+                                    if batch_svc:
+                                        services_in_traces.add(batch_svc)
+                                        # Build edges: spans with parent from different service
+                                        for scope_spans in batch.get('scopeSpans', []):
+                                            for span in scope_spans.get('spans', []):
+                                                parent_id = span.get('parentSpanId', '')
+                                                if parent_id:
+                                                    # This service was called by someone
+                                                    if batch_svc not in node_graph_edges:
+                                                        node_graph_edges[batch_svc] = {'callers': set(), 'callees': set()}
+                                            for span in scope_spans.get('spans', []):
+                                                if not span.get('parentSpanId'):
+                                                    if batch_svc not in node_graph_edges:
+                                                        node_graph_edges[batch_svc] = {'callers': set(), 'callees': set()}
+                            except Exception as e:
+                                logger.warning(f'Could not fetch full trace {trace_id}: {e}')
+                        service_meta['services_in_traces'] = list(services_in_traces)
+                    except Exception as e:
+                        logger.warning(f'Could not enrich service {svc_name} with trace data: {e}')
+                    # Get p99 latency via metrics API
+                    try:
+                        metrics_result = self.__grafana_api_processor.tempo_metrics_query_instant(
+                            ds_uid,
+                            f'{{resource.service.name="{svc_name}"}} | quantile_over_time(duration, 0.99)',
+                            start=one_hour_ago, end=now
+                        )
+                        series = metrics_result.get('series', [])
+                        if series:
+                            values = series[0].get('values', [])
+                            if values:
+                                service_meta['p99_latency_ns'] = values[-1]
+                    except Exception as e:
+                        logger.warning(f'Could not fetch p99 latency for {svc_name}: {e}')
+                    # Get error count via metrics API
+                    try:
+                        error_result = self.__grafana_api_processor.tempo_metrics_query_instant(
+                            ds_uid,
+                            f'{{resource.service.name="{svc_name}" && status=error}} | count_over_time()',
+                            start=one_hour_ago, end=now
+                        )
+                        error_series = error_result.get('series', [])
+                        if error_series:
+                            error_values = error_series[0].get('values', [])
+                            if error_values:
+                                service_meta['error_count'] = error_values[-1]
+                    except Exception as e:
+                        logger.warning(f'Could not fetch error count for {svc_name}: {e}')
+                    model_data[model_uid] = service_meta
+
+                # Build node graph from full trace data and attach to each service
+                # Derive caller/callee from services_in_traces across all services
+                all_service_names = [s.get('value', s) if isinstance(s, dict) else s for s in service_list]
+                for model_uid, meta in model_data.items():
+                    svc_name = meta['service_name']
+                    co_occurring = meta.get('services_in_traces', [])
+                    meta['node_graph'] = {
+                        'service': svc_name,
+                        'connected_services': [s for s in co_occurring if s != svc_name],
+                    }
+            except Exception as e:
+                logger.error(f'Error fetching tempo services for {ds_uid}: {e}')
+        if model_data:
+            self.create_or_update_model_metadata(model_type, model_data)
+        return model_data
 
     @log_function_call
     def extract_alert_rules(self):
