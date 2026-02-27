@@ -11,6 +11,9 @@ class DBConnectionStringProcessor(Processor):
     client = None
 
     def __init__(self, connection_string: str):
+        # Rewrite mysql:// to mysql+pymysql:// so SQLAlchemy uses PyMySQL instead of mysqlclient
+        if connection_string.startswith("mysql://"):
+            connection_string = "mysql+pymysql://" + connection_string[len("mysql://"):]
         self.connection_string = connection_string
 
     def get_connection(self):
