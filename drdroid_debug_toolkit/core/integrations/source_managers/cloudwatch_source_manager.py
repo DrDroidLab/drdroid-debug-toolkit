@@ -467,6 +467,14 @@ class CloudwatchSourceManager(SourceManager):
                                   '"arn:aws:iam::123456789012:role/drd-cloudwatch-reader". '
                                   "The role name should start with 'drd-'."
                         ),
+                        helper_text=StringValue(
+                            value=(
+                                "In DrDroid, open Integrations → CloudWatch → AssumeRole and click "
+                                "\"Show AWS details\" to get the Doctor Droid AWS Account ID and Role ARN. "
+                                "Create an IAM role in your AWS account that trusts that role ARN, "
+                                "name it starting with 'drd-', and paste its ARN here."
+                            )
+                        ),
                         data_type=LiteralType.STRING,
                         form_field_type=FormFieldType.TEXT_FT,
                         is_optional=False

@@ -110,8 +110,12 @@ class EksSourceManager(SourceManager):
                         display_name=StringValue(value="AWS Assumed Role ARN"),
                         description=StringValue(value='e.g. "arn:aws:iam::123456789012:role/drd-eks-reader"'),
                         helper_text=StringValue(
-                            value="Enter the ARN of the IAM role to be assumed for cross-account access. "
-                                  "The role name should start with 'drd-'."
+                            value=(
+                                "In DrDroid, open Integrations → AWS EKS → AssumeRole and click "
+                                "\"Show AWS details\" to get the Doctor Droid AWS Account ID and Role ARN. "
+                                "Create an IAM role in your AWS account that trusts that role ARN, "
+                                "name it starting with 'drd-', and paste its ARN here."
+                            )
                         ),
                         data_type=LiteralType.STRING,
                         form_field_type=FormFieldType.TEXT_FT,
