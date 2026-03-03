@@ -13,11 +13,31 @@ from core.settings import EXTERNAL_CALL_TIMEOUT
 
 logger = logging.getLogger(__name__)
 
+# Doctor Droid cloud role ARN used when assuming customer roles.
+# This is configured centrally and not provided by end users.
+AWS_DRD_CLOUD_ROLE_ARN = getattr(
+    settings,
+    "AWS_DRD_CLOUD_ROLE_ARN",
+    "arn:aws:iam::277357190350:role/drd-cloud-integration-role",
+)
 
-def generate_aws_access_secret_session_key(aws_assumed_role_arn, aws_drd_cloud_role_arn):
+
+def generate_aws_access_secret_session_key(aws_assumed_role_arn, aws_drd_cloud_role_arn=None):
+    """
+    Generate temporary credentials for a customer role by first assuming the
+    Doctor Droid cloud role, then the customer-provided role.
+    The Doctor Droid cloud role ARN is taken from settings / constant and is
+    not expected from end users.
+    """
     aws_access_key_id = getattr(settings, 'AWS_ACCESS_KEY_ID', None)
     aws_secret_access_key = getattr(settings, 'AWS_SECRET_ACCESS_KEY', None)
     aws_region = getattr(settings, 'AWS_REGION', None)
+
+    # Prefer configured cloud role ARN; fall back to the passed value for compatibility.
+    aws_drd_cloud_role_arn = AWS_DRD_CLOUD_ROLE_ARN or aws_drd_cloud_role_arn
+    if not aws_drd_cloud_role_arn:
+        raise Exception("AWS_DRD_CLOUD_ROLE_ARN is not configured")
+
     default_session = boto3.setup_default_session(aws_access_key_id=aws_access_key_id,
                                                   aws_secret_access_key=aws_secret_access_key,
                                                   region_name=aws_region)

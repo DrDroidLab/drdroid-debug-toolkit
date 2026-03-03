@@ -97,26 +97,24 @@ class EksSourceManager(SourceManager):
             },
             {
                 "name": StringValue(value="AWS Assumed Role ARN Authentication"),
-                "description": StringValue(value="Connect to AWS EKS by assuming an IAM Role, specifying the DrDroid Cloud Role ARN, EKS Role ARN and Region."),
+                "description": StringValue(
+                    value=(
+                        "Connect to AWS EKS by assuming an IAM Role. "
+                        "Name the role starting with 'drd-' (for example 'drd-eks-reader') "
+                        "so Doctor Droid can assume it using a shared policy."
+                    )
+                ),
                 "form_fields": {
                     SourceKeyType.AWS_ASSUMED_ROLE_ARN: FormField(
                         key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.AWS_ASSUMED_ROLE_ARN)),
                         display_name=StringValue(value="AWS Assumed Role ARN"),
-                        description=StringValue(value='e.g. "arn:aws:iam::123456789012:role/cross-account-role"'),
-                        helper_text=StringValue(value="Enter the ARN of the IAM role to be assumed for cross-account access"),
+                        description=StringValue(value='e.g. "arn:aws:iam::123456789012:role/drd-eks-reader"'),
+                        helper_text=StringValue(
+                            value="Ensure the IAM role name starts with 'drd-' so Doctor Droid can assume it."
+                        ),
                         data_type=LiteralType.STRING,
                         form_field_type=FormFieldType.TEXT_FT,
                         is_optional=False,
-                        is_sensitive=True
-                    ),
-                    SourceKeyType.AWS_DRD_CLOUD_ROLE_ARN: FormField(
-                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.AWS_DRD_CLOUD_ROLE_ARN)),
-                        display_name=StringValue(value="AWS DrDroid Cloud Role ARN"),
-                        description=StringValue(value='e.g. "arn:aws:iam::987654321098:role/drdroid-cloud-role"'),
-                        helper_text=StringValue(value="Enter the DrDroid Cloud Role ARN for cross-account access (optional)"),
-                        data_type=LiteralType.STRING,
-                        form_field_type=FormFieldType.TEXT_FT,
-                        is_optional=True,
                         is_sensitive=True
                     ),
                     SourceKeyType.AWS_REGION: FormField(
