@@ -27,6 +27,7 @@ from core.integrations.source_metadata_extractors.victoria_logs_metadata_extract
 from core.integrations.source_metadata_extractors.sentry_metadata_extractor import SentrySourceMetadataExtractor
 from core.integrations.source_metadata_extractors.coralogix_metadata_extractor import CoralogixSourceMetadataExtractor
 
+
 class SourceMetadataExtractorFacade:
 
     def __init__(self):

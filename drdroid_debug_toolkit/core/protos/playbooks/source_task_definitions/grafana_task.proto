@@ -60,6 +60,44 @@ message Grafana {
   message FetchAlertRulesTask {
   }
 
+  message TempoDatasourceTraceSearchTask {
+    google.protobuf.StringValue datasource_uid = 1;
+    google.protobuf.StringValue traceql_query = 2;
+    google.protobuf.UInt64Value limit = 3;
+    google.protobuf.UInt64Value spss = 4;
+  }
+
+  message TempoDatasourceGetTraceTask {
+    google.protobuf.StringValue datasource_uid = 1;
+    google.protobuf.StringValue trace_id = 2;
+  }
+
+  message TempoDatasourceMetricsQueryRangeTask {
+    google.protobuf.StringValue datasource_uid = 1;
+    google.protobuf.StringValue traceql_metrics_query = 2;
+    google.protobuf.UInt64Value step = 3;
+  }
+
+  message TempoDatasourceMetricsQueryInstantTask {
+    google.protobuf.StringValue datasource_uid = 1;
+    google.protobuf.StringValue traceql_metrics_query = 2;
+  }
+
+  message TempoDatasourceGetServicesTask {
+    google.protobuf.StringValue datasource_uid = 1;
+  }
+
+  message TempoDatasourceGetTagsTask {
+    google.protobuf.StringValue datasource_uid = 1;
+    google.protobuf.StringValue scope = 2;
+  }
+
+  message TempoDatasourceGetTagValuesTask {
+    google.protobuf.StringValue datasource_uid = 1;
+    google.protobuf.StringValue tag_name = 2;
+    google.protobuf.StringValue traceql_filter = 3;
+  }
+
   enum TaskType {
     UNKNOWN = 0;
     PROMQL_METRIC_EXECUTION = 1;
@@ -70,6 +108,13 @@ message Grafana {
     FETCH_DASHBOARD_VARIABLES = 6;
     LOKI_DATASOURCE_LOG_QUERY = 7;
     FETCH_ALERT_RULES = 8;
+    TEMPO_DATASOURCE_TRACE_SEARCH = 9;
+    TEMPO_DATASOURCE_GET_TRACE = 10;
+    TEMPO_DATASOURCE_METRICS_QUERY_RANGE = 11;
+    TEMPO_DATASOURCE_METRICS_QUERY_INSTANT = 12;
+    TEMPO_DATASOURCE_GET_SERVICES = 13;
+    TEMPO_DATASOURCE_GET_TAGS = 14;
+    TEMPO_DATASOURCE_GET_TAG_VALUES = 15;
   }
 
   TaskType type = 1;
@@ -82,5 +127,12 @@ message Grafana {
     FetchDashboardVariablesTask fetch_dashboard_variables = 8;
     LokiDatasourceLogQueryTask loki_datasource_log_query = 9;
     FetchAlertRulesTask fetch_alert_rules = 10;
+    TempoDatasourceTraceSearchTask tempo_datasource_trace_search = 11;
+    TempoDatasourceGetTraceTask tempo_datasource_get_trace = 12;
+    TempoDatasourceMetricsQueryRangeTask tempo_datasource_metrics_query_range = 13;
+    TempoDatasourceMetricsQueryInstantTask tempo_datasource_metrics_query_instant = 14;
+    TempoDatasourceGetServicesTask tempo_datasource_get_services = 15;
+    TempoDatasourceGetTagsTask tempo_datasource_get_tags = 16;
+    TempoDatasourceGetTagValuesTask tempo_datasource_get_tag_values = 17;
   }
 }

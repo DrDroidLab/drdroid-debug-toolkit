@@ -843,6 +843,104 @@ class GrafanaApiProcessor(Processor):
             logger.error(f"Exception during generic query execution for '{query}': {e}")
             return []
 
+    def tempo_search_traces(self, tempo_datasource_uid, query, start=None, end=None, limit=20, spss=3):
+        """Search traces via Grafana Tempo datasource proxy."""
+        try:
+            url = f'{self.__host}/api/datasources/proxy/uid/{tempo_datasource_uid}/api/search'
+            params = {'q': query, 'limit': limit, 'spss': spss}
+            if start:
+                params['start'] = start
+            if end:
+                params['end'] = end
+            response = requests.get(url, headers=self.headers, params=params, verify=self.__ssl_verify, timeout=30)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            logger.error(f"Exception occurred while searching Tempo traces: {e}")
+            raise e
+
+    def tempo_get_trace(self, tempo_datasource_uid, trace_id):
+        """Get trace by ID via Grafana Tempo datasource proxy."""
+        try:
+            url = f'{self.__host}/api/datasources/proxy/uid/{tempo_datasource_uid}/api/traces/{trace_id}'
+            response = requests.get(url, headers=self.headers, verify=self.__ssl_verify, timeout=30)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            logger.error(f"Exception occurred while fetching Tempo trace {trace_id}: {e}")
+            raise e
+
+    def tempo_metrics_query_range(self, tempo_datasource_uid, query, start, end, step=60):
+        """Execute a TraceQL metrics query range via Grafana Tempo datasource proxy."""
+        try:
+            url = f'{self.__host}/api/datasources/proxy/uid/{tempo_datasource_uid}/api/metrics/query_range'
+            params = {'q': query, 'start': start, 'end': end, 'step': step}
+            response = requests.get(url, headers=self.headers, params=params, verify=self.__ssl_verify, timeout=30)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            logger.error(f"Exception occurred while executing Tempo metrics query range: {e}")
+            raise e
+
+    def tempo_metrics_query_instant(self, tempo_datasource_uid, query, start, end):
+        """Execute a TraceQL metrics instant query via Grafana Tempo datasource proxy."""
+        try:
+            url = f'{self.__host}/api/datasources/proxy/uid/{tempo_datasource_uid}/api/metrics/query'
+            params = {'q': query, 'start': start, 'end': end}
+            response = requests.get(url, headers=self.headers, params=params, verify=self.__ssl_verify, timeout=30)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            logger.error(f"Exception occurred while executing Tempo metrics instant query: {e}")
+            raise e
+
+    def tempo_get_services(self, tempo_datasource_uid):
+        """Get service names from Tempo via datasource proxy."""
+        try:
+            url = f'{self.__host}/api/datasources/proxy/uid/{tempo_datasource_uid}/api/search/tag/service.name/values'
+            response = requests.get(url, headers=self.headers, verify=self.__ssl_verify, timeout=30)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            logger.error(f"Exception occurred while fetching Tempo services: {e}")
+            raise e
+
+    def tempo_get_tags(self, tempo_datasource_uid, scope=None):
+        """Get available tags from Tempo via datasource proxy."""
+        try:
+            url = f'{self.__host}/api/datasources/proxy/uid/{tempo_datasource_uid}/api/v2/search/tags'
+            params = {}
+            if scope:
+                params['scope'] = scope
+            response = requests.get(url, headers=self.headers, params=params, verify=self.__ssl_verify, timeout=30)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            logger.error(f"Exception occurred while fetching Tempo tags: {e}")
+            raise e
+
+    def tempo_get_tag_values(self, tempo_datasource_uid, tag_name, traceql_filter=None):
+        """Get values for a specific tag from Tempo via datasource proxy.
+        Tempo v2 API requires scope-prefixed tag names (e.g. resource.service.name).
+        If no scope prefix is present, a leading '.' is prepended to search all scopes.
+        """
+        try:
+            # Tempo v2 requires scoped tag names; auto-prefix with '.' for cross-scope lookup
+            scoped_tag = tag_name
+            known_scopes = ('resource.', 'span.', 'intrinsic.', 'event.')
+            if not tag_name.startswith('.') and not any(tag_name.startswith(s) for s in known_scopes):
+                scoped_tag = f'.{tag_name}'
+            url = f'{self.__host}/api/datasources/proxy/uid/{tempo_datasource_uid}/api/v2/search/tag/{scoped_tag}/values'
+            params = {}
+            if traceql_filter:
+                params['q'] = traceql_filter
+            response = requests.get(url, headers=self.headers, params=params, verify=self.__ssl_verify, timeout=30)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            logger.error(f"Exception occurred while fetching Tempo tag values for {tag_name}: {e}")
+            raise e
+
     def panel_query_datasource_api(self, tr: TimeRange, queries, interval_ms=300000):
         try:
             if not queries or len(queries) == 0:

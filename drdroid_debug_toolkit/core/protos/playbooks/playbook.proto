@@ -48,6 +48,7 @@ import "core/protos/playbooks/source_task_definitions/render_task.proto";
 import "core/protos/playbooks/source_task_definitions/mcp_task.proto";
 import "core/protos/playbooks/source_task_definitions/metabase_task.proto";
 
+
 message Variable {
   google.protobuf.StringValue name = 1;
   google.protobuf.StringValue description = 2;

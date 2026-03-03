@@ -39,6 +39,13 @@ class Grafana(google.protobuf.message.Message):
         FETCH_DASHBOARD_VARIABLES: Grafana._TaskType.ValueType  # 6
         LOKI_DATASOURCE_LOG_QUERY: Grafana._TaskType.ValueType  # 7
         FETCH_ALERT_RULES: Grafana._TaskType.ValueType  # 8
+        TEMPO_DATASOURCE_TRACE_SEARCH: Grafana._TaskType.ValueType  # 9
+        TEMPO_DATASOURCE_GET_TRACE: Grafana._TaskType.ValueType  # 10
+        TEMPO_DATASOURCE_METRICS_QUERY_RANGE: Grafana._TaskType.ValueType  # 11
+        TEMPO_DATASOURCE_METRICS_QUERY_INSTANT: Grafana._TaskType.ValueType  # 12
+        TEMPO_DATASOURCE_GET_SERVICES: Grafana._TaskType.ValueType  # 13
+        TEMPO_DATASOURCE_GET_TAGS: Grafana._TaskType.ValueType  # 14
+        TEMPO_DATASOURCE_GET_TAG_VALUES: Grafana._TaskType.ValueType  # 15
 
     class TaskType(_TaskType, metaclass=_TaskTypeEnumTypeWrapper): ...
     UNKNOWN: Grafana.TaskType.ValueType  # 0
@@ -50,6 +57,13 @@ class Grafana(google.protobuf.message.Message):
     FETCH_DASHBOARD_VARIABLES: Grafana.TaskType.ValueType  # 6
     LOKI_DATASOURCE_LOG_QUERY: Grafana.TaskType.ValueType  # 7
     FETCH_ALERT_RULES: Grafana.TaskType.ValueType  # 8
+    TEMPO_DATASOURCE_TRACE_SEARCH: Grafana.TaskType.ValueType  # 9
+    TEMPO_DATASOURCE_GET_TRACE: Grafana.TaskType.ValueType  # 10
+    TEMPO_DATASOURCE_METRICS_QUERY_RANGE: Grafana.TaskType.ValueType  # 11
+    TEMPO_DATASOURCE_METRICS_QUERY_INSTANT: Grafana.TaskType.ValueType  # 12
+    TEMPO_DATASOURCE_GET_SERVICES: Grafana.TaskType.ValueType  # 13
+    TEMPO_DATASOURCE_GET_TAGS: Grafana.TaskType.ValueType  # 14
+    TEMPO_DATASOURCE_GET_TAG_VALUES: Grafana.TaskType.ValueType  # 15
 
     @typing_extensions.final
     class PromQlMetricExecution(google.protobuf.message.Message):
@@ -263,6 +277,151 @@ class Grafana(google.protobuf.message.Message):
             self,
         ) -> None: ...
 
+    @typing_extensions.final
+    class TempoDatasourceTraceSearchTask(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        DATASOURCE_UID_FIELD_NUMBER: builtins.int
+        TRACEQL_QUERY_FIELD_NUMBER: builtins.int
+        LIMIT_FIELD_NUMBER: builtins.int
+        SPSS_FIELD_NUMBER: builtins.int
+        @property
+        def datasource_uid(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def traceql_query(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def limit(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+        @property
+        def spss(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+        def __init__(
+            self,
+            *,
+            datasource_uid: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            traceql_query: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            limit: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+            spss: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["datasource_uid", b"datasource_uid", "limit", b"limit", "spss", b"spss", "traceql_query", b"traceql_query"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["datasource_uid", b"datasource_uid", "limit", b"limit", "spss", b"spss", "traceql_query", b"traceql_query"]) -> None: ...
+
+    @typing_extensions.final
+    class TempoDatasourceGetTraceTask(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        DATASOURCE_UID_FIELD_NUMBER: builtins.int
+        TRACE_ID_FIELD_NUMBER: builtins.int
+        @property
+        def datasource_uid(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def trace_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        def __init__(
+            self,
+            *,
+            datasource_uid: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            trace_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["datasource_uid", b"datasource_uid", "trace_id", b"trace_id"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["datasource_uid", b"datasource_uid", "trace_id", b"trace_id"]) -> None: ...
+
+    @typing_extensions.final
+    class TempoDatasourceMetricsQueryRangeTask(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        DATASOURCE_UID_FIELD_NUMBER: builtins.int
+        TRACEQL_METRICS_QUERY_FIELD_NUMBER: builtins.int
+        STEP_FIELD_NUMBER: builtins.int
+        @property
+        def datasource_uid(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def traceql_metrics_query(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def step(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+        def __init__(
+            self,
+            *,
+            datasource_uid: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            traceql_metrics_query: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            step: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["datasource_uid", b"datasource_uid", "step", b"step", "traceql_metrics_query", b"traceql_metrics_query"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["datasource_uid", b"datasource_uid", "step", b"step", "traceql_metrics_query", b"traceql_metrics_query"]) -> None: ...
+
+    @typing_extensions.final
+    class TempoDatasourceMetricsQueryInstantTask(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        DATASOURCE_UID_FIELD_NUMBER: builtins.int
+        TRACEQL_METRICS_QUERY_FIELD_NUMBER: builtins.int
+        @property
+        def datasource_uid(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def traceql_metrics_query(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        def __init__(
+            self,
+            *,
+            datasource_uid: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            traceql_metrics_query: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["datasource_uid", b"datasource_uid", "traceql_metrics_query", b"traceql_metrics_query"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["datasource_uid", b"datasource_uid", "traceql_metrics_query", b"traceql_metrics_query"]) -> None: ...
+
+    @typing_extensions.final
+    class TempoDatasourceGetServicesTask(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        DATASOURCE_UID_FIELD_NUMBER: builtins.int
+        @property
+        def datasource_uid(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        def __init__(
+            self,
+            *,
+            datasource_uid: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["datasource_uid", b"datasource_uid"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["datasource_uid", b"datasource_uid"]) -> None: ...
+
+    @typing_extensions.final
+    class TempoDatasourceGetTagsTask(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        DATASOURCE_UID_FIELD_NUMBER: builtins.int
+        SCOPE_FIELD_NUMBER: builtins.int
+        @property
+        def datasource_uid(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def scope(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        def __init__(
+            self,
+            *,
+            datasource_uid: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            scope: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["datasource_uid", b"datasource_uid", "scope", b"scope"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["datasource_uid", b"datasource_uid", "scope", b"scope"]) -> None: ...
+
+    @typing_extensions.final
+    class TempoDatasourceGetTagValuesTask(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        DATASOURCE_UID_FIELD_NUMBER: builtins.int
+        TAG_NAME_FIELD_NUMBER: builtins.int
+        TRACEQL_FILTER_FIELD_NUMBER: builtins.int
+        @property
+        def datasource_uid(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def tag_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def traceql_filter(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        def __init__(
+            self,
+            *,
+            datasource_uid: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            tag_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            traceql_filter: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["datasource_uid", b"datasource_uid", "tag_name", b"tag_name", "traceql_filter", b"traceql_filter"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["datasource_uid", b"datasource_uid", "tag_name", b"tag_name", "traceql_filter", b"traceql_filter"]) -> None: ...
+
     TYPE_FIELD_NUMBER: builtins.int
     PROMQL_METRIC_EXECUTION_FIELD_NUMBER: builtins.int
     PROMETHEUS_DATASOURCE_METRIC_EXECUTION_FIELD_NUMBER: builtins.int
@@ -272,6 +431,13 @@ class Grafana(google.protobuf.message.Message):
     FETCH_DASHBOARD_VARIABLES_FIELD_NUMBER: builtins.int
     LOKI_DATASOURCE_LOG_QUERY_FIELD_NUMBER: builtins.int
     FETCH_ALERT_RULES_FIELD_NUMBER: builtins.int
+    TEMPO_DATASOURCE_TRACE_SEARCH_FIELD_NUMBER: builtins.int
+    TEMPO_DATASOURCE_GET_TRACE_FIELD_NUMBER: builtins.int
+    TEMPO_DATASOURCE_METRICS_QUERY_RANGE_FIELD_NUMBER: builtins.int
+    TEMPO_DATASOURCE_METRICS_QUERY_INSTANT_FIELD_NUMBER: builtins.int
+    TEMPO_DATASOURCE_GET_SERVICES_FIELD_NUMBER: builtins.int
+    TEMPO_DATASOURCE_GET_TAGS_FIELD_NUMBER: builtins.int
+    TEMPO_DATASOURCE_GET_TAG_VALUES_FIELD_NUMBER: builtins.int
     type: global___Grafana.TaskType.ValueType
     @property
     def promql_metric_execution(self) -> global___Grafana.PromQlMetricExecution: ...
@@ -289,6 +455,20 @@ class Grafana(google.protobuf.message.Message):
     def loki_datasource_log_query(self) -> global___Grafana.LokiDatasourceLogQueryTask: ...
     @property
     def fetch_alert_rules(self) -> global___Grafana.FetchAlertRulesTask: ...
+    @property
+    def tempo_datasource_trace_search(self) -> global___Grafana.TempoDatasourceTraceSearchTask: ...
+    @property
+    def tempo_datasource_get_trace(self) -> global___Grafana.TempoDatasourceGetTraceTask: ...
+    @property
+    def tempo_datasource_metrics_query_range(self) -> global___Grafana.TempoDatasourceMetricsQueryRangeTask: ...
+    @property
+    def tempo_datasource_metrics_query_instant(self) -> global___Grafana.TempoDatasourceMetricsQueryInstantTask: ...
+    @property
+    def tempo_datasource_get_services(self) -> global___Grafana.TempoDatasourceGetServicesTask: ...
+    @property
+    def tempo_datasource_get_tags(self) -> global___Grafana.TempoDatasourceGetTagsTask: ...
+    @property
+    def tempo_datasource_get_tag_values(self) -> global___Grafana.TempoDatasourceGetTagValuesTask: ...
     def __init__(
         self,
         *,
@@ -301,9 +481,16 @@ class Grafana(google.protobuf.message.Message):
         fetch_dashboard_variables: global___Grafana.FetchDashboardVariablesTask | None = ...,
         loki_datasource_log_query: global___Grafana.LokiDatasourceLogQueryTask | None = ...,
         fetch_alert_rules: global___Grafana.FetchAlertRulesTask | None = ...,
+        tempo_datasource_trace_search: global___Grafana.TempoDatasourceTraceSearchTask | None = ...,
+        tempo_datasource_get_trace: global___Grafana.TempoDatasourceGetTraceTask | None = ...,
+        tempo_datasource_metrics_query_range: global___Grafana.TempoDatasourceMetricsQueryRangeTask | None = ...,
+        tempo_datasource_metrics_query_instant: global___Grafana.TempoDatasourceMetricsQueryInstantTask | None = ...,
+        tempo_datasource_get_services: global___Grafana.TempoDatasourceGetServicesTask | None = ...,
+        tempo_datasource_get_tags: global___Grafana.TempoDatasourceGetTagsTask | None = ...,
+        tempo_datasource_get_tag_values: global___Grafana.TempoDatasourceGetTagValuesTask | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["execute_all_dashboard_panels", b"execute_all_dashboard_panels", "fetch_alert_rules", b"fetch_alert_rules", "fetch_dashboard_variable_label_values", b"fetch_dashboard_variable_label_values", "fetch_dashboard_variables", b"fetch_dashboard_variables", "loki_datasource_log_query", b"loki_datasource_log_query", "prometheus_datasource_metric_execution", b"prometheus_datasource_metric_execution", "promql_metric_execution", b"promql_metric_execution", "query_dashboard_panel_metric", b"query_dashboard_panel_metric", "task", b"task"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["execute_all_dashboard_panels", b"execute_all_dashboard_panels", "fetch_alert_rules", b"fetch_alert_rules", "fetch_dashboard_variable_label_values", b"fetch_dashboard_variable_label_values", "fetch_dashboard_variables", b"fetch_dashboard_variables", "loki_datasource_log_query", b"loki_datasource_log_query", "prometheus_datasource_metric_execution", b"prometheus_datasource_metric_execution", "promql_metric_execution", b"promql_metric_execution", "query_dashboard_panel_metric", b"query_dashboard_panel_metric", "task", b"task", "type", b"type"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing_extensions.Literal["task", b"task"]) -> typing_extensions.Literal["promql_metric_execution", "prometheus_datasource_metric_execution", "query_dashboard_panel_metric", "execute_all_dashboard_panels", "fetch_dashboard_variable_label_values", "fetch_dashboard_variables", "loki_datasource_log_query", "fetch_alert_rules"] | None: ...
+    def HasField(self, field_name: typing_extensions.Literal["execute_all_dashboard_panels", b"execute_all_dashboard_panels", "fetch_alert_rules", b"fetch_alert_rules", "fetch_dashboard_variable_label_values", b"fetch_dashboard_variable_label_values", "fetch_dashboard_variables", b"fetch_dashboard_variables", "loki_datasource_log_query", b"loki_datasource_log_query", "prometheus_datasource_metric_execution", b"prometheus_datasource_metric_execution", "promql_metric_execution", b"promql_metric_execution", "query_dashboard_panel_metric", b"query_dashboard_panel_metric", "task", b"task", "tempo_datasource_get_services", b"tempo_datasource_get_services", "tempo_datasource_get_tag_values", b"tempo_datasource_get_tag_values", "tempo_datasource_get_tags", b"tempo_datasource_get_tags", "tempo_datasource_get_trace", b"tempo_datasource_get_trace", "tempo_datasource_metrics_query_instant", b"tempo_datasource_metrics_query_instant", "tempo_datasource_metrics_query_range", b"tempo_datasource_metrics_query_range", "tempo_datasource_trace_search", b"tempo_datasource_trace_search"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["execute_all_dashboard_panels", b"execute_all_dashboard_panels", "fetch_alert_rules", b"fetch_alert_rules", "fetch_dashboard_variable_label_values", b"fetch_dashboard_variable_label_values", "fetch_dashboard_variables", b"fetch_dashboard_variables", "loki_datasource_log_query", b"loki_datasource_log_query", "prometheus_datasource_metric_execution", b"prometheus_datasource_metric_execution", "promql_metric_execution", b"promql_metric_execution", "query_dashboard_panel_metric", b"query_dashboard_panel_metric", "task", b"task", "tempo_datasource_get_services", b"tempo_datasource_get_services", "tempo_datasource_get_tag_values", b"tempo_datasource_get_tag_values", "tempo_datasource_get_tags", b"tempo_datasource_get_tags", "tempo_datasource_get_trace", b"tempo_datasource_get_trace", "tempo_datasource_metrics_query_instant", b"tempo_datasource_metrics_query_instant", "tempo_datasource_metrics_query_range", b"tempo_datasource_metrics_query_range", "tempo_datasource_trace_search", b"tempo_datasource_trace_search", "type", b"type"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing_extensions.Literal["task", b"task"]) -> typing_extensions.Literal["promql_metric_execution", "prometheus_datasource_metric_execution", "query_dashboard_panel_metric", "execute_all_dashboard_panels", "fetch_dashboard_variable_label_values", "fetch_dashboard_variables", "loki_datasource_log_query", "fetch_alert_rules", "tempo_datasource_trace_search", "tempo_datasource_get_trace", "tempo_datasource_metrics_query_range", "tempo_datasource_metrics_query_instant", "tempo_datasource_get_services", "tempo_datasource_get_tags", "tempo_datasource_get_tag_values"] | None: ...
 
 global___Grafana = Grafana

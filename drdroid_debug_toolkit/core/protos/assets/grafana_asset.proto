@@ -47,6 +47,7 @@ message GrafanaDatasourceAssetModel {
   google.protobuf.StringValue datasource_typeName = 11;
   google.protobuf.BoolValue datasource_basicAuth = 12;
   google.protobuf.BoolValue datasource_isDefault = 13;
+  repeated string available_labels = 14;
 }
 
 message GrafanaDashboardAssetModel {
@@ -76,6 +77,7 @@ message GrafanaDatasourceAssetOptions {
   }
   repeated GrafanaDatasourceOptions prometheus_datasources = 1;
   repeated GrafanaDatasourceOptions loki_datasources = 2;
+  repeated GrafanaDatasourceOptions tempo_datasources = 3;
 }
 
 message GrafanaDashboardAssetOptions {
@@ -99,6 +101,20 @@ message GrafanaAlertRuleAssetOptions {
   repeated GrafanaAlertRuleOptions alert_rules = 1;
 }
 
+message GrafanaTempoServiceAssetModel {
+  google.protobuf.StringValue datasource_uid = 1;
+  google.protobuf.StringValue datasource_name = 2;
+  google.protobuf.StringValue service_name = 3;
+}
+
+message GrafanaTempoServiceAssetOptions {
+  message GrafanaTempoServiceOption {
+    google.protobuf.StringValue datasource_uid = 1;
+    google.protobuf.StringValue service_name = 2;
+  }
+  repeated GrafanaTempoServiceOption services = 1;
+}
+
 message GrafanaAssetModel {
   google.protobuf.UInt64Value id = 1;
   Source connector_type = 2;
@@ -110,6 +126,8 @@ message GrafanaAssetModel {
     GrafanaDatasourceAssetModel grafana_loki_datasource = 7;
     GrafanaAlertRuleAssetModel grafana_alert_rule = 8;
     GrafanaDashboardAssetModel grafana_dashboard = 9;
+    GrafanaDatasourceAssetModel grafana_tempo_datasource = 10;
+    GrafanaTempoServiceAssetModel grafana_tempo_service = 11;
   }
 }
 
