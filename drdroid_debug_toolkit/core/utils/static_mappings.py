@@ -76,6 +76,12 @@ integrations_connector_type_connector_keys_map = {
         [
             SourceKeyType.AWS_ASSUMED_ROLE_ARN,
             SourceKeyType.AWS_REGION,
+            # External ID is optional; when present it will be stored and used when assuming the role.
+            # It is not required for validating the form config.
+            # SourceManager.get_connector_required_keys only includes non-optional fields.
+            # We still list it here so UI helpers can surface it if needed.
+            # Note: keep AWS_EXTERNAL_ID last to preserve backwards compatibility.
+            SourceKeyType.AWS_EXTERNAL_ID,
         ]
     ],
     Source.CLICKHOUSE: [
@@ -107,6 +113,7 @@ integrations_connector_type_connector_keys_map = {
             SourceKeyType.AWS_REGION,
             SourceKeyType.AWS_ASSUMED_ROLE_ARN,
             SourceKeyType.EKS_ROLE_ARN,
+            SourceKeyType.AWS_EXTERNAL_ID,
         ]
     ],
     Source.SQL_DATABASE_CONNECTION: [

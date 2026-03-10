@@ -200,6 +200,8 @@ enum SourceKeyType {
   AWS_ASSUMED_ROLE_ARN = 23;
   EKS_ROLE_ARN = 40;
   AWS_DRD_CLOUD_ROLE_ARN = 93;
+  // Optional external ID to use when assuming customer IAM roles
+  AWS_EXTERNAL_ID = 165;
 
   GOOGLE_CHAT_BOT_OAUTH_TOKEN = 16;
   GOOGLE_CHAT_BOT_SPACES = 17;
