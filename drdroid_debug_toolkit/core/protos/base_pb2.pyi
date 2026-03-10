@@ -334,6 +334,8 @@ class _SourceKeyTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     AWS_ASSUMED_ROLE_ARN: _SourceKeyType.ValueType  # 23
     EKS_ROLE_ARN: _SourceKeyType.ValueType  # 40
     AWS_DRD_CLOUD_ROLE_ARN: _SourceKeyType.ValueType  # 93
+    AWS_EXTERNAL_ID: _SourceKeyType.ValueType  # 165
+    """Optional external ID to use when assuming customer IAM roles"""
     GOOGLE_CHAT_BOT_OAUTH_TOKEN: _SourceKeyType.ValueType  # 16
     GOOGLE_CHAT_BOT_SPACES: _SourceKeyType.ValueType  # 17
     GRAFANA_HOST: _SourceKeyType.ValueType  # 21
@@ -492,6 +494,8 @@ AWS_REGION: SourceKeyType.ValueType  # 20
 AWS_ASSUMED_ROLE_ARN: SourceKeyType.ValueType  # 23
 EKS_ROLE_ARN: SourceKeyType.ValueType  # 40
 AWS_DRD_CLOUD_ROLE_ARN: SourceKeyType.ValueType  # 93
+AWS_EXTERNAL_ID: SourceKeyType.ValueType  # 165
+"""Optional external ID to use when assuming customer IAM roles"""
 GOOGLE_CHAT_BOT_OAUTH_TOKEN: SourceKeyType.ValueType  # 16
 GOOGLE_CHAT_BOT_SPACES: SourceKeyType.ValueType  # 17
 GRAFANA_HOST: SourceKeyType.ValueType  # 21
