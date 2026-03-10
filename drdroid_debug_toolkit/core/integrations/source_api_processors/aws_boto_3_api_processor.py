@@ -67,6 +67,11 @@ def generate_aws_access_secret_session_key(aws_assumed_role_arn, aws_drd_cloud_r
     }
     if external_id:
         assume_args["ExternalId"] = external_id
+    else:
+        logger.debug(
+            "No ExternalId provided for assume_role(%s). If the role trust policy requires it, the call will fail with AccessDenied.",
+            aws_assumed_role_arn,
+        )
 
     assumed_role_2 = assumed_client.assume_role(**assume_args)
 
