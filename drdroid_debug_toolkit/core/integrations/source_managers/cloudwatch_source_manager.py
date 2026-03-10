@@ -474,6 +474,22 @@ class CloudwatchSourceManager(SourceManager):
                         form_field_type=FormFieldType.TEXT_FT,
                         is_optional=False
                     ),
+                    SourceKeyType.AWS_EXTERNAL_ID: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.AWS_EXTERNAL_ID)),
+                        display_name=StringValue(value="External ID"),
+                        description=StringValue(
+                            value="External ID to use when Doctor Droid assumes your IAM role. "
+                                  "If you configured an External ID condition on the trust relationship, "
+                                  "paste that value here."
+                        ),
+                        helper_text=StringValue(
+                            value="Required when your IAM role trust policy specifies an External ID condition."
+                        ),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False,
+                        is_sensitive=True,
+                    ),
                     SourceKeyType.AWS_REGION: FormField( # This AWS_REGION key is duplicated from the first config, ensure its FormField definition is consistent or handled.
                         key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.AWS_REGION)),
                         display_name=StringValue(value="AWS Region"),

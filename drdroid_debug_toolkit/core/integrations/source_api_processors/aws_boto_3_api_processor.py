@@ -22,7 +22,7 @@ AWS_DRD_CLOUD_ROLE_ARN = getattr(
 )
 
 
-def generate_aws_access_secret_session_key(aws_assumed_role_arn, aws_drd_cloud_role_arn=None):
+def generate_aws_access_secret_session_key(aws_assumed_role_arn, aws_drd_cloud_role_arn=None, external_id=None):
     """
     Generate temporary credentials for a customer role by first assuming the
     Doctor Droid cloud role, then the customer-provided role.
@@ -60,11 +60,20 @@ def generate_aws_access_secret_session_key(aws_assumed_role_arn, aws_drd_cloud_r
                                   aws_secret_access_key=aws_secret_access_key, aws_session_token=aws_session_token,
                                   region_name=region_name)
 
-    # Assume the Prodigal role
-    assumed_role_2 = assumed_client.assume_role(
-        RoleArn=aws_assumed_role_arn,
-        RoleSessionName="client_session"
-    )
+    # Assume the customer role (optionally with External ID)
+    assume_args = {
+        "RoleArn": aws_assumed_role_arn,
+        "RoleSessionName": "client_session",
+    }
+    if external_id:
+        assume_args["ExternalId"] = external_id
+    else:
+        logger.debug(
+            "No ExternalId provided for assume_role(%s). If the role trust policy requires it, the call will fail with AccessDenied.",
+            aws_assumed_role_arn,
+        )
+
+    assumed_role_2 = assumed_client.assume_role(**assume_args)
 
     return {'aws_access_key': assumed_role_2['Credentials']['AccessKeyId'],
             'aws_secret_key': assumed_role_2['Credentials']['SecretAccessKey'],
@@ -73,7 +82,7 @@ def generate_aws_access_secret_session_key(aws_assumed_role_arn, aws_drd_cloud_r
 
 class AWSBoto3ApiProcessor(Processor):
     def __init__(self, client_type, region, aws_access_key=None, aws_secret_key=None, aws_assumed_role_arn=None,
-                 aws_drd_cloud_role_arn=None):
+                 aws_drd_cloud_role_arn=None, aws_external_id=None):
 
         if (not aws_access_key or not aws_secret_key) and not (aws_assumed_role_arn or not aws_drd_cloud_role_arn):
             raise Exception("Received invalid AWS Credentials")
@@ -84,7 +93,11 @@ class AWSBoto3ApiProcessor(Processor):
         self.region = region
         self.__aws_session_token = None
         if aws_assumed_role_arn:
-            credentials = generate_aws_access_secret_session_key(aws_assumed_role_arn, aws_drd_cloud_role_arn)
+            credentials = generate_aws_access_secret_session_key(
+                aws_assumed_role_arn,
+                aws_drd_cloud_role_arn,
+                external_id=aws_external_id,
+            )
             self.__aws_access_key = credentials['aws_access_key']
             self.__aws_secret_key = credentials['aws_secret_key']
             self.__aws_session_token = credentials['aws_session_token']

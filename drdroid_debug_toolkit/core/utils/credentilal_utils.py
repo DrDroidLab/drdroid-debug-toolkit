@@ -65,6 +65,8 @@ def generate_credentials_dict(connector_type, connector_keys):
                 credentials_dict['region'] = conn_key.key.value
             elif conn_key.key_type == SourceKeyType.AWS_ASSUMED_ROLE_ARN:
                 credentials_dict['aws_assumed_role_arn'] = conn_key.key.value
+            elif conn_key.key_type == SourceKeyType.AWS_EXTERNAL_ID:
+                credentials_dict['aws_external_id'] = conn_key.key.value
             elif conn_key.key_type == SourceKeyType.AWS_DRD_CLOUD_ROLE_ARN:
                 credentials_dict['aws_drd_cloud_role_arn'] = conn_key.key.value
     elif connector_type == Source.EKS:
@@ -79,6 +81,8 @@ def generate_credentials_dict(connector_type, connector_keys):
                 credentials_dict['k8_role_arn'] = conn_key.key.value
             elif conn_key.key_type == SourceKeyType.AWS_ASSUMED_ROLE_ARN:
                 credentials_dict['aws_assumed_role_arn'] = conn_key.key.value
+            elif conn_key.key_type == SourceKeyType.AWS_EXTERNAL_ID:
+                credentials_dict['aws_external_id'] = conn_key.key.value
             elif conn_key.key_type == SourceKeyType.AWS_DRD_CLOUD_ROLE_ARN:
                 credentials_dict['aws_drd_cloud_role_arn'] = conn_key.key.value
     elif connector_type == Source.GRAFANA:

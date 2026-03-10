@@ -642,6 +642,12 @@ message GetConnectorDefaultDestinationResponse {
   google.protobuf.StringValue default_destination = 3;
 }
 
+message GenerateExternalIdRequest {
+}
+
+message GenerateExternalIdResponse {
+  google.protobuf.StringValue external_id = 1;
+}
 
 message BasicAlertSummaryReportRequest {
   string channel_id = 1;

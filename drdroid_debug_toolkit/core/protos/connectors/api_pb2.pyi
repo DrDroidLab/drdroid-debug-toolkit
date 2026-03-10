@@ -2505,6 +2505,33 @@ class GetConnectorDefaultDestinationResponse(google.protobuf.message.Message):
 global___GetConnectorDefaultDestinationResponse = GetConnectorDefaultDestinationResponse
 
 @typing_extensions.final
+class GenerateExternalIdRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    def __init__(
+        self,
+    ) -> None: ...
+
+global___GenerateExternalIdRequest = GenerateExternalIdRequest
+
+@typing_extensions.final
+class GenerateExternalIdResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    EXTERNAL_ID_FIELD_NUMBER: builtins.int
+    @property
+    def external_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    def __init__(
+        self,
+        *,
+        external_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["external_id", b"external_id"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["external_id", b"external_id"]) -> None: ...
+
+global___GenerateExternalIdResponse = GenerateExternalIdResponse
+
+@typing_extensions.final
 class BasicAlertSummaryReportRequest(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
