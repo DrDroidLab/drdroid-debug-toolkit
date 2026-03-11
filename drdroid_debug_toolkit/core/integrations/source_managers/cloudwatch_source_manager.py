@@ -487,7 +487,7 @@ class CloudwatchSourceManager(SourceManager):
                         ),
                         data_type=LiteralType.STRING,
                         form_field_type=FormFieldType.TEXT_FT,
-                        is_optional=False,
+                        is_optional=True,  # Backend: optional so connectors without External ID pass validation
                         is_sensitive=True,
                     ),
                     SourceKeyType.AWS_REGION: FormField( # This AWS_REGION key is duplicated from the first config, ensure its FormField definition is consistent or handled.
