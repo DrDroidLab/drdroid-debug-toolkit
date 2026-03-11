@@ -20,12 +20,13 @@ ignored_db_names = ['information_schema', 'mysql', 'performance_schema', 'sys', 
 class CloudwatchSourceMetadataExtractor(SourceMetadataExtractor):
 
     def __init__(self, request_id: str, connector_name: str, region, aws_access_key=None, aws_secret_key=None,
-                 aws_assumed_role_arn=None, aws_drd_cloud_role_arn=None):
+                 aws_assumed_role_arn=None, aws_drd_cloud_role_arn=None, aws_external_id=None):
         self.__region = region
         self.__aws_access_key = aws_access_key
         self.__aws_secret_key = aws_secret_key
         self.__aws_assumed_role_arn = aws_assumed_role_arn
         self.__aws_drd_cloud_role_arn = aws_drd_cloud_role_arn
+        self.__aws_external_id = aws_external_id
 
         super().__init__(request_id, connector_name, Source.CLOUDWATCH)
 
@@ -36,7 +37,8 @@ class CloudwatchSourceMetadataExtractor(SourceMetadataExtractor):
         try:
             cloudwatch_boto3_processor = AWSBoto3ApiProcessor('cloudwatch', self.__region, self.__aws_access_key,
                                                               self.__aws_secret_key, self.__aws_assumed_role_arn,
-                                                              self.__aws_drd_cloud_role_arn)
+                                                              self.__aws_drd_cloud_role_arn,
+                                                              aws_external_id=self.__aws_external_id)
             next_token = None
             page_count = 0
             MAX_PAGES = 10000
@@ -76,7 +78,8 @@ class CloudwatchSourceMetadataExtractor(SourceMetadataExtractor):
         model_data = {}
         cloudwatch_boto3_processor = AWSBoto3ApiProcessor('logs', self.__region, self.__aws_access_key,
                                                           self.__aws_secret_key, self.__aws_assumed_role_arn,
-                                                          self.__aws_drd_cloud_role_arn)
+                                                          self.__aws_drd_cloud_role_arn,
+                                                          aws_external_id=self.__aws_external_id)
         try:
             all_log_groups = cloudwatch_boto3_processor.logs_describe_log_groups()
             model_data[self.__region] = {'log_groups': all_log_groups}
@@ -92,7 +95,8 @@ class CloudwatchSourceMetadataExtractor(SourceMetadataExtractor):
         model_data = {}
         cloudwatch_boto3_processor = AWSBoto3ApiProcessor('logs', self.__region, self.__aws_access_key,
                                                           self.__aws_secret_key, self.__aws_assumed_role_arn,
-                                                          self.__aws_drd_cloud_role_arn)
+                                                          self.__aws_drd_cloud_role_arn,
+                                                          aws_external_id=self.__aws_external_id)
         try:
             all_queries = cloudwatch_boto3_processor.logs_describe_log_group_queries()
 
@@ -123,7 +127,8 @@ class CloudwatchSourceMetadataExtractor(SourceMetadataExtractor):
         model_data = {}
         cloudwatch_boto3_processor = AWSBoto3ApiProcessor('cloudwatch', self.__region, self.__aws_access_key,
                                                           self.__aws_secret_key, self.__aws_assumed_role_arn,
-                                                          self.__aws_drd_cloud_role_arn)
+                                                          self.__aws_drd_cloud_role_arn,
+                                                          aws_external_id=self.__aws_external_id)
         try:
             all_alarms = cloudwatch_boto3_processor.cloudwatch_describe_all_alarms()
 
@@ -145,7 +150,8 @@ class CloudwatchSourceMetadataExtractor(SourceMetadataExtractor):
         # Create ECS boto3 processor
         ecs_boto3_processor = AWSBoto3ApiProcessor('ecs', self.__region, self.__aws_access_key,
                                                   self.__aws_secret_key, self.__aws_assumed_role_arn,
-                                                  self.__aws_drd_cloud_role_arn)
+                                                  self.__aws_drd_cloud_role_arn,
+                                                  aws_external_id=self.__aws_external_id)
         try:
             # Get all clusters
             clusters = ecs_boto3_processor.list_all_clusters()
@@ -199,7 +205,8 @@ class CloudwatchSourceMetadataExtractor(SourceMetadataExtractor):
         # Create ECS boto3 processor
         ecs_boto3_processor = AWSBoto3ApiProcessor('ecs', self.__region, self.__aws_access_key,
                                                   self.__aws_secret_key, self.__aws_assumed_role_arn,
-                                                  self.__aws_drd_cloud_role_arn)
+                                                  self.__aws_drd_cloud_role_arn,
+                                                  aws_external_id=self.__aws_external_id)
         try:
             # Get all clusters first
             clusters = ecs_boto3_processor.list_all_clusters()
@@ -258,10 +265,12 @@ class CloudwatchSourceMetadataExtractor(SourceMetadataExtractor):
         try:
             rds_boto3_processor = AWSBoto3ApiProcessor('rds', self.__region, self.__aws_access_key,
                                                        self.__aws_secret_key, self.__aws_assumed_role_arn,
-                                                       self.__aws_drd_cloud_role_arn)
+                                                       self.__aws_drd_cloud_role_arn,
+                                                       aws_external_id=self.__aws_external_id)
             pi_boto3_processor = AWSBoto3ApiProcessor('pi', self.__region, self.__aws_access_key,
                                                       self.__aws_secret_key, self.__aws_assumed_role_arn,
-                                                      self.__aws_drd_cloud_role_arn)
+                                                      self.__aws_drd_cloud_role_arn,
+                                                      aws_external_id=self.__aws_external_id)
         except Exception as e:
             logger.error(f'Error creating boto3 processors: {e}')
             return {}
@@ -293,7 +302,8 @@ class CloudwatchSourceMetadataExtractor(SourceMetadataExtractor):
         model_data = {}
         cloudwatch_boto3_processor = AWSBoto3ApiProcessor('cloudwatch', self.__region, self.__aws_access_key,
                                                           self.__aws_secret_key, self.__aws_assumed_role_arn,
-                                                          self.__aws_drd_cloud_role_arn)
+                                                          self.__aws_drd_cloud_role_arn,
+                                                          aws_external_id=self.__aws_external_id)
         # Get client directly for get_dashboard call later
         client = cloudwatch_boto3_processor.get_connection()
 
@@ -445,7 +455,8 @@ class CloudwatchSourceMetadataExtractor(SourceMetadataExtractor):
         try:
             cloudwatch_boto3_processor = AWSBoto3ApiProcessor('cloudwatch', self.__region, self.__aws_access_key,
                                                           self.__aws_secret_key, self.__aws_assumed_role_arn,
-                                                          self.__aws_drd_cloud_role_arn)
+                                                          self.__aws_drd_cloud_role_arn,
+                                                          aws_external_id=self.__aws_external_id)
 
             # Get dashboard details
             dashboard_detail = cloudwatch_boto3_processor.cloudwatch_get_dashboard(dashboard_name)
