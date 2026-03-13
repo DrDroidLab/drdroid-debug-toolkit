@@ -370,14 +370,22 @@ class SignozApiProcessor(Processor):
         """Test the connection to Signoz API"""
         try:
             url = f"{self.signoz_api_url}/api/v1/health"
+            print('signoz url', url)
             response = requests.get(url, headers=self.headers, timeout=20)
-            logger.debug(f"Response: {response.text}")
+            print(f"Response: {response.text}")
             logger.info(f"Response: {response.text}")
             if response and response.status_code == 200:
-                return True
+                try:
+                    data = response.json()
+                except Exception:
+                    raise Exception(f"Failed to connect with Signoz. Response is not valid JSON.")
+                if data.get("status") == "ok":
+                    return True
+                else:
+                    raise Exception(f"Failed to connect with Signoz. Unexpected health check response")
             else:
                 status_code = response.status_code if response else None
-                raise Exception(f"Failed to connect with Signoz. Status Code: {status_code}. Response Text: {response.text}")
+                raise Exception(f"Failed to connect with Signoz. Status Code: {status_code}")
         except Exception as e:
             logger.error(f"Exception occurred while fetching signoz health with error: {e}")
             raise e
@@ -385,12 +393,21 @@ class SignozApiProcessor(Processor):
     def fetch_dashboards(self):
         """Fetch all dashboards from Signoz"""
         try:
+            url = f"{self.signoz_api_url}/api/v1/dashboards"
+            logger.info(f"Fetching dashboards from URL: {url}")
+            logger.info(f"Request headers: {self.headers}")
             response = requests.get(
-                f"{self.signoz_api_url}/api/v1/dashboards", 
+                url,
                 headers=self.headers,
                 timeout=30
             )
+            logger.info(f"Fetch dashboards response status: {response.status_code}")
+            logger.info(f"Fetch dashboards response headers: {dict(response.headers)}")
+            logger.info(f"Fetch dashboards response body (first 500 chars): {response.text[:500]}")
             response.raise_for_status()
+            if not response.text or not response.text.strip():
+                logger.error("Fetch dashboards returned empty response body")
+                return None
             return response.json()
         except Exception as e:
             logger.error(f"Exception when fetching dashboards: {e}")
