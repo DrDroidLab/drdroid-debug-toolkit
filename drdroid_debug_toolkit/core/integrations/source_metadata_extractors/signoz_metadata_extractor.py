@@ -86,6 +86,46 @@ class SignozSourceMetadataExtractor(SourceMetadataExtractor):
         return model_data
 
     @log_function_call
+    def extract_alert_rules(self):
+        model_type = SourceModelType.SIGNOZ_ALERT
+        model_data = {}
+        try:
+            response = self.__signoz_api_processor.fetch_alert_rules()
+            if not response:
+                return model_data
+
+            # Handle different response formats
+            # SigNoz API returns: {"status": "success", "data": {"rules": [...]}}
+            rules = []
+            if isinstance(response, dict):
+                data = response.get('data', response)
+                if isinstance(data, dict):
+                    rules = data.get('rules', data.get('alert_rules', []))
+                elif isinstance(data, list):
+                    rules = data
+                if not isinstance(rules, list):
+                    rules = []
+            elif isinstance(response, list):
+                rules = response
+
+            for rule in rules:
+                try:
+                    rule_id = str(rule.get('id', ''))
+                    if not rule_id:
+                        continue
+                    model_data[rule_id] = rule
+                except Exception as e:
+                    logger.error(f'Error processing signoz alert rule: {rule} - {e}')
+                    continue
+
+            if len(model_data) > 0:
+                self.create_or_update_model_metadata(model_type, model_data)
+        except Exception as e:
+            logger.error(f'Error extracting signoz alert rules: {e}')
+
+        return model_data
+
+    @log_function_call
     def extract_log_attributes(self):
         """
         Extract log attributes and their types from SigNoz logs.
