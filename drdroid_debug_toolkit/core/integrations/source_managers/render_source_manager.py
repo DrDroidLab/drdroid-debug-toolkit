@@ -12,7 +12,7 @@ from drdroid_debug_toolkit.core.protos.playbooks.playbook_commons_pb2 import Pla
 from drdroid_debug_toolkit.core.protos.playbooks.playbook_pb2 import PlaybookTask
 from drdroid_debug_toolkit.core.protos.playbooks.source_task_definitions.render_task_pb2 import Render
 from drdroid_debug_toolkit.core.protos.ui_definition_pb2 import FormField, FormFieldType
-from utils.proto_utils import proto_to_dict, dict_to_proto
+from core.utils.proto_utils import proto_to_dict, dict_to_proto
 from core.utils.credentilal_utils import DISPLAY_NAME, CATEGORY, CLOUD_MANAGED_SERVICES, get_connector_key_type_string, generate_credentials_dict
 
 logger = logging.getLogger(__name__)

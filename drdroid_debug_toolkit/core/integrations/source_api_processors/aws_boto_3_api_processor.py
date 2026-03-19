@@ -159,7 +159,8 @@ class AWSBoto3ApiProcessor(Processor):
                     try:
                         client.stop_query(queryId=query_id)
                     except Exception:
-                        raise e
+                        # Best-effort cleanup; ignore stop_query failures
+                        pass
 
                 return True
 

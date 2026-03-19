@@ -1871,14 +1871,12 @@ class SignozSourceManager(SourceManager):
     ) -> list[PlaybookTaskResult]:
         """Executes queries for all panels in a specified Signoz dashboard and returns timeseries or table data based on panel type."""
         try:
+            # Convert time range once; needed for metadata in early-return paths
+            start_time = datetime.fromtimestamp(time_range.time_geq, tz=timezone.utc).isoformat()
+            end_time = datetime.fromtimestamp(time_range.time_lt, tz=timezone.utc).isoformat()
+
             if not signoz_connector:
-                # Extract API URL and create metadata with SignOz URL
-                api_url = self._extract_api_url_from_connector(signoz_connector)
-                metadata = self._create_metadata_with_signoz_url(api_url, "dashboards", {
-                    "dashboard_id": dashboard_name,
-                    "start_time": start_time,
-                    "end_time": end_time
-                })
+                metadata = self._create_metadata_with_signoz_url("", "dashboards", {})
                 return [
                     PlaybookTaskResult(
                         type=PlaybookTaskResultType.TEXT,
@@ -1891,7 +1889,6 @@ class SignozSourceManager(SourceManager):
             task = signoz_task.dashboard_data
             dashboard_name = task.dashboard_name.value
             if not dashboard_name:
-                # Extract API URL and create metadata with SignOz URL
                 api_url = self._extract_api_url_from_connector(signoz_connector)
                 metadata = self._create_metadata_with_signoz_url(api_url, "dashboards", {
                     "start_time": start_time,
@@ -1909,10 +1906,6 @@ class SignozSourceManager(SourceManager):
             # Get parameters
             step = task.step.value if task.HasField("step") else None
             variables_json = task.variables_json.value if task.HasField("variables_json") else None
-
-            # Convert time range to start/end times for the processor
-            start_time = datetime.fromtimestamp(time_range.time_geq, tz=timezone.utc).isoformat()
-            end_time = datetime.fromtimestamp(time_range.time_lt, tz=timezone.utc).isoformat()
 
             signoz_api_processor = self.get_connector_processor(signoz_connector)
             result = signoz_api_processor.fetch_dashboard_data(
