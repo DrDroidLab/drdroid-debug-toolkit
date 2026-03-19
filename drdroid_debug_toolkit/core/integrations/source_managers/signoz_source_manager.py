@@ -541,6 +541,9 @@ def buildSignozUrl(api_url: str, task_type: str, params: dict = None) -> str:
         query_string = "&".join(url_params)
         return f"{frontend_url}/logs/logs-explorer?{query_string}"
     
+    elif task_type == "service_map":
+        return f"{frontend_url}/service-map"
+
     elif task_type == "trace_analysis":
         # For trace analysis, navigate to the trace explorer with the specific trace ID
         if 'trace_id' in params and params['trace_id']:
@@ -1089,6 +1092,39 @@ class SignozSourceManager(SourceManager):
                 "display_name": "Fetch Alert Rules from Signoz",
                 "category": "Alerts",
                 "form_fields": [],
+            },
+            Signoz.TaskType.FETCH_SERVICE_MAP: {
+                "executor": self.execute_fetch_service_map,
+                "model_types": [],
+                "result_type": PlaybookTaskResultType.API_RESPONSE,
+                "display_name": "Fetch Service Map",
+                "category": "Services",
+                "form_fields": [
+                    FormField(
+                        key_name=StringValue(value="start_time"),
+                        display_name=StringValue(value="Start Time"),
+                        description=StringValue(value="Start time (RFC3339 or relative like 'now-2h')"),
+                        data_type=LiteralType.STRING,
+                        is_optional=True,
+                        form_field_type=FormFieldType.TEXT_FT,
+                    ),
+                    FormField(
+                        key_name=StringValue(value="end_time"),
+                        display_name=StringValue(value="End Time"),
+                        description=StringValue(value="End time (RFC3339 or relative like 'now-30m')"),
+                        data_type=LiteralType.STRING,
+                        is_optional=True,
+                        form_field_type=FormFieldType.TEXT_FT,
+                    ),
+                    FormField(
+                        key_name=StringValue(value="duration"),
+                        display_name=StringValue(value="Duration"),
+                        description=StringValue(value="Duration window (e.g., '1h', '30m'). Defaults to last 1 hour."),
+                        data_type=LiteralType.STRING,
+                        is_optional=True,
+                        form_field_type=FormFieldType.TEXT_FT,
+                    ),
+                ],
             },
         }
         self.connector_form_configs = [
@@ -2973,6 +3009,99 @@ class SignozSourceManager(SourceManager):
             # Extract API URL and create metadata with SignOz URL for error case
             api_url = self._extract_api_url_from_connector(signoz_connector) if signoz_connector else None
             metadata = self._create_metadata_with_signoz_url(api_url, "alert_rules", {}) if api_url else None
+
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                api_response=ApiResponseResult(response_body=response_struct),
+                source=self.source,
+                metadata=metadata,
+            )
+
+    def execute_fetch_service_map(
+        self,
+        time_range: TimeRange,
+        signoz_task: Signoz,
+        signoz_connector: ConnectorProto,
+    ) -> PlaybookTaskResult:
+        """Executes fetch service map task using the SigNoz dependency_graph API."""
+        start_time = None
+        end_time = None
+        duration = None
+        try:
+            if not signoz_connector:
+                raise Exception("Task execution Failed:: No Signoz source found")
+
+            task = signoz_task.fetch_service_map
+            start_time = task.start_time.value if task.HasField("start_time") else None
+            end_time = task.end_time.value if task.HasField("end_time") else None
+            duration = task.duration.value if task.HasField("duration") else None
+
+            signoz_api_processor = self.get_connector_processor(signoz_connector)
+
+            print(
+                f"Playbook Task Downstream Request: Type -> Signoz FETCH_SERVICE_MAP",
+                flush=True,
+            )
+
+            result = signoz_api_processor.fetch_dependency_graph(start_time, end_time, duration)
+
+            if result and isinstance(result, dict) and result.get("status") == "error":
+                response_data = result
+            elif result:
+                # SigNoz returns a bare list of edge objects with fields:
+                #   parent, child, callRate, errorRate, p99, p95, p90, p75, p50, callCount
+                # Normalise to a list regardless of wrapper shape, then pass through as-is.
+                if isinstance(result, list):
+                    edges = result
+                else:
+                    data = result.get("data", result)
+                    edges = data if isinstance(data, list) else data.get("edges", [])
+
+                services = sorted(
+                    {e.get("parent", "") for e in edges} | {e.get("child", "") for e in edges} - {""}
+                )
+                response_data = {
+                    "services": services,
+                    "service_count": len(services),
+                    "edges": edges,
+                    "edge_count": len(edges),
+                }
+            else:
+                response_data = {"services": [], "service_count": 0, "edges": [], "edge_count": 0}
+
+            api_url = self._extract_api_url_from_connector(signoz_connector)
+            metadata = self._create_metadata_with_signoz_url(api_url, "service_map", {
+                "start_time": start_time,
+                "end_time": end_time,
+                "duration": duration,
+            })
+
+            response_struct = Struct()
+            response_struct.update(response_data)
+
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                api_response=ApiResponseResult(response_body=response_struct),
+                source=self.source,
+                metadata=metadata,
+            )
+
+        except Exception as e:
+            logger.error(f"Error while executing Signoz fetch service map task: {e}", exc_info=True)
+
+            api_url = self._extract_api_url_from_connector(signoz_connector) if signoz_connector else None
+            metadata = self._create_metadata_with_signoz_url(api_url, "service_map", {
+                "start_time": start_time,
+                "end_time": end_time,
+                "duration": duration,
+            }) if api_url else None
+
+            response_struct = Struct()
+            response_struct.update({
+                "error": f"Error executing fetch service map task: {str(e)}",
+                "nodes": [],
+                "edges": [],
+            })
 
             return PlaybookTaskResult(
                 type=PlaybookTaskResultType.API_RESPONSE,
