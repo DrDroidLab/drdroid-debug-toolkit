@@ -71,6 +71,12 @@ message Signoz {
   message FetchAlertRulesTask {
   }
 
+  message FetchServiceMapTask {
+    google.protobuf.StringValue start_time = 1;
+    google.protobuf.StringValue end_time = 2;
+    google.protobuf.StringValue duration = 3;
+  }
+
   enum TaskType {
     UNKNOWN = 0;
     CLICKHOUSE_QUERY = 1;
@@ -84,6 +90,7 @@ message Signoz {
     FETCH_LOGS_FOR_TRACE = 9;
     FETCH_TRACES = 10;
     FETCH_ALERT_RULES = 11;
+    FETCH_SERVICE_MAP = 12;
   }
 
   TaskType type = 1;
@@ -99,5 +106,6 @@ message Signoz {
     FetchLogsForTraceTask fetch_logs_for_trace = 10;
     FetchTracesTask fetch_traces = 11;
     FetchAlertRulesTask fetch_alert_rules = 12;
+    FetchServiceMapTask fetch_service_map = 13;
   }
 } 

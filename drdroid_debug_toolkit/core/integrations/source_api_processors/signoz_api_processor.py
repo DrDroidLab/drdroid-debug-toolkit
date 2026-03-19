@@ -629,6 +629,35 @@ class SignozApiProcessor(Processor):
             logger.error(f"Exception when fetching services: {e}")
             return {"status": "error", "message": str(e)}
 
+    def fetch_dependency_graph(self, start_time=None, end_time=None, duration=None):
+        """
+        Fetches the service dependency graph from SigNoz.
+        Uses the /api/v1/dependency_graph endpoint which returns nodes (services) and
+        edges (caller→callee relationships) with P99 latency, error rate, and call rate.
+        Timestamps can be RFC3339, relative strings (e.g. 'now-2h'), or a duration string.
+        Defaults to the last 1 hour.
+        """
+        start_dt, end_dt = self._get_time_range(start_time, end_time, duration, default_hours=1)
+        start_ns = int(start_dt.timestamp() * 1_000_000_000)
+        end_ns = int(end_dt.timestamp() * 1_000_000_000)
+
+        try:
+            url = f"{self.signoz_api_url}/api/v1/dependency_graph"
+            payload = {"start": str(start_ns), "end": str(end_ns)}
+            response = requests.post(url, headers=self.headers, json=payload, timeout=120)
+            if response.status_code == 200:
+                return response.json()
+            else:
+                logger.error(f"Failed to fetch dependency graph: {response.status_code} - {response.text}")
+                return {
+                    "status": "error",
+                    "message": f"Failed to fetch dependency graph: {response.status_code}",
+                    "details": response.text,
+                }
+        except Exception as e:
+            logger.error(f"Exception when fetching dependency graph: {e}")
+            return {"status": "error", "message": str(e)}
+
     def _parse_step(self, step):
         """Parse step interval from string like '5m', '1h', or integer seconds."""
         if isinstance(step, int):
