@@ -544,6 +544,9 @@ def buildSignozUrl(api_url: str, task_type: str, params: dict = None) -> str:
     elif task_type == "service_map":
         return f"{frontend_url}/service-map"
 
+    elif task_type == "alerts_summary":
+        return f"{frontend_url}/alerts"
+
     elif task_type == "trace_analysis":
         # For trace analysis, navigate to the trace explorer with the specific trace ID
         if 'trace_id' in params and params['trace_id']:
@@ -1123,6 +1126,63 @@ class SignozSourceManager(SourceManager):
                         data_type=LiteralType.STRING,
                         is_optional=True,
                         form_field_type=FormFieldType.TEXT_FT,
+                    ),
+                ],
+            },
+            Signoz.TaskType.FETCH_ALERTS_SUMMARY: {
+                "executor": self.execute_fetch_alerts_summary,
+                "model_types": [],
+                "result_type": PlaybookTaskResultType.API_RESPONSE,
+                "display_name": "Fetch Alerts Summary",
+                "category": "Alerts",
+                "form_fields": [
+                    FormField(
+                        key_name=StringValue(value="start_time"),
+                        display_name=StringValue(value="Start Time"),
+                        description=StringValue(value="Start time (RFC3339 or relative like 'now-6h')"),
+                        data_type=LiteralType.STRING,
+                        is_optional=True,
+                        form_field_type=FormFieldType.TEXT_FT,
+                    ),
+                    FormField(
+                        key_name=StringValue(value="end_time"),
+                        display_name=StringValue(value="End Time"),
+                        description=StringValue(value="End time (RFC3339 or relative like 'now')"),
+                        data_type=LiteralType.STRING,
+                        is_optional=True,
+                        form_field_type=FormFieldType.TEXT_FT,
+                    ),
+                    FormField(
+                        key_name=StringValue(value="duration"),
+                        display_name=StringValue(value="Duration"),
+                        description=StringValue(value="Duration window (e.g., '6h', '24h'). Defaults to last 6 hours."),
+                        data_type=LiteralType.STRING,
+                        is_optional=True,
+                        form_field_type=FormFieldType.TEXT_FT,
+                    ),
+                    FormField(
+                        key_name=StringValue(value="rule_id"),
+                        display_name=StringValue(value="Rule ID"),
+                        description=StringValue(value="Filter by a specific alert rule ID (optional)"),
+                        data_type=LiteralType.STRING,
+                        is_optional=True,
+                        form_field_type=FormFieldType.TEXT_FT,
+                    ),
+                    FormField(
+                        key_name=StringValue(value="state"),
+                        display_name=StringValue(value="State"),
+                        description=StringValue(value="Filter by alert state: 'firing', 'resolved', or 'normal' (optional)"),
+                        data_type=LiteralType.STRING,
+                        is_optional=True,
+                        form_field_type=FormFieldType.TEXT_FT,
+                    ),
+                    FormField(
+                        key_name=StringValue(value="labels"),
+                        display_name=StringValue(value="Label Filters"),
+                        description=StringValue(value='JSON object of label filters, e.g. {"severity":"critical","service":"auth"} (optional)'),
+                        data_type=LiteralType.STRING,
+                        is_optional=True,
+                        form_field_type=FormFieldType.MULTILINE_FT,
                     ),
                 ],
             },
@@ -3109,6 +3169,98 @@ class SignozSourceManager(SourceManager):
                 "nodes": [],
                 "edges": [],
             })
+
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                api_response=ApiResponseResult(response_body=response_struct),
+                source=self.source,
+                metadata=metadata,
+            )
+
+    def execute_fetch_alerts_summary(
+        self,
+        time_range: TimeRange,
+        signoz_task: Signoz,
+        signoz_connector: ConnectorProto,
+    ) -> PlaybookTaskResult:
+        """Executes fetch alerts summary task.
+
+        Tries the alerts/overview history endpoint first (v0.45+), then falls back
+        to the Alertmanager-compatible /api/v1/alerts endpoint for older deployments.
+        Client-side filtering by state, rule_id, and labels is applied when needed.
+        """
+        start_time = None
+        end_time = None
+        duration = None
+        try:
+            if not signoz_connector:
+                raise Exception("Task execution Failed:: No Signoz source found")
+
+            task = signoz_task.fetch_alerts_summary
+            start_time = task.start_time.value if task.HasField("start_time") else None
+            end_time = task.end_time.value if task.HasField("end_time") else None
+            duration = task.duration.value if task.HasField("duration") else None
+            rule_id = task.rule_id.value if task.HasField("rule_id") else None
+            state = task.state.value if task.HasField("state") else None
+            labels_str = task.labels.value if task.HasField("labels") else None
+
+            labels = None
+            if labels_str:
+                try:
+                    labels = json.loads(labels_str)
+                except json.JSONDecodeError:
+                    logger.warning(f"Invalid labels JSON: {labels_str}")
+
+            signoz_api_processor = self.get_connector_processor(signoz_connector)
+
+            print(
+                f"Playbook Task Downstream Request: Type -> Signoz FETCH_ALERTS_SUMMARY",
+                flush=True,
+            )
+
+            result = signoz_api_processor.fetch_alerts_summary(
+                start_time=start_time,
+                end_time=end_time,
+                duration=duration,
+                rule_id=rule_id,
+                state=state,
+                labels=labels,
+            )
+
+            api_url = self._extract_api_url_from_connector(signoz_connector)
+            metadata = self._create_metadata_with_signoz_url(api_url, "alerts_summary", {
+                "start_time": start_time,
+                "end_time": end_time,
+                "duration": duration,
+            })
+
+            if result and isinstance(result, dict) and result.get("status") == "error":
+                response_data = result
+            else:
+                response_data = result or {}
+
+            response_struct = Struct()
+            response_struct.update(response_data)
+
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                api_response=ApiResponseResult(response_body=response_struct),
+                source=self.source,
+                metadata=metadata,
+            )
+
+        except Exception as e:
+            logger.error(f"Error while executing Signoz fetch alerts summary task: {e}", exc_info=True)
+
+            api_url = self._extract_api_url_from_connector(signoz_connector) if signoz_connector else None
+            metadata = self._create_metadata_with_signoz_url(api_url, "alerts_summary", {
+                "start_time": start_time,
+                "end_time": end_time,
+                "duration": duration,
+            }) if api_url else None
+
+            response_struct = Struct()
+            response_struct.update({"error": f"Error executing fetch alerts summary task: {str(e)}"})
 
             return PlaybookTaskResult(
                 type=PlaybookTaskResultType.API_RESPONSE,
