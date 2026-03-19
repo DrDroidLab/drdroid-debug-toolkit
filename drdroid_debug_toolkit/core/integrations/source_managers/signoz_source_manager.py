@@ -3055,53 +3055,26 @@ class SignozSourceManager(SourceManager):
             if result and isinstance(result, dict) and result.get("status") == "error":
                 response_data = result
             elif result:
-                # Normalise response — SigNoz returns different shapes depending on version:
-                #   - a bare list of edge objects
-                #   - {"data": [...]} where data is a list of edges
-                #   - {"nodes": [...], "edges": [...]}
-                #   - {"data": {"nodes": [...], "edges": [...]}}
+                # SigNoz returns a bare list of edge objects with fields:
+                #   parent, child, callRate, errorRate, p99, p95, p90, p75, p50, callCount
+                # Normalise to a list regardless of wrapper shape, then pass through as-is.
                 if isinstance(result, list):
                     edges = result
-                    nodes = list({e.get("source", e.get("src", "")) for e in edges}
-                                 | {e.get("destination", e.get("target", e.get("dst", e.get("dest", "")))) for e in edges}
-                                 - {""})
-                    nodes = [{"id": n} for n in sorted(nodes)]
                 else:
                     data = result.get("data", result)
-                    if isinstance(data, list):
-                        edges = data
-                        nodes = list({e.get("source", e.get("src", "")) for e in edges}
-                                     | {e.get("destination", e.get("target", e.get("dst", e.get("dest", "")))) for e in edges}
-                                     - {""})
-                        nodes = [{"id": n} for n in sorted(nodes)]
-                    else:
-                        nodes = data.get("nodes", [])
-                        edges = data.get("edges", [])
+                    edges = data if isinstance(data, list) else data.get("edges", [])
 
-                edge_summary = []
-                for edge in edges:
-                    src = edge.get("source", edge.get("src", ""))
-                    tgt = edge.get("destination", edge.get("target", edge.get("dst", edge.get("dest", ""))))
-                    raw_p99 = edge.get("p99", 0) or 0
-                    # SigNoz stores P99 in nanoseconds; convert only if value looks like ns (> 1e6)
-                    p99_ms = round(raw_p99 / 1e6, 2) if raw_p99 > 1e6 else round(raw_p99, 2)
-                    edge_summary.append({
-                        "from": src,
-                        "to": tgt,
-                        "call_rate_rps": edge.get("callRate", edge.get("call_rate", 0)),
-                        "error_rate_pct": edge.get("errorRate", edge.get("error_rate", 0)),
-                        "p99_latency_ms": p99_ms,
-                    })
-
+                services = sorted(
+                    {e.get("parent", "") for e in edges} | {e.get("child", "") for e in edges} - {""}
+                )
                 response_data = {
-                    "nodes": nodes if nodes else [],
-                    "node_count": len(nodes) if nodes else 0,
-                    "edges": edge_summary,
-                    "edge_count": len(edge_summary),
-                    "raw": result,
+                    "services": services,
+                    "service_count": len(services),
+                    "edges": edges,
+                    "edge_count": len(edges),
                 }
             else:
-                response_data = {"nodes": [], "node_count": 0, "edges": [], "edge_count": 0}
+                response_data = {"services": [], "service_count": 0, "edges": [], "edge_count": 0}
 
             api_url = self._extract_api_url_from_connector(signoz_connector)
             metadata = self._create_metadata_with_signoz_url(api_url, "service_map", {
