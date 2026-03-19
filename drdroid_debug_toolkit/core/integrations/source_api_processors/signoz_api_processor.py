@@ -514,18 +514,13 @@ class SignozApiProcessor(Processor):
             for k, v in labels.items():
                 params[f"labels[{k}]"] = v
 
-        # Strategy 1: alerts history / overview (v0.45+)
+        # Strategy 1: alerts history / overview (v0.45+, may not be available on all deployments)
         try:
             url = f"{self.signoz_api_url}/api/v1/alerts/overview"
             response = requests.get(url, headers=self.headers, params=params, timeout=30)
             if response.status_code == 200:
-                # Attach source tag so the caller knows which endpoint was hit, then
-                # pass the raw response through untouched.
-                raw = response.json()
-                if isinstance(raw, dict):
-                    raw["_source"] = "alerts_overview"
-                    return raw
-                return {"_source": "alerts_overview", "data": raw}
+                logger.debug("fetch_alerts_summary: using alerts/overview (history) endpoint")
+                return response.json()
             logger.debug(f"alerts/overview returned {response.status_code}, falling back to /api/v1/alerts")
         except Exception as e:
             logger.debug(f"alerts/overview unavailable: {e}")
@@ -533,6 +528,7 @@ class SignozApiProcessor(Processor):
         # Strategy 2: Alertmanager-compatible triggered alerts endpoint (all versions).
         # Only currently-firing alerts are returned by this endpoint.
         # Filters that the server doesn't support are applied client-side.
+        logger.debug("fetch_alerts_summary: using /api/v1/alerts (currently-firing only)")
         try:
             url = f"{self.signoz_api_url}/api/v1/alerts"
             response = requests.get(url, headers=self.headers, timeout=30)
@@ -553,12 +549,10 @@ class SignozApiProcessor(Processor):
                         alerts = [a for a in alerts
                                   if str(a.get("labels", {}).get(lk, "")) == str(lv)]
 
-                # Return raw structure with the (possibly filtered) alerts list in-place
                 if isinstance(raw, dict):
                     raw["data"] = alerts
-                    raw["_source"] = "triggered_alerts"
                     return raw
-                return {"_source": "triggered_alerts", "status": "success", "data": alerts}
+                return {"status": "success", "data": alerts}
             else:
                 logger.error(f"Failed to fetch alerts: {response.status_code} - {response.text}")
                 return {"status": "error", "message": f"Failed to fetch alerts: {response.status_code}", "details": response.text}
