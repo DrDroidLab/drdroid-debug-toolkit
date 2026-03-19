@@ -274,6 +274,43 @@ class KubernetesMetadataExtractor(SourceMetadataExtractor):
             self.create_or_update_model_metadata(model_type, model_data)
         return model_data
 
+    @log_function_call
+    def extract_network_map(self):
+        model_type = SourceModelType.KUBERNETES_NETWORK_MAP
+        model_data = {}
+
+        try:
+            raw_output = self.__kubectl_api_processor.execute_non_kubectl_command(
+                ['otterize', 'network-mapper', 'export', '--format', 'json', '--telemetry-enabled=false']
+            )
+
+            if not raw_output:
+                logger.warning("No output from otterize network-mapper export. "
+                               "Is the network mapper deployed and running?")
+                return model_data
+
+            raw_network_map = json.loads(raw_output)
+
+            simplified_map = simplify_network_map(raw_network_map)
+
+            if not validate_network_map_data(simplified_map):
+                logger.error("Network map data validation failed")
+                return model_data
+
+            total_services = simplified_map.get('metadata', {}).get('total_services', 0)
+            logger.info(f"Extracted network map with {total_services} services")
+
+            model_data['cluster_network_map'] = simplified_map
+
+        except json.JSONDecodeError as e:
+            logger.error(f"Error parsing network mapper JSON output: {e}")
+        except Exception as e:
+            logger.error(f"Error extracting Kubernetes network map: {e}")
+
+        if len(model_data) > 0:
+            self.create_or_update_model_metadata(model_type, model_data)
+        return model_data
+
     # Namespace-specific extraction methods for real-time processing
     @log_function_call
     def extract_deployments_for_namespace(self, namespace):
