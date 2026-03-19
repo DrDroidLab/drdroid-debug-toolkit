@@ -3055,15 +3055,36 @@ class SignozSourceManager(SourceManager):
             if result and isinstance(result, dict) and result.get("status") == "error":
                 response_data = result
             elif result:
-                # Enrich the raw graph with a human-readable edge summary
-                nodes = result.get("data", {}).get("nodes", result.get("nodes", []))
-                edges = result.get("data", {}).get("edges", result.get("edges", []))
+                # Normalise response — SigNoz returns different shapes depending on version:
+                #   - a bare list of edge objects
+                #   - {"data": [...]} where data is a list of edges
+                #   - {"nodes": [...], "edges": [...]}
+                #   - {"data": {"nodes": [...], "edges": [...]}}
+                if isinstance(result, list):
+                    edges = result
+                    nodes = list({e.get("source", e.get("src", "")) for e in edges}
+                                 | {e.get("destination", e.get("target", e.get("dst", e.get("dest", "")))) for e in edges}
+                                 - {""})
+                    nodes = [{"id": n} for n in sorted(nodes)]
+                else:
+                    data = result.get("data", result)
+                    if isinstance(data, list):
+                        edges = data
+                        nodes = list({e.get("source", e.get("src", "")) for e in edges}
+                                     | {e.get("destination", e.get("target", e.get("dst", e.get("dest", "")))) for e in edges}
+                                     - {""})
+                        nodes = [{"id": n} for n in sorted(nodes)]
+                    else:
+                        nodes = data.get("nodes", [])
+                        edges = data.get("edges", [])
 
                 edge_summary = []
                 for edge in edges:
                     src = edge.get("source", edge.get("src", ""))
-                    tgt = edge.get("target", edge.get("dst", edge.get("dest", "")))
-                    p99_ms = round(edge.get("p99", 0) / 1e6, 2) if edge.get("p99") else edge.get("p99", 0)
+                    tgt = edge.get("destination", edge.get("target", edge.get("dst", edge.get("dest", ""))))
+                    raw_p99 = edge.get("p99", 0) or 0
+                    # SigNoz stores P99 in nanoseconds; convert only if value looks like ns (> 1e6)
+                    p99_ms = round(raw_p99 / 1e6, 2) if raw_p99 > 1e6 else round(raw_p99, 2)
                     edge_summary.append({
                         "from": src,
                         "to": tgt,
