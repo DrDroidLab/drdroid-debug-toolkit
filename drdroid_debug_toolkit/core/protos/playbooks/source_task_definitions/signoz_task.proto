@@ -77,6 +77,15 @@ message Signoz {
     google.protobuf.StringValue duration = 3;
   }
 
+  message FetchAlertsSummaryTask {
+    google.protobuf.StringValue start_time = 1;   // Start time (RFC3339 or relative like 'now-6h')
+    google.protobuf.StringValue end_time = 2;     // End time (RFC3339 or relative like 'now')
+    google.protobuf.StringValue duration = 3;     // Duration window (e.g. '6h', '24h'). Defaults to last 6h.
+    google.protobuf.StringValue rule_id = 4;      // Filter by a specific alert rule ID (optional)
+    google.protobuf.StringValue state = 5;        // Filter by state: "firing" | "resolved" | "normal" (optional)
+    google.protobuf.StringValue labels = 6;       // JSON object of label key-value filters, e.g. {"severity":"critical"} (optional)
+  }
+
   enum TaskType {
     UNKNOWN = 0;
     CLICKHOUSE_QUERY = 1;
@@ -91,6 +100,7 @@ message Signoz {
     FETCH_TRACES = 10;
     FETCH_ALERT_RULES = 11;
     FETCH_SERVICE_MAP = 12;
+    FETCH_ALERTS_SUMMARY = 13;
   }
 
   TaskType type = 1;
@@ -107,5 +117,6 @@ message Signoz {
     FetchTracesTask fetch_traces = 11;
     FetchAlertRulesTask fetch_alert_rules = 12;
     FetchServiceMapTask fetch_service_map = 13;
+    FetchAlertsSummaryTask fetch_alerts_summary = 14;
   }
 } 

@@ -481,6 +481,86 @@ class SignozApiProcessor(Processor):
             logger.error(f"Exception when fetching alert rules: {e}")
             raise e
     
+    def fetch_alerts_summary(self, start_time=None, end_time=None, duration=None,
+                             rule_id=None, state=None, labels=None):
+        """
+        Fetches alert history summary from SigNoz using the alerts/overview endpoint.
+        Returns triggered/resolved alert events for a time window with optional filters.
+
+        Tries two endpoint strategies:
+          1. GET /api/v1/alerts/overview  (alerts history API, added Aug 2024)
+          2. GET /api/v1/alerts           (Alertmanager-compatible, currently firing only)
+
+        Parameters
+        ----------
+        start_time : str  RFC3339 or relative string (e.g. 'now-6h')
+        end_time   : str  RFC3339 or relative string
+        duration   : str  Duration window (e.g. '6h', '24h'). Defaults to last 6 h.
+        rule_id    : str  Filter to a specific alert rule ID
+        state      : str  'firing' | 'resolved' | 'normal'
+        labels     : dict Label key-value filters, e.g. {"severity": "critical"}
+        """
+        start_dt, end_dt = self._get_time_range(start_time, end_time, duration, default_hours=6)
+        start_ns = int(start_dt.timestamp() * 1_000_000_000)
+        end_ns = int(end_dt.timestamp() * 1_000_000_000)
+
+        # Build query params shared by the history endpoint
+        params = {"start": start_ns, "end": end_ns}
+        if rule_id:
+            params["ruleId"] = rule_id
+        if state:
+            params["state"] = state
+        if labels and isinstance(labels, dict):
+            for k, v in labels.items():
+                params[f"labels[{k}]"] = v
+
+        # Strategy 1: alerts history / overview (v0.45+)
+        try:
+            url = f"{self.signoz_api_url}/api/v1/alerts/overview"
+            response = requests.get(url, headers=self.headers, params=params, timeout=30)
+            if response.status_code == 200:
+                return {"source": "alerts_overview", "data": response.json()}
+            logger.debug(f"alerts/overview returned {response.status_code}, falling back to /api/v1/alerts")
+        except Exception as e:
+            logger.debug(f"alerts/overview unavailable: {e}")
+
+        # Strategy 2: Alertmanager-compatible triggered alerts endpoint (all versions)
+        try:
+            url = f"{self.signoz_api_url}/api/v1/alerts"
+            response = requests.get(url, headers=self.headers, timeout=30)
+            if response.status_code == 200:
+                raw = response.json()
+                alerts = raw.get("data", raw) if isinstance(raw, dict) else raw
+                if not isinstance(alerts, list):
+                    alerts = []
+
+                # Apply client-side filters when the server endpoint doesn't support them
+                if state:
+                    alerts = [a for a in alerts if a.get("state", "").lower() == state.lower()]
+                if rule_id:
+                    alerts = [a for a in alerts
+                              if str(a.get("labels", {}).get("ruleId", "")) == str(rule_id)
+                              or str(a.get("ruleId", "")) == str(rule_id)]
+                if labels and isinstance(labels, dict):
+                    for lk, lv in labels.items():
+                        alerts = [a for a in alerts
+                                  if str(a.get("labels", {}).get(lk, "")) == str(lv)]
+
+                return {
+                    "source": "triggered_alerts",
+                    "data": {
+                        "status": raw.get("status", "success") if isinstance(raw, dict) else "success",
+                        "alerts": alerts,
+                        "total": len(alerts),
+                    }
+                }
+            else:
+                logger.error(f"Failed to fetch alerts: {response.status_code} - {response.text}")
+                return {"status": "error", "message": f"Failed to fetch alerts: {response.status_code}", "details": response.text}
+        except Exception as e:
+            logger.error(f"Exception when fetching alerts: {e}")
+            return {"status": "error", "message": str(e)}
+
     def query_metrics(self, time_range: TimeRange, query, step=None, aggregation=None):
         """Query metrics from Signoz ClickhouseDB"""
         try:
