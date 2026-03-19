@@ -667,8 +667,12 @@ class GithubAPIProcessor(Processor):
                         break
                     page += 1
                 else:
-                    logger.error(f"GithubAPIProcessor.list_recent_commits:: Error fetching commits for {self.org}/{repo} "
-                                 f"with status_code: {response.status_code} and response: {response.text}")
+                    if response.status_code == 403:
+                        logger.info(f"GithubAPIProcessor.list_recent_commits:: No access to commits for {self.org}/{repo} "
+                                    f"with status_code: 403 (token lacks permission)")
+                    else:
+                        logger.error(f"GithubAPIProcessor.list_recent_commits:: Error fetching commits for {self.org}/{repo} "
+                                     f"with status_code: {response.status_code} and response: {response.text}")
                     break
 
             return all_commits
@@ -715,8 +719,12 @@ class GithubAPIProcessor(Processor):
                         break
                     page += 1
                 else:
-                    logger.error(f"GithubAPIProcessor.list_pull_requests:: Error fetching PRs for {self.org}/{repo} "
-                                 f"with status_code: {response.status_code} and response: {response.text}")
+                    if response.status_code == 403:
+                        logger.info(f"GithubAPIProcessor.list_pull_requests:: No access to PRs for {self.org}/{repo} "
+                                    f"with status_code: 403 (token lacks permission)")
+                    else:
+                        logger.error(f"GithubAPIProcessor.list_pull_requests:: Error fetching PRs for {self.org}/{repo} "
+                                     f"with status_code: {response.status_code} and response: {response.text}")
                     break
 
             return all_prs
@@ -743,8 +751,12 @@ class GithubAPIProcessor(Processor):
             if response.status_code == 200:
                 return response.json()
             else:
-                logger.error(f"GithubAPIProcessor.get_pull_request:: Error fetching PR #{pr_number} for {self.org}/{repo} "
-                             f"with status_code: {response.status_code} and response: {response.text}")
+                if response.status_code == 403:
+                    logger.info(f"GithubAPIProcessor.get_pull_request:: No access to PR #{pr_number} for {self.org}/{repo} "
+                                f"with status_code: 403 (token lacks permission)")
+                else:
+                    logger.error(f"GithubAPIProcessor.get_pull_request:: Error fetching PR #{pr_number} for {self.org}/{repo} "
+                                 f"with status_code: {response.status_code} and response: {response.text}")
                 return None
         except Exception as e:
             logger.error(f"GithubAPIProcessor.get_pull_request:: Exception occurred for PR #{pr_number} in {self.org}/{repo}: {e}")
@@ -780,8 +792,12 @@ class GithubAPIProcessor(Processor):
                         break
                     page += 1
                 else:
-                    logger.error(f"GithubAPIProcessor.list_releases:: Error fetching releases for {self.org}/{repo} "
-                                 f"with status_code: {response.status_code} and response: {response.text}")
+                    if response.status_code == 403:
+                        logger.info(f"GithubAPIProcessor.list_releases:: No access to releases for {self.org}/{repo} "
+                                    f"with status_code: 403 (token lacks permission)")
+                    else:
+                        logger.error(f"GithubAPIProcessor.list_releases:: Error fetching releases for {self.org}/{repo} "
+                                     f"with status_code: {response.status_code} and response: {response.text}")
                     break
 
             return all_releases
@@ -808,8 +824,12 @@ class GithubAPIProcessor(Processor):
             if response.status_code == 200:
                 return response.json()
             else:
-                logger.error(f"GithubAPIProcessor.get_release:: Error fetching release {release_id} for {self.org}/{repo} "
-                             f"with status_code: {response.status_code} and response: {response.text}")
+                if response.status_code == 403:
+                    logger.info(f"GithubAPIProcessor.get_release:: No access to release {release_id} for {self.org}/{repo} "
+                                f"with status_code: 403 (token lacks permission)")
+                else:
+                    logger.error(f"GithubAPIProcessor.get_release:: Error fetching release {release_id} for {self.org}/{repo} "
+                                 f"with status_code: {response.status_code} and response: {response.text}")
                 return None
         except Exception as e:
             logger.error(f"GithubAPIProcessor.get_release:: Exception occurred for release {release_id} in {self.org}/{repo}: {e}")
@@ -833,8 +853,12 @@ class GithubAPIProcessor(Processor):
             if response.status_code == 200:
                 return response.json()
             else:
-                logger.error(f"GithubAPIProcessor.get_repository_info:: Error fetching repo info for {self.org}/{repo} "
-                             f"with status_code: {response.status_code} and response: {response.text}")
+                if response.status_code == 403:
+                    logger.info(f"GithubAPIProcessor.get_repository_info:: No access to repo info for {self.org}/{repo} "
+                                f"with status_code: 403 (token lacks permission)")
+                else:
+                    logger.error(f"GithubAPIProcessor.get_repository_info:: Error fetching repo info for {self.org}/{repo} "
+                                 f"with status_code: {response.status_code} and response: {response.text}")
                 return None
         except Exception as e:
             logger.error(f"GithubAPIProcessor.get_repository_info:: Exception occurred for {self.org}/{repo}: {e}")
@@ -875,8 +899,12 @@ class GithubAPIProcessor(Processor):
                     })
                 return files
             else:
-                logger.error(f"GithubAPIProcessor.get_commit_files:: Error fetching commit {commit_sha} for {self.org}/{repo} "
-                             f"with status_code: {response.status_code}")
+                if response.status_code == 403:
+                    logger.info(f"GithubAPIProcessor.get_commit_files:: No access to commit {commit_sha} for {self.org}/{repo} "
+                                f"with status_code: 403 (token lacks permission)")
+                else:
+                    logger.error(f"GithubAPIProcessor.get_commit_files:: Error fetching commit {commit_sha} for {self.org}/{repo} "
+                                 f"with status_code: {response.status_code}")
                 return []
         except Exception as e:
             logger.error(f"GithubAPIProcessor.get_commit_files:: Exception occurred for {self.org}/{repo}: {e}")
@@ -909,8 +937,12 @@ class GithubAPIProcessor(Processor):
                     })
                 return comments
             else:
-                logger.error(f"GithubAPIProcessor.get_commit_comments:: Error fetching comments for commit {commit_sha} "
-                             f"in {self.org}/{repo} with status_code: {response.status_code}")
+                if response.status_code == 403:
+                    logger.info(f"GithubAPIProcessor.get_commit_comments:: No access to comments for commit {commit_sha} "
+                                f"in {self.org}/{repo} with status_code: 403 (token lacks permission)")
+                else:
+                    logger.error(f"GithubAPIProcessor.get_commit_comments:: Error fetching comments for commit {commit_sha} "
+                                 f"in {self.org}/{repo} with status_code: {response.status_code}")
                 return []
         except Exception as e:
             logger.error(f"GithubAPIProcessor.get_commit_comments:: Exception occurred for {self.org}/{repo}: {e}")
@@ -957,8 +989,12 @@ class GithubAPIProcessor(Processor):
                         break
                     page += 1
                 else:
-                    logger.error(f"GithubAPIProcessor.get_pr_files:: Error fetching files for PR #{pr_number} "
-                                 f"in {self.org}/{repo} with status_code: {response.status_code}")
+                    if response.status_code == 403:
+                        logger.info(f"GithubAPIProcessor.get_pr_files:: No access to files for PR #{pr_number} "
+                                    f"in {self.org}/{repo} with status_code: 403 (token lacks permission)")
+                    else:
+                        logger.error(f"GithubAPIProcessor.get_pr_files:: Error fetching files for PR #{pr_number} "
+                                     f"in {self.org}/{repo} with status_code: {response.status_code}")
                     break
 
             return all_files
@@ -1001,8 +1037,12 @@ class GithubAPIProcessor(Processor):
                         break
                     page += 1
                 else:
-                    logger.error(f"GithubAPIProcessor.get_pr_comments:: Error fetching issue comments for PR #{pr_number} "
-                                 f"in {self.org}/{repo} with status_code: {response.status_code}")
+                    if response.status_code == 403:
+                        logger.info(f"GithubAPIProcessor.get_pr_comments:: No access to issue comments for PR #{pr_number} "
+                                    f"in {self.org}/{repo} with status_code: 403 (token lacks permission)")
+                    else:
+                        logger.error(f"GithubAPIProcessor.get_pr_comments:: Error fetching issue comments for PR #{pr_number} "
+                                     f"in {self.org}/{repo} with status_code: {response.status_code}")
                     break
 
             # Get review comments (code-specific comments)
@@ -1025,8 +1065,12 @@ class GithubAPIProcessor(Processor):
                         break
                     page += 1
                 else:
-                    logger.error(f"GithubAPIProcessor.get_pr_comments:: Error fetching review comments for PR #{pr_number} "
-                                 f"in {self.org}/{repo} with status_code: {response.status_code}")
+                    if response.status_code == 403:
+                        logger.info(f"GithubAPIProcessor.get_pr_comments:: No access to review comments for PR #{pr_number} "
+                                    f"in {self.org}/{repo} with status_code: 403 (token lacks permission)")
+                    else:
+                        logger.error(f"GithubAPIProcessor.get_pr_comments:: Error fetching review comments for PR #{pr_number} "
+                                     f"in {self.org}/{repo} with status_code: {response.status_code}")
                     break
 
             # Sort by timestamp
