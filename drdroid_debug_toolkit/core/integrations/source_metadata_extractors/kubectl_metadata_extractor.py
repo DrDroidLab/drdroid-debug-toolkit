@@ -1,5 +1,6 @@
 import json
 import logging
+import requests
 from typing import Dict, Any
 
 from core.integrations.source_metadata_extractor import SourceMetadataExtractor
@@ -279,19 +280,44 @@ class KubernetesMetadataExtractor(SourceMetadataExtractor):
         model_type = SourceModelType.KUBERNETES_NETWORK_MAP
         model_data = {}
 
-        try:
-            raw_output = self.__kubectl_api_processor.execute_non_kubectl_command(
-                ['otterize', 'network-mapper', 'export', '--format', 'json', '--telemetry-enabled=false']
-            )
+        MAPPER_URL = "http://otterize-network-mapper.otterize-system.svc.cluster.local:9090/query"
+        QUERY = '{"query":"{ serviceIntents { client { name namespace } intents { name namespace } } }"}'
 
-            if not raw_output:
-                logger.warning("No output from otterize network-mapper export. "
+        try:
+            response = requests.post(MAPPER_URL, data=QUERY,
+                                     headers={"Content-Type": "application/json"}, timeout=30)
+            if response.status_code != 200:
+                logger.warning(f"Network mapper API returned {response.status_code}. "
                                "Is the network mapper deployed and running?")
                 return model_data
 
-            raw_network_map = json.loads(raw_output)
+            data = response.json()
+            service_intents = data.get("data", {}).get("serviceIntents", [])
+            if not service_intents:
+                logger.warning("No service intents returned from network mapper")
+                return model_data
 
-            simplified_map = simplify_network_map(raw_network_map)
+            # Convert GraphQL response to ClientIntents format for simplify_network_map
+            client_intents = []
+            for si in service_intents:
+                client = si.get("client", {})
+                targets = []
+                for intent in si.get("intents", []):
+                    target_name = intent.get("name", "")
+                    target_ns = intent.get("namespace", "")
+                    if target_ns and target_ns != client.get("namespace", ""):
+                        target_name = f"{target_name}.{target_ns}"
+                    targets.append({"kubernetes": {"name": target_name}})
+                client_intents.append({
+                    "kind": "ClientIntents",
+                    "metadata": {"namespace": client.get("namespace", "")},
+                    "spec": {
+                        "workload": {"name": client.get("name", ""), "kind": "Deployment"},
+                        "targets": targets
+                    }
+                })
+
+            simplified_map = simplify_network_map(client_intents)
 
             if not validate_network_map_data(simplified_map):
                 logger.error("Network map data validation failed")
@@ -302,8 +328,10 @@ class KubernetesMetadataExtractor(SourceMetadataExtractor):
 
             model_data['cluster_network_map'] = simplified_map
 
+        except requests.exceptions.ConnectionError:
+            logger.warning("Cannot connect to network mapper. Is it deployed?")
         except json.JSONDecodeError as e:
-            logger.error(f"Error parsing network mapper JSON output: {e}")
+            logger.error(f"Error parsing network mapper response: {e}")
         except Exception as e:
             logger.error(f"Error extracting Kubernetes network map: {e}")
 
