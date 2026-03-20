@@ -1,4 +1,5 @@
 from google.protobuf.wrappers_pb2 import StringValue
+from django.conf import settings
 
 from core.integrations.source_api_processors.bash_processor import BashProcessor
 from core.integrations.source_manager import SourceManager
@@ -9,6 +10,22 @@ from core.protos.playbooks.playbook_commons_pb2 import PlaybookTaskResult, BashC
 from core.protos.playbooks.source_task_definitions.bash_task_pb2 import Bash
 from core.protos.ui_definition_pb2 import FormField, FormFieldType
 from core.utils.credentilal_utils import generate_credentials_dict, get_connector_key_type_string, DISPLAY_NAME, CATEGORY, CUSTOM
+
+
+def _get_connector_metadata_models(**kwargs):
+    """
+    Resolve SSH server metadata from the host Django app.
+
+    Set ``GET_CONNECTOR_METADATA_MODELS`` in Django settings to a callable with the same
+    signature as the former in-repo helper (typically ``model_type``, ``model_uid``).
+    """
+    resolver = getattr(settings, "GET_CONNECTOR_METADATA_MODELS", None)
+    if resolver is None or not callable(resolver):
+        raise RuntimeError(
+            "Bash remote_server execution requires Django setting GET_CONNECTOR_METADATA_MODELS "
+            "(callable returning a queryset with .first())."
+        )
+    return resolver(**kwargs)
 
 
 key_type_to_form_field_map = {
@@ -272,8 +289,10 @@ class BashSourceManager(SourceManager):
             bash_command: Bash.Command = bash_task.command
             remote_server_str = bash_command.remote_server.value if bash_command.remote_server else None
             if remote_server_str and not remote_server_connector:
-                ssh_server_asset = get_connector_metadata_models(model_type=SourceModelType.SSH_SERVER,
-                                                                 model_uid=remote_server_str)
+                ssh_server_asset = _get_connector_metadata_models(
+                    model_type=SourceModelType.SSH_SERVER,
+                    model_uid=remote_server_str,
+                )
                 if not ssh_server_asset:
                     raise Exception("No remote servers assets found")
                 ssh_server_asset = ssh_server_asset.first()

@@ -21,7 +21,7 @@ from drdroid_debug_toolkit.core.protos.playbooks.source_task_definitions.coralog
 from drdroid_debug_toolkit.core.protos.ui_definition_pb2 import FormField, FormFieldType
 from google.protobuf.struct_pb2 import Struct
 from drdroid_debug_toolkit.core.protos.literal_pb2 import Literal
-from utils.proto_utils import dict_to_proto, proto_to_dict
+from core.utils.proto_utils import dict_to_proto, proto_to_dict
 
 logger = logging.getLogger(__name__)
 
