@@ -251,6 +251,13 @@ def buildGrafanaUrl(host_url: str, task_type: str, params: dict = None) -> str:
         query_string = "&".join(url_params)
         return f"{base_url}/explore?{query_string}" if query_string else f"{base_url}/explore"
     
+    elif task_type == "alerting":
+        url_params = []
+        if 'orgId' in params:
+            url_params.append(f"orgId={params['orgId']}")
+        query_string = "&".join(url_params)
+        return f"{base_url}/alerting?{query_string}" if query_string else f"{base_url}/alerting"
+
     else:
         logger.warning(f"Unsupported Grafana task type: {task_type}")
         return base_url

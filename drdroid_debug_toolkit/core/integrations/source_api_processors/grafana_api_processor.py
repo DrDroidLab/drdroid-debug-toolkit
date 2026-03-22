@@ -1037,8 +1037,9 @@ class GrafanaApiProcessor(Processor):
         """
         Fetches the state-change history for a specific Grafana alert rule.
 
-        Uses GET /api/ruler/grafana/states (Grafana 9.4+), which returns a Grafana
-        dataframe of state transitions for the given rule over a time window.
+        Tries two strategies in order:
+          1. GET /api/v1/rules/history  (Grafana 10+, returns structured state transitions)
+          2. GET /api/annotations       (all Grafana versions, annotation-based alert history)
 
         Parameters
         ----------
@@ -1067,18 +1068,42 @@ class GrafanaApiProcessor(Processor):
         from_ms = int(start_dt.timestamp() * 1000)
         to_ms = int(end_dt.timestamp() * 1000)
 
+        # Strategy 1: Grafana 10+ state history API
         try:
-            url = f"{self.__host}/api/ruler/grafana/states"
+            url = f"{self.__host}/api/v1/rules/history"
             params = {
                 "ruleUID": rule_uid,
                 "from": from_ms,
                 "to": to_ms,
+                "limit": 100,
             }
             response = requests.get(url, headers=self.headers, params=params,
                                     verify=self.__ssl_verify, timeout=30)
             if response.status_code == 200:
+                logger.debug("fetch_alert_state_history: using /api/v1/rules/history (Grafana 10+)")
                 return response.json()
-            logger.error(f"fetch_alert_state_history: HTTP {response.status_code} – {response.text[:200]}")
+            logger.debug(f"fetch_alert_state_history: /api/v1/rules/history returned {response.status_code}, falling back to annotations")
+        except Exception as e:
+            logger.debug(f"fetch_alert_state_history: /api/v1/rules/history unavailable: {e}")
+
+        # Strategy 2: Annotations API (all Grafana versions)
+        # Grafana stores alert state changes as annotations with type=alert
+        try:
+            url = f"{self.__host}/api/annotations"
+            params = {
+                "alertUID": rule_uid,
+                "from": from_ms,
+                "to": to_ms,
+                "limit": 100,
+                "type": "alert",
+            }
+            response = requests.get(url, headers=self.headers, params=params,
+                                    verify=self.__ssl_verify, timeout=30)
+            if response.status_code == 200:
+                logger.debug("fetch_alert_state_history: using /api/annotations (annotations fallback)")
+                data = response.json()
+                return {"annotations": data, "count": len(data) if isinstance(data, list) else 0}
+            logger.error(f"fetch_alert_state_history: annotations fallback HTTP {response.status_code} – {response.text[:200]}")
             return {"error": f"HTTP {response.status_code}", "detail": response.text}
         except Exception as e:
             logger.error(f"Exception occurred while fetching alert state history: {e}")
