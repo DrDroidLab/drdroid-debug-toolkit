@@ -68,13 +68,6 @@ message Grafana {
     google.protobuf.BoolValue inhibited = 5;     // Include inhibited alerts (default: false)
   }
 
-  message FetchAlertStateHistoryTask {
-    google.protobuf.StringValue rule_uid = 1;    // Alert rule UID to fetch history for (required)
-    google.protobuf.StringValue start_time = 2;  // Start time (RFC3339 or relative like 'now-24h')
-    google.protobuf.StringValue end_time = 3;    // End time (RFC3339 or relative like 'now')
-    google.protobuf.StringValue duration = 4;    // Duration window (e.g. '24h', '7d'). Defaults to last 24h.
-  }
-
   message TempoDatasourceTraceSearchTask {
     google.protobuf.StringValue datasource_uid = 1;
     google.protobuf.StringValue traceql_query = 2;
@@ -131,7 +124,6 @@ message Grafana {
     TEMPO_DATASOURCE_GET_TAGS = 14;
     TEMPO_DATASOURCE_GET_TAG_VALUES = 15;
     FETCH_TRIGGERED_ALERTS = 16;
-    FETCH_ALERT_STATE_HISTORY = 17;
   }
 
   TaskType type = 1;
@@ -152,6 +144,5 @@ message Grafana {
     TempoDatasourceGetTagsTask tempo_datasource_get_tags = 16;
     TempoDatasourceGetTagValuesTask tempo_datasource_get_tag_values = 17;
     FetchTriggeredAlertsTask fetch_triggered_alerts = 18;
-    FetchAlertStateHistoryTask fetch_alert_state_history = 19;
   }
 }
