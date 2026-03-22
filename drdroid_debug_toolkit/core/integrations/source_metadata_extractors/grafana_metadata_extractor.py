@@ -642,12 +642,20 @@ class GrafanaSourceMetadataExtractor(SourceMetadataExtractor):
 
         model_data = {}
         for alert_rule in alert_rules:
-            alert_uid = alert_rule['uid']
+            try:
+                # Ruler API nests uid inside grafana_alert; Provisioning API has it at the top level
+                grafana_alert = alert_rule.get('grafana_alert', {})
+                alert_uid = grafana_alert.get('uid') or alert_rule.get('uid')
+                if not alert_uid:
+                    logger.warning(f"Skipping alert rule with no uid: {alert_rule.get('alert', alert_rule.get('title', 'unknown'))}")
+                    continue
 
-            model_data[alert_uid] = {
-                'alert_rule_id': alert_uid,
-                'alert_rule_json': alert_rule
-            }
+                model_data[alert_uid] = {
+                    'alert_rule_id': alert_uid,
+                    'alert_rule_json': alert_rule
+                }
+            except Exception as e:
+                logger.error(f"Error processing alert rule {alert_rule}: {e}")
 
         if len(model_data) > 0:
             self.create_or_update_model_metadata(model_type, model_data)

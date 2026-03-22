@@ -1,3 +1,4 @@
+import datetime
 import logging
 import re
 
@@ -7,6 +8,57 @@ from core.integrations.processor import Processor
 from core.protos.base_pb2 import TimeRange
 
 logger = logging.getLogger(__name__)
+
+
+def _parse_duration_to_hours(duration_str):
+    """Parse a duration string like '2d', '24h', '90m' and return total hours as a float."""
+    if not duration_str:
+        return 24.0
+    match = re.match(r"^(\d+(?:\.\d+)?)([dhm])$", str(duration_str).strip().lower())
+    if match:
+        value, unit = match.groups()
+        value = float(value)
+        if unit == "d":
+            return value * 24
+        elif unit == "h":
+            return value
+        elif unit == "m":
+            return value / 60
+    try:
+        return float(duration_str)
+    except Exception:
+        return 24.0
+
+
+def _parse_time_string(time_str):
+    """
+    Parse a time string to a UTC-aware datetime.
+    Supports RFC3339, epoch-ms integers/strings, 'now', 'now-6h', 'now-2d', etc.
+    """
+    if not time_str:
+        return datetime.datetime.now(datetime.timezone.utc)
+    s = str(time_str).strip().lower()
+    if s == "now":
+        return datetime.datetime.now(datetime.timezone.utc)
+    match = re.match(r"now-(\d+(?:\.\d+)?)([smhd])", s)
+    if match:
+        value, unit = match.groups()
+        value = float(value)
+        delta_map = {"s": datetime.timedelta(seconds=value),
+                     "m": datetime.timedelta(minutes=value),
+                     "h": datetime.timedelta(hours=value),
+                     "d": datetime.timedelta(days=value)}
+        return datetime.datetime.now(datetime.timezone.utc) - delta_map[unit]
+    try:
+        return datetime.datetime.fromisoformat(time_str.replace("Z", "+00:00"))
+    except Exception:
+        pass
+    try:
+        epoch_ms = int(time_str)
+        return datetime.datetime.fromtimestamp(epoch_ms / 1000, tz=datetime.timezone.utc)
+    except Exception:
+        pass
+    return datetime.datetime.now(datetime.timezone.utc)
 
 
 class GrafanaApiProcessor(Processor):
@@ -939,6 +991,46 @@ class GrafanaApiProcessor(Processor):
             return response.json()
         except Exception as e:
             logger.error(f"Exception occurred while fetching Tempo tag values for {tag_name}: {e}")
+            raise e
+
+    def fetch_triggered_alerts(self, rule_uid=None, labels=None, active=True, silenced=False, inhibited=False):
+        """
+        Fetches currently active (triggered) alerts from Grafana Alertmanager.
+
+        Uses GET /api/alertmanager/grafana/api/v2/alerts (Grafana v8+ unified alerting).
+
+        Parameters
+        ----------
+        rule_uid  : str   Filter to a specific alert rule UID (optional)
+        labels    : dict  Label key-value filters, e.g. {"severity": "critical"} (optional)
+        active    : bool  Include active alerts (default: True)
+        silenced  : bool  Include silenced alerts (default: False)
+        inhibited : bool  Include inhibited alerts (default: False)
+        """
+        try:
+            url = f"{self.__host}/api/alertmanager/grafana/api/v2/alerts"
+            params = {
+                "active": str(active).lower(),
+                "silenced": str(silenced).lower(),
+                "inhibited": str(inhibited).lower(),
+            }
+            if rule_uid:
+                params["filter"] = f'__alert_rule_uid__="{rule_uid}"'
+            if labels and isinstance(labels, dict):
+                filters = [params.get("filter", "")] if params.get("filter") else []
+                for k, v in labels.items():
+                    filters.append(f'{k}="{v}"')
+                if filters:
+                    params["filter"] = ",".join(filters)
+
+            response = requests.get(url, headers=self.headers, params=params,
+                                    verify=self.__ssl_verify, timeout=30)
+            if response.status_code == 200:
+                return response.json()
+            logger.error(f"fetch_triggered_alerts: HTTP {response.status_code} – {response.text[:200]}")
+            return {"error": f"HTTP {response.status_code}", "detail": response.text}
+        except Exception as e:
+            logger.error(f"Exception occurred while fetching triggered alerts: {e}")
             raise e
 
     def panel_query_datasource_api(self, tr: TimeRange, queries, interval_ms=300000):

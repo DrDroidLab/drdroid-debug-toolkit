@@ -251,6 +251,13 @@ def buildGrafanaUrl(host_url: str, task_type: str, params: dict = None) -> str:
         query_string = "&".join(url_params)
         return f"{base_url}/explore?{query_string}" if query_string else f"{base_url}/explore"
     
+    elif task_type == "alerting":
+        url_params = []
+        if 'orgId' in params:
+            url_params.append(f"orgId={params['orgId']}")
+        query_string = "&".join(url_params)
+        return f"{base_url}/alerting?{query_string}" if query_string else f"{base_url}/alerting"
+
     else:
         logger.warning(f"Unsupported Grafana task type: {task_type}")
         return base_url
@@ -438,6 +445,47 @@ class GrafanaSourceManager(SourceManager):
                 "display_name": "Fetch Alert Rules from Grafana",
                 "category": "Alerts",
                 "form_fields": [],
+            },
+            Grafana.TaskType.FETCH_TRIGGERED_ALERTS: {
+                "executor": self.execute_fetch_triggered_alerts,
+                "model_types": [],
+                "result_type": PlaybookTaskResultType.API_RESPONSE,
+                "display_name": "Fetch Triggered Alerts from Grafana",
+                "category": "Alerts",
+                "form_fields": [
+                    FormField(
+                        key_name=StringValue(value="rule_uid"),
+                        display_name=StringValue(value="Alert Rule UID"),
+                        description=StringValue(value="Filter to a specific alert rule UID (leave blank for all)"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=True,
+                    ),
+                    FormField(
+                        key_name=StringValue(value="labels"),
+                        display_name=StringValue(value="Label Filters"),
+                        description=StringValue(value='JSON object of label filters, e.g. {"severity":"critical"}'),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=True,
+                    ),
+                    FormField(
+                        key_name=StringValue(value="active"),
+                        display_name=StringValue(value="Include Active"),
+                        description=StringValue(value="Include active/firing alerts (default: true)"),
+                        data_type=LiteralType.BOOLEAN,
+                        form_field_type=FormFieldType.CHECKBOX_FT,
+                        is_optional=True,
+                    ),
+                    FormField(
+                        key_name=StringValue(value="silenced"),
+                        display_name=StringValue(value="Include Silenced"),
+                        description=StringValue(value="Include silenced alerts (default: false)"),
+                        data_type=LiteralType.BOOLEAN,
+                        form_field_type=FormFieldType.CHECKBOX_FT,
+                        is_optional=True,
+                    ),
+                ],
             },
             Grafana.TaskType.TEMPO_DATASOURCE_TRACE_SEARCH: {
                 "executor": self.execute_tempo_datasource_trace_search,
@@ -3611,3 +3659,68 @@ class GrafanaSourceManager(SourceManager):
                 source=self.source,
                 metadata=metadata
             )
+
+    def execute_fetch_triggered_alerts(self, time_range: TimeRange, grafana_task: Grafana,
+                                       grafana_connector: ConnectorProto):
+        metadata = self._create_metadata_with_grafana_url(grafana_connector, "alerting", {
+            "orgId": "1"
+        }) if grafana_connector else None
+
+        try:
+            if not grafana_connector:
+                response_data = {"error": "Task execution Failed:: No Grafana source found"}
+                response_struct = Struct()
+                response_struct.update(response_data)
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.API_RESPONSE,
+                    api_response=ApiResponseResult(response_body=response_struct),
+                    source=self.source,
+                    metadata=metadata
+                )
+
+            task = grafana_task.fetch_triggered_alerts
+            rule_uid = task.rule_uid.value if task.HasField("rule_uid") else None
+            labels_str = task.labels.value if task.HasField("labels") else None
+            active = task.active.value if task.HasField("active") else True
+            silenced = task.silenced.value if task.HasField("silenced") else False
+            inhibited = task.inhibited.value if task.HasField("inhibited") else False
+
+            labels = None
+            if labels_str:
+                try:
+                    labels = json.loads(labels_str)
+                except Exception:
+                    logger.warning(f"execute_fetch_triggered_alerts: failed to parse labels JSON '{labels_str}'")
+
+            grafana_api_processor = self.get_connector_processor(grafana_connector)
+
+            print("Playbook Task Downstream Request: Type -> Grafana FETCH_TRIGGERED_ALERTS", flush=True)
+
+            result = grafana_api_processor.fetch_triggered_alerts(
+                rule_uid=rule_uid, labels=labels, active=active,
+                silenced=silenced, inhibited=inhibited
+            )
+
+            response_data = result if result is not None else []
+            if isinstance(response_data, list):
+                response_data = {"alerts": response_data, "count": len(response_data)}
+
+            response_struct = Struct()
+            response_struct.update(response_data)
+            return PlaybookTaskResult(
+                source=self.source,
+                type=PlaybookTaskResultType.API_RESPONSE,
+                api_response=ApiResponseResult(response_body=response_struct),
+                metadata=metadata
+            )
+        except Exception as e:
+            logger.error(f"Error while executing Grafana fetch triggered alerts task: {e}")
+            response_struct = Struct()
+            response_struct.update({"error": str(e)})
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                api_response=ApiResponseResult(response_body=response_struct),
+                source=self.source,
+                metadata=metadata
+            )
+
