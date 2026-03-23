@@ -126,6 +126,101 @@ class SignozSourceMetadataExtractor(SourceMetadataExtractor):
         return model_data
 
     @log_function_call
+    def extract_clickhouse_schema(self):
+        """
+        Extract ClickHouse table schema metadata from SigNoz.
+        Queries system.columns to retrieve column definitions for all non-system databases,
+        grouped by database and table.
+        """
+        model_type = SourceModelType.SIGNOZ_CLICKHOUSE_SCHEMA
+        model_data = {}
+
+        try:
+            query = """
+            SELECT database, table, name AS column_name, type AS column_type, comment
+            FROM system.columns
+            WHERE database NOT IN ('system', 'information_schema', 'INFORMATION_SCHEMA')
+            ORDER BY database, table, column_name
+            """
+
+            from datetime import datetime, timezone, timedelta
+
+            end_time = datetime.now(timezone.utc)
+            start_time = end_time - timedelta(hours=1)
+
+            result = self.__signoz_api_processor.signoz_query_clickhouse(
+                query=query,
+                time_geq=int(start_time.timestamp()),
+                time_lt=int(end_time.timestamp())
+            )
+            logger.debug(f"SigNoz ClickHouse schema response: {result}")
+
+            if not result or "error" in result:
+                logger.error(f"Failed to execute ClickHouse schema query: {result}")
+                return model_data
+
+            # Parse results and group columns by database.table
+            tables: dict = {}
+
+            # New response format: data.data.results[].rows[]
+            results_data = result.get("data", {}).get("data", {}).get("results", [])
+            if results_data:
+                for query_result in results_data:
+                    for row in query_result.get("rows", []):
+                        row_data = row.get("data", {})
+                        if not isinstance(row_data, dict):
+                            continue
+                        database = row_data.get("database")
+                        table = row_data.get("table")
+                        column_name = row_data.get("column_name")
+                        column_type = row_data.get("column_type")
+                        comment = row_data.get("comment", "")
+                        if not (database and table and column_name and column_type):
+                            continue
+                        key = f"{database}.{table}"
+                        if key not in tables:
+                            tables[key] = {"database": database, "table": table, "columns": []}
+                        tables[key]["columns"].append({
+                            "name": column_name,
+                            "type": column_type,
+                            "comment": comment,
+                        })
+            # Fallback: old format data.result[].table.rows[]
+            elif result.get("data", {}).get("result"):
+                for item in result["data"]["result"]:
+                    for row in item.get("table", {}).get("rows", []):
+                        row_data = row.get("data", {})
+                        if not isinstance(row_data, dict):
+                            continue
+                        database = row_data.get("database")
+                        table = row_data.get("table")
+                        column_name = row_data.get("column_name")
+                        column_type = row_data.get("column_type")
+                        comment = row_data.get("comment", "")
+                        if not (database and table and column_name and column_type):
+                            continue
+                        key = f"{database}.{table}"
+                        if key not in tables:
+                            tables[key] = {"database": database, "table": table, "columns": []}
+                        tables[key]["columns"].append({
+                            "name": column_name,
+                            "type": column_type,
+                            "comment": comment,
+                        })
+
+            for key, table_schema in tables.items():
+                model_data[key] = table_schema
+
+            if model_data:
+                self.create_or_update_model_metadata(model_type, model_data)
+            logger.info(f"Extracted ClickHouse schema for {len(model_data)} tables from SigNoz")
+
+        except Exception as e:
+            logger.error(f'Error extracting signoz clickhouse schema: {e}')
+
+        return model_data
+
+    @log_function_call
     def extract_log_attributes(self):
         """
         Extract log attributes and their types from SigNoz logs.

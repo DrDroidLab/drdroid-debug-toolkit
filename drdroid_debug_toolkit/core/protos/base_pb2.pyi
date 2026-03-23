@@ -825,6 +825,7 @@ class _SourceModelTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper
     SIGNOZ_METRIC: _SourceModelType.ValueType  # 5003
     SIGNOZ_SERVICE: _SourceModelType.ValueType  # 5004
     SIGNOZ_LOG_ATTRIBUTES: _SourceModelType.ValueType  # 5005
+    SIGNOZ_CLICKHOUSE_SCHEMA: _SourceModelType.ValueType  # 5006
     KUBERNETES_NAMESPACE: _SourceModelType.ValueType  # 6001
     """Kubernetes Models"""
     KUBERNETES_SERVICE: _SourceModelType.ValueType  # 6002
@@ -1048,6 +1049,7 @@ SIGNOZ_ALERT: SourceModelType.ValueType  # 5002
 SIGNOZ_METRIC: SourceModelType.ValueType  # 5003
 SIGNOZ_SERVICE: SourceModelType.ValueType  # 5004
 SIGNOZ_LOG_ATTRIBUTES: SourceModelType.ValueType  # 5005
+SIGNOZ_CLICKHOUSE_SCHEMA: SourceModelType.ValueType  # 5006
 KUBERNETES_NAMESPACE: SourceModelType.ValueType  # 6001
 """Kubernetes Models"""
 KUBERNETES_SERVICE: SourceModelType.ValueType  # 6002
