@@ -73,7 +73,7 @@ class SignozDashboardQueryBuilder:
                 default_traces_fields = [
                     {"dataType": "string", "id": "serviceName--string--tag--true", "isColumn": True, "isJSON": False, "key": "serviceName", "type": "tag"},
                     {"dataType": "string", "id": "name--string--tag--true", "isColumn": True, "isJSON": False, "key": "name", "type": "tag"},
-                    {"dataType": "float64", "id": "durationNano--float64--tag--true", "isColumn": True, "isJSON": False, "key": "durationNano", "type": "tag"},
+                    {"dataType": "int64", "id": "durationNano--int64--tag--true", "isColumn": True, "isJSON": False, "key": "durationNano", "type": "tag"},
                     {"dataType": "string", "id": "httpMethod--string--tag--true", "isColumn": True, "isJSON": False, "key": "httpMethod", "type": "tag"},
                     {"dataType": "string", "id": "responseStatusCode--string--tag--true", "isColumn": True, "isJSON": False, "key": "responseStatusCode", "type": "tag"}
                 ]
@@ -228,7 +228,7 @@ APM_METRIC_QUERIES = {
         "p50": {
             "dataSource": "traces",
             "aggregateOperator": "p50",
-            "aggregateAttribute": {"key": "durationNano", "dataType": "float64", "isColumn": True, "type": "tag"},
+            "aggregateAttribute": {"key": "durationNano", "dataType": "int64", "isColumn": True, "type": "tag"},
             "timeAggregation": "",
             "spaceAggregation": "p50",
             "functions": [],
@@ -246,7 +246,7 @@ APM_METRIC_QUERIES = {
         "p90": {
             "dataSource": "traces",
             "aggregateOperator": "p90",
-            "aggregateAttribute": {"key": "durationNano", "dataType": "float64", "isColumn": True, "type": "tag"},
+            "aggregateAttribute": {"key": "durationNano", "dataType": "int64", "isColumn": True, "type": "tag"},
             "timeAggregation": "",
             "spaceAggregation": "p90",
             "functions": [],
@@ -264,7 +264,7 @@ APM_METRIC_QUERIES = {
         "p99": {
             "dataSource": "traces",
             "aggregateOperator": "p99",
-            "aggregateAttribute": {"key": "durationNano", "dataType": "float64", "isColumn": True, "type": "tag"},
+            "aggregateAttribute": {"key": "durationNano", "dataType": "int64", "isColumn": True, "type": "tag"},
             "timeAggregation": "",
             "spaceAggregation": "p99",
             "functions": [],
@@ -696,14 +696,20 @@ class SignozApiProcessor(Processor):
         end_ns = int(end_dt.timestamp() * 1_000_000_000)
 
         try:
-            url = f"{self.signoz_api_url}/api/v1/services"
-            payload = {"start": str(start_ns), "end": str(end_ns), "tags": []}
-            response = requests.post(url, headers=self.headers, json=payload, timeout=120)
-            if response.status_code == 200:
-                return response.json()
-            else:
-                logger.error(f"Failed to fetch services: {response.status_code} - {response.text}")
-                return {"status": "error", "message": f"Failed to fetch services: {response.status_code}", "details": response.text}
+            # Use direct ClickHouse SQL query to avoid Decimal math overflow (ClickHouse error 407)
+            # that occurs in SigNoz v0.45+ when /api/v1/services runs avg(durationNano) on Decimal128(9)
+            query = (
+                "SELECT serviceName, count() as span_count "
+                "FROM signoz_traces.distributed_signoz_index_v3 "
+                f"WHERE timestamp >= toDateTime64({int(start_dt.timestamp())}, 9) "
+                f"AND timestamp <= toDateTime64({int(end_dt.timestamp())}, 9) "
+                "GROUP BY serviceName ORDER BY span_count DESC LIMIT 1000"
+            )
+            return self.signoz_query_clickhouse(
+                query=query,
+                time_geq=int(start_dt.timestamp()),
+                time_lt=int(end_dt.timestamp()),
+            )
         except Exception as e:
             logger.error(f"Exception when fetching services: {e}")
             return {"status": "error", "message": str(e)}
@@ -1398,7 +1404,7 @@ class SignozApiProcessor(Processor):
             if data_type == "traces":
                 # For traces, use ClickHouse SQL approach
                 table = "signoz_traces.distributed_signoz_index_v3"
-                select_cols = "traceID, serviceName, name, durationNano, statusCode, timestamp"
+                select_cols = "traceID, serviceName, name, toFloat64(durationNano) AS durationNano, statusCode, timestamp"
                 where_clauses = [
                     f"timestamp >= toDateTime64({int(start_dt.timestamp())}, 9)", 
                     f"timestamp < toDateTime64({int(end_dt.timestamp())}, 9)"
@@ -1704,7 +1710,7 @@ class SignozApiProcessor(Processor):
             
             # Use ClickHouse SQL approach with correct column names (same as working fetch_traces_or_logs)
             table = "signoz_traces.distributed_signoz_index_v3"
-            select_cols = "traceID, spanID, serviceName, name, durationNano, statusCode, timestamp, httpMethod, httpUrl"
+            select_cols = "traceID, spanID, serviceName, name, toFloat64(durationNano) AS durationNano, statusCode, timestamp, httpMethod, httpUrl"
             where_clauses = [
                 f"timestamp >= toDateTime64({int(start_dt.timestamp())}, 9)", 
                 f"timestamp < toDateTime64({int(end_dt.timestamp())}, 9)"
@@ -1954,7 +1960,7 @@ class SignozApiProcessor(Processor):
             
             # Use ClickHouse SQL approach (same as existing working code)
             table = "signoz_traces.distributed_signoz_index_v3"
-            select_cols = "traceID, spanID, serviceName, name, durationNano, statusCode, timestamp"
+            select_cols = "traceID, spanID, serviceName, name, toFloat64(durationNano) AS durationNano, statusCode, timestamp"
             where_clauses = [
                 f"timestamp >= toDateTime64({int(start_dt.timestamp())}, 9)", 
                 f"timestamp < toDateTime64({int(end_dt.timestamp())}, 9)",
