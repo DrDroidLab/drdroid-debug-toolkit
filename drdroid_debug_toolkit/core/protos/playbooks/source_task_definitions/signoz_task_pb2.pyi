@@ -41,6 +41,7 @@ class Signoz(google.protobuf.message.Message):
         FETCH_ALERT_RULES: Signoz._TaskType.ValueType  # 11
         FETCH_SERVICE_MAP: Signoz._TaskType.ValueType  # 12
         FETCH_ALERTS_SUMMARY: Signoz._TaskType.ValueType  # 13
+        FETCH_DASHBOARD_VARIABLES: Signoz._TaskType.ValueType  # 14
 
     class TaskType(_TaskType, metaclass=_TaskTypeEnumTypeWrapper): ...
     UNKNOWN: Signoz.TaskType.ValueType  # 0
@@ -57,6 +58,7 @@ class Signoz(google.protobuf.message.Message):
     FETCH_ALERT_RULES: Signoz.TaskType.ValueType  # 11
     FETCH_SERVICE_MAP: Signoz.TaskType.ValueType  # 12
     FETCH_ALERTS_SUMMARY: Signoz.TaskType.ValueType  # 13
+    FETCH_DASHBOARD_VARIABLES: Signoz.TaskType.ValueType  # 14
 
     @typing_extensions.final
     class ClickhouseQueryTask(google.protobuf.message.Message):
@@ -137,6 +139,31 @@ class Signoz(google.protobuf.message.Message):
         def __init__(
             self,
         ) -> None: ...
+
+    @typing_extensions.final
+    class FetchDashboardVariablesTask(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        DASHBOARD_ID_FIELD_NUMBER: builtins.int
+        VARIABLES_JSON_FIELD_NUMBER: builtins.int
+        DURATION_FIELD_NUMBER: builtins.int
+        @property
+        def dashboard_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def variables_json(self) -> google.protobuf.wrappers_pb2.StringValue:
+            """Optional JSON overrides"""
+        @property
+        def duration(self) -> google.protobuf.wrappers_pb2.StringValue:
+            """e.g. "3h", "30m" """
+        def __init__(
+            self,
+            *,
+            dashboard_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            variables_json: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            duration: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["dashboard_id", b"dashboard_id", "duration", b"duration", "variables_json", b"variables_json"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["dashboard_id", b"dashboard_id", "duration", b"duration", "variables_json", b"variables_json"]) -> None: ...
 
     @typing_extensions.final
     class FetchDashboardDetailsTask(google.protobuf.message.Message):
@@ -389,6 +416,7 @@ class Signoz(google.protobuf.message.Message):
     FETCH_ALERT_RULES_FIELD_NUMBER: builtins.int
     FETCH_SERVICE_MAP_FIELD_NUMBER: builtins.int
     FETCH_ALERTS_SUMMARY_FIELD_NUMBER: builtins.int
+    FETCH_DASHBOARD_VARIABLES_FIELD_NUMBER: builtins.int
     type: global___Signoz.TaskType.ValueType
     @property
     def clickhouse_query(self) -> global___Signoz.ClickhouseQueryTask: ...
@@ -416,6 +444,8 @@ class Signoz(google.protobuf.message.Message):
     def fetch_service_map(self) -> global___Signoz.FetchServiceMapTask: ...
     @property
     def fetch_alerts_summary(self) -> global___Signoz.FetchAlertsSummaryTask: ...
+    @property
+    def fetch_dashboard_variables(self) -> global___Signoz.FetchDashboardVariablesTask: ...
     def __init__(
         self,
         *,
@@ -433,9 +463,10 @@ class Signoz(google.protobuf.message.Message):
         fetch_alert_rules: global___Signoz.FetchAlertRulesTask | None = ...,
         fetch_service_map: global___Signoz.FetchServiceMapTask | None = ...,
         fetch_alerts_summary: global___Signoz.FetchAlertsSummaryTask | None = ...,
+        fetch_dashboard_variables: global___Signoz.FetchDashboardVariablesTask | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["builder_query", b"builder_query", "clickhouse_query", b"clickhouse_query", "dashboard_data", b"dashboard_data", "fetch_alert_rules", b"fetch_alert_rules", "fetch_alerts_summary", b"fetch_alerts_summary", "fetch_apm_metrics", b"fetch_apm_metrics", "fetch_dashboard_details", b"fetch_dashboard_details", "fetch_dashboards", b"fetch_dashboards", "fetch_logs", b"fetch_logs", "fetch_logs_for_trace", b"fetch_logs_for_trace", "fetch_service_map", b"fetch_service_map", "fetch_services", b"fetch_services", "fetch_traces", b"fetch_traces", "task", b"task"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["builder_query", b"builder_query", "clickhouse_query", b"clickhouse_query", "dashboard_data", b"dashboard_data", "fetch_alert_rules", b"fetch_alert_rules", "fetch_alerts_summary", b"fetch_alerts_summary", "fetch_apm_metrics", b"fetch_apm_metrics", "fetch_dashboard_details", b"fetch_dashboard_details", "fetch_dashboards", b"fetch_dashboards", "fetch_logs", b"fetch_logs", "fetch_logs_for_trace", b"fetch_logs_for_trace", "fetch_service_map", b"fetch_service_map", "fetch_services", b"fetch_services", "fetch_traces", b"fetch_traces", "task", b"task", "type", b"type"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing_extensions.Literal["task", b"task"]) -> typing_extensions.Literal["clickhouse_query", "builder_query", "dashboard_data", "fetch_dashboards", "fetch_dashboard_details", "fetch_services", "fetch_apm_metrics", "fetch_logs", "fetch_logs_for_trace", "fetch_traces", "fetch_alert_rules", "fetch_service_map", "fetch_alerts_summary"] | None: ...
+    def HasField(self, field_name: typing_extensions.Literal["builder_query", b"builder_query", "clickhouse_query", b"clickhouse_query", "dashboard_data", b"dashboard_data", "fetch_alert_rules", b"fetch_alert_rules", "fetch_alerts_summary", b"fetch_alerts_summary", "fetch_apm_metrics", b"fetch_apm_metrics", "fetch_dashboard_details", b"fetch_dashboard_details", "fetch_dashboard_variables", b"fetch_dashboard_variables", "fetch_dashboards", b"fetch_dashboards", "fetch_logs", b"fetch_logs", "fetch_logs_for_trace", b"fetch_logs_for_trace", "fetch_service_map", b"fetch_service_map", "fetch_services", b"fetch_services", "fetch_traces", b"fetch_traces", "task", b"task"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["builder_query", b"builder_query", "clickhouse_query", b"clickhouse_query", "dashboard_data", b"dashboard_data", "fetch_alert_rules", b"fetch_alert_rules", "fetch_alerts_summary", b"fetch_alerts_summary", "fetch_apm_metrics", b"fetch_apm_metrics", "fetch_dashboard_details", b"fetch_dashboard_details", "fetch_dashboard_variables", b"fetch_dashboard_variables", "fetch_dashboards", b"fetch_dashboards", "fetch_logs", b"fetch_logs", "fetch_logs_for_trace", b"fetch_logs_for_trace", "fetch_service_map", b"fetch_service_map", "fetch_services", b"fetch_services", "fetch_traces", b"fetch_traces", "task", b"task", "type", b"type"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing_extensions.Literal["task", b"task"]) -> typing_extensions.Literal["clickhouse_query", "builder_query", "dashboard_data", "fetch_dashboards", "fetch_dashboard_details", "fetch_services", "fetch_apm_metrics", "fetch_logs", "fetch_logs_for_trace", "fetch_traces", "fetch_alert_rules", "fetch_service_map", "fetch_alerts_summary", "fetch_dashboard_variables"] | None: ...
 
 global___Signoz = Signoz
