@@ -992,6 +992,29 @@ class SignozApiProcessor(Processor):
                     
                     data_source = query_dict.get("dataSource")
 
+                    # Convert new 'aggregations' array format to the 'aggregateAttribute'/'aggregateOperator'
+                    # format expected by the v4 query_range API. Newer SignOz dashboards store metric info
+                    # in 'aggregations' but the API still expects the old format.
+                    if not query_dict.get("aggregateAttribute") and isinstance(query_dict.get("aggregations"), list) and query_dict["aggregations"]:
+                        agg = query_dict["aggregations"][0]
+                        metric_name = agg.get("metricName", "")
+                        if metric_name:
+                            query_dict["aggregateAttribute"] = {"key": metric_name}
+                            # Use spaceAggregation as the aggregateOperator (e.g. p99, sum, avg)
+                            space_agg = agg.get("spaceAggregation", "")
+                            time_agg = agg.get("timeAggregation", "")
+                            query_dict["aggregateOperator"] = space_agg or time_agg or "sum"
+                            if time_agg:
+                                query_dict["timeAggregation"] = time_agg
+                            if space_agg:
+                                query_dict["spaceAggregation"] = space_agg
+                            if agg.get("reduceTo"):
+                                query_dict["reduceTo"] = agg["reduceTo"]
+                            if agg.get("temporality"):
+                                query_dict["temporality"] = agg["temporality"]
+                        # Remove the aggregations array so it doesn't confuse the API
+                        query_dict.pop("aggregations", None)
+
                     # pageSize is valid for logs/traces but NOT for metrics
                     if data_source in ("logs", "traces"):
                         query_dict["pageSize"] = query_dict.get("pageSize", 100)
@@ -1398,7 +1421,7 @@ class SignozApiProcessor(Processor):
             if data_type == "traces":
                 # For traces, use ClickHouse SQL approach
                 table = "signoz_traces.distributed_signoz_index_v3"
-                select_cols = "traceID, serviceName, name, durationNano, statusCode, timestamp"
+                select_cols = "traceID, serviceName, name, durationNano, toString(statusCode) as statusCode, timestamp"
                 where_clauses = [
                     f"timestamp >= toDateTime64({int(start_dt.timestamp())}, 9)", 
                     f"timestamp < toDateTime64({int(end_dt.timestamp())}, 9)"
@@ -1704,7 +1727,7 @@ class SignozApiProcessor(Processor):
             
             # Use ClickHouse SQL approach with correct column names (same as working fetch_traces_or_logs)
             table = "signoz_traces.distributed_signoz_index_v3"
-            select_cols = "traceID, spanID, serviceName, name, durationNano, statusCode, timestamp, httpMethod, httpUrl"
+            select_cols = "traceID, spanID, serviceName, name, durationNano, toString(statusCode) as statusCode, timestamp, httpMethod, httpUrl"
             where_clauses = [
                 f"timestamp >= toDateTime64({int(start_dt.timestamp())}, 9)", 
                 f"timestamp < toDateTime64({int(end_dt.timestamp())}, 9)"
@@ -1954,7 +1977,7 @@ class SignozApiProcessor(Processor):
             
             # Use ClickHouse SQL approach (same as existing working code)
             table = "signoz_traces.distributed_signoz_index_v3"
-            select_cols = "traceID, spanID, serviceName, name, durationNano, statusCode, timestamp"
+            select_cols = "traceID, spanID, serviceName, name, durationNano, toString(statusCode) as statusCode, timestamp"
             where_clauses = [
                 f"timestamp >= toDateTime64({int(start_dt.timestamp())}, 9)", 
                 f"timestamp < toDateTime64({int(end_dt.timestamp())}, 9)",
@@ -1995,8 +2018,8 @@ class SignozApiProcessor(Processor):
                                 "service_name": row_data.get("serviceName", "unknown"),
                                 "operation_name": row_data.get("name", "unknown"),
                                 "duration_ns": row_data.get("durationNano", 0),
-                                "status_code": row_data.get("statusCode", 0),
-                                "has_error": int(row_data.get("statusCode", 0)) >= 400
+                                "status_code": row_data.get("statusCode", ""),
+                                "has_error": str(row_data.get("statusCode", "")).lower() in ("error", "2")
                             }
                             
                             # Add additional attributes if requested
