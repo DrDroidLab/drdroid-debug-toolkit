@@ -1,6 +1,7 @@
 import json
 import logging
 import re
+from collections import deque
 from datetime import datetime, timedelta, timezone
 
 import requests
@@ -1871,6 +1872,60 @@ class SignozApiProcessor(Processor):
             resolved[name] = value
         return resolved
 
+    def _order_query_variables_by_dependencies(self, variables_map: dict) -> list:
+        """Return QUERY (var_id, var_def, var_name) tuples in an order that respects QUERY→QUERY edges.
+
+        If A's query references $B and B is also QUERY, B is resolved before A. Cycles fall back to
+        declaration order for any nodes left after Kahn's algorithm.
+        """
+        entries = []
+        for var_id, var_def in (variables_map or {}).items():
+            if not isinstance(var_def, dict):
+                continue
+            if (var_def.get("type") or "").upper() != "QUERY":
+                continue
+            name = var_def.get("name") or var_def.get("key") or var_id
+            entries.append((var_id, var_def, name))
+
+        if not entries:
+            return []
+
+        query_names = {e[2] for e in entries}
+        # dep -> [successors]: successor must run after dep
+        successors: dict = {n: [] for _, _, n in entries}
+        indegree = {n: 0 for _, _, n in entries}
+
+        for var_id, var_def, name in entries:
+            q = var_def.get("queryValue") or ""
+            for dep in self._extract_signoz_variable_dependencies(q):
+                if dep in query_names and dep != name:
+                    successors[dep].append(name)
+                    indegree[name] += 1
+
+        ordered_names = []
+        queue = deque(n for n in indegree if indegree[n] == 0)
+        while queue:
+            n = queue.popleft()
+            ordered_names.append(n)
+            for succ in successors[n]:
+                indegree[succ] -= 1
+                if indegree[succ] == 0:
+                    queue.append(succ)
+
+        # Cycles: append remaining in original map order
+        seen = set(ordered_names)
+        for var_id, var_def, name in entries:
+            if name not in seen:
+                logger.warning(
+                    f"SigNoz QUERY variables contain a cycle or unresolved order; "
+                    f"appending '{name}' after partial topological sort"
+                )
+                ordered_names.append(name)
+                seen.add(name)
+
+        name_to_entry = {name: (vid, vdef) for vid, vdef, name in entries}
+        return [(name_to_entry[n][0], name_to_entry[n][1], n) for n in ordered_names]
+
     def _resolve_query_allowed_values_with_dependencies(self, var_def: dict, non_query_values: dict, duration: str) -> list:
         """Substitute dependent placeholders in the query and return allowed values."""
         query_sql = var_def.get("queryValue")
@@ -2329,9 +2384,9 @@ class SignozApiProcessor(Processor):
 
         Resolution order:
         1. Non-QUERY variables are resolved from their stored selectedValue/textboxValue/customValue.
-        2. QUERY variables are resolved in declaration order with a multi-pass approach:
-           each variable's SQL is substituted with all already-resolved values (non-QUERY +
-           previously-resolved QUERY variables), enabling QUERY→QUERY dependency chains.
+        2. QUERY variables are resolved in dependency order (topological sort among QUERY vars;
+           declaration order is only a tie-breaker / cycle fallback), so e.g. deployment.environment
+           runs before service.name when the latter references the former.
            If a QUERY var still has unresolved dependencies, it falls back to its last
            selectedValue from the dashboard JSON rather than being dropped.
         3. User overrides from variables_json are merged last.
@@ -2356,17 +2411,12 @@ class SignozApiProcessor(Processor):
                 variables_payload[name] = value
                 name_to_id[name] = var_id
 
-        # Pass 2: QUERY variables in declaration order, accumulating resolved values
-        # so that QUERY var B can depend on already-resolved QUERY var A.
+        # Pass 2: QUERY variables in dependency order (not raw JSON key order).
         resolved_so_far: dict = dict(non_query_values)
 
-        for var_id, var_def in variables_map.items():
+        for var_id, var_def, name in self._order_query_variables_by_dependencies(variables_map):
             if not isinstance(var_def, dict):
                 continue
-            var_type = (var_def.get("type") or "").upper()
-            if var_type != "QUERY":
-                continue
-            name = var_def.get("name") or var_def.get("key") or var_id
             multi = bool(var_def.get("multiSelect"))
             query_sql = var_def.get("queryValue") or ""
 
@@ -2430,8 +2480,8 @@ class SignozApiProcessor(Processor):
           }
         }
 
-        QUERY variables are resolved in declaration order so that QUERY→QUERY dependency
-        chains work: once variable A is resolved its value is available when resolving B.
+        QUERY variables are resolved in dependency order (topological sort), while the returned
+        ``variables`` map keeps the dashboard's key order for stable output.
         """
         try:
             variables_section = {}
@@ -2457,19 +2507,16 @@ class SignozApiProcessor(Processor):
                         val = [val] if val is not None else []
                     non_query_values[var_name] = val
 
-            # Pass 2: resolve QUERY variables in order, accumulating results for chained deps
+            # Pass 2a: resolve QUERY vars in dependency order (not dashboard key order)
             resolved_so_far: dict = dict(non_query_values)
+            allowed_by_name: dict = {}
 
-            for _id, var_def in variables_map.items():
+            for _qid, var_def, var_name in self._order_query_variables_by_dependencies(variables_map):
                 if not isinstance(var_def, dict):
                     continue
-                var_name = var_def.get("name") or var_def.get("key") or _id
-                var_type = (var_def.get("type") or "").upper()
-                selected_value = var_def.get("selectedValue")
                 query_sql = var_def.get("queryValue") or ""
-
                 allowed_values = []
-                if resolve_queries and var_type == "QUERY" and query_sql.strip():
+                if resolve_queries and query_sql.strip():
                     deps = self._extract_signoz_variable_dependencies(query_sql)
                     unresolved = [d for d in deps if d not in resolved_so_far]
                     if unresolved:
@@ -2481,6 +2528,18 @@ class SignozApiProcessor(Processor):
                     allowed_values = self._resolve_query_variable_values(substituted, duration=duration)
                     if allowed_values:
                         resolved_so_far[var_name] = allowed_values[0]
+                allowed_by_name[var_name] = allowed_values
+
+            # Pass 2b: build output in dashboard iteration order
+            for _id, var_def in variables_map.items():
+                if not isinstance(var_def, dict):
+                    continue
+                var_name = var_def.get("name") or var_def.get("key") or _id
+                var_type = (var_def.get("type") or "").upper()
+                selected_value = var_def.get("selectedValue")
+                query_sql = var_def.get("queryValue") or ""
+
+                allowed_values = allowed_by_name.get(var_name, []) if var_type == "QUERY" else []
 
                 variables_section[var_name] = {
                     "type": var_type,
