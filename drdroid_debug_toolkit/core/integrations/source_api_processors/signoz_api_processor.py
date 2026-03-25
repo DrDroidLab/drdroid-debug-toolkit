@@ -876,7 +876,7 @@ class SignozApiProcessor(Processor):
             logger.error(f"Exception in _post_query_range_v5: {e}")
             return {"error": f"Exception: {e}"}
 
-    def fetch_dashboard_data(self, dashboard_name, start_time=None, end_time=None, step=None, variables_json=None, duration=None):
+    def fetch_dashboard_data(self, dashboard_name, start_time=None, end_time=None, step=None, variables_json=None, duration=None, panel_ids=None):
         """
         Fetches dashboard data for all panels in a specified Signoz dashboard by name.
         Accepts start_time and end_time as RFC3339 or relative strings (e.g., 'now-2h', 'now-30m'), or a duration string (e.g., '2h', '90m').
@@ -909,6 +909,18 @@ class SignozApiProcessor(Processor):
             logger.debug(f"panels: {panels}")
             if not panels:
                 return {"status": "error", "message": f"No panels found in dashboard '{dashboard_name}'"}
+            # Filter panels by panel_ids (comma-separated panel titles) if provided
+            if panel_ids:
+                requested_titles = [t.strip() for t in panel_ids.split(",") if t.strip()]
+                if len(requested_titles) > 4:
+                    return {"status": "error", "message": "Too many panels to query. Please reduce the number of panels to 4 or less in one go."}
+                requested_titles_lower = [t.lower() for t in requested_titles]
+                filtered_panels = [p for p in panels if (p.get("title") or "").lower() in requested_titles_lower]
+                if not filtered_panels:
+                    available = [p.get("title", "") for p in panels if p.get("title")]
+                    return {"status": "error", "message": f"None of the requested panels found. Available panels: {', '.join(available[:20])}"}
+                panels = filtered_panels
+                logger.debug(f"Filtered to {len(panels)} panels: {[p.get('title') for p in panels]}")
             # Build variables payload (resolved non-QUERY first, then QUERY, then overrides)
             variables = self._build_variables_payload(dashboard_details, variables_json, duration or "3h")
             # Step

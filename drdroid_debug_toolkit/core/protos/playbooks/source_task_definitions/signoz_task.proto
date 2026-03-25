@@ -21,6 +21,7 @@ message Signoz {
     google.protobuf.Int32Value step = 2;
     google.protobuf.StringValue panel_type = 3;
     google.protobuf.StringValue variables_json = 4;
+    google.protobuf.StringValue panel_ids = 5;  // Comma-separated panel titles to query (max 4). If empty, queries all panels.
   }
 
   message FetchDashboardsTask {
