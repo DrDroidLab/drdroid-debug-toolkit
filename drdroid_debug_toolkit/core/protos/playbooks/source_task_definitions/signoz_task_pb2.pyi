@@ -111,6 +111,7 @@ class Signoz(google.protobuf.message.Message):
         STEP_FIELD_NUMBER: builtins.int
         PANEL_TYPE_FIELD_NUMBER: builtins.int
         VARIABLES_JSON_FIELD_NUMBER: builtins.int
+        PANEL_IDS_FIELD_NUMBER: builtins.int
         @property
         def dashboard_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
         @property
@@ -119,6 +120,9 @@ class Signoz(google.protobuf.message.Message):
         def panel_type(self) -> google.protobuf.wrappers_pb2.StringValue: ...
         @property
         def variables_json(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def panel_ids(self) -> google.protobuf.wrappers_pb2.StringValue:
+            """Comma-separated panel titles to query (max 4). If empty, queries all panels."""
         def __init__(
             self,
             *,
@@ -126,9 +130,10 @@ class Signoz(google.protobuf.message.Message):
             step: google.protobuf.wrappers_pb2.Int32Value | None = ...,
             panel_type: google.protobuf.wrappers_pb2.StringValue | None = ...,
             variables_json: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            panel_ids: google.protobuf.wrappers_pb2.StringValue | None = ...,
         ) -> None: ...
-        def HasField(self, field_name: typing_extensions.Literal["dashboard_name", b"dashboard_name", "panel_type", b"panel_type", "step", b"step", "variables_json", b"variables_json"]) -> builtins.bool: ...
-        def ClearField(self, field_name: typing_extensions.Literal["dashboard_name", b"dashboard_name", "panel_type", b"panel_type", "step", b"step", "variables_json", b"variables_json"]) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["dashboard_name", b"dashboard_name", "panel_ids", b"panel_ids", "panel_type", b"panel_type", "step", b"step", "variables_json", b"variables_json"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["dashboard_name", b"dashboard_name", "panel_ids", b"panel_ids", "panel_type", b"panel_type", "step", b"step", "variables_json", b"variables_json"]) -> None: ...
 
     @typing_extensions.final
     class FetchDashboardsTask(google.protobuf.message.Message):
