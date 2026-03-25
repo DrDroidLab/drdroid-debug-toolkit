@@ -826,6 +826,14 @@ class SignozSourceManager(SourceManager):
                         ),
                         form_field_type=FormFieldType.MULTILINE_FT,  # Use multiline for JSON
                     ),
+                    FormField(
+                        key_name=StringValue(value="panel_ids"),
+                        display_name=StringValue(value="Panel IDs"),
+                        description=StringValue(value="Comma-separated panel titles to query (max 4). If empty, queries all panels."),
+                        data_type=LiteralType.STRING,
+                        is_optional=True,
+                        form_field_type=FormFieldType.TEXT_FT,
+                    ),
                 ],
             },
             Signoz.TaskType.FETCH_DASHBOARDS: {
@@ -2002,10 +2010,11 @@ class SignozSourceManager(SourceManager):
             # Get parameters
             step = task.step.value if task.HasField("step") else None
             variables_json = task.variables_json.value if task.HasField("variables_json") else None
+            panel_ids = task.panel_ids.value if task.HasField("panel_ids") else None
 
             signoz_api_processor = self.get_connector_processor(signoz_connector)
             result = signoz_api_processor.fetch_dashboard_data(
-                dashboard_name, start_time, end_time, step, variables_json
+                dashboard_name, start_time, end_time, step, variables_json, panel_ids=panel_ids
             )
 
             if result and result.get("status") == "success":
