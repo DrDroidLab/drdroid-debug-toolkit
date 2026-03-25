@@ -121,6 +121,7 @@ message ConnectorModelTypeOptions {
     GrafanaDatasourceAssetOptions grafana_tempo_datasource_model_options = 117;
     GrafanaTempoServiceAssetOptions grafana_tempo_service_model_options = 118;
     McpAssetOptions mcp_asset_model_options = 119;
+    CodeBuildProjectAssetOptions codebuild_project_model_options = 120;
   }
 }
 
@@ -216,6 +217,7 @@ message AccountConnectorAssetsModelFilters {
     GrafanaDatasourceAssetOptions grafana_tempo_datasource_model_filters = 197;
     GrafanaTempoServiceAssetOptions grafana_tempo_service_model_filters = 198;
     McpAssetOptions mcp_asset_model_filters = 199;
+    CodeBuildProjectAssetOptions codebuild_project_model_filters = 200;
   }
 }
 
