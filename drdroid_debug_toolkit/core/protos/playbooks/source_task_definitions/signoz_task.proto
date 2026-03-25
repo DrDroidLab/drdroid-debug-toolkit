@@ -28,12 +28,6 @@ message Signoz {
     // No additional parameters needed for fetching all dashboards
   }
 
-  message FetchDashboardVariablesTask {
-    google.protobuf.StringValue dashboard_id = 1;
-    google.protobuf.StringValue variables_json = 2;  // Optional JSON overrides
-    google.protobuf.StringValue duration = 3;         // e.g. "3h", "30m"
-  }
-
   message FetchDashboardDetailsTask {
     google.protobuf.StringValue dashboard_id = 1;
   }
@@ -108,7 +102,6 @@ message Signoz {
     FETCH_ALERT_RULES = 11;
     FETCH_SERVICE_MAP = 12;
     FETCH_ALERTS_SUMMARY = 13;
-    FETCH_DASHBOARD_VARIABLES = 14;
   }
 
   TaskType type = 1;
@@ -126,6 +119,5 @@ message Signoz {
     FetchAlertRulesTask fetch_alert_rules = 12;
     FetchServiceMapTask fetch_service_map = 13;
     FetchAlertsSummaryTask fetch_alerts_summary = 14;
-    FetchDashboardVariablesTask fetch_dashboard_variables = 15;
   }
 } 

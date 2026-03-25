@@ -2587,12 +2587,3 @@ class SignozApiProcessor(Processor):
         except Exception as e:
             logger.error(f"Failed to extract dashboard variables: {e}")
             return {"variables": {}}
-
-    def get_dashboard_variables(self, dashboard_id: str, resolve_queries: bool = True, duration: str = "3h") -> dict:
-        """Fetch dashboard details and return extracted variables, optionally resolving QUERY values."""
-        try:
-            details = self.fetch_dashboard_details(dashboard_id)
-            return self.extract_dashboard_variables_from_details(details, resolve_queries=resolve_queries, duration=duration)
-        except Exception as e:
-            logger.error(f"Failed to get dashboard variables for {dashboard_id}: {e}")
-            return {"variables": {}}
