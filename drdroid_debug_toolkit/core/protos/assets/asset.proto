@@ -118,6 +118,7 @@ message ConnectorModelTypeOptions {
     MetabaseSubscriptionAssetOptions metabase_subscription_model_options = 116;
     GrafanaDatasourceAssetOptions grafana_tempo_datasource_model_options = 117;
     GrafanaTempoServiceAssetOptions grafana_tempo_service_model_options = 118;
+    CodeBuildProjectAssetOptions codebuild_project_model_options = 119;
   }
 }
 
@@ -212,6 +213,7 @@ message AccountConnectorAssetsModelFilters {
     MetabaseSubscriptionAssetOptions metabase_subscription_model_filters = 196;
     GrafanaDatasourceAssetOptions grafana_tempo_datasource_model_filters = 197;
     GrafanaTempoServiceAssetOptions grafana_tempo_service_model_filters = 198;
+    CodeBuildProjectAssetOptions codebuild_project_model_filters = 199;
   }
 }
 

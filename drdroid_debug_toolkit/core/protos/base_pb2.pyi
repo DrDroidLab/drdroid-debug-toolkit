@@ -664,6 +664,7 @@ class _SourceModelTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper
     CLOUDWATCH_ALARMS: _SourceModelType.ValueType  # 204
     RDS_INSTANCES: _SourceModelType.ValueType  # 205
     CLOUDWATCH_DASHBOARD: _SourceModelType.ValueType  # 206
+    CODEBUILD_PROJECT: _SourceModelType.ValueType  # 207
     GRAFANA_DATASOURCE: _SourceModelType.ValueType  # 301
     """Grafana Models"""
     GRAFANA_DASHBOARD: _SourceModelType.ValueType  # 302
@@ -888,6 +889,7 @@ CLOUDWATCH_LOG_GROUP_QUERY: SourceModelType.ValueType  # 203
 CLOUDWATCH_ALARMS: SourceModelType.ValueType  # 204
 RDS_INSTANCES: SourceModelType.ValueType  # 205
 CLOUDWATCH_DASHBOARD: SourceModelType.ValueType  # 206
+CODEBUILD_PROJECT: SourceModelType.ValueType  # 207
 GRAFANA_DATASOURCE: SourceModelType.ValueType  # 301
 """Grafana Models"""
 GRAFANA_DASHBOARD: SourceModelType.ValueType  # 302
