@@ -630,6 +630,7 @@ enum SourceModelType {
 
   // MCP Server Models
   MCP_TOOLS = 9101;
+  MCP_ASSETS = 9102;
 
   // Linear Models
   LINEAR_TEAMS = 9201;
