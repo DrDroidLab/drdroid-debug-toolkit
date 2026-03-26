@@ -34,6 +34,7 @@ import "core/protos/assets/sentry_asset.proto";
 import "core/protos/assets/victoria_logs_asset.proto";
 import "core/protos/assets/linear_asset.proto";
 import "core/protos/assets/metabase_asset.proto";
+import "core/protos/assets/mcp_asset.proto";
 
 
 message ConnectorModelTypeOptions {
@@ -118,6 +119,7 @@ message ConnectorModelTypeOptions {
     MetabaseSubscriptionAssetOptions metabase_subscription_model_options = 116;
     GrafanaDatasourceAssetOptions grafana_tempo_datasource_model_options = 117;
     GrafanaTempoServiceAssetOptions grafana_tempo_service_model_options = 118;
+    McpAssetOptions mcp_asset_model_options = 119;
   }
 }
 
@@ -212,6 +214,7 @@ message AccountConnectorAssetsModelFilters {
     MetabaseSubscriptionAssetOptions metabase_subscription_model_filters = 196;
     GrafanaDatasourceAssetOptions grafana_tempo_datasource_model_filters = 197;
     GrafanaTempoServiceAssetOptions grafana_tempo_service_model_filters = 198;
+    McpAssetOptions mcp_asset_model_filters = 199;
   }
 }
 
@@ -248,6 +251,7 @@ message AccountConnectorAssets {
     VictoriaLogsAssets victoria_logs = 29;
     LinearAssets linear = 30;
     MetabaseAssets metabase = 31;
+    McpAssets mcp_server = 32;
   }
 }
 
