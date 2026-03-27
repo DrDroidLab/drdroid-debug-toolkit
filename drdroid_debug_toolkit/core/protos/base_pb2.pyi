@@ -470,6 +470,9 @@ class SourceModelType(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     METABASE_DATABASE: _ClassVar[SourceModelType]
     METABASE_COLLECTION: _ClassVar[SourceModelType]
     METABASE_SUBSCRIPTION: _ClassVar[SourceModelType]
+    DATABRICKS_JOB: _ClassVar[SourceModelType]
+    DATABRICKS_CLUSTER: _ClassVar[SourceModelType]
+    DATABRICKS_SQL_WAREHOUSE: _ClassVar[SourceModelType]
 
 class Context(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     __slots__ = ()
@@ -946,6 +949,9 @@ METABASE_CARD: SourceModelType
 METABASE_DATABASE: SourceModelType
 METABASE_COLLECTION: SourceModelType
 METABASE_SUBSCRIPTION: SourceModelType
+DATABRICKS_JOB: SourceModelType
+DATABRICKS_CLUSTER: SourceModelType
+DATABRICKS_SQL_WAREHOUSE: SourceModelType
 UNKNOWN_C: Context
 EVENT: Context
 MONITOR_TRANSACTION: Context

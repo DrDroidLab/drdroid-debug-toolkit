@@ -37,3 +37,25 @@ class DatabricksApiProcessor(Processor):
         except requests.exceptions.Timeout as e:
             logger.error(f"Databricks connection timeout: {e}")
             raise Exception(f"Connection to Databricks workspace timed out")
+
+    def _get(self, path: str, params: dict = None) -> dict:
+        url = f"{self.databricks_host}{path}"
+        headers = {
+            "Authorization": f"Bearer {self.databricks_token}",
+            "Content-Type": "application/json",
+        }
+        response = requests.get(url, headers=headers, params=params, timeout=60)
+        response.raise_for_status()
+        return response.json()
+
+    def list_jobs(self) -> list:
+        result = self._get("/api/2.1/jobs/list", params={"limit": 100})
+        return result.get("jobs", [])
+
+    def list_clusters(self) -> list:
+        result = self._get("/api/2.0/clusters/list")
+        return result.get("clusters", [])
+
+    def list_sql_warehouses(self) -> list:
+        result = self._get("/api/2.0/sql/warehouses")
+        return result.get("warehouses", [])
