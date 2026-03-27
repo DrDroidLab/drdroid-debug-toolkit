@@ -166,6 +166,7 @@ enum Source {
   MCP_SERVER = 76;
   VICTORIA_LOGS=77;
   METABASE = 78;
+  DATABRICKS = 79;
 }
 
 enum SourceKeyType {
@@ -377,6 +378,10 @@ enum SourceKeyType {
   // Metabase specific keys
   METABASE_URL = 162;
   METABASE_API_KEY = 163;
+
+  // Databricks specific keys
+  DATABRICKS_HOST = 166;
+  DATABRICKS_TOKEN = 167;
 
 }
 

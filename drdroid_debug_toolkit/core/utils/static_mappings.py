@@ -456,6 +456,12 @@ integrations_connector_type_connector_keys_map = {
             SourceKeyType.METABASE_API_KEY,
         ]
     ],
+    Source.DATABRICKS: [
+        [
+            SourceKeyType.DATABRICKS_HOST,
+            SourceKeyType.DATABRICKS_TOKEN,
+        ]
+    ],
 }
 integrations_connector_type_display_name_map = {
     Source.SLACK: 'SLACK',
@@ -498,6 +504,7 @@ integrations_connector_type_display_name_map = {
     Source.POSTHOG: 'POSTHOG',
     Source.SIGNOZ: 'SIGNOZ',
     Source.METABASE: 'METABASE',
+    Source.DATABRICKS: 'DATABRICKS',
 }
 
 model_type_display_name_maps = {

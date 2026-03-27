@@ -135,6 +135,7 @@ class Source(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     MCP_SERVER: _ClassVar[Source]
     VICTORIA_LOGS: _ClassVar[Source]
     METABASE: _ClassVar[Source]
+    DATABRICKS: _ClassVar[Source]
 
 class SourceKeyType(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     __slots__ = ()
@@ -289,6 +290,8 @@ class SourceKeyType(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     GITHUB_APP_ACCESS_TOKEN: _ClassVar[SourceKeyType]
     METABASE_URL: _ClassVar[SourceKeyType]
     METABASE_API_KEY: _ClassVar[SourceKeyType]
+    DATABRICKS_HOST: _ClassVar[SourceKeyType]
+    DATABRICKS_TOKEN: _ClassVar[SourceKeyType]
 
 class SourceModelType(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     __slots__ = ()
@@ -614,6 +617,7 @@ RENDER: Source
 MCP_SERVER: Source
 VICTORIA_LOGS: Source
 METABASE: Source
+DATABRICKS: Source
 UNKNOWN_SKT: SourceKeyType
 SENTRY_API_KEY: SourceKeyType
 SENTRY_ORG_SLUG: SourceKeyType
@@ -765,6 +769,8 @@ GITHUB_APP_INSTALLATION_ID: SourceKeyType
 GITHUB_APP_ACCESS_TOKEN: SourceKeyType
 METABASE_URL: SourceKeyType
 METABASE_API_KEY: SourceKeyType
+DATABRICKS_HOST: SourceKeyType
+DATABRICKS_TOKEN: SourceKeyType
 UNKNOWN_MT: SourceModelType
 NEW_RELIC_POLICY: SourceModelType
 NEW_RELIC_CONDITION: SourceModelType
