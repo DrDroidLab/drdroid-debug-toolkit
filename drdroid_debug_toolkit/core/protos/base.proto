@@ -383,6 +383,9 @@ enum SourceKeyType {
   DATABRICKS_HOST = 166;
   DATABRICKS_TOKEN = 167;
 
+  // Github specific keys
+  GITHUB_API_URL = 168;
+
 }
 
 enum SourceModelType {
