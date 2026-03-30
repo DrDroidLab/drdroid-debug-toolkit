@@ -20,11 +20,7 @@ else:
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
 @typing_extensions.final
-class McpAssetModel(google.protobuf.message.Message):
-    """MCP asset model — stores dynamic JSON output from MCP tool execution.
-    Since MCP tools return arbitrary JSON, we use google.protobuf.Struct for flexibility.
-    """
-
+class DatabricksAssetModel(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
     ID_FIELD_NUMBER: builtins.int
@@ -55,32 +51,20 @@ class McpAssetModel(google.protobuf.message.Message):
     def HasField(self, field_name: typing_extensions.Literal["id", b"id", "metadata", b"metadata", "name", b"name"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing_extensions.Literal["connector_type", b"connector_type", "id", b"id", "last_updated", b"last_updated", "metadata", b"metadata", "name", b"name", "type", b"type"]) -> None: ...
 
-global___McpAssetModel = McpAssetModel
+global___DatabricksAssetModel = DatabricksAssetModel
 
 @typing_extensions.final
-class McpAssets(google.protobuf.message.Message):
+class DatabricksAssets(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
     ASSETS_FIELD_NUMBER: builtins.int
     @property
-    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___McpAssetModel]: ...
+    def assets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___DatabricksAssetModel]: ...
     def __init__(
         self,
         *,
-        assets: collections.abc.Iterable[global___McpAssetModel] | None = ...,
+        assets: collections.abc.Iterable[global___DatabricksAssetModel] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing_extensions.Literal["assets", b"assets"]) -> None: ...
 
-global___McpAssets = McpAssets
-
-@typing_extensions.final
-class McpAssetOptions(google.protobuf.message.Message):
-    """No filters for MVP — all assets are returned"""
-
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    def __init__(
-        self,
-    ) -> None: ...
-
-global___McpAssetOptions = McpAssetOptions
+global___DatabricksAssets = DatabricksAssets
