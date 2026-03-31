@@ -13,3 +13,5 @@ drdroid_debug_toolkit.egg-info/SOURCES.txt
 drdroid_debug_toolkit.egg-info/top_level.txt
 tests/test_backward_compatibility.py
 env.sh
+.DS_Store
+**/.DS_Store

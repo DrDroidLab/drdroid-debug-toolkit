@@ -443,6 +443,47 @@ class CloudwatchSourceMetadataExtractor(SourceMetadataExtractor):
             self.create_or_update_model_metadata(model_type, model_data)
 
     @log_function_call
+    def extract_codebuild_projects(self):
+        model_type = SourceModelType.CODEBUILD_PROJECT
+        model_data = {}
+        codebuild_processor = AWSBoto3ApiProcessor('codebuild', self.__region, self.__aws_access_key,
+                                                   self.__aws_secret_key, self.__aws_assumed_role_arn,
+                                                   self.__aws_drd_cloud_role_arn,
+                                                   aws_external_id=self.__aws_external_id)
+        try:
+            project_names = codebuild_processor.codebuild_list_projects()
+            if not project_names:
+                return
+
+            projects = codebuild_processor.codebuild_batch_get_projects(project_names)
+            for project in projects:
+                name = project.get('name')
+                if not name:
+                    continue
+
+                source = project.get('source', {})
+                environment = project.get('environment', {})
+
+                model_data[name] = {
+                    'name': name,
+                    'arn': project.get('arn', ''),
+                    'description': project.get('description', ''),
+                    'source_type': source.get('type', ''),
+                    'source_location': source.get('location', ''),
+                    'buildspec': source.get('buildspec', ''),
+                    'environment_type': environment.get('type', ''),
+                    'environment_image': environment.get('image', ''),
+                    'environment_compute_type': environment.get('computeType', ''),
+                    'service_role': project.get('serviceRole', ''),
+                    'region': self.__region,
+                }
+        except Exception as e:
+            logger.error(f'Error extracting CodeBuild projects: {e}')
+
+        if model_data:
+            self.create_or_update_model_metadata(model_type, model_data)
+
+    @log_function_call
     def extract_dashboard_by_name(self, dashboard_name: str) -> dict:
         """Extract a specific CloudWatch dashboard by name.
         

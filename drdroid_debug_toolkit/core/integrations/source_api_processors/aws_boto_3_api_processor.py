@@ -1138,3 +1138,38 @@ class AWSBoto3ApiProcessor(Processor):
         except Exception as e:
             logger.error(f"Error in AWS cost dimension discovery: {str(e)}")
             return {'error': f"Error discovering AWS cost dimensions: {str(e)}"}
+
+    def codebuild_list_projects(self):
+        """List all CodeBuild project names for this account/region."""
+        try:
+            client = self.get_connection()
+            project_names = []
+            next_token = None
+            while True:
+                kwargs = {'sortBy': 'NAME', 'sortOrder': 'ASCENDING'}
+                if next_token:
+                    kwargs['nextToken'] = next_token
+                response = client.list_projects(**kwargs)
+                project_names.extend(response.get('projects', []))
+                next_token = response.get('nextToken')
+                if not next_token:
+                    break
+            return project_names
+        except Exception as e:
+            logger.error(f"Error listing CodeBuild projects: {e}")
+            raise e
+
+    def codebuild_batch_get_projects(self, project_names):
+        """Fetch full project details for a list of project names (max 100 per call)."""
+        try:
+            client = self.get_connection()
+            projects = []
+            # API allows max 100 names per call
+            for i in range(0, len(project_names), 100):
+                batch = project_names[i:i + 100]
+                response = client.batch_get_projects(names=batch)
+                projects.extend(response.get('projects', []))
+            return projects
+        except Exception as e:
+            logger.error(f"Error fetching CodeBuild project details: {e}")
+            raise e
