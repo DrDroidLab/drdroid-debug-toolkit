@@ -53,10 +53,7 @@ def generate_aws_access_secret_session_key(aws_assumed_role_arn, aws_drd_cloud_r
 
     aws_access_key_id = assumed_role['Credentials']['AccessKeyId']
     aws_secret_access_key = assumed_role['Credentials']['SecretAccessKey']
-    print(f"AWS access key ID: {aws_access_key_id}")
-    print(f"AWS secret access key: {aws_secret_access_key}")
     aws_session_token = assumed_role['Credentials']['SessionToken']
-    print(f"AWS session token: {aws_session_token}")
     region_name = 'us-west-2'
 
     assumed_client = boto3.client('sts', aws_access_key_id=aws_access_key_id,
