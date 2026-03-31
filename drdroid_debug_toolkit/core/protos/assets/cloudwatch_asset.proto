@@ -110,24 +110,6 @@ message CloudwatchDashboardAssetOptions {
   repeated string dashboard_names = 1;
 }
 
-message CodeBuildProjectAssetOptions {
-  repeated string projects = 1;
-}
-
-message CodeBuildProjectAssetModel {
-  google.protobuf.StringValue name = 1;
-  google.protobuf.StringValue arn = 2;
-  google.protobuf.StringValue description = 3;
-  google.protobuf.StringValue source_type = 4;      // GITHUB, CODECOMMIT, BITBUCKET, S3, NO_SOURCE
-  google.protobuf.StringValue source_location = 5;  // repository URL or S3 path
-  google.protobuf.StringValue buildspec = 6;         // inline buildspec or path to buildspec file
-  google.protobuf.StringValue environment_type = 7;  // LINUX_CONTAINER, ARM_CONTAINER, etc.
-  google.protobuf.StringValue environment_image = 8; // Docker image used for builds
-  google.protobuf.StringValue environment_compute_type = 9; // BUILD_GENERAL1_SMALL, _MEDIUM, _LARGE
-  google.protobuf.StringValue service_role = 10;     // IAM role ARN
-  google.protobuf.StringValue region = 11;
-}
-
 message CloudwatchAssetModel {
   google.protobuf.UInt64Value id = 1;
   Source connector_type = 2;
@@ -145,8 +127,6 @@ message CloudwatchAssetModel {
     EcsServiceAssetModel ecs_service = 11;
     // Cloudwatch Dashboard
     CloudwatchDashboardAssetModel cloudwatch_dashboard = 12;
-    // CodeBuild
-    CodeBuildProjectAssetModel codebuild_project = 13;
   }
 }
 
