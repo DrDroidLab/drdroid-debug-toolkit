@@ -468,6 +468,12 @@ def generate_credentials_dict(connector_type, connector_keys):
                 credentials_dict['metabase_url'] = conn_key.key.value
             elif conn_key.key_type == SourceKeyType.METABASE_API_KEY:
                 credentials_dict['metabase_api_key'] = conn_key.key.value
+    elif connector_type == Source.DATABRICKS:
+        for conn_key in connector_keys:
+            if conn_key.key_type == SourceKeyType.DATABRICKS_HOST:
+                credentials_dict['databricks_host'] = conn_key.key.value
+            elif conn_key.key_type == SourceKeyType.DATABRICKS_TOKEN:
+                credentials_dict['databricks_token'] = conn_key.key.value
     else:
         return None
     return credentials_dict

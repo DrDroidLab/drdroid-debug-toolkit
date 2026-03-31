@@ -218,6 +218,7 @@ class _SourceEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTyp
     MCP_SERVER: _Source.ValueType  # 76
     VICTORIA_LOGS: _Source.ValueType  # 77
     METABASE: _Source.ValueType  # 78
+    DATABRICKS: _Source.ValueType  # 79
 
 class Source(_Source, metaclass=_SourceEnumTypeWrapper): ...
 
@@ -300,6 +301,7 @@ RENDER: Source.ValueType  # 75
 MCP_SERVER: Source.ValueType  # 76
 VICTORIA_LOGS: Source.ValueType  # 77
 METABASE: Source.ValueType  # 78
+DATABRICKS: Source.ValueType  # 79
 global___Source = Source
 
 class _SourceKeyType:
@@ -465,6 +467,11 @@ class _SourceKeyTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     METABASE_URL: _SourceKeyType.ValueType  # 162
     """Metabase specific keys"""
     METABASE_API_KEY: _SourceKeyType.ValueType  # 163
+    DATABRICKS_HOST: _SourceKeyType.ValueType  # 166
+    """Databricks specific keys"""
+    DATABRICKS_TOKEN: _SourceKeyType.ValueType  # 167
+    GITHUB_API_URL: _SourceKeyType.ValueType  # 168
+    """Github specific keys"""
 
 class SourceKeyType(_SourceKeyType, metaclass=_SourceKeyTypeEnumTypeWrapper): ...
 
@@ -625,6 +632,11 @@ GITHUB_APP_ACCESS_TOKEN: SourceKeyType.ValueType  # 161
 METABASE_URL: SourceKeyType.ValueType  # 162
 """Metabase specific keys"""
 METABASE_API_KEY: SourceKeyType.ValueType  # 163
+DATABRICKS_HOST: SourceKeyType.ValueType  # 166
+"""Databricks specific keys"""
+DATABRICKS_TOKEN: SourceKeyType.ValueType  # 167
+GITHUB_API_URL: SourceKeyType.ValueType  # 168
+"""Github specific keys"""
 global___SourceKeyType = SourceKeyType
 
 class _SourceModelType:
@@ -845,6 +857,7 @@ class _SourceModelTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper
     """VictoriaLogs Models"""
     MCP_TOOLS: _SourceModelType.ValueType  # 9101
     """MCP Server Models"""
+    MCP_ASSETS: _SourceModelType.ValueType  # 9102
     LINEAR_TEAMS: _SourceModelType.ValueType  # 9201
     """Linear Models"""
     LINEAR_USERS: _SourceModelType.ValueType  # 9202
@@ -855,6 +868,10 @@ class _SourceModelTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper
     METABASE_DATABASE: _SourceModelType.ValueType  # 9303
     METABASE_COLLECTION: _SourceModelType.ValueType  # 9304
     METABASE_SUBSCRIPTION: _SourceModelType.ValueType  # 9305
+    DATABRICKS_JOB: _SourceModelType.ValueType  # 9401
+    """Databricks models"""
+    DATABRICKS_CLUSTER: _SourceModelType.ValueType  # 9402
+    DATABRICKS_SQL_WAREHOUSE: _SourceModelType.ValueType  # 9403
 
 class SourceModelType(_SourceModelType, metaclass=_SourceModelTypeEnumTypeWrapper): ...
 
@@ -1070,6 +1087,7 @@ VICTORIA_LOGS_FIELD: SourceModelType.ValueType  # 9001
 """VictoriaLogs Models"""
 MCP_TOOLS: SourceModelType.ValueType  # 9101
 """MCP Server Models"""
+MCP_ASSETS: SourceModelType.ValueType  # 9102
 LINEAR_TEAMS: SourceModelType.ValueType  # 9201
 """Linear Models"""
 LINEAR_USERS: SourceModelType.ValueType  # 9202
@@ -1080,6 +1098,10 @@ METABASE_CARD: SourceModelType.ValueType  # 9302
 METABASE_DATABASE: SourceModelType.ValueType  # 9303
 METABASE_COLLECTION: SourceModelType.ValueType  # 9304
 METABASE_SUBSCRIPTION: SourceModelType.ValueType  # 9305
+DATABRICKS_JOB: SourceModelType.ValueType  # 9401
+"""Databricks models"""
+DATABRICKS_CLUSTER: SourceModelType.ValueType  # 9402
+DATABRICKS_SQL_WAREHOUSE: SourceModelType.ValueType  # 9403
 global___SourceModelType = SourceModelType
 
 class _Context:
