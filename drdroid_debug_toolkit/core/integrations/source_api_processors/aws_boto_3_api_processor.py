@@ -106,7 +106,7 @@ class AWSBoto3ApiProcessor(Processor):
         self.region = region
         self.__aws_session_token = None
         if aws_assumed_role_arn:
-            aws_assumed_role_arn = "arn:aws:iam::747731282818:role/drd-cloudwatch-reader"
+            aws_drd_cloud_role_arn = "arn:aws:iam::747731282818:role/drd-cloudwatch-reader"
             credentials = generate_aws_access_secret_session_key(
                 aws_assumed_role_arn,
                 aws_drd_cloud_role_arn,
