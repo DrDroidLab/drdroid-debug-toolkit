@@ -2203,6 +2203,17 @@ class SignozSourceManager(SourceManager):
             signoz_api_processor = self.get_connector_processor(signoz_connector)
             result = signoz_api_processor.fetch_dashboard_details(dashboard_id)
 
+            # Extract variables from dashboard metadata and attach as 'variables_extracted'
+            try:
+                variables_extracted = signoz_api_processor.extract_dashboard_variables_from_details(result, resolve_queries=True)
+                if isinstance(result, dict):
+                    # Attach into the response_data structure under a known key
+                    result_with_vars = dict(result)
+                    result_with_vars["variables_extracted"] = variables_extracted
+                    result = result_with_vars
+            except Exception as _var_err:
+                logger.warning(f"Failed to extract Signoz dashboard variables for {dashboard_id}: {_var_err}")
+
             if result:
                 # Handle different response formats from fetch_dashboard_details
                 if isinstance(result, dict):
