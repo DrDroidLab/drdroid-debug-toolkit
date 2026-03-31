@@ -448,86 +448,6 @@ class CloudwatchDashboardAssetOptions(google.protobuf.message.Message):
 global___CloudwatchDashboardAssetOptions = CloudwatchDashboardAssetOptions
 
 @typing_extensions.final
-class CodeBuildProjectAssetOptions(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    PROJECTS_FIELD_NUMBER: builtins.int
-    @property
-    def projects(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
-    def __init__(
-        self,
-        *,
-        projects: collections.abc.Iterable[builtins.str] | None = ...,
-    ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["projects", b"projects"]) -> None: ...
-
-global___CodeBuildProjectAssetOptions = CodeBuildProjectAssetOptions
-
-@typing_extensions.final
-class CodeBuildProjectAssetModel(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    NAME_FIELD_NUMBER: builtins.int
-    ARN_FIELD_NUMBER: builtins.int
-    DESCRIPTION_FIELD_NUMBER: builtins.int
-    SOURCE_TYPE_FIELD_NUMBER: builtins.int
-    SOURCE_LOCATION_FIELD_NUMBER: builtins.int
-    BUILDSPEC_FIELD_NUMBER: builtins.int
-    ENVIRONMENT_TYPE_FIELD_NUMBER: builtins.int
-    ENVIRONMENT_IMAGE_FIELD_NUMBER: builtins.int
-    ENVIRONMENT_COMPUTE_TYPE_FIELD_NUMBER: builtins.int
-    SERVICE_ROLE_FIELD_NUMBER: builtins.int
-    REGION_FIELD_NUMBER: builtins.int
-    @property
-    def name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def arn(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def description(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    @property
-    def source_type(self) -> google.protobuf.wrappers_pb2.StringValue:
-        """GITHUB, CODECOMMIT, BITBUCKET, S3, NO_SOURCE"""
-    @property
-    def source_location(self) -> google.protobuf.wrappers_pb2.StringValue:
-        """repository URL or S3 path"""
-    @property
-    def buildspec(self) -> google.protobuf.wrappers_pb2.StringValue:
-        """inline buildspec or path to buildspec file"""
-    @property
-    def environment_type(self) -> google.protobuf.wrappers_pb2.StringValue:
-        """LINUX_CONTAINER, ARM_CONTAINER, etc."""
-    @property
-    def environment_image(self) -> google.protobuf.wrappers_pb2.StringValue:
-        """Docker image used for builds"""
-    @property
-    def environment_compute_type(self) -> google.protobuf.wrappers_pb2.StringValue:
-        """BUILD_GENERAL1_SMALL, _MEDIUM, _LARGE"""
-    @property
-    def service_role(self) -> google.protobuf.wrappers_pb2.StringValue:
-        """IAM role ARN"""
-    @property
-    def region(self) -> google.protobuf.wrappers_pb2.StringValue: ...
-    def __init__(
-        self,
-        *,
-        name: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        arn: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        description: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        source_type: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        source_location: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        buildspec: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        environment_type: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        environment_image: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        environment_compute_type: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        service_role: google.protobuf.wrappers_pb2.StringValue | None = ...,
-        region: google.protobuf.wrappers_pb2.StringValue | None = ...,
-    ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["arn", b"arn", "buildspec", b"buildspec", "description", b"description", "environment_compute_type", b"environment_compute_type", "environment_image", b"environment_image", "environment_type", b"environment_type", "name", b"name", "region", b"region", "service_role", b"service_role", "source_location", b"source_location", "source_type", b"source_type"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["arn", b"arn", "buildspec", b"buildspec", "description", b"description", "environment_compute_type", b"environment_compute_type", "environment_image", b"environment_image", "environment_type", b"environment_type", "name", b"name", "region", b"region", "service_role", b"service_role", "source_location", b"source_location", "source_type", b"source_type"]) -> None: ...
-
-global___CodeBuildProjectAssetModel = CodeBuildProjectAssetModel
-
-@typing_extensions.final
 class CloudwatchAssetModel(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -543,7 +463,6 @@ class CloudwatchAssetModel(google.protobuf.message.Message):
     ECS_TASK_FIELD_NUMBER: builtins.int
     ECS_SERVICE_FIELD_NUMBER: builtins.int
     CLOUDWATCH_DASHBOARD_FIELD_NUMBER: builtins.int
-    CODEBUILD_PROJECT_FIELD_NUMBER: builtins.int
     @property
     def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     connector_type: core.protos.base_pb2.Source.ValueType
@@ -567,9 +486,6 @@ class CloudwatchAssetModel(google.protobuf.message.Message):
     @property
     def cloudwatch_dashboard(self) -> global___CloudwatchDashboardAssetModel:
         """Cloudwatch Dashboard"""
-    @property
-    def codebuild_project(self) -> global___CodeBuildProjectAssetModel:
-        """CodeBuild"""
     def __init__(
         self,
         *,
@@ -585,11 +501,10 @@ class CloudwatchAssetModel(google.protobuf.message.Message):
         ecs_task: global___EcsTaskAssetModel | None = ...,
         ecs_service: global___EcsServiceAssetModel | None = ...,
         cloudwatch_dashboard: global___CloudwatchDashboardAssetModel | None = ...,
-        codebuild_project: global___CodeBuildProjectAssetModel | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["asset", b"asset", "cloudwatch_alarm", b"cloudwatch_alarm", "cloudwatch_dashboard", b"cloudwatch_dashboard", "cloudwatch_log_group", b"cloudwatch_log_group", "cloudwatch_log_group_query", b"cloudwatch_log_group_query", "cloudwatch_metric", b"cloudwatch_metric", "codebuild_project", b"codebuild_project", "ecs_cluster", b"ecs_cluster", "ecs_service", b"ecs_service", "ecs_task", b"ecs_task", "id", b"id"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["asset", b"asset", "cloudwatch_alarm", b"cloudwatch_alarm", "cloudwatch_dashboard", b"cloudwatch_dashboard", "cloudwatch_log_group", b"cloudwatch_log_group", "cloudwatch_log_group_query", b"cloudwatch_log_group_query", "cloudwatch_metric", b"cloudwatch_metric", "codebuild_project", b"codebuild_project", "connector_type", b"connector_type", "ecs_cluster", b"ecs_cluster", "ecs_service", b"ecs_service", "ecs_task", b"ecs_task", "id", b"id", "last_updated", b"last_updated", "type", b"type"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing_extensions.Literal["asset", b"asset"]) -> typing_extensions.Literal["cloudwatch_log_group", "cloudwatch_metric", "cloudwatch_log_group_query", "cloudwatch_alarm", "ecs_cluster", "ecs_task", "ecs_service", "cloudwatch_dashboard", "codebuild_project"] | None: ...
+    def HasField(self, field_name: typing_extensions.Literal["asset", b"asset", "cloudwatch_alarm", b"cloudwatch_alarm", "cloudwatch_dashboard", b"cloudwatch_dashboard", "cloudwatch_log_group", b"cloudwatch_log_group", "cloudwatch_log_group_query", b"cloudwatch_log_group_query", "cloudwatch_metric", b"cloudwatch_metric", "ecs_cluster", b"ecs_cluster", "ecs_service", b"ecs_service", "ecs_task", b"ecs_task", "id", b"id"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["asset", b"asset", "cloudwatch_alarm", b"cloudwatch_alarm", "cloudwatch_dashboard", b"cloudwatch_dashboard", "cloudwatch_log_group", b"cloudwatch_log_group", "cloudwatch_log_group_query", b"cloudwatch_log_group_query", "cloudwatch_metric", b"cloudwatch_metric", "connector_type", b"connector_type", "ecs_cluster", b"ecs_cluster", "ecs_service", b"ecs_service", "ecs_task", b"ecs_task", "id", b"id", "last_updated", b"last_updated", "type", b"type"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing_extensions.Literal["asset", b"asset"]) -> typing_extensions.Literal["cloudwatch_log_group", "cloudwatch_metric", "cloudwatch_log_group_query", "cloudwatch_alarm", "ecs_cluster", "ecs_task", "ecs_service", "cloudwatch_dashboard"] | None: ...
 
 global___CloudwatchAssetModel = CloudwatchAssetModel
 

@@ -1,7 +1,6 @@
 import json
 import logging
 import re
-from collections import deque
 from datetime import datetime, timedelta, timezone
 
 import requests
@@ -1818,21 +1817,11 @@ class SignozApiProcessor(Processor):
             logger.error(f"Failed to resolve variable query values: {e}")
             return []
 
-    # Matches all three SigNoz variable placeholder styles:
-    #   ${name}  ${name:format}  $name  {{ .name }}
-    # Variable names may contain dots (e.g. k8s.cluster.name).
-    _SIGNOZ_VAR_PATTERN = re.compile(
-        r"\$\{([\w.]+)(?::[^}]*)?\}"    # ${name} or ${name:format}
-        r"|\$([\w.]+)"                   # $name (word-boundary not needed; longer names matched first)
-        r"|\{\{\s*\.([\w.]+)\s*\}\}"    # {{ .name }}
-    )
-
     def _substitute_template_placeholders(self, query_sql: str, variables: dict) -> str:
-        """Replace SigNoz variable placeholders with literal SQL values.
+        """Replace Go-template style placeholders {{ .name }} with literal values from variables.
 
-        Supported formats: $name, ${name}, ${name:format}, {{ .name }}
-        Variable names containing dots (e.g. k8s.cluster.name) are handled.
-        Strings are single-quoted with escaping; lists use the first element.
+        - Strings are single-quoted with escaping
+        - Lists default to first element (to keep simple equality expressions working)
         """
         try:
             if not isinstance(query_sql, str) or not query_sql:
@@ -1840,43 +1829,37 @@ class SignozApiProcessor(Processor):
             if not isinstance(variables, dict):
                 variables = {}
 
+            import re
+
             def _format_value(val):
+                # If list, pick first value to avoid syntax issues in '=' context
                 if isinstance(val, list):
                     if not val:
-                        return ""
+                        return ""  # will be treated as empty string -> ''
                     val = val[0]
+                # Numbers: return as-is
                 if isinstance(val, (int, float)):
                     return str(val)
+                # Booleans
                 if isinstance(val, bool):
                     return '1' if val else '0'
+                # Default to string; single-quote and escape
                 s = str(val)
                 s = s.replace("'", "''")
                 return f"'{s}'"
 
+            pattern = re.compile(r"\{\{\s*\.(\w+)\s*\}\}")
+
             def _repl(match):
-                # One of the three capture groups will be non-empty
-                key = match.group(1) or match.group(2) or match.group(3)
-                if key and key in variables:
+                key = match.group(1)
+                if key in variables:
                     return _format_value(variables[key])
+                # Not found -> empty quoted string
                 return "''"
 
-            return self._SIGNOZ_VAR_PATTERN.sub(_repl, query_sql)
+            return pattern.sub(_repl, query_sql)
         except Exception:
             return query_sql
-
-    def _extract_signoz_variable_dependencies(self, query_sql: str) -> list:
-        """Return the list of variable names referenced in a SigNoz variable query SQL.
-
-        Handles $name, ${name}, ${name:format}, {{ .name }} with dot-aware names.
-        """
-        if not isinstance(query_sql, str) or not query_sql:
-            return []
-        deps = set()
-        for m in self._SIGNOZ_VAR_PATTERN.finditer(query_sql):
-            key = m.group(1) or m.group(2) or m.group(3)
-            if key:
-                deps.add(key)
-        return sorted(deps)
 
     # -------------------------------
     # Dashboard Variables Helpers
@@ -1906,60 +1889,6 @@ class SignozApiProcessor(Processor):
                 value = [value] if value is not None else []
             resolved[name] = value
         return resolved
-
-    def _order_query_variables_by_dependencies(self, variables_map: dict) -> list:
-        """Return QUERY (var_id, var_def, var_name) tuples in an order that respects QUERY→QUERY edges.
-
-        If A's query references $B and B is also QUERY, B is resolved before A. Cycles fall back to
-        declaration order for any nodes left after Kahn's algorithm.
-        """
-        entries = []
-        for var_id, var_def in (variables_map or {}).items():
-            if not isinstance(var_def, dict):
-                continue
-            if (var_def.get("type") or "").upper() != "QUERY":
-                continue
-            name = var_def.get("name") or var_def.get("key") or var_id
-            entries.append((var_id, var_def, name))
-
-        if not entries:
-            return []
-
-        query_names = {e[2] for e in entries}
-        # dep -> [successors]: successor must run after dep
-        successors: dict = {n: [] for _, _, n in entries}
-        indegree = {n: 0 for _, _, n in entries}
-
-        for var_id, var_def, name in entries:
-            q = var_def.get("queryValue") or ""
-            for dep in self._extract_signoz_variable_dependencies(q):
-                if dep in query_names and dep != name:
-                    successors[dep].append(name)
-                    indegree[name] += 1
-
-        ordered_names = []
-        queue = deque(n for n in indegree if indegree[n] == 0)
-        while queue:
-            n = queue.popleft()
-            ordered_names.append(n)
-            for succ in successors[n]:
-                indegree[succ] -= 1
-                if indegree[succ] == 0:
-                    queue.append(succ)
-
-        # Cycles: append remaining in original map order
-        seen = set(ordered_names)
-        for var_id, var_def, name in entries:
-            if name not in seen:
-                logger.warning(
-                    f"SigNoz QUERY variables contain a cycle or unresolved order; "
-                    f"appending '{name}' after partial topological sort"
-                )
-                ordered_names.append(name)
-                seen.add(name)
-
-        name_to_entry = {name: (vid, vdef) for vid, vdef, name in entries}
-        return [(name_to_entry[n][0], name_to_entry[n][1], n) for n in ordered_names]
 
     def _resolve_query_allowed_values_with_dependencies(self, var_def: dict, non_query_values: dict, duration: str) -> list:
         """Substitute dependent placeholders in the query and return allowed values."""
@@ -2415,22 +2344,17 @@ class SignozApiProcessor(Processor):
 
     def _build_variables_payload(self, dashboard_details: dict, variables_json: Optional[str], duration: str) -> dict:
         """
-        Build the variables payload to send to SigNoz query_range.
-
-        Resolution order:
-        1. Non-QUERY variables are resolved from their stored selectedValue/textboxValue/customValue.
-        2. QUERY variables are resolved in dependency order (topological sort among QUERY vars;
-           declaration order is only a tie-breaker / cycle fallback), so e.g. deployment.environment
-           runs before service.name when the latter references the former.
-           If a QUERY var still has unresolved dependencies, it falls back to its last
-           selectedValue from the dashboard JSON rather than being dropped.
-        3. User overrides from variables_json are merged last.
+        Build the variables payload to send to SigNoz query_range:
+        - Resolve non-QUERY vars first
+        - Use them to resolve QUERY vars when selectedValue is absent
+        - Map by both id and name; omit None
+        - Merge user overrides by name or id
         """
         variables_payload: dict = {}
         variables_map = self._get_dashboard_variables_map(dashboard_details)
         name_to_id: dict = {}
 
-        # Pass 1: non-QUERY variables
+        # 1) Non-QUERY first (by name and id)
         non_query_values = self._extract_non_query_values(variables_map)
         for var_id, var_def in variables_map.items():
             if not isinstance(var_def, dict):
@@ -2446,46 +2370,24 @@ class SignozApiProcessor(Processor):
                 variables_payload[name] = value
                 name_to_id[name] = var_id
 
-        # Pass 2: QUERY variables in dependency order (not raw JSON key order).
-        resolved_so_far: dict = dict(non_query_values)
-
-        for var_id, var_def, name in self._order_query_variables_by_dependencies(variables_map):
+        # 2) QUERY variables (resolve only if needed)
+        for var_id, var_def in variables_map.items():
             if not isinstance(var_def, dict):
                 continue
-            multi = bool(var_def.get("multiSelect"))
-            query_sql = var_def.get("queryValue") or ""
-
-            # Check which dependencies are already resolved
-            deps = self._extract_signoz_variable_dependencies(query_sql)
-            unresolved = [d for d in deps if d not in resolved_so_far]
-
-            value = None
-            if not unresolved:
-                # All dependencies available — resolve via live query
-                allowed = self._resolve_query_allowed_values_with_dependencies(var_def, resolved_so_far, duration)
-                value = self._format_value_for_multiselect(allowed, multi)
-            else:
-                logger.warning(
-                    f"SigNoz variable '{name}': unresolved dependencies {unresolved}; "
-                    "falling back to stored selectedValue"
-                )
-
-            # Fall back to the stored selectedValue when live resolution yields nothing
-            if not value:
-                stored = var_def.get("selectedValue")
-                if stored not in (None, ""):
-                    value = self._format_value_for_multiselect(
-                        stored if isinstance(stored, list) else [stored], multi
-                    )
-
-            if value is not None:
+            var_type = (var_def.get("type") or "").upper()
+            if var_type != "QUERY":
+                continue
+            name = var_def.get("name") or var_def.get("key") or var_id
+            value = var_def.get("selectedValue")
+            if value in (None, ""):
+                allowed = self._resolve_query_allowed_values_with_dependencies(var_def, non_query_values, duration)
+                value = self._format_value_for_multiselect(allowed, bool(var_def.get("multiSelect")))
+            if value is not None and value != "":
                 variables_payload[var_id] = value
                 variables_payload[name] = value
                 name_to_id[name] = var_id
-                # Make resolved value available for subsequent QUERY vars
-                resolved_so_far[name] = value[0] if (isinstance(value, list) and value) else value
 
-        # Pass 3: merge user overrides
+        # 3) Merge user overrides (by name or id)
         if variables_json:
             try:
                 user_vars = json.loads(variables_json)
@@ -2514,22 +2416,20 @@ class SignozApiProcessor(Processor):
              ...
           }
         }
-
-        QUERY variables are resolved in dependency order (topological sort), while the returned
-        ``variables`` map keeps the dashboard's key order for stable output.
         """
         try:
             variables_section = {}
             if not dashboard_details or not isinstance(dashboard_details, dict):
                 return {"variables": variables_section}
 
+            # Variables live under data.variables in Signoz dashboard payload
             data = dashboard_details.get("data", {}) if isinstance(dashboard_details.get("data", {}), dict) else {}
             variables_map = data.get("variables") or dashboard_details.get("variables") or {}
 
             if not isinstance(variables_map, dict):
                 return {"variables": variables_section}
 
-            # Pass 1: collect non-QUERY variables
+            # First pass: collect non-QUERY variables by name
             non_query_values = {}
             for _id, var_def in variables_map.items():
                 if not isinstance(var_def, dict):
@@ -2542,48 +2442,37 @@ class SignozApiProcessor(Processor):
                         val = [val] if val is not None else []
                     non_query_values[var_name] = val
 
-            # Pass 2a: resolve QUERY vars in dependency order (not dashboard key order)
-            resolved_so_far: dict = dict(non_query_values)
-            allowed_by_name: dict = {}
-
-            for _qid, var_def, var_name in self._order_query_variables_by_dependencies(variables_map):
-                if not isinstance(var_def, dict):
-                    continue
-                query_sql = var_def.get("queryValue") or ""
-                allowed_values = []
-                if resolve_queries and query_sql.strip():
-                    deps = self._extract_signoz_variable_dependencies(query_sql)
-                    unresolved = [d for d in deps if d not in resolved_so_far]
-                    if unresolved:
-                        logger.warning(
-                            f"SigNoz variable '{var_name}': unresolved dependencies {unresolved} "
-                            "during introspection; will substitute what is available"
-                        )
-                    substituted = self._substitute_template_placeholders(query_sql, resolved_so_far)
-                    allowed_values = self._resolve_query_variable_values(substituted, duration=duration)
-                    if allowed_values:
-                        resolved_so_far[var_name] = allowed_values[0]
-                allowed_by_name[var_name] = allowed_values
-
-            # Pass 2b: build output in dashboard iteration order
+            # Second pass: build the final structure with QUERY resolution using non-QUERY values
             for _id, var_def in variables_map.items():
                 if not isinstance(var_def, dict):
                     continue
                 var_name = var_def.get("name") or var_def.get("key") or _id
                 var_type = (var_def.get("type") or "").upper()
                 selected_value = var_def.get("selectedValue")
-                query_sql = var_def.get("queryValue") or ""
+                query_sql = var_def.get("queryValue")
 
-                allowed_values = allowed_by_name.get(var_name, []) if var_type == "QUERY" else []
+                allowed_values = []
+                if resolve_queries and var_type == "QUERY" and isinstance(query_sql, str) and query_sql.strip():
+                    substituted = self._substitute_template_placeholders(query_sql, non_query_values)
+                    allowed_values = self._resolve_query_variable_values(substituted, duration=duration)
 
                 variables_section[var_name] = {
                     "type": var_type,
                     "selected_value": selected_value,
                     "allowed_values": allowed_values,
-                    "query": query_sql,
+                    "query": query_sql or "",
                 }
 
             return {"variables": variables_section}
         except Exception as e:
             logger.error(f"Failed to extract dashboard variables: {e}")
+            return {"variables": {}}
+
+    def get_dashboard_variables(self, dashboard_id: str, resolve_queries: bool = True, duration: str = "3h") -> dict:
+        """Fetch dashboard details and return extracted variables, optionally resolving QUERY values."""
+        try:
+            details = self.fetch_dashboard_details(dashboard_id)
+            return self.extract_dashboard_variables_from_details(details, resolve_queries=resolve_queries, duration=duration)
+        except Exception as e:
+            logger.error(f"Failed to get dashboard variables for {dashboard_id}: {e}")
             return {"variables": {}}
