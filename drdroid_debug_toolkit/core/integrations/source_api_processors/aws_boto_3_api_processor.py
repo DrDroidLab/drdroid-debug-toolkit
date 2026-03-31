@@ -55,6 +55,7 @@ def generate_aws_access_secret_session_key(aws_assumed_role_arn, aws_drd_cloud_r
     print(f"AWS assumed role ARN: {aws_assumed_role_arn}")
     print(f"AWS external ID: {external_id}")
     print("aws_drd_cloud_role_arn", aws_drd_cloud_role_arn)
+    aws_drd_cloud_role_arn = "arn:aws:iam::747731282818:role/drd-cloudwatch-reader"
 
     assumed_role = sts_client.assume_role(
         RoleArn=aws_drd_cloud_role_arn,
