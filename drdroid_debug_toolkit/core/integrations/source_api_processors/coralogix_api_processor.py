@@ -769,15 +769,19 @@ class CoralogixApiProcessor(Processor):
         """
         Fetch distinct services from Coralogix.
 
-        Runs three strategies and merges the results so nothing is missed:
-        1. DataPrime spans query for distinct ``service_name`` (OTel ``service.name``
-           stored as ``$l.service_name`` in Coralogix) + ``applicationName`` /
-           ``subsystemName`` per span.
-        2. DataPrime logs query for distinct ``applicationName`` + ``subsystemName``
-           combinations (native Coralogix dimensions, covers services that only emit
-           logs and have no APM spans).
-        3. Prometheus label-values API for the ``service_name`` label (catches
-           infrastructure / metrics-only services).
+        Runs three strategies and merges results so nothing is missed:
+        1. DataPrime spans query — OTel ``service.name`` is stored as ``service_name``
+           in the per-result ``labels`` dict; ``applicationName`` / ``subsystemName``
+           are in the per-result ``metadata`` dict.
+        2. DataPrime logs query — ``applicationName`` / ``subsystemName`` from the
+           per-result ``metadata`` dict (native Coralogix dimensions, covers services
+           that emit logs but have no APM spans).
+        3. Prometheus label-values API for ``service_name`` (infrastructure /
+           metrics-only services).
+
+        NOTE: ``distinct`` / aggregation DataPrime queries return positional arrays,
+        not dicts, so we deliberately use plain ``limit`` queries and deduplicate
+        in Python to keep the result parsing uniform.
 
         Args:
             from_time: Start of the time window (default: last 24 h).
@@ -789,104 +793,116 @@ class CoralogixApiProcessor(Processor):
         start_time_rfc3339 = self._parse_time_to_rfc3339(from_time)
         end_time_rfc3339 = self._parse_time_to_rfc3339(to_time)
         url = f'{self.__endpoint}/api/v1/dataprime/query'
+        base_metadata = {
+            "tier": "TIER_FREQUENT_SEARCH",
+            "syntax": "QUERY_SYNTAX_DATAPRIME",
+            "startDate": start_time_rfc3339,
+            "endDate": end_time_rfc3339,
+        }
 
-        # Accumulate by service_name so later strategies can enrich earlier ones.
+        # Accumulate by service_name; later strategies can enrich earlier entries.
         merged: dict[str, dict] = {}
 
         def _parse_dataprime_results(response_text: str) -> list[dict]:
+            """Parse NDJSON DataPrime response; skip any non-dict rows."""
             results = []
             for line in response_text.strip().split('\n'):
                 if not line.strip():
                     continue
                 try:
                     line_data = json.loads(line)
+                    candidates = []
                     if "result" in line_data and "results" in line_data["result"]:
-                        results.extend(line_data["result"]["results"])
+                        candidates = line_data["result"]["results"]
                     elif "results" in line_data:
-                        results.extend(line_data["results"])
+                        candidates = line_data["results"]
+                    for r in candidates:
+                        if isinstance(r, dict):
+                            results.append(r)
                 except Exception as parse_err:
                     logger.warning(f"Could not parse DataPrime line: {parse_err}")
             return results
 
-        def _extract_user_data(result: dict) -> dict:
-            ud = result.get("userData", {})
-            if isinstance(ud, str):
-                try:
-                    ud = json.loads(ud)
-                except Exception:
-                    ud = {}
-            return ud if isinstance(ud, dict) else {}
-
-        # --- Strategy 1: spans — OTel service.name (stored as $l.service_name) ---
+        # --- Strategy 1: spans ---
+        # Each result dict has:
+        #   result["labels"]["service_name"] — OTel service.name
+        #   result["metadata"]["applicationName"] / ["subsystemName"]
         try:
             payload = {
-                "query": (
-                    "source spans "
-                    "| distinct $l.service_name, $l.applicationName, $l.subsystemName"
-                ),
-                "metadata": {
-                    "tier": "TIER_FREQUENT_SEARCH",
-                    "syntax": "QUERY_SYNTAX_DATAPRIME",
-                    "startDate": start_time_rfc3339,
-                    "endDate": end_time_rfc3339,
-                    "defaultSource": "spans",
-                },
+                "query": "source spans | limit 5000",
+                "metadata": {**base_metadata, "defaultSource": "spans"},
             }
             response = requests.post(url, headers=self.headers, json=payload,
                                      verify=self.__ssl_verify, timeout=60)
             if response.status_code == 200:
                 for r in _parse_dataprime_results(response.text):
-                    ud = _extract_user_data(r)
+                    labels = r.get("labels") or {}
+                    meta = r.get("metadata") or {}
+                    if not isinstance(labels, dict):
+                        labels = {}
+                    if not isinstance(meta, dict):
+                        meta = {}
+
                     service_name = (
-                        ud.get("service_name")
-                        or ud.get("serviceName")
-                        or r.get("labels", {}).get("service_name", "")
+                        labels.get("service_name")
+                        or labels.get("service")
+                        or meta.get("subsystemName", "")
                     )
                     if not service_name:
                         continue
+
                     entry = merged.setdefault(service_name, {"service_name": service_name})
-                    entry.update({k: v for k, v in ud.items() if v})
+                    if meta.get("applicationName"):
+                        entry.setdefault("applicationName", meta["applicationName"])
+                    if meta.get("subsystemName"):
+                        entry.setdefault("subsystemName", meta["subsystemName"])
+                    # Store all labels for full context
+                    for k, v in labels.items():
+                        if v:
+                            entry.setdefault(k, v)
+
                 logger.info(f"Strategy 1 (spans): found {len(merged)} services so far")
             else:
-                logger.warning(f"Spans DataPrime query returned {response.status_code}: {response.text[:200]}")
+                logger.warning(
+                    f"Spans DataPrime query returned {response.status_code}: {response.text[:200]}"
+                )
         except Exception as e:
             logger.warning(f"Strategy 1 (spans DataPrime) failed: {e}")
 
-        # --- Strategy 2: logs — native applicationName + subsystemName ---
+        # --- Strategy 2: logs ---
+        # Each result dict has:
+        #   result["metadata"]["applicationName"] / ["subsystemName"]
         try:
             payload = {
-                "query": (
-                    "source logs "
-                    "| distinct $l.applicationName, $l.subsystemName"
-                ),
-                "metadata": {
-                    "tier": "TIER_FREQUENT_SEARCH",
-                    "syntax": "QUERY_SYNTAX_DATAPRIME",
-                    "startDate": start_time_rfc3339,
-                    "endDate": end_time_rfc3339,
-                    "defaultSource": "logs",
-                },
+                "query": "source logs | limit 5000",
+                "metadata": {**base_metadata, "defaultSource": "logs"},
             }
             response = requests.post(url, headers=self.headers, json=payload,
                                      verify=self.__ssl_verify, timeout=60)
             if response.status_code == 200:
                 for r in _parse_dataprime_results(response.text):
-                    ud = _extract_user_data(r)
-                    app = ud.get("applicationName", "")
-                    subsystem = ud.get("subsystemName", "")
-                    # Use subsystemName as the service_name (it maps to a microservice),
-                    # fall back to applicationName if subsystemName is absent.
+                    meta = r.get("metadata") or {}
+                    if not isinstance(meta, dict):
+                        meta = {}
+
+                    app = meta.get("applicationName", "")
+                    subsystem = meta.get("subsystemName", "")
+                    # subsystemName maps to individual microservice; fall back to app
                     service_name = subsystem or app
                     if not service_name:
                         continue
+
                     entry = merged.setdefault(service_name, {"service_name": service_name})
                     if app:
                         entry.setdefault("applicationName", app)
                     if subsystem:
                         entry.setdefault("subsystemName", subsystem)
+
                 logger.info(f"Strategy 2 (logs app/subsystem): found {len(merged)} services so far")
             else:
-                logger.warning(f"Logs DataPrime query returned {response.status_code}: {response.text[:200]}")
+                logger.warning(
+                    f"Logs DataPrime query returned {response.status_code}: {response.text[:200]}"
+                )
         except Exception as e:
             logger.warning(f"Strategy 2 (logs DataPrime) failed: {e}")
 
