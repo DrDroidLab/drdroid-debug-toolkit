@@ -767,30 +767,63 @@ class CoralogixApiProcessor(Processor):
 
     def fetch_services(self, from_time: str = "now-24h", to_time: str = "now"):
         """
-        Fetch distinct service names from Coralogix span/trace data.
+        Fetch distinct services from Coralogix.
 
-        Tries two strategies in order:
-        1. DataPrime spans query for distinct ``service.name`` values.
-        2. Prometheus label-values API for the ``service_name`` label (metrics).
+        Runs three strategies and merges the results so nothing is missed:
+        1. DataPrime spans query for distinct ``service_name`` (OTel ``service.name``
+           stored as ``$l.service_name`` in Coralogix) + ``applicationName`` /
+           ``subsystemName`` per span.
+        2. DataPrime logs query for distinct ``applicationName`` + ``subsystemName``
+           combinations (native Coralogix dimensions, covers services that only emit
+           logs and have no APM spans).
+        3. Prometheus label-values API for the ``service_name`` label (catches
+           infrastructure / metrics-only services).
 
         Args:
             from_time: Start of the time window (default: last 24 h).
             to_time:   End of the time window (default: now).
 
         Returns:
-            list[dict]: Each entry contains at least ``service_name`` and
-                        optionally ``application_name`` / ``subsystem_name``.
+            list[dict]: One entry per unique service_name with all available metadata.
         """
-        services = []
+        start_time_rfc3339 = self._parse_time_to_rfc3339(from_time)
+        end_time_rfc3339 = self._parse_time_to_rfc3339(to_time)
+        url = f'{self.__endpoint}/api/v1/dataprime/query'
 
-        # --- Strategy 1: DataPrime spans query ---
+        # Accumulate by service_name so later strategies can enrich earlier ones.
+        merged: dict[str, dict] = {}
+
+        def _parse_dataprime_results(response_text: str) -> list[dict]:
+            results = []
+            for line in response_text.strip().split('\n'):
+                if not line.strip():
+                    continue
+                try:
+                    line_data = json.loads(line)
+                    if "result" in line_data and "results" in line_data["result"]:
+                        results.extend(line_data["result"]["results"])
+                    elif "results" in line_data:
+                        results.extend(line_data["results"])
+                except Exception as parse_err:
+                    logger.warning(f"Could not parse DataPrime line: {parse_err}")
+            return results
+
+        def _extract_user_data(result: dict) -> dict:
+            ud = result.get("userData", {})
+            if isinstance(ud, str):
+                try:
+                    ud = json.loads(ud)
+                except Exception:
+                    ud = {}
+            return ud if isinstance(ud, dict) else {}
+
+        # --- Strategy 1: spans — OTel service.name (stored as $l.service_name) ---
         try:
-            start_time_rfc3339 = self._parse_time_to_rfc3339(from_time)
-            end_time_rfc3339 = self._parse_time_to_rfc3339(to_time)
-
-            url = f'{self.__endpoint}/api/v1/dataprime/query'
             payload = {
-                "query": "source spans | distinct $l.service",
+                "query": (
+                    "source spans "
+                    "| distinct $l.service_name, $l.applicationName, $l.subsystemName"
+                ),
                 "metadata": {
                     "tier": "TIER_FREQUENT_SEARCH",
                     "syntax": "QUERY_SYNTAX_DATAPRIME",
@@ -799,73 +832,77 @@ class CoralogixApiProcessor(Processor):
                     "defaultSource": "spans",
                 },
             }
-
-            response = requests.post(
-                url,
-                headers=self.headers,
-                json=payload,
-                verify=self.__ssl_verify,
-                timeout=60,
-            )
-
+            response = requests.post(url, headers=self.headers, json=payload,
+                                     verify=self.__ssl_verify, timeout=60)
             if response.status_code == 200:
-                lines = response.text.strip().split('\n')
-                seen = set()
-                for line in lines:
-                    if not line.strip():
+                for r in _parse_dataprime_results(response.text):
+                    ud = _extract_user_data(r)
+                    service_name = (
+                        ud.get("service_name")
+                        or ud.get("serviceName")
+                        or r.get("labels", {}).get("service_name", "")
+                    )
+                    if not service_name:
                         continue
-                    try:
-                        line_data = json.loads(line)
-                        results = []
-                        if "result" in line_data and "results" in line_data["result"]:
-                            results = line_data["result"]["results"]
-                        elif "results" in line_data:
-                            results = line_data["results"]
-
-                        for r in results:
-                            user_data = r.get("userData", {})
-                            if isinstance(user_data, str):
-                                try:
-                                    user_data = json.loads(user_data)
-                                except Exception:
-                                    user_data = {}
-                            service_name = (
-                                user_data.get("service")
-                                or user_data.get("service.name")
-                                or r.get("labels", {}).get("service")
-                            )
-                            if service_name and service_name not in seen:
-                                seen.add(service_name)
-                                services.append({
-                                    "service_name": service_name,
-                                    "application_name": user_data.get("applicationName", ""),
-                                    "subsystem_name": user_data.get("subsystemName", ""),
-                                })
-                    except Exception as parse_err:
-                        logger.warning(f"Could not parse DataPrime spans line: {parse_err}")
-
-                if services:
-                    logger.info(f"Fetched {len(services)} services from Coralogix spans (DataPrime)")
-                    return services
+                    entry = merged.setdefault(service_name, {"service_name": service_name})
+                    entry.update({k: v for k, v in ud.items() if v})
+                logger.info(f"Strategy 1 (spans): found {len(merged)} services so far")
             else:
-                logger.warning(
-                    f"DataPrime spans query returned {response.status_code}: {response.text[:200]}"
-                )
+                logger.warning(f"Spans DataPrime query returned {response.status_code}: {response.text[:200]}")
         except Exception as e:
-            logger.warning(f"DataPrime spans strategy failed, falling back to Prometheus labels: {e}")
+            logger.warning(f"Strategy 1 (spans DataPrime) failed: {e}")
 
-        # --- Strategy 2: Prometheus label-values for 'service_name' ---
+        # --- Strategy 2: logs — native applicationName + subsystemName ---
+        try:
+            payload = {
+                "query": (
+                    "source logs "
+                    "| distinct $l.applicationName, $l.subsystemName"
+                ),
+                "metadata": {
+                    "tier": "TIER_FREQUENT_SEARCH",
+                    "syntax": "QUERY_SYNTAX_DATAPRIME",
+                    "startDate": start_time_rfc3339,
+                    "endDate": end_time_rfc3339,
+                    "defaultSource": "logs",
+                },
+            }
+            response = requests.post(url, headers=self.headers, json=payload,
+                                     verify=self.__ssl_verify, timeout=60)
+            if response.status_code == 200:
+                for r in _parse_dataprime_results(response.text):
+                    ud = _extract_user_data(r)
+                    app = ud.get("applicationName", "")
+                    subsystem = ud.get("subsystemName", "")
+                    # Use subsystemName as the service_name (it maps to a microservice),
+                    # fall back to applicationName if subsystemName is absent.
+                    service_name = subsystem or app
+                    if not service_name:
+                        continue
+                    entry = merged.setdefault(service_name, {"service_name": service_name})
+                    if app:
+                        entry.setdefault("applicationName", app)
+                    if subsystem:
+                        entry.setdefault("subsystemName", subsystem)
+                logger.info(f"Strategy 2 (logs app/subsystem): found {len(merged)} services so far")
+            else:
+                logger.warning(f"Logs DataPrime query returned {response.status_code}: {response.text[:200]}")
+        except Exception as e:
+            logger.warning(f"Strategy 2 (logs DataPrime) failed: {e}")
+
+        # --- Strategy 3: Prometheus label-values for 'service_name' ---
         try:
             label_response = self.fetch_label_values("service_name", from_time=from_time, to_time=to_time)
             values = label_response.get("data", []) if isinstance(label_response, dict) else []
             for svc in values:
                 if svc:
-                    services.append({"service_name": svc, "application_name": "", "subsystem_name": ""})
-            if services:
-                logger.info(f"Fetched {len(services)} services from Coralogix Prometheus labels")
+                    merged.setdefault(svc, {"service_name": svc})
+            logger.info(f"Strategy 3 (Prometheus labels): found {len(merged)} services total")
         except Exception as e:
-            logger.warning(f"Prometheus label-values strategy also failed: {e}")
+            logger.warning(f"Strategy 3 (Prometheus label-values) failed: {e}")
 
+        services = list(merged.values())
+        logger.info(f"fetch_services returning {len(services)} total unique services")
         return services
 
     def fetch_alert_defs(self):
