@@ -765,6 +765,109 @@ class CoralogixApiProcessor(Processor):
             logger.warning(f"Failed to parse time string '{time_str}', using as-is: {e}")
             return time_str
 
+    def fetch_services(self, from_time: str = "now-24h", to_time: str = "now"):
+        """
+        Fetch distinct service names from Coralogix span/trace data.
+
+        Tries two strategies in order:
+        1. DataPrime spans query for distinct ``service.name`` values.
+        2. Prometheus label-values API for the ``service_name`` label (metrics).
+
+        Args:
+            from_time: Start of the time window (default: last 24 h).
+            to_time:   End of the time window (default: now).
+
+        Returns:
+            list[dict]: Each entry contains at least ``service_name`` and
+                        optionally ``application_name`` / ``subsystem_name``.
+        """
+        services = []
+
+        # --- Strategy 1: DataPrime spans query ---
+        try:
+            start_time_rfc3339 = self._parse_time_to_rfc3339(from_time)
+            end_time_rfc3339 = self._parse_time_to_rfc3339(to_time)
+
+            url = f'{self.__endpoint}/api/v1/dataprime/query'
+            payload = {
+                "query": "source spans | distinct $l.service",
+                "metadata": {
+                    "tier": "TIER_FREQUENT_SEARCH",
+                    "syntax": "QUERY_SYNTAX_DATAPRIME",
+                    "startDate": start_time_rfc3339,
+                    "endDate": end_time_rfc3339,
+                    "defaultSource": "spans",
+                },
+            }
+
+            response = requests.post(
+                url,
+                headers=self.headers,
+                json=payload,
+                verify=self.__ssl_verify,
+                timeout=60,
+            )
+
+            if response.status_code == 200:
+                lines = response.text.strip().split('\n')
+                seen = set()
+                for line in lines:
+                    if not line.strip():
+                        continue
+                    try:
+                        line_data = json.loads(line)
+                        results = []
+                        if "result" in line_data and "results" in line_data["result"]:
+                            results = line_data["result"]["results"]
+                        elif "results" in line_data:
+                            results = line_data["results"]
+
+                        for r in results:
+                            user_data = r.get("userData", {})
+                            if isinstance(user_data, str):
+                                try:
+                                    user_data = json.loads(user_data)
+                                except Exception:
+                                    user_data = {}
+                            service_name = (
+                                user_data.get("service")
+                                or user_data.get("service.name")
+                                or r.get("labels", {}).get("service")
+                            )
+                            if service_name and service_name not in seen:
+                                seen.add(service_name)
+                                services.append({
+                                    "service_name": service_name,
+                                    "application_name": user_data.get("applicationName", ""),
+                                    "subsystem_name": user_data.get("subsystemName", ""),
+                                })
+                    except Exception as parse_err:
+                        logger.warning(f"Could not parse DataPrime spans line: {parse_err}")
+
+                if services:
+                    logger.info(f"Fetched {len(services)} services from Coralogix spans (DataPrime)")
+                    return services
+            else:
+                logger.warning(
+                    f"DataPrime spans query returned {response.status_code}: {response.text[:200]}"
+                )
+        except Exception as e:
+            logger.warning(f"DataPrime spans strategy failed, falling back to Prometheus labels: {e}")
+
+        # --- Strategy 2: Prometheus label-values for 'service_name' ---
+        try:
+            label_response = self.fetch_label_values("service_name", from_time=from_time, to_time=to_time)
+            values = label_response.get("data", []) if isinstance(label_response, dict) else []
+            for svc in values:
+                if svc:
+                    services.append({"service_name": svc, "application_name": "", "subsystem_name": ""})
+            if services:
+                logger.info(f"Fetched {len(services)} services from Coralogix Prometheus labels")
+        except Exception as e:
+            logger.warning(f"Prometheus label-values strategy also failed: {e}")
+
+        return services
+
     def fetch_alert_defs(self):
         """
         Fetch all alert definition configurations from Coralogix using gRPC API.

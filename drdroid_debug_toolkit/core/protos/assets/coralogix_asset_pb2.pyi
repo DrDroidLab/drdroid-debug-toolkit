@@ -119,6 +119,70 @@ class CoralogixDashboardAssetOptions(google.protobuf.message.Message):
 global___CoralogixDashboardAssetOptions = CoralogixDashboardAssetOptions
 
 @typing_extensions.final
+class CoralogixServiceAssetModel(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SERVICE_NAME_FIELD_NUMBER: builtins.int
+    ENVIRONMENT_FIELD_NUMBER: builtins.int
+    SUBSYSTEM_NAME_FIELD_NUMBER: builtins.int
+    APPLICATION_NAME_FIELD_NUMBER: builtins.int
+    DESCRIPTION_FIELD_NUMBER: builtins.int
+    @property
+    def service_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    @property
+    def environment(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    @property
+    def subsystem_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    @property
+    def application_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    @property
+    def description(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    def __init__(
+        self,
+        *,
+        service_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        environment: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        subsystem_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        application_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        description: google.protobuf.wrappers_pb2.StringValue | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["application_name", b"application_name", "description", b"description", "environment", b"environment", "service_name", b"service_name", "subsystem_name", b"subsystem_name"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["application_name", b"application_name", "description", b"description", "environment", b"environment", "service_name", b"service_name", "subsystem_name", b"subsystem_name"]) -> None: ...
+
+global___CoralogixServiceAssetModel = CoralogixServiceAssetModel
+
+@typing_extensions.final
+class CoralogixServiceAssetOptions(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    @typing_extensions.final
+    class CoralogixServiceOptions(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        SERVICE_NAME_FIELD_NUMBER: builtins.int
+        @property
+        def service_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        def __init__(
+            self,
+            *,
+            service_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["service_name", b"service_name"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["service_name", b"service_name"]) -> None: ...
+
+    SERVICES_FIELD_NUMBER: builtins.int
+    @property
+    def services(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___CoralogixServiceAssetOptions.CoralogixServiceOptions]: ...
+    def __init__(
+        self,
+        *,
+        services: collections.abc.Iterable[global___CoralogixServiceAssetOptions.CoralogixServiceOptions] | None = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["services", b"services"]) -> None: ...
+
+global___CoralogixServiceAssetOptions = CoralogixServiceAssetOptions
+
+@typing_extensions.final
 class CoralogixAssetModel(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -128,6 +192,7 @@ class CoralogixAssetModel(google.protobuf.message.Message):
     LAST_UPDATED_FIELD_NUMBER: builtins.int
     CORALOGIX_DASHBOARD_FIELD_NUMBER: builtins.int
     CORALOGIX_INDEX_MAPPING_FIELD_NUMBER: builtins.int
+    CORALOGIX_SERVICE_FIELD_NUMBER: builtins.int
     @property
     def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     connector_type: core.protos.base_pb2.Source.ValueType
@@ -137,6 +202,8 @@ class CoralogixAssetModel(google.protobuf.message.Message):
     def coralogix_dashboard(self) -> global___CoralogixDashboardWidgetAssetModel: ...
     @property
     def coralogix_index_mapping(self) -> global___CoralogixIndexMappingAssetModel: ...
+    @property
+    def coralogix_service(self) -> global___CoralogixServiceAssetModel: ...
     def __init__(
         self,
         *,
@@ -146,10 +213,11 @@ class CoralogixAssetModel(google.protobuf.message.Message):
         last_updated: builtins.int = ...,
         coralogix_dashboard: global___CoralogixDashboardWidgetAssetModel | None = ...,
         coralogix_index_mapping: global___CoralogixIndexMappingAssetModel | None = ...,
+        coralogix_service: global___CoralogixServiceAssetModel | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["asset", b"asset", "coralogix_dashboard", b"coralogix_dashboard", "coralogix_index_mapping", b"coralogix_index_mapping", "id", b"id"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["asset", b"asset", "connector_type", b"connector_type", "coralogix_dashboard", b"coralogix_dashboard", "coralogix_index_mapping", b"coralogix_index_mapping", "id", b"id", "last_updated", b"last_updated", "type", b"type"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing_extensions.Literal["asset", b"asset"]) -> typing_extensions.Literal["coralogix_dashboard", "coralogix_index_mapping"] | None: ...
+    def HasField(self, field_name: typing_extensions.Literal["asset", b"asset", "coralogix_dashboard", b"coralogix_dashboard", "coralogix_index_mapping", b"coralogix_index_mapping", "coralogix_service", b"coralogix_service", "id", b"id"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["asset", b"asset", "connector_type", b"connector_type", "coralogix_dashboard", b"coralogix_dashboard", "coralogix_index_mapping", b"coralogix_index_mapping", "coralogix_service", b"coralogix_service", "id", b"id", "last_updated", b"last_updated", "type", b"type"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing_extensions.Literal["asset", b"asset"]) -> typing_extensions.Literal["coralogix_dashboard", "coralogix_index_mapping", "coralogix_service"] | None: ...
 
 global___CoralogixAssetModel = CoralogixAssetModel
 

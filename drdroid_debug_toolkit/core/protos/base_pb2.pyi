@@ -853,6 +853,7 @@ class _SourceModelTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper
     CORALOGIX_DASHBOARD: _SourceModelType.ValueType  # 8001
     """Coralogix Models"""
     CORALOGIX_INDEX_MAPPING: _SourceModelType.ValueType  # 8002
+    CORALOGIX_SERVICE: _SourceModelType.ValueType  # 8003
     VICTORIA_LOGS_FIELD: _SourceModelType.ValueType  # 9001
     """VictoriaLogs Models"""
     MCP_TOOLS: _SourceModelType.ValueType  # 9101
@@ -1083,6 +1084,7 @@ SENTRY_PROJECT: SourceModelType.ValueType  # 7001
 CORALOGIX_DASHBOARD: SourceModelType.ValueType  # 8001
 """Coralogix Models"""
 CORALOGIX_INDEX_MAPPING: SourceModelType.ValueType  # 8002
+CORALOGIX_SERVICE: SourceModelType.ValueType  # 8003
 VICTORIA_LOGS_FIELD: SourceModelType.ValueType  # 9001
 """VictoriaLogs Models"""
 MCP_TOOLS: SourceModelType.ValueType  # 9101
