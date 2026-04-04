@@ -823,7 +823,24 @@ class CoralogixApiProcessor(Processor):
                     logger.warning(f"Could not parse DataPrime line: {parse_err}")
             return results
 
+        def _kv_list_to_dict(field) -> dict:
+            """
+            DataPrime returns metadata/labels as a list of {key, value} objects.
+            Convert to a plain lowercase-keyed dict for uniform access.
+            Also handles the case where it's already a plain dict.
+            """
+            if isinstance(field, dict):
+                return {k.lower(): v for k, v in field.items()}
+            if isinstance(field, list):
+                result = {}
+                for item in field:
+                    if isinstance(item, dict) and "key" in item and "value" in item:
+                        result[item["key"].lower()] = item["value"]
+                return result
+            return {}
+
         # --- Strategy 1: spans ---
+        # labels contains: applicationName, subsystemName, serviceName (OTel service.name)
         try:
             payload = {
                 "query": "source spans | limit 5000",
@@ -833,29 +850,19 @@ class CoralogixApiProcessor(Processor):
                                      verify=self.__ssl_verify, timeout=60)
             if response.status_code == 200:
                 results = _parse_dataprime_results(response.text)
-                if results:
-                    logger.info(f"Strategy 1 (spans) first raw result keys: {list(results[0].keys())}, sample: {str(results[0])[:500]}")
                 for r in results:
-                    labels = r.get("labels") or {}
-                    meta = r.get("metadata") or {}
-                    if not isinstance(labels, dict):
-                        labels = {}
-                    if not isinstance(meta, dict):
-                        meta = {}
+                    labels = _kv_list_to_dict(r.get("labels"))
 
                     service_name = (
-                        labels.get("service_name")
-                        or labels.get("service")
-                        or meta.get("subsystemName", "")
+                        labels.get("servicename")
+                        or labels.get("service_name")
+                        or labels.get("subsystemname")
                     )
                     if not service_name:
                         continue
 
                     entry = merged.setdefault(service_name, {"service_name": service_name})
-                    if meta.get("applicationName"):
-                        entry.setdefault("applicationName", meta["applicationName"])
-                    if meta.get("subsystemName"):
-                        entry.setdefault("subsystemName", meta["subsystemName"])
+                    # Store everything from labels for full context
                     for k, v in labels.items():
                         if v:
                             entry.setdefault(k, v)
@@ -869,6 +876,7 @@ class CoralogixApiProcessor(Processor):
             logger.warning(f"Strategy 1 (spans DataPrime) failed: {e}")
 
         # --- Strategy 2: logs ---
+        # labels contains: applicationname, subsystemname (lowercased in logs)
         try:
             payload = {
                 "query": "source logs | limit 5000",
@@ -878,15 +886,11 @@ class CoralogixApiProcessor(Processor):
                                      verify=self.__ssl_verify, timeout=60)
             if response.status_code == 200:
                 results = _parse_dataprime_results(response.text)
-                if results:
-                    logger.info(f"Strategy 2 (logs) first raw result keys: {list(results[0].keys())}, sample: {str(results[0])[:500]}")
                 for r in results:
-                    meta = r.get("metadata") or {}
-                    if not isinstance(meta, dict):
-                        meta = {}
+                    labels = _kv_list_to_dict(r.get("labels"))
 
-                    app = meta.get("applicationName", "")
-                    subsystem = meta.get("subsystemName", "")
+                    app = labels.get("applicationname", "")
+                    subsystem = labels.get("subsystemname", "")
                     service_name = subsystem or app
                     if not service_name:
                         continue
