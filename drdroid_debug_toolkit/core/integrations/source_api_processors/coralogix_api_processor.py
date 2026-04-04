@@ -765,6 +765,165 @@ class CoralogixApiProcessor(Processor):
             logger.warning(f"Failed to parse time string '{time_str}', using as-is: {e}")
             return time_str
 
+    def fetch_services(self, from_time: str = "now-24h", to_time: str = "now"):
+        """
+        Fetch distinct services from Coralogix.
+
+        Runs three strategies and merges results so nothing is missed:
+        1. DataPrime spans query — OTel ``service.name`` is stored as ``service_name``
+           in the per-result ``labels`` dict; ``applicationName`` / ``subsystemName``
+           are in the per-result ``metadata`` dict.
+        2. DataPrime logs query — ``applicationName`` / ``subsystemName`` from the
+           per-result ``metadata`` dict (native Coralogix dimensions, covers services
+           that emit logs but have no APM spans).
+        3. Prometheus label-values API for ``service_name`` (infrastructure /
+           metrics-only services).
+
+        NOTE: ``distinct`` / aggregation DataPrime queries return positional arrays,
+        not dicts, so we deliberately use plain ``limit`` queries and deduplicate
+        in Python to keep the result parsing uniform.
+
+        Args:
+            from_time: Start of the time window (default: last 24 h).
+            to_time:   End of the time window (default: now).
+
+        Returns:
+            list[dict]: One entry per unique service_name with all available metadata.
+        """
+        start_time_rfc3339 = self._parse_time_to_rfc3339(from_time)
+        end_time_rfc3339 = self._parse_time_to_rfc3339(to_time)
+        url = f'{self.__endpoint}/api/v1/dataprime/query'
+        base_metadata = {
+            "tier": "TIER_FREQUENT_SEARCH",
+            "syntax": "QUERY_SYNTAX_DATAPRIME",
+            "startDate": start_time_rfc3339,
+            "endDate": end_time_rfc3339,
+        }
+
+        # Accumulate by service_name; later strategies can enrich earlier entries.
+        merged: dict[str, dict] = {}
+
+        def _parse_dataprime_results(response_text: str) -> list[dict]:
+            """Parse NDJSON DataPrime response; skip any non-dict rows."""
+            results = []
+            for line in response_text.strip().split('\n'):
+                if not line.strip():
+                    continue
+                try:
+                    line_data = json.loads(line)
+                    candidates = []
+                    if "result" in line_data and "results" in line_data["result"]:
+                        candidates = line_data["result"]["results"]
+                    elif "results" in line_data:
+                        candidates = line_data["results"]
+                    for r in candidates:
+                        if isinstance(r, dict):
+                            results.append(r)
+                except Exception as parse_err:
+                    logger.warning(f"Could not parse DataPrime line: {parse_err}")
+            return results
+
+        def _kv_list_to_dict(field) -> dict:
+            """
+            DataPrime returns metadata/labels as a list of {key, value} objects.
+            Convert to a plain lowercase-keyed dict for uniform access.
+            Also handles the case where it's already a plain dict.
+            """
+            if isinstance(field, dict):
+                return {k.lower(): v for k, v in field.items()}
+            if isinstance(field, list):
+                result = {}
+                for item in field:
+                    if isinstance(item, dict) and "key" in item and "value" in item:
+                        result[item["key"].lower()] = item["value"]
+                return result
+            return {}
+
+        # --- Strategy 1: spans ---
+        # labels contains: applicationName, subsystemName, serviceName (OTel service.name)
+        try:
+            payload = {
+                "query": "source spans | limit 5000",
+                "metadata": {**base_metadata, "defaultSource": "spans"},
+            }
+            response = requests.post(url, headers=self.headers, json=payload,
+                                     verify=self.__ssl_verify, timeout=60)
+            if response.status_code == 200:
+                results = _parse_dataprime_results(response.text)
+                for r in results:
+                    labels = _kv_list_to_dict(r.get("labels"))
+
+                    service_name = (
+                        labels.get("servicename")
+                        or labels.get("service_name")
+                        or labels.get("subsystemname")
+                    )
+                    if not service_name:
+                        continue
+
+                    entry = merged.setdefault(service_name, {"service_name": service_name})
+                    # Store everything from labels for full context
+                    for k, v in labels.items():
+                        if v:
+                            entry.setdefault(k, v)
+
+                logger.info(f"Strategy 1 (spans): parsed {len(results)} rows, found {len(merged)} services so far")
+            else:
+                logger.warning(
+                    f"Spans DataPrime query returned {response.status_code}: {response.text[:200]}"
+                )
+        except Exception as e:
+            logger.warning(f"Strategy 1 (spans DataPrime) failed: {e}")
+
+        # --- Strategy 2: logs ---
+        # labels contains: applicationname, subsystemname (lowercased in logs)
+        try:
+            payload = {
+                "query": "source logs | limit 5000",
+                "metadata": {**base_metadata, "defaultSource": "logs"},
+            }
+            response = requests.post(url, headers=self.headers, json=payload,
+                                     verify=self.__ssl_verify, timeout=60)
+            if response.status_code == 200:
+                results = _parse_dataprime_results(response.text)
+                for r in results:
+                    labels = _kv_list_to_dict(r.get("labels"))
+
+                    app = labels.get("applicationname", "")
+                    subsystem = labels.get("subsystemname", "")
+                    service_name = subsystem or app
+                    if not service_name:
+                        continue
+
+                    entry = merged.setdefault(service_name, {"service_name": service_name})
+                    if app:
+                        entry.setdefault("applicationName", app)
+                    if subsystem:
+                        entry.setdefault("subsystemName", subsystem)
+
+                logger.info(f"Strategy 2 (logs): parsed {len(results)} rows, found {len(merged)} services so far")
+            else:
+                logger.warning(
+                    f"Logs DataPrime query returned {response.status_code}: {response.text[:200]}"
+                )
+        except Exception as e:
+            logger.warning(f"Strategy 2 (logs DataPrime) failed: {e}")
+
+        # --- Strategy 3: Prometheus label-values for 'service_name' ---
+        try:
+            label_response = self.fetch_label_values("service_name", from_time=from_time, to_time=to_time)
+            values = label_response.get("data", []) if isinstance(label_response, dict) else []
+            for svc in values:
+                if svc:
+                    merged.setdefault(svc, {"service_name": svc})
+            logger.info(f"Strategy 3 (Prometheus labels): found {len(merged)} services total")
+        except Exception as e:
+            logger.warning(f"Strategy 3 (Prometheus label-values) failed: {e}")
+
+        services = list(merged.values())
+        logger.info(f"fetch_services returning {len(services)} total unique services")
+        return services
+
     def fetch_alert_defs(self):
         """
         Fetch all alert definition configurations from Coralogix using gRPC API.

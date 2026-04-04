@@ -161,6 +161,35 @@ class CoralogixSourceMetadataExtractor(SourceMetadataExtractor):
         return model_data
 
     @log_function_call
+    def extract_services(self):
+        """
+        Extract distinct services from Coralogix span/trace data.
+
+        Returns:
+            dict: Mapping of service_name -> service metadata dict.
+        """
+        model_type = SourceModelType.CORALOGIX_SERVICE
+        model_data = {}
+        try:
+            services = self.__coralogix_api_processor.fetch_services()
+            if not services:
+                return model_data
+
+            for service in services:
+                service_name = service.get("service_name")
+                if not service_name:
+                    continue
+                model_data[service_name] = service
+
+            if model_data:
+                self.create_or_update_model_metadata(model_type, model_data)
+            logger.info(f"Extracted {len(model_data)} Coralogix services")
+        except Exception as e:
+            logger.error(f"Error extracting Coralogix services: {e}")
+
+        return model_data
+
+    @log_function_call
     def extract_index_mappings(self, index_pattern="*"):
         """
         Extract index mappings from Coralogix.

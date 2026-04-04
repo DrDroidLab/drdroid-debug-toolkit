@@ -633,6 +633,7 @@ enum SourceModelType {
   // Coralogix Models
   CORALOGIX_DASHBOARD = 8001;
   CORALOGIX_INDEX_MAPPING = 8002;
+  CORALOGIX_SERVICE = 8003;
 
   // VictoriaLogs Models
   VICTORIA_LOGS_FIELD = 9001;
