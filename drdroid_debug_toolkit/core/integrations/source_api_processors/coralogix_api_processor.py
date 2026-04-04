@@ -924,6 +924,77 @@ class CoralogixApiProcessor(Processor):
         logger.info(f"fetch_services returning {len(services)} total unique services")
         return services
 
+    def fetch_apm_services(self):
+        """
+        Fetch all services from the Coralogix APM Service Catalog via gRPC.
+
+        Uses grpcurl to call:
+          com.coralogixapis.apm.services.v1.ApmServiceService/ListApmServices
+
+        Returns:
+            list[dict]: Each entry contains id, name, type, workloads, technology,
+                        and sloStatusCount as returned by the API.
+        """
+        try:
+            endpoint_url = self.__endpoint
+            if endpoint_url.startswith('https://'):
+                endpoint_url = endpoint_url[8:]
+            elif endpoint_url.startswith('http://'):
+                endpoint_url = endpoint_url[7:]
+            domain = endpoint_url.split('/')[0]
+
+            if 'eu2' in domain.lower() or ('eu' in domain.lower() and 'eu2' not in domain.lower()):
+                grpc_host = 'api.eu2.coralogix.com'
+            elif 'us2' in domain.lower():
+                grpc_host = 'api.us2.coralogix.com'
+            elif 'ap1' in domain.lower():
+                grpc_host = 'api.ap1.coralogix.com'
+            elif 'ap2' in domain.lower():
+                grpc_host = 'api.ap2.coralogix.com'
+            elif 'ap3' in domain.lower():
+                grpc_host = 'api.ap3.coralogix.com'
+            else:
+                grpc_host = domain if ':' in domain else f'{domain}:443'
+
+            if ':' not in grpc_host:
+                grpc_host = f'{grpc_host}:443'
+
+            cmd = [
+                'grpcurl',
+                '-H', f'Authorization: Bearer {self.__api_key}',
+                '-d', '{}',
+                grpc_host,
+                'com.coralogixapis.apm.services.v1.ApmServiceService/ListApmServices',
+            ]
+
+            try:
+                result = subprocess.run(
+                    cmd,
+                    capture_output=True,
+                    text=True,
+                    timeout=30,
+                    check=True,
+                )
+                response_json = json.loads(result.stdout)
+                services = response_json.get('services', [])
+                logger.info(f"Fetched {len(services)} APM services from Coralogix Service Catalog")
+                return services
+
+            except subprocess.CalledProcessError as e:
+                raise Exception(f"grpcurl failed: {e.stderr}")
+            except subprocess.TimeoutExpired:
+                raise Exception("Timeout fetching Coralogix APM services via gRPC")
+            except json.JSONDecodeError as e:
+                raise Exception(f"Invalid JSON from Coralogix APM gRPC API: {e}")
+            except FileNotFoundError:
+                raise Exception(
+                    "grpcurl not found. Install it from https://github.com/fullstorydev/grpcurl"
+                )
+
+        except Exception as e:
+            logger.error(f"Exception fetching Coralogix APM services: {e}")
+            raise e
+
     def fetch_alert_defs(self):
         """
         Fetch all alert definition configurations from Coralogix using gRPC API.

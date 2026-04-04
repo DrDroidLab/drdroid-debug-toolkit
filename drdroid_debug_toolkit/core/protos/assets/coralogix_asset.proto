@@ -54,6 +54,7 @@ message CoralogixAssetModel {
     CoralogixDashboardWidgetAssetModel coralogix_dashboard = 5;
     CoralogixIndexMappingAssetModel coralogix_index_mapping = 6;
     CoralogixServiceAssetModel coralogix_service = 7;
+    CoralogixApmServiceAssetModel coralogix_apm_service = 8;
   }
 }
 
@@ -71,6 +72,23 @@ message CoralogixIndexMappingAssetOptions {
     google.protobuf.StringValue index_pattern = 2;
   }
   repeated CoralogixIndexMappingOptions index_mappings = 1;
+}
+
+message CoralogixApmServiceAssetModel {
+  google.protobuf.StringValue id = 1;
+  google.protobuf.StringValue name = 2;
+  google.protobuf.StringValue type = 3;
+  repeated string workloads = 4;
+  google.protobuf.StringValue technology = 5;
+  google.protobuf.Struct slo_status_count = 6;
+}
+
+message CoralogixApmServiceAssetOptions {
+  message CoralogixApmServiceOptions {
+    google.protobuf.StringValue name = 1;
+    google.protobuf.StringValue type = 2;
+  }
+  repeated CoralogixApmServiceOptions services = 1;
 }
 
 message CoralogixAssets {
