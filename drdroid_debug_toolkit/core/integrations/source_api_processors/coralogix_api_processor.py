@@ -824,9 +824,6 @@ class CoralogixApiProcessor(Processor):
             return results
 
         # --- Strategy 1: spans ---
-        # Each result dict has:
-        #   result["labels"]["service_name"] — OTel service.name
-        #   result["metadata"]["applicationName"] / ["subsystemName"]
         try:
             payload = {
                 "query": "source spans | limit 5000",
@@ -835,7 +832,10 @@ class CoralogixApiProcessor(Processor):
             response = requests.post(url, headers=self.headers, json=payload,
                                      verify=self.__ssl_verify, timeout=60)
             if response.status_code == 200:
-                for r in _parse_dataprime_results(response.text):
+                results = _parse_dataprime_results(response.text)
+                if results:
+                    logger.info(f"Strategy 1 (spans) first raw result keys: {list(results[0].keys())}, sample: {str(results[0])[:500]}")
+                for r in results:
                     labels = r.get("labels") or {}
                     meta = r.get("metadata") or {}
                     if not isinstance(labels, dict):
@@ -856,12 +856,11 @@ class CoralogixApiProcessor(Processor):
                         entry.setdefault("applicationName", meta["applicationName"])
                     if meta.get("subsystemName"):
                         entry.setdefault("subsystemName", meta["subsystemName"])
-                    # Store all labels for full context
                     for k, v in labels.items():
                         if v:
                             entry.setdefault(k, v)
 
-                logger.info(f"Strategy 1 (spans): found {len(merged)} services so far")
+                logger.info(f"Strategy 1 (spans): parsed {len(results)} rows, found {len(merged)} services so far")
             else:
                 logger.warning(
                     f"Spans DataPrime query returned {response.status_code}: {response.text[:200]}"
@@ -870,8 +869,6 @@ class CoralogixApiProcessor(Processor):
             logger.warning(f"Strategy 1 (spans DataPrime) failed: {e}")
 
         # --- Strategy 2: logs ---
-        # Each result dict has:
-        #   result["metadata"]["applicationName"] / ["subsystemName"]
         try:
             payload = {
                 "query": "source logs | limit 5000",
@@ -880,14 +877,16 @@ class CoralogixApiProcessor(Processor):
             response = requests.post(url, headers=self.headers, json=payload,
                                      verify=self.__ssl_verify, timeout=60)
             if response.status_code == 200:
-                for r in _parse_dataprime_results(response.text):
+                results = _parse_dataprime_results(response.text)
+                if results:
+                    logger.info(f"Strategy 2 (logs) first raw result keys: {list(results[0].keys())}, sample: {str(results[0])[:500]}")
+                for r in results:
                     meta = r.get("metadata") or {}
                     if not isinstance(meta, dict):
                         meta = {}
 
                     app = meta.get("applicationName", "")
                     subsystem = meta.get("subsystemName", "")
-                    # subsystemName maps to individual microservice; fall back to app
                     service_name = subsystem or app
                     if not service_name:
                         continue
@@ -898,7 +897,7 @@ class CoralogixApiProcessor(Processor):
                     if subsystem:
                         entry.setdefault("subsystemName", subsystem)
 
-                logger.info(f"Strategy 2 (logs app/subsystem): found {len(merged)} services so far")
+                logger.info(f"Strategy 2 (logs): parsed {len(results)} rows, found {len(merged)} services so far")
             else:
                 logger.warning(
                     f"Logs DataPrime query returned {response.status_code}: {response.text[:200]}"
