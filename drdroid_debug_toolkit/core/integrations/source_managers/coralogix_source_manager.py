@@ -826,9 +826,9 @@ class CoralogixSourceManager(SourceManager):
 
             print(f"Playbook Task Downstream Request: Type -> Coralogix Trace, TraceId -> {trace_id}")
 
-            # Fetch all spans belonging to this trace using Lucene on the spans source
-            response = processor.execute_spans_query(
-                query=f"traceId:{trace_id}",
+            # Fetch all spans belonging to this trace using DataPrime (more reliable than Lucene for traceId lookups)
+            response = processor.execute_dataprime_spans_query(
+                dataprime_query=f"source spans | filter $l.traceId == '{trace_id}'",
                 from_time=from_time,
                 to_time=to_time
             )
@@ -836,7 +836,8 @@ class CoralogixSourceManager(SourceManager):
             domain = self._extract_domain_from_connector(coralogix_connector)
             time_params = self._get_coralogix_time_params(time_range)
             metadata = self._create_metadata_with_coralogix_url(domain, "spans", {
-                "query": f"traceId:{trace_id}", "from_time": from_time, "to_time": to_time, **time_params
+                "query": f"source spans | filter $l.traceId == '{trace_id}'",
+                "from_time": from_time, "to_time": to_time, **time_params
             })
 
             if not response:

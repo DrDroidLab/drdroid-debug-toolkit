@@ -526,6 +526,66 @@ class CoralogixApiProcessor(Processor):
             logger.error(f"Error executing spans query: {e}")
             raise
 
+    def execute_dataprime_spans_query(self, dataprime_query: str, from_time: str = None, to_time: str = None):
+        """
+        Execute a DataPrime query scoped to spans.
+
+        Args:
+            dataprime_query: Full DataPrime query string, e.g.
+                             "source spans | filter $l.traceId == '...'"
+            from_time: Start time (e.g. "now-1h", RFC3339)
+            to_time: End time (e.g. "now", RFC3339)
+
+        Returns:
+            dict: {"results": [...], "count": int}
+        """
+        try:
+            start_time_rfc3339 = self._parse_time_to_rfc3339(from_time or "now-1h")
+            end_time_rfc3339 = self._parse_time_to_rfc3339(to_time or "now")
+
+            url = f'{self.__endpoint}/api/v1/dataprime/query'
+            payload = {
+                "query": dataprime_query,
+                "metadata": {
+                    "tier": "TIER_FREQUENT_SEARCH",
+                    "syntax": "QUERY_SYNTAX_DATAPRIME",
+                    "startDate": start_time_rfc3339,
+                    "endDate": end_time_rfc3339,
+                    "defaultSource": "spans",
+                },
+            }
+
+            response = requests.post(
+                url, headers=self.headers, json=payload,
+                verify=self.__ssl_verify, timeout=60
+            )
+
+            if response.status_code != 200:
+                raise Exception(f"DataPrime spans query failed with status {response.status_code}: {response.text}")
+
+            results = []
+            for line in response.text.strip().split('\n'):
+                if not line.strip():
+                    continue
+                try:
+                    line_data = json.loads(line)
+                    if "result" in line_data and "results" in line_data["result"]:
+                        for r in line_data["result"]["results"]:
+                            if isinstance(r, dict):
+                                results.append(r)
+                    elif "results" in line_data:
+                        for r in line_data["results"]:
+                            if isinstance(r, dict):
+                                results.append(r)
+                except Exception as parse_err:
+                    logger.warning(f"Could not parse DataPrime line: {parse_err}")
+
+            return {"results": results, "count": len(results)}
+
+        except Exception as e:
+            logger.error(f"Error executing DataPrime spans query: {e}")
+            raise
+
     def execute_widget_query(self, widget_config: dict, from_time: str = None, to_time: str = None):
         """
         Execute a query from a widget configuration.
