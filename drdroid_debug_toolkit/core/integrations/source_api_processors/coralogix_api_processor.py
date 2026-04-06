@@ -526,6 +526,66 @@ class CoralogixApiProcessor(Processor):
             logger.error(f"Error executing spans query: {e}")
             raise
 
+    def execute_dataprime_spans_query(self, dataprime_query: str, from_time: str = None, to_time: str = None):
+        """
+        Execute a DataPrime query scoped to spans.
+
+        Args:
+            dataprime_query: Full DataPrime query string, e.g.
+                             "source spans | filter $l.traceId == '...'"
+            from_time: Start time (e.g. "now-1h", RFC3339)
+            to_time: End time (e.g. "now", RFC3339)
+
+        Returns:
+            dict: {"results": [...], "count": int}
+        """
+        try:
+            start_time_rfc3339 = self._parse_time_to_rfc3339(from_time or "now-1h")
+            end_time_rfc3339 = self._parse_time_to_rfc3339(to_time or "now")
+
+            url = f'{self.__endpoint}/api/v1/dataprime/query'
+            payload = {
+                "query": dataprime_query,
+                "metadata": {
+                    "tier": "TIER_FREQUENT_SEARCH",
+                    "syntax": "QUERY_SYNTAX_DATAPRIME",
+                    "startDate": start_time_rfc3339,
+                    "endDate": end_time_rfc3339,
+                    "defaultSource": "spans",
+                },
+            }
+
+            response = requests.post(
+                url, headers=self.headers, json=payload,
+                verify=self.__ssl_verify, timeout=60
+            )
+
+            if response.status_code != 200:
+                raise Exception(f"DataPrime spans query failed with status {response.status_code}: {response.text}")
+
+            results = []
+            for line in response.text.strip().split('\n'):
+                if not line.strip():
+                    continue
+                try:
+                    line_data = json.loads(line)
+                    if "result" in line_data and "results" in line_data["result"]:
+                        for r in line_data["result"]["results"]:
+                            if isinstance(r, dict):
+                                results.append(r)
+                    elif "results" in line_data:
+                        for r in line_data["results"]:
+                            if isinstance(r, dict):
+                                results.append(r)
+                except Exception as parse_err:
+                    logger.warning(f"Could not parse DataPrime line: {parse_err}")
+
+            return {"results": results, "count": len(results)}
+
+        except Exception as e:
+            logger.error(f"Error executing DataPrime spans query: {e}")
+            raise
+
     def execute_widget_query(self, widget_config: dict, from_time: str = None, to_time: str = None):
         """
         Execute a query from a widget configuration.
@@ -923,6 +983,148 @@ class CoralogixApiProcessor(Processor):
         services = list(merged.values())
         logger.info(f"fetch_services returning {len(services)} total unique services")
         return services
+
+    def _get_grpc_host(self) -> str:
+        """Derive the gRPC host (host:443) from the configured HTTP endpoint."""
+        endpoint_url = self.__endpoint
+        if endpoint_url.startswith('https://'):
+            endpoint_url = endpoint_url[8:]
+        elif endpoint_url.startswith('http://'):
+            endpoint_url = endpoint_url[7:]
+        domain = endpoint_url.split('/')[0]
+
+        region_map = {
+            'eu2': 'api.eu2.coralogix.com',
+            'eu1': 'api.eu1.coralogix.com',
+            'us2': 'api.us2.coralogix.com',
+            'us1': 'api.us1.coralogix.com',
+            'ap1': 'api.ap1.coralogix.com',
+            'ap2': 'api.ap2.coralogix.com',
+            'ap3': 'api.ap3.coralogix.com',
+        }
+        for region, host in region_map.items():
+            if region in domain.lower():
+                return f'{host}:443'
+
+        # Fall back to the domain itself
+        return domain if ':' in domain else f'{domain}:443'
+
+    def fetch_apm_services(self):
+        """
+        Fetch all services from the Coralogix APM Service Catalog.
+
+        Calls:
+          com.coralogixapis.apm.services.v1.ApmServiceService/ListApmServices
+
+        Uses the grpcio Python library (no grpcurl binary needed). Protobuf
+        message types are defined inline so no generated stubs are required.
+
+        Returns:
+            list[dict]: Each entry contains id, name, type, workloads, technology,
+                        and sloStatusCount as returned by the API.
+        """
+        try:
+            import grpc
+            from google.protobuf import descriptor_pb2
+            from google.protobuf.message_factory import GetMessages
+            from google.protobuf import json_format
+
+            # --- Build inline proto descriptors ---
+            file_proto = descriptor_pb2.FileDescriptorProto()
+            file_proto.name = "coralogix_apm_services.proto"
+            file_proto.package = "com.coralogixapis.apm.services.v1"
+            file_proto.syntax = "proto3"
+
+            # message ApmService
+            svc = file_proto.message_type.add()
+            svc.name = "ApmService"
+            for num, fname in [(1, "id"), (2, "name"), (3, "type"), (5, "technology")]:
+                f = svc.field.add()
+                f.name = fname
+                f.number = num
+                f.type = 9    # TYPE_STRING
+                f.label = 1   # LABEL_OPTIONAL
+            f = svc.field.add()
+            f.name = "workloads"
+            f.number = 4
+            f.type = 9        # TYPE_STRING
+            f.label = 3       # LABEL_REPEATED
+
+            # message ListApmServicesRequest (empty)
+            req_msg = file_proto.message_type.add()
+            req_msg.name = "ListApmServicesRequest"
+
+            # message ListApmServicesResponse
+            resp_msg = file_proto.message_type.add()
+            resp_msg.name = "ListApmServicesResponse"
+            f = resp_msg.field.add()
+            f.name = "services"
+            f.number = 1
+            f.type = 11       # TYPE_MESSAGE
+            f.label = 3       # LABEL_REPEATED
+            f.type_name = ".com.coralogixapis.apm.services.v1.ApmService"
+
+            classes = GetMessages([file_proto])
+            pkg = "com.coralogixapis.apm.services.v1"
+            RequestClass = classes[f"{pkg}.ListApmServicesRequest"]
+            ResponseClass = classes[f"{pkg}.ListApmServicesResponse"]
+
+            # --- Make the gRPC call ---
+            grpc_host = self._get_grpc_host()
+            channel = grpc.secure_channel(grpc_host, grpc.ssl_channel_credentials())
+            method = channel.unary_unary(
+                '/com.coralogixapis.apm.services.v1.ApmServiceService/ListApmServices',
+                request_serializer=RequestClass.SerializeToString,
+                response_deserializer=ResponseClass.FromString,
+            )
+
+            response = method(
+                RequestClass(),
+                metadata=[('authorization', f'Bearer {self.__api_key}')],
+                timeout=30,
+            )
+
+            raw_services = [json_format.MessageToDict(svc) for svc in response.services]
+
+            def _unwrap_sv(v):
+                """
+                Strip the StringValue wire-format prefix from a string field.
+
+                Coralogix ApmService uses google.protobuf.StringValue wrappers.
+                When decoded against plain-string descriptors the value arrives as
+                the raw StringValue message bytes:
+                  0x0a (field 1, wire type 2) | varint(length) | utf-8 bytes
+                For strings shorter than 128 bytes the length varint is 1 byte.
+                """
+                if (
+                    isinstance(v, str)
+                    and len(v) >= 2
+                    and v[0] == '\n'           # 0x0a = StringValue.value tag
+                ):
+                    try:
+                        length = ord(v[1])
+                        if len(v) == 2 + length:
+                            return v[2:]
+                    except Exception:
+                        pass
+                return v
+
+            services = []
+            for raw in raw_services:
+                services.append({
+                    "id":         _unwrap_sv(raw.get("id", "")),
+                    "name":       _unwrap_sv(raw.get("name", "")),
+                    "type":       _unwrap_sv(raw.get("type", "")),
+                    "technology": _unwrap_sv(raw.get("technology", "")),
+                    "workloads":  [_unwrap_sv(w) for w in raw.get("workloads", [])],
+                })
+
+            logger.info(f"Fetched {len(services)} APM services from Coralogix Service Catalog")
+            return services
+
+        except Exception as e:
+            logger.error(f"Exception fetching Coralogix APM services: {e}")
+            raise e
 
     def fetch_alert_defs(self):
         """
