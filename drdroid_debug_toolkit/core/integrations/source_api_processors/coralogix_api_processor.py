@@ -1024,7 +1024,41 @@ class CoralogixApiProcessor(Processor):
                 timeout=30,
             )
 
-            services = [json_format.MessageToDict(svc) for svc in response.services]
+            raw_services = [json_format.MessageToDict(svc) for svc in response.services]
+
+            def _unwrap_sv(v):
+                """
+                Strip the StringValue wire-format prefix from a string field.
+
+                Coralogix ApmService uses google.protobuf.StringValue wrappers.
+                When decoded against plain-string descriptors the value arrives as
+                the raw StringValue message bytes:
+                  0x0a (field 1, wire type 2) | varint(length) | utf-8 bytes
+                For strings shorter than 128 bytes the length varint is 1 byte.
+                """
+                if (
+                    isinstance(v, str)
+                    and len(v) >= 2
+                    and v[0] == '\n'           # 0x0a = StringValue.value tag
+                ):
+                    try:
+                        length = ord(v[1])
+                        if len(v) == 2 + length:
+                            return v[2:]
+                    except Exception:
+                        pass
+                return v
+
+            services = []
+            for raw in raw_services:
+                services.append({
+                    "id":         _unwrap_sv(raw.get("id", "")),
+                    "name":       _unwrap_sv(raw.get("name", "")),
+                    "type":       _unwrap_sv(raw.get("type", "")),
+                    "technology": _unwrap_sv(raw.get("technology", "")),
+                    "workloads":  [_unwrap_sv(w) for w in raw.get("workloads", [])],
+                })
+
             logger.info(f"Fetched {len(services)} APM services from Coralogix Service Catalog")
             return services
 
