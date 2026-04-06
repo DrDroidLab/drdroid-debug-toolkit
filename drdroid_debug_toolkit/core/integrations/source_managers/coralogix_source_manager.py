@@ -524,6 +524,49 @@ class CoralogixSourceManager(SourceManager):
 
         return None
 
+    @staticmethod
+    def _normalize_span(raw: dict) -> dict:
+        """
+        Convert a raw Coralogix span (with metadata/labels/userData as KV lists)
+        into a flat, human-readable dict with key span fields at the top level.
+        """
+        def kv_list_to_dict(lst):
+            if isinstance(lst, list):
+                return {item["key"]: item["value"] for item in lst if isinstance(item, dict) and "key" in item}
+            if isinstance(lst, dict):
+                return lst
+            return {}
+
+        labels = kv_list_to_dict(raw.get("labels", {}))
+        metadata = kv_list_to_dict(raw.get("metadata", {}))
+        user_data = raw.get("userData", {})
+        if isinstance(user_data, str):
+            try:
+                user_data = json.loads(user_data)
+            except Exception:
+                user_data = {}
+
+        span = {
+            "traceId": labels.get("traceId") or metadata.get("traceId") or user_data.get("traceId", ""),
+            "spanId": labels.get("spanId") or metadata.get("spanId") or user_data.get("spanId", ""),
+            "parentSpanId": labels.get("parentSpanId") or metadata.get("parentSpanId") or user_data.get("parentSpanId", ""),
+            "serviceName": labels.get("serviceName") or labels.get("service.name") or user_data.get("serviceName", ""),
+            "operationName": labels.get("operationName") or user_data.get("operationName", ""),
+            "applicationName": labels.get("applicationName") or labels.get("applicationname", ""),
+            "subsystemName": labels.get("subsystemName") or labels.get("subsystemname", ""),
+            "durationMs": metadata.get("duration", ""),
+            "timestamp": metadata.get("timestamp") or metadata.get("timestampMillis", ""),
+            "status": labels.get("status") or user_data.get("status", ""),
+        }
+
+        # Include any extra user_data attributes that aren't already captured
+        if isinstance(user_data, dict):
+            extra = {k: v for k, v in user_data.items() if k not in span and v is not None}
+            if extra:
+                span["attributes"] = extra
+
+        return {k: v for k, v in span.items() if v != ""}
+
     def execute_fetch_logs(self, time_range: TimeRange, coralogix_task: Coralogix, coralogix_connector: ConnectorProto):
         """
         Execute the fetch logs task.
@@ -732,14 +775,14 @@ class CoralogixSourceManager(SourceManager):
 
             normalized = self._normalize_logs_response(response)
             if normalized is not None:
-                spans = normalized['results']
-                count = normalized.get('count', len(spans))
+                raw_spans = normalized['results']
             elif isinstance(response, dict) and 'results' in response:
-                spans = response['results']
-                count = response.get('count', len(spans))
+                raw_spans = response['results']
             else:
-                spans = response if isinstance(response, list) else []
-                count = len(spans)
+                raw_spans = response if isinstance(response, list) else []
+
+            spans = [self._normalize_span(s) for s in raw_spans]
+            count = len(spans)
 
             try:
                 response_struct = dict_to_proto({'spans': spans, 'count': count}, Struct)
@@ -783,7 +826,7 @@ class CoralogixSourceManager(SourceManager):
 
             print(f"Playbook Task Downstream Request: Type -> Coralogix Trace, TraceId -> {trace_id}")
 
-            # Fetch all spans belonging to this trace
+            # Fetch all spans belonging to this trace using Lucene on the spans source
             response = processor.execute_spans_query(
                 query=f"traceId:{trace_id}",
                 from_time=from_time,
@@ -805,14 +848,31 @@ class CoralogixSourceManager(SourceManager):
 
             normalized = self._normalize_logs_response(response)
             if normalized is not None:
-                spans = normalized['results']
-                count = normalized.get('count', len(spans))
+                raw_spans = normalized['results']
             elif isinstance(response, dict) and 'results' in response:
-                spans = response['results']
-                count = response.get('count', len(spans))
+                raw_spans = response['results']
             else:
-                spans = response if isinstance(response, list) else []
-                count = len(spans)
+                raw_spans = response if isinstance(response, list) else []
+
+            # Convert raw KV-list spans into clean, readable dicts
+            spans = [self._normalize_span(s) for s in raw_spans]
+            count = len(spans)
+
+            if count == 0:
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(
+                        value=f"No spans found for trace ID: {trace_id} in the last 24h. "
+                              f"Try specifying a wider from_time."
+                    )),
+                    source=self.source, metadata=metadata
+                )
+
+            # Sort by timestamp so the trace waterfall is in order
+            try:
+                spans.sort(key=lambda s: s.get("timestamp", ""))
+            except Exception:
+                pass
 
             try:
                 response_struct = dict_to_proto({'trace_id': trace_id, 'spans': spans, 'count': count}, Struct)
