@@ -924,72 +924,109 @@ class CoralogixApiProcessor(Processor):
         logger.info(f"fetch_services returning {len(services)} total unique services")
         return services
 
+    def _get_grpc_host(self) -> str:
+        """Derive the gRPC host (host:443) from the configured HTTP endpoint."""
+        endpoint_url = self.__endpoint
+        if endpoint_url.startswith('https://'):
+            endpoint_url = endpoint_url[8:]
+        elif endpoint_url.startswith('http://'):
+            endpoint_url = endpoint_url[7:]
+        domain = endpoint_url.split('/')[0]
+
+        region_map = {
+            'eu2': 'api.eu2.coralogix.com',
+            'eu1': 'api.eu1.coralogix.com',
+            'us2': 'api.us2.coralogix.com',
+            'us1': 'api.us1.coralogix.com',
+            'ap1': 'api.ap1.coralogix.com',
+            'ap2': 'api.ap2.coralogix.com',
+            'ap3': 'api.ap3.coralogix.com',
+        }
+        for region, host in region_map.items():
+            if region in domain.lower():
+                return f'{host}:443'
+
+        # Fall back to the domain itself
+        return domain if ':' in domain else f'{domain}:443'
+
     def fetch_apm_services(self):
         """
-        Fetch all services from the Coralogix APM Service Catalog via gRPC.
+        Fetch all services from the Coralogix APM Service Catalog.
 
-        Uses grpcurl to call:
+        Calls:
           com.coralogixapis.apm.services.v1.ApmServiceService/ListApmServices
+
+        Uses the grpcio Python library (no grpcurl binary needed). Protobuf
+        message types are defined inline so no generated stubs are required.
 
         Returns:
             list[dict]: Each entry contains id, name, type, workloads, technology,
                         and sloStatusCount as returned by the API.
         """
         try:
-            endpoint_url = self.__endpoint
-            if endpoint_url.startswith('https://'):
-                endpoint_url = endpoint_url[8:]
-            elif endpoint_url.startswith('http://'):
-                endpoint_url = endpoint_url[7:]
-            domain = endpoint_url.split('/')[0]
+            import grpc
+            from google.protobuf import descriptor_pb2
+            from google.protobuf.message_factory import GetMessages
+            from google.protobuf import json_format
 
-            if 'eu2' in domain.lower() or ('eu' in domain.lower() and 'eu2' not in domain.lower()):
-                grpc_host = 'api.eu2.coralogix.com'
-            elif 'us2' in domain.lower():
-                grpc_host = 'api.us2.coralogix.com'
-            elif 'ap1' in domain.lower():
-                grpc_host = 'api.ap1.coralogix.com'
-            elif 'ap2' in domain.lower():
-                grpc_host = 'api.ap2.coralogix.com'
-            elif 'ap3' in domain.lower():
-                grpc_host = 'api.ap3.coralogix.com'
-            else:
-                grpc_host = domain if ':' in domain else f'{domain}:443'
+            # --- Build inline proto descriptors ---
+            file_proto = descriptor_pb2.FileDescriptorProto()
+            file_proto.name = "coralogix_apm_services.proto"
+            file_proto.package = "com.coralogixapis.apm.services.v1"
+            file_proto.syntax = "proto3"
 
-            if ':' not in grpc_host:
-                grpc_host = f'{grpc_host}:443'
+            # message ApmService
+            svc = file_proto.message_type.add()
+            svc.name = "ApmService"
+            for num, fname in [(1, "id"), (2, "name"), (3, "type"), (5, "technology")]:
+                f = svc.field.add()
+                f.name = fname
+                f.number = num
+                f.type = 9    # TYPE_STRING
+                f.label = 1   # LABEL_OPTIONAL
+            f = svc.field.add()
+            f.name = "workloads"
+            f.number = 4
+            f.type = 9        # TYPE_STRING
+            f.label = 3       # LABEL_REPEATED
 
-            cmd = [
-                'grpcurl',
-                '-H', f'Authorization: Bearer {self.__api_key}',
-                '-d', '{}',
-                grpc_host,
-                'com.coralogixapis.apm.services.v1.ApmServiceService/ListApmServices',
-            ]
+            # message ListApmServicesRequest (empty)
+            req_msg = file_proto.message_type.add()
+            req_msg.name = "ListApmServicesRequest"
 
-            try:
-                result = subprocess.run(
-                    cmd,
-                    capture_output=True,
-                    text=True,
-                    timeout=30,
-                    check=True,
-                )
-                response_json = json.loads(result.stdout)
-                services = response_json.get('services', [])
-                logger.info(f"Fetched {len(services)} APM services from Coralogix Service Catalog")
-                return services
+            # message ListApmServicesResponse
+            resp_msg = file_proto.message_type.add()
+            resp_msg.name = "ListApmServicesResponse"
+            f = resp_msg.field.add()
+            f.name = "services"
+            f.number = 1
+            f.type = 11       # TYPE_MESSAGE
+            f.label = 3       # LABEL_REPEATED
+            f.type_name = ".com.coralogixapis.apm.services.v1.ApmService"
 
-            except subprocess.CalledProcessError as e:
-                raise Exception(f"grpcurl failed: {e.stderr}")
-            except subprocess.TimeoutExpired:
-                raise Exception("Timeout fetching Coralogix APM services via gRPC")
-            except json.JSONDecodeError as e:
-                raise Exception(f"Invalid JSON from Coralogix APM gRPC API: {e}")
-            except FileNotFoundError:
-                raise Exception(
-                    "grpcurl not found. Install it from https://github.com/fullstorydev/grpcurl"
-                )
+            classes = GetMessages([file_proto])
+            pkg = "com.coralogixapis.apm.services.v1"
+            RequestClass = classes[f"{pkg}.ListApmServicesRequest"]
+            ResponseClass = classes[f"{pkg}.ListApmServicesResponse"]
+
+            # --- Make the gRPC call ---
+            grpc_host = self._get_grpc_host()
+            channel = grpc.secure_channel(grpc_host, grpc.ssl_channel_credentials())
+            method = channel.unary_unary(
+                '/com.coralogixapis.apm.services.v1.ApmServiceService/ListApmServices',
+                request_serializer=RequestClass.SerializeToString,
+                response_deserializer=ResponseClass.FromString,
+            )
+
+            response = method(
+                RequestClass(),
+                metadata=[('authorization', f'Bearer {self.__api_key}')],
+                timeout=30,
+            )
+
+            services = [json_format.MessageToDict(svc) for svc in response.services]
+            logger.info(f"Fetched {len(services)} APM services from Coralogix Service Catalog")
+            return services
 
         except Exception as e:
             logger.error(f"Exception fetching Coralogix APM services: {e}")

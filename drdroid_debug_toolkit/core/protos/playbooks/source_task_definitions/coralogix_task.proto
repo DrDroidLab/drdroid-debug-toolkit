@@ -36,6 +36,19 @@ message Coralogix {
   message FetchAlertDefsTask {
   }
 
+  message FetchSpansTask {
+    google.protobuf.StringValue query = 1;
+    google.protobuf.StringValue from_time = 2;
+    google.protobuf.StringValue to_time = 3;
+    google.protobuf.UInt64Value limit = 4;
+  }
+
+  message FetchTraceTask {
+    google.protobuf.StringValue trace_id = 1;
+    google.protobuf.StringValue from_time = 2;
+    google.protobuf.StringValue to_time = 3;
+  }
+
   enum TaskType {
     UNKNOWN = 0;
     FETCH_LOGS = 1;
@@ -44,6 +57,8 @@ message Coralogix {
     FETCH_DASHBOARD_VARIABLES = 4;
     FETCH_INDEX_MAPPINGS = 5;
     FETCH_ALERT_DEFS = 6;
+    FETCH_SPANS = 7;
+    FETCH_TRACE = 8;
   }
 
   TaskType type = 1;
@@ -54,5 +69,7 @@ message Coralogix {
     FetchDashboardVariablesTask fetch_dashboard_variables = 5;
     FetchIndexMappingsTask fetch_index_mappings = 6;
     FetchAlertDefsTask fetch_alert_defs = 7;
+    FetchSpansTask fetch_spans = 8;
+    FetchTraceTask fetch_trace = 9;
   }
 }
