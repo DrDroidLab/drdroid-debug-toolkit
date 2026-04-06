@@ -826,17 +826,35 @@ class CoralogixSourceManager(SourceManager):
 
             print(f"Playbook Task Downstream Request: Type -> Coralogix Trace, TraceId -> {trace_id}")
 
-            # Fetch all spans belonging to this trace using DataPrime (more reliable than Lucene for traceId lookups)
-            response = processor.execute_dataprime_spans_query(
-                dataprime_query=f"source spans | filter $l.traceId == '{trace_id}'",
-                from_time=from_time,
-                to_time=to_time
-            )
+            # Try multiple field paths since Coralogix docs show traceId in both $l and $d
+            # depending on the instrumentation. Try all known paths and take the first with results.
+            trace_queries = [
+                f"source spans | filter $l.traceId == '{trace_id}'",   # standard OTel label
+                f"source spans | filter $d.traceId == '{trace_id}'",   # data field (lowercase d)
+                f"source spans | filter $d.traceID == '{trace_id}'",   # data field (uppercase D)
+                f"source spans | filter $m.traceId == '{trace_id}'",   # metadata field
+            ]
+            response = None
+            for tq in trace_queries:
+                try:
+                    candidate = processor.execute_dataprime_spans_query(
+                        dataprime_query=tq,
+                        from_time=from_time,
+                        to_time=to_time
+                    )
+                    if candidate and candidate.get("count", 0) > 0:
+                        response = candidate
+                        logger.info(f"Found {candidate['count']} spans for trace {trace_id} using query: {tq}")
+                        break
+                except Exception as tq_err:
+                    logger.warning(f"Trace query failed ({tq}): {tq_err}")
+            if response is None:
+                response = {"results": [], "count": 0}
 
             domain = self._extract_domain_from_connector(coralogix_connector)
             time_params = self._get_coralogix_time_params(time_range)
             metadata = self._create_metadata_with_coralogix_url(domain, "spans", {
-                "query": f"source spans | filter $l.traceId == '{trace_id}'",
+                "query": f"traceId:{trace_id}",
                 "from_time": from_time, "to_time": to_time, **time_params
             })
 
