@@ -27,6 +27,29 @@ message ConfluenceCloud {
     google.protobuf.StringValue id = 1;
   }
 
+  message FetchPageContentBulk {
+    repeated string page_ids = 1;
+  }
+
+  message FetchRootNodes {
+    google.protobuf.StringValue space_id = 1;
+    google.protobuf.UInt32Value limit = 2;
+    google.protobuf.StringValue cursor = 3;
+  }
+
+  message FetchChildren {
+    google.protobuf.StringValue parent_id = 1;
+    google.protobuf.UInt32Value limit = 2;
+    google.protobuf.StringValue cursor = 3;
+  }
+
+  message SearchPages {
+    google.protobuf.StringValue space_id = 1;
+    google.protobuf.StringValue query = 2;
+    google.protobuf.UInt32Value limit = 3;
+    google.protobuf.StringValue cursor = 4;
+  }
+
   message FetchDocumentContent {
     google.protobuf.StringValue id = 1;
     google.protobuf.StringValue space_key = 2;
@@ -40,6 +63,10 @@ message ConfluenceCloud {
     FETCH_FOLDERS = 3;
     FETCH_PAGES = 4;
     FETCH_PAGE_CONTENT = 5;
+    FETCH_PAGE_CONTENT_BULK = 6;
+    FETCH_ROOT_NODES = 7;
+    FETCH_CHILDREN = 8;
+    SEARCH_PAGES = 9;
   }
 
   TaskType type = 1;
@@ -49,5 +76,9 @@ message ConfluenceCloud {
     FetchFolders fetch_folders = 4;
     FetchPages fetch_pages = 5;
     FetchPageContent fetch_page_content = 6;
+    FetchPageContentBulk fetch_page_content_bulk = 7;
+    FetchRootNodes fetch_root_nodes = 8;
+    FetchChildren fetch_children = 9;
+    SearchPages search_pages = 10;
   }
 }
