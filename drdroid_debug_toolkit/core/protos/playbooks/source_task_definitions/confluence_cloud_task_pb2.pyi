@@ -3,7 +3,9 @@
 isort:skip_file
 """
 import builtins
+import collections.abc
 import google.protobuf.descriptor
+import google.protobuf.internal.containers
 import google.protobuf.internal.enum_type_wrapper
 import google.protobuf.message
 import google.protobuf.wrappers_pb2
@@ -29,10 +31,201 @@ class ConfluenceCloud(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
         UNKNOWN: ConfluenceCloud._TaskType.ValueType  # 0
         FETCH_DOCUMENT_CONTENT: ConfluenceCloud._TaskType.ValueType  # 1
+        FETCH_SPACES: ConfluenceCloud._TaskType.ValueType  # 2
+        FETCH_FOLDERS: ConfluenceCloud._TaskType.ValueType  # 3
+        FETCH_PAGES: ConfluenceCloud._TaskType.ValueType  # 4
+        FETCH_PAGE_CONTENT: ConfluenceCloud._TaskType.ValueType  # 5
+        FETCH_PAGE_CONTENT_BULK: ConfluenceCloud._TaskType.ValueType  # 6
+        FETCH_ROOT_NODES: ConfluenceCloud._TaskType.ValueType  # 7
+        FETCH_CHILDREN: ConfluenceCloud._TaskType.ValueType  # 8
+        SEARCH_PAGES: ConfluenceCloud._TaskType.ValueType  # 9
 
     class TaskType(_TaskType, metaclass=_TaskTypeEnumTypeWrapper): ...
     UNKNOWN: ConfluenceCloud.TaskType.ValueType  # 0
     FETCH_DOCUMENT_CONTENT: ConfluenceCloud.TaskType.ValueType  # 1
+    FETCH_SPACES: ConfluenceCloud.TaskType.ValueType  # 2
+    FETCH_FOLDERS: ConfluenceCloud.TaskType.ValueType  # 3
+    FETCH_PAGES: ConfluenceCloud.TaskType.ValueType  # 4
+    FETCH_PAGE_CONTENT: ConfluenceCloud.TaskType.ValueType  # 5
+    FETCH_PAGE_CONTENT_BULK: ConfluenceCloud.TaskType.ValueType  # 6
+    FETCH_ROOT_NODES: ConfluenceCloud.TaskType.ValueType  # 7
+    FETCH_CHILDREN: ConfluenceCloud.TaskType.ValueType  # 8
+    SEARCH_PAGES: ConfluenceCloud.TaskType.ValueType  # 9
+
+    @typing_extensions.final
+    class FetchSpaces(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        LIMIT_FIELD_NUMBER: builtins.int
+        CURSOR_FIELD_NUMBER: builtins.int
+        @property
+        def limit(self) -> google.protobuf.wrappers_pb2.UInt32Value: ...
+        @property
+        def cursor(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        def __init__(
+            self,
+            *,
+            limit: google.protobuf.wrappers_pb2.UInt32Value | None = ...,
+            cursor: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["cursor", b"cursor", "limit", b"limit"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["cursor", b"cursor", "limit", b"limit"]) -> None: ...
+
+    @typing_extensions.final
+    class FetchFolders(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        SPACE_ID_FIELD_NUMBER: builtins.int
+        PARENT_ID_FIELD_NUMBER: builtins.int
+        LIMIT_FIELD_NUMBER: builtins.int
+        CURSOR_FIELD_NUMBER: builtins.int
+        @property
+        def space_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def parent_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def limit(self) -> google.protobuf.wrappers_pb2.UInt32Value: ...
+        @property
+        def cursor(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        def __init__(
+            self,
+            *,
+            space_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            parent_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            limit: google.protobuf.wrappers_pb2.UInt32Value | None = ...,
+            cursor: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["cursor", b"cursor", "limit", b"limit", "parent_id", b"parent_id", "space_id", b"space_id"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["cursor", b"cursor", "limit", b"limit", "parent_id", b"parent_id", "space_id", b"space_id"]) -> None: ...
+
+    @typing_extensions.final
+    class FetchPages(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        SPACE_ID_FIELD_NUMBER: builtins.int
+        PARENT_ID_FIELD_NUMBER: builtins.int
+        LIMIT_FIELD_NUMBER: builtins.int
+        CURSOR_FIELD_NUMBER: builtins.int
+        @property
+        def space_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def parent_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def limit(self) -> google.protobuf.wrappers_pb2.UInt32Value: ...
+        @property
+        def cursor(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        def __init__(
+            self,
+            *,
+            space_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            parent_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            limit: google.protobuf.wrappers_pb2.UInt32Value | None = ...,
+            cursor: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["cursor", b"cursor", "limit", b"limit", "parent_id", b"parent_id", "space_id", b"space_id"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["cursor", b"cursor", "limit", b"limit", "parent_id", b"parent_id", "space_id", b"space_id"]) -> None: ...
+
+    @typing_extensions.final
+    class FetchPageContent(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        ID_FIELD_NUMBER: builtins.int
+        @property
+        def id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        def __init__(
+            self,
+            *,
+            id: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["id", b"id"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["id", b"id"]) -> None: ...
+
+    @typing_extensions.final
+    class FetchPageContentBulk(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        PAGE_IDS_FIELD_NUMBER: builtins.int
+        @property
+        def page_ids(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+        def __init__(
+            self,
+            *,
+            page_ids: collections.abc.Iterable[builtins.str] | None = ...,
+        ) -> None: ...
+        def ClearField(self, field_name: typing_extensions.Literal["page_ids", b"page_ids"]) -> None: ...
+
+    @typing_extensions.final
+    class FetchRootNodes(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        SPACE_ID_FIELD_NUMBER: builtins.int
+        LIMIT_FIELD_NUMBER: builtins.int
+        CURSOR_FIELD_NUMBER: builtins.int
+        @property
+        def space_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def limit(self) -> google.protobuf.wrappers_pb2.UInt32Value: ...
+        @property
+        def cursor(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        def __init__(
+            self,
+            *,
+            space_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            limit: google.protobuf.wrappers_pb2.UInt32Value | None = ...,
+            cursor: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["cursor", b"cursor", "limit", b"limit", "space_id", b"space_id"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["cursor", b"cursor", "limit", b"limit", "space_id", b"space_id"]) -> None: ...
+
+    @typing_extensions.final
+    class FetchChildren(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        PARENT_ID_FIELD_NUMBER: builtins.int
+        LIMIT_FIELD_NUMBER: builtins.int
+        CURSOR_FIELD_NUMBER: builtins.int
+        @property
+        def parent_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def limit(self) -> google.protobuf.wrappers_pb2.UInt32Value: ...
+        @property
+        def cursor(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        def __init__(
+            self,
+            *,
+            parent_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            limit: google.protobuf.wrappers_pb2.UInt32Value | None = ...,
+            cursor: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["cursor", b"cursor", "limit", b"limit", "parent_id", b"parent_id"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["cursor", b"cursor", "limit", b"limit", "parent_id", b"parent_id"]) -> None: ...
+
+    @typing_extensions.final
+    class SearchPages(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        SPACE_ID_FIELD_NUMBER: builtins.int
+        QUERY_FIELD_NUMBER: builtins.int
+        LIMIT_FIELD_NUMBER: builtins.int
+        CURSOR_FIELD_NUMBER: builtins.int
+        @property
+        def space_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def query(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def limit(self) -> google.protobuf.wrappers_pb2.UInt32Value: ...
+        @property
+        def cursor(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        def __init__(
+            self,
+            *,
+            space_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            query: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            limit: google.protobuf.wrappers_pb2.UInt32Value | None = ...,
+            cursor: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["cursor", b"cursor", "limit", b"limit", "query", b"query", "space_id", b"space_id"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["cursor", b"cursor", "limit", b"limit", "query", b"query", "space_id", b"space_id"]) -> None: ...
 
     @typing_extensions.final
     class FetchDocumentContent(google.protobuf.message.Message):
@@ -59,17 +252,49 @@ class ConfluenceCloud(google.protobuf.message.Message):
 
     TYPE_FIELD_NUMBER: builtins.int
     FETCH_DOCUMENT_CONTENT_FIELD_NUMBER: builtins.int
+    FETCH_SPACES_FIELD_NUMBER: builtins.int
+    FETCH_FOLDERS_FIELD_NUMBER: builtins.int
+    FETCH_PAGES_FIELD_NUMBER: builtins.int
+    FETCH_PAGE_CONTENT_FIELD_NUMBER: builtins.int
+    FETCH_PAGE_CONTENT_BULK_FIELD_NUMBER: builtins.int
+    FETCH_ROOT_NODES_FIELD_NUMBER: builtins.int
+    FETCH_CHILDREN_FIELD_NUMBER: builtins.int
+    SEARCH_PAGES_FIELD_NUMBER: builtins.int
     type: global___ConfluenceCloud.TaskType.ValueType
     @property
     def fetch_document_content(self) -> global___ConfluenceCloud.FetchDocumentContent: ...
+    @property
+    def fetch_spaces(self) -> global___ConfluenceCloud.FetchSpaces: ...
+    @property
+    def fetch_folders(self) -> global___ConfluenceCloud.FetchFolders: ...
+    @property
+    def fetch_pages(self) -> global___ConfluenceCloud.FetchPages: ...
+    @property
+    def fetch_page_content(self) -> global___ConfluenceCloud.FetchPageContent: ...
+    @property
+    def fetch_page_content_bulk(self) -> global___ConfluenceCloud.FetchPageContentBulk: ...
+    @property
+    def fetch_root_nodes(self) -> global___ConfluenceCloud.FetchRootNodes: ...
+    @property
+    def fetch_children(self) -> global___ConfluenceCloud.FetchChildren: ...
+    @property
+    def search_pages(self) -> global___ConfluenceCloud.SearchPages: ...
     def __init__(
         self,
         *,
         type: global___ConfluenceCloud.TaskType.ValueType = ...,
         fetch_document_content: global___ConfluenceCloud.FetchDocumentContent | None = ...,
+        fetch_spaces: global___ConfluenceCloud.FetchSpaces | None = ...,
+        fetch_folders: global___ConfluenceCloud.FetchFolders | None = ...,
+        fetch_pages: global___ConfluenceCloud.FetchPages | None = ...,
+        fetch_page_content: global___ConfluenceCloud.FetchPageContent | None = ...,
+        fetch_page_content_bulk: global___ConfluenceCloud.FetchPageContentBulk | None = ...,
+        fetch_root_nodes: global___ConfluenceCloud.FetchRootNodes | None = ...,
+        fetch_children: global___ConfluenceCloud.FetchChildren | None = ...,
+        search_pages: global___ConfluenceCloud.SearchPages | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["fetch_document_content", b"fetch_document_content", "task", b"task"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["fetch_document_content", b"fetch_document_content", "task", b"task", "type", b"type"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing_extensions.Literal["task", b"task"]) -> typing_extensions.Literal["fetch_document_content"] | None: ...
+    def HasField(self, field_name: typing_extensions.Literal["fetch_children", b"fetch_children", "fetch_document_content", b"fetch_document_content", "fetch_folders", b"fetch_folders", "fetch_page_content", b"fetch_page_content", "fetch_page_content_bulk", b"fetch_page_content_bulk", "fetch_pages", b"fetch_pages", "fetch_root_nodes", b"fetch_root_nodes", "fetch_spaces", b"fetch_spaces", "search_pages", b"search_pages", "task", b"task"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["fetch_children", b"fetch_children", "fetch_document_content", b"fetch_document_content", "fetch_folders", b"fetch_folders", "fetch_page_content", b"fetch_page_content", "fetch_page_content_bulk", b"fetch_page_content_bulk", "fetch_pages", b"fetch_pages", "fetch_root_nodes", b"fetch_root_nodes", "fetch_spaces", b"fetch_spaces", "search_pages", b"search_pages", "task", b"task", "type", b"type"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing_extensions.Literal["task", b"task"]) -> typing_extensions.Literal["fetch_document_content", "fetch_spaces", "fetch_folders", "fetch_pages", "fetch_page_content", "fetch_page_content_bulk", "fetch_root_nodes", "fetch_children", "search_pages"] | None: ...
 
 global___ConfluenceCloud = ConfluenceCloud
