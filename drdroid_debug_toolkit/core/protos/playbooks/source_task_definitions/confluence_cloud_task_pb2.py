@@ -25,7 +25,7 @@ _sym_db = _symbol_database.Default()
 from google.protobuf import wrappers_pb2 as google_dot_protobuf_dot_wrappers__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\nIcore/protos/playbooks/source_task_definitions/confluence_cloud_task.proto\x12\x15\x63ore.protos.playbooks\x1a\x1egoogle/protobuf/wrappers.proto\"\x8d\x03\n\x0f\x43onfluenceCloud\x12=\n\x04type\x18\x01 \x01(\x0e\x32/.core.protos.playbooks.ConfluenceCloud.TaskType\x12]\n\x16\x66\x65tch_document_content\x18\x02 \x01(\x0b\x32;.core.protos.playbooks.ConfluenceCloud.FetchDocumentContentH\x00\x1a\x9e\x01\n\x14\x46\x65tchDocumentContent\x12(\n\x02id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12/\n\tspace_key\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12+\n\x05title\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"3\n\x08TaskType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x1a\n\x16\x46\x45TCH_DOCUMENT_CONTENT\x10\x01\x42\x06\n\x04taskb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\nIcore/protos/playbooks/source_task_definitions/confluence_cloud_task.proto\x12\x15\x63ore.protos.playbooks\x1a\x1egoogle/protobuf/wrappers.proto\"\xd7\n\n\x0f\x43onfluenceCloud\x12=\n\x04type\x18\x01 \x01(\x0e\x32/.core.protos.playbooks.ConfluenceCloud.TaskType\x12]\n\x16\x66\x65tch_document_content\x18\x02 \x01(\x0b\x32;.core.protos.playbooks.ConfluenceCloud.FetchDocumentContentH\x00\x12J\n\x0c\x66\x65tch_spaces\x18\x03 \x01(\x0b\x32\x32.core.protos.playbooks.ConfluenceCloud.FetchSpacesH\x00\x12L\n\rfetch_folders\x18\x04 \x01(\x0b\x32\x33.core.protos.playbooks.ConfluenceCloud.FetchFoldersH\x00\x12H\n\x0b\x66\x65tch_pages\x18\x05 \x01(\x0b\x32\x31.core.protos.playbooks.ConfluenceCloud.FetchPagesH\x00\x12U\n\x12\x66\x65tch_page_content\x18\x06 \x01(\x0b\x32\x37.core.protos.playbooks.ConfluenceCloud.FetchPageContentH\x00\x1ah\n\x0b\x46\x65tchSpaces\x12+\n\x05limit\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.UInt32Value\x12,\n\x06\x63ursor\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1a\xca\x01\n\x0c\x46\x65tchFolders\x12.\n\x08space_id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12/\n\tparent_id\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12+\n\x05limit\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.UInt32Value\x12,\n\x06\x63ursor\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1a\xc8\x01\n\nFetchPages\x12.\n\x08space_id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12/\n\tparent_id\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12+\n\x05limit\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.UInt32Value\x12,\n\x06\x63ursor\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1a<\n\x10\x46\x65tchPageContent\x12(\n\x02id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1a\x9e\x01\n\x14\x46\x65tchDocumentContent\x12(\n\x02id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12/\n\tspace_key\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12+\n\x05title\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\"\x81\x01\n\x08TaskType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x1a\n\x16\x46\x45TCH_DOCUMENT_CONTENT\x10\x01\x12\x10\n\x0c\x46\x45TCH_SPACES\x10\x02\x12\x11\n\rFETCH_FOLDERS\x10\x03\x12\x0f\n\x0b\x46\x45TCH_PAGES\x10\x04\x12\x16\n\x12\x46\x45TCH_PAGE_CONTENT\x10\x05\x42\x06\n\x04taskb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -33,9 +33,17 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'core.protos.playbooks.sourc
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
   _globals['_CONFLUENCECLOUD']._serialized_start=133
-  _globals['_CONFLUENCECLOUD']._serialized_end=530
-  _globals['_CONFLUENCECLOUD_FETCHDOCUMENTCONTENT']._serialized_start=311
-  _globals['_CONFLUENCECLOUD_FETCHDOCUMENTCONTENT']._serialized_end=469
-  _globals['_CONFLUENCECLOUD_TASKTYPE']._serialized_start=471
-  _globals['_CONFLUENCECLOUD_TASKTYPE']._serialized_end=522
+  _globals['_CONFLUENCECLOUD']._serialized_end=1500
+  _globals['_CONFLUENCECLOUD_FETCHSPACES']._serialized_start=625
+  _globals['_CONFLUENCECLOUD_FETCHSPACES']._serialized_end=729
+  _globals['_CONFLUENCECLOUD_FETCHFOLDERS']._serialized_start=732
+  _globals['_CONFLUENCECLOUD_FETCHFOLDERS']._serialized_end=934
+  _globals['_CONFLUENCECLOUD_FETCHPAGES']._serialized_start=937
+  _globals['_CONFLUENCECLOUD_FETCHPAGES']._serialized_end=1137
+  _globals['_CONFLUENCECLOUD_FETCHPAGECONTENT']._serialized_start=1139
+  _globals['_CONFLUENCECLOUD_FETCHPAGECONTENT']._serialized_end=1199
+  _globals['_CONFLUENCECLOUD_FETCHDOCUMENTCONTENT']._serialized_start=1202
+  _globals['_CONFLUENCECLOUD_FETCHDOCUMENTCONTENT']._serialized_end=1360
+  _globals['_CONFLUENCECLOUD_TASKTYPE']._serialized_start=1363
+  _globals['_CONFLUENCECLOUD_TASKTYPE']._serialized_end=1492
 # @@protoc_insertion_point(module_scope)

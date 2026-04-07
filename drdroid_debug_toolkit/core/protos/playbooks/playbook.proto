@@ -47,6 +47,7 @@ import "core/protos/playbooks/source_task_definitions/victoria_logs_task.proto";
 import "core/protos/playbooks/source_task_definitions/render_task.proto";
 import "core/protos/playbooks/source_task_definitions/mcp_task.proto";
 import "core/protos/playbooks/source_task_definitions/metabase_task.proto";
+import "core/protos/playbooks/source_task_definitions/confluence_cloud_task.proto";
 
 
 message Variable {
@@ -156,6 +157,7 @@ message PlaybookTask {
     VictoriaLogs victoria_logs = 144;
     McpServer mcp_server = 145;
     Metabase metabase = 146;
+    ConfluenceCloud confluence_cloud = 147;
   }
 }
 
