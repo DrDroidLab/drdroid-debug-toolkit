@@ -470,6 +470,8 @@ class _SourceKeyTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     DATABRICKS_HOST: _SourceKeyType.ValueType  # 166
     """Databricks specific keys"""
     DATABRICKS_TOKEN: _SourceKeyType.ValueType  # 167
+    GITHUB_API_URL: _SourceKeyType.ValueType  # 168
+    """Github specific keys"""
 
 class SourceKeyType(_SourceKeyType, metaclass=_SourceKeyTypeEnumTypeWrapper): ...
 
@@ -633,6 +635,8 @@ METABASE_API_KEY: SourceKeyType.ValueType  # 163
 DATABRICKS_HOST: SourceKeyType.ValueType  # 166
 """Databricks specific keys"""
 DATABRICKS_TOKEN: SourceKeyType.ValueType  # 167
+GITHUB_API_URL: SourceKeyType.ValueType  # 168
+"""Github specific keys"""
 global___SourceKeyType = SourceKeyType
 
 class _SourceModelType:
@@ -672,6 +676,7 @@ class _SourceModelTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper
     CLOUDWATCH_ALARMS: _SourceModelType.ValueType  # 204
     RDS_INSTANCES: _SourceModelType.ValueType  # 205
     CLOUDWATCH_DASHBOARD: _SourceModelType.ValueType  # 206
+    CODEBUILD_PROJECT: _SourceModelType.ValueType  # 207
     GRAFANA_DATASOURCE: _SourceModelType.ValueType  # 301
     """Grafana Models"""
     GRAFANA_DASHBOARD: _SourceModelType.ValueType  # 302
@@ -848,6 +853,8 @@ class _SourceModelTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper
     CORALOGIX_DASHBOARD: _SourceModelType.ValueType  # 8001
     """Coralogix Models"""
     CORALOGIX_INDEX_MAPPING: _SourceModelType.ValueType  # 8002
+    CORALOGIX_SERVICE: _SourceModelType.ValueType  # 8003
+    CORALOGIX_APM_SERVICE: _SourceModelType.ValueType  # 8004
     VICTORIA_LOGS_FIELD: _SourceModelType.ValueType  # 9001
     """VictoriaLogs Models"""
     MCP_TOOLS: _SourceModelType.ValueType  # 9101
@@ -901,6 +908,7 @@ CLOUDWATCH_LOG_GROUP_QUERY: SourceModelType.ValueType  # 203
 CLOUDWATCH_ALARMS: SourceModelType.ValueType  # 204
 RDS_INSTANCES: SourceModelType.ValueType  # 205
 CLOUDWATCH_DASHBOARD: SourceModelType.ValueType  # 206
+CODEBUILD_PROJECT: SourceModelType.ValueType  # 207
 GRAFANA_DATASOURCE: SourceModelType.ValueType  # 301
 """Grafana Models"""
 GRAFANA_DASHBOARD: SourceModelType.ValueType  # 302
@@ -1077,6 +1085,8 @@ SENTRY_PROJECT: SourceModelType.ValueType  # 7001
 CORALOGIX_DASHBOARD: SourceModelType.ValueType  # 8001
 """Coralogix Models"""
 CORALOGIX_INDEX_MAPPING: SourceModelType.ValueType  # 8002
+CORALOGIX_SERVICE: SourceModelType.ValueType  # 8003
+CORALOGIX_APM_SERVICE: SourceModelType.ValueType  # 8004
 VICTORIA_LOGS_FIELD: SourceModelType.ValueType  # 9001
 """VictoriaLogs Models"""
 MCP_TOOLS: SourceModelType.ValueType  # 9101

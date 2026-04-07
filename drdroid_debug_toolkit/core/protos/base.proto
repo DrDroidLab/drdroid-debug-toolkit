@@ -383,6 +383,9 @@ enum SourceKeyType {
   DATABRICKS_HOST = 166;
   DATABRICKS_TOKEN = 167;
 
+  // Github specific keys
+  GITHUB_API_URL = 168;
+
 }
 
 enum SourceModelType {
@@ -419,6 +422,7 @@ enum SourceModelType {
   CLOUDWATCH_ALARMS = 204;
   RDS_INSTANCES = 205;
   CLOUDWATCH_DASHBOARD = 206;
+  CODEBUILD_PROJECT = 207;
 
   //Grafana Models
   GRAFANA_DATASOURCE = 301;
@@ -629,6 +633,8 @@ enum SourceModelType {
   // Coralogix Models
   CORALOGIX_DASHBOARD = 8001;
   CORALOGIX_INDEX_MAPPING = 8002;
+  CORALOGIX_SERVICE = 8003;
+  CORALOGIX_APM_SERVICE = 8004;
 
   // VictoriaLogs Models
   VICTORIA_LOGS_FIELD = 9001;

@@ -219,7 +219,81 @@ class CoralogixSourceManager(SourceManager):
                 "display_name": "Fetch Alert Definitions from Coralogix",
                 "category": "Alerts",
                 "form_fields": [],
-            }
+            },
+            Coralogix.TaskType.FETCH_SPANS: {
+                "executor": self.execute_fetch_spans,
+                "model_types": [],
+                "result_type": PlaybookTaskResultType.API_RESPONSE,
+                "display_name": "Fetch Spans from Coralogix",
+                "category": "Traces",
+                "form_fields": [
+                    FormField(
+                        key_name=StringValue(value="query"),
+                        display_name=StringValue(value="Lucene Query"),
+                        description=StringValue(value="Lucene query to filter spans (e.g., '*', 'serviceName:frontend', 'operationName:\"GET /api/users\" AND duration:>1000')"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.MULTILINE_FT,
+                        is_optional=True,
+                    ),
+                    FormField(
+                        key_name=StringValue(value="from_time"),
+                        display_name=StringValue(value="From Time"),
+                        description=StringValue(value="Start time (e.g., 'now-1h', '2024-01-01T00:00:00Z')"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=True,
+                    ),
+                    FormField(
+                        key_name=StringValue(value="to_time"),
+                        display_name=StringValue(value="To Time"),
+                        description=StringValue(value="End time (e.g., 'now', '2024-01-01T01:00:00Z')"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=True,
+                    ),
+                    FormField(
+                        key_name=StringValue(value="limit"),
+                        display_name=StringValue(value="Limit"),
+                        description=StringValue(value="Maximum number of spans to return (default: 100)"),
+                        data_type=LiteralType.LONG,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=True,
+                    ),
+                ],
+            },
+            Coralogix.TaskType.FETCH_TRACE: {
+                "executor": self.execute_fetch_trace,
+                "model_types": [],
+                "result_type": PlaybookTaskResultType.API_RESPONSE,
+                "display_name": "Fetch Trace by ID from Coralogix",
+                "category": "Traces",
+                "form_fields": [
+                    FormField(
+                        key_name=StringValue(value="trace_id"),
+                        display_name=StringValue(value="Trace ID"),
+                        description=StringValue(value="The trace ID to fetch all spans for (e.g., 'abc123def456...')"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False,
+                    ),
+                    FormField(
+                        key_name=StringValue(value="from_time"),
+                        display_name=StringValue(value="From Time"),
+                        description=StringValue(value="Start of search window (e.g., 'now-3h'). Default: now-3h"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=True,
+                    ),
+                    FormField(
+                        key_name=StringValue(value="to_time"),
+                        display_name=StringValue(value="To Time"),
+                        description=StringValue(value="End of search window (e.g., 'now'). Default: now"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=True,
+                    ),
+                ],
+            },
         }
         
         self.connector_form_configs = [
@@ -450,6 +524,49 @@ class CoralogixSourceManager(SourceManager):
 
         return None
 
+    @staticmethod
+    def _normalize_span(raw: dict) -> dict:
+        """
+        Convert a raw Coralogix span (with metadata/labels/userData as KV lists)
+        into a flat, human-readable dict with key span fields at the top level.
+        """
+        def kv_list_to_dict(lst):
+            if isinstance(lst, list):
+                return {item["key"]: item["value"] for item in lst if isinstance(item, dict) and "key" in item}
+            if isinstance(lst, dict):
+                return lst
+            return {}
+
+        labels = kv_list_to_dict(raw.get("labels", {}))
+        metadata = kv_list_to_dict(raw.get("metadata", {}))
+        user_data = raw.get("userData", {})
+        if isinstance(user_data, str):
+            try:
+                user_data = json.loads(user_data)
+            except Exception:
+                user_data = {}
+
+        span = {
+            "traceId": labels.get("traceId") or metadata.get("traceId") or user_data.get("traceId", ""),
+            "spanId": labels.get("spanId") or metadata.get("spanId") or user_data.get("spanId", ""),
+            "parentSpanId": labels.get("parentSpanId") or metadata.get("parentSpanId") or user_data.get("parentSpanId", ""),
+            "serviceName": labels.get("serviceName") or labels.get("service.name") or user_data.get("serviceName", ""),
+            "operationName": labels.get("operationName") or user_data.get("operationName", ""),
+            "applicationName": labels.get("applicationName") or labels.get("applicationname", ""),
+            "subsystemName": labels.get("subsystemName") or labels.get("subsystemname", ""),
+            "durationMs": metadata.get("duration", ""),
+            "timestamp": metadata.get("timestamp") or metadata.get("timestampMillis", ""),
+            "status": labels.get("status") or user_data.get("status", ""),
+        }
+
+        # Include any extra user_data attributes that aren't already captured
+        if isinstance(user_data, dict):
+            extra = {k: v for k, v in user_data.items() if k not in span and v is not None}
+            if extra:
+                span["attributes"] = extra
+
+        return {k: v for k, v in span.items() if v != ""}
+
     def execute_fetch_logs(self, time_range: TimeRange, coralogix_task: Coralogix, coralogix_connector: ConnectorProto):
         """
         Execute the fetch logs task.
@@ -622,6 +739,184 @@ class CoralogixSourceManager(SourceManager):
                 text=TextResult(output=StringValue(value=f"Error while executing Coralogix logs task: {e}")),
                 source=self.source,
                 metadata=metadata
+            )
+
+    def execute_fetch_spans(self, time_range: TimeRange, coralogix_task: Coralogix, coralogix_connector: ConnectorProto):
+        try:
+            self._validate_connector(coralogix_connector)
+            task = coralogix_task.fetch_spans
+
+            query = task.query.value if task.HasField("query") and task.query.value else "*"
+            from_time = task.from_time.value if task.HasField("from_time") and task.from_time.value else "now-1h"
+            to_time = task.to_time.value if task.HasField("to_time") and task.to_time.value else "now"
+            limit = task.limit.value if task.HasField("limit") and task.limit.value else 100
+
+            processor = self.get_connector_processor(coralogix_connector)
+
+            print(
+                f"Playbook Task Downstream Request: Type -> Coralogix Spans, Query -> {query}, "
+                f"From -> {from_time}, To -> {to_time}, Limit -> {limit}"
+            )
+
+            response = processor.execute_spans_query(query=query, from_time=from_time, to_time=to_time)
+
+            domain = self._extract_domain_from_connector(coralogix_connector)
+            time_params = self._get_coralogix_time_params(time_range)
+            metadata = self._create_metadata_with_coralogix_url(domain, "spans", {
+                "query": query, "from_time": from_time, "to_time": to_time, **time_params
+            })
+
+            if not response:
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value=f"No spans returned from Coralogix for query: {query}")),
+                    source=self.source, metadata=metadata
+                )
+
+            normalized = self._normalize_logs_response(response)
+            if normalized is not None:
+                raw_spans = normalized['results']
+            elif isinstance(response, dict) and 'results' in response:
+                raw_spans = response['results']
+            else:
+                raw_spans = response if isinstance(response, list) else []
+
+            spans = [self._normalize_span(s) for s in raw_spans]
+            count = len(spans)
+
+            try:
+                response_struct = dict_to_proto({'spans': spans, 'count': count}, Struct)
+                return PlaybookTaskResult(
+                    source=self.source,
+                    type=PlaybookTaskResultType.API_RESPONSE,
+                    api_response=ApiResponseResult(response_body=response_struct),
+                    metadata=metadata
+                )
+            except Exception:
+                return PlaybookTaskResult(
+                    source=self.source,
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value=f"Spans fetched. Found {count} spans. Response: {str(spans)}")),
+                    metadata=metadata
+                )
+
+        except Exception as e:
+            logger.error(f"Error executing Coralogix fetch spans task: {e}")
+            domain = self._extract_domain_from_connector(coralogix_connector)
+            metadata = self._create_metadata_with_coralogix_url(domain, "spans", {})
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.TEXT,
+                text=TextResult(output=StringValue(value=f"Error while executing Coralogix spans task: {e}")),
+                source=self.source, metadata=metadata
+            )
+
+    def execute_fetch_trace(self, time_range: TimeRange, coralogix_task: Coralogix, coralogix_connector: ConnectorProto):
+        try:
+            self._validate_connector(coralogix_connector)
+            task = coralogix_task.fetch_trace
+
+            trace_id = task.trace_id.value if task.HasField("trace_id") and task.trace_id.value else None
+            if not trace_id:
+                raise Exception("trace_id is required for FETCH_TRACE task")
+
+            from_time = task.from_time.value if task.HasField("from_time") and task.from_time.value else "now-3h"
+            to_time = task.to_time.value if task.HasField("to_time") and task.to_time.value else "now"
+
+            processor = self.get_connector_processor(coralogix_connector)
+
+            print(f"Playbook Task Downstream Request: Type -> Coralogix Trace, TraceId -> {trace_id}")
+
+            # Try multiple field paths since Coralogix docs show traceId in both $l and $d
+            # depending on the instrumentation. Try all known paths and take the first with results.
+            trace_queries = [
+                f"source spans | filter $l.traceId == '{trace_id}'",   # standard OTel label
+                f"source spans | filter $d.traceId == '{trace_id}'",   # data field (lowercase d)
+                f"source spans | filter $d.traceID == '{trace_id}'",   # data field (uppercase D)
+                f"source spans | filter $m.traceId == '{trace_id}'",   # metadata field
+            ]
+            response = None
+            for tq in trace_queries:
+                try:
+                    candidate = processor.execute_dataprime_spans_query(
+                        dataprime_query=tq,
+                        from_time=from_time,
+                        to_time=to_time
+                    )
+                    if candidate and candidate.get("count", 0) > 0:
+                        response = candidate
+                        logger.info(f"Found {candidate['count']} spans for trace {trace_id} using query: {tq}")
+                        break
+                except Exception as tq_err:
+                    logger.warning(f"Trace query failed ({tq}): {tq_err}")
+            if response is None:
+                response = {"results": [], "count": 0}
+
+            domain = self._extract_domain_from_connector(coralogix_connector)
+            time_params = self._get_coralogix_time_params(time_range)
+            metadata = self._create_metadata_with_coralogix_url(domain, "spans", {
+                "query": f"traceId:{trace_id}",
+                "from_time": from_time, "to_time": to_time, **time_params
+            })
+
+            if not response:
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value=f"No spans found for trace ID: {trace_id}")),
+                    source=self.source, metadata=metadata
+                )
+
+            normalized = self._normalize_logs_response(response)
+            if normalized is not None:
+                raw_spans = normalized['results']
+            elif isinstance(response, dict) and 'results' in response:
+                raw_spans = response['results']
+            else:
+                raw_spans = response if isinstance(response, list) else []
+
+            # Convert raw KV-list spans into clean, readable dicts
+            spans = [self._normalize_span(s) for s in raw_spans]
+            count = len(spans)
+
+            if count == 0:
+                return PlaybookTaskResult(
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(
+                        value=f"No spans found for trace ID: {trace_id} in the last 24h. "
+                              f"Try specifying a wider from_time."
+                    )),
+                    source=self.source, metadata=metadata
+                )
+
+            # Sort by timestamp so the trace waterfall is in order
+            try:
+                spans.sort(key=lambda s: s.get("timestamp", ""))
+            except Exception:
+                pass
+
+            try:
+                response_struct = dict_to_proto({'trace_id': trace_id, 'spans': spans, 'count': count}, Struct)
+                return PlaybookTaskResult(
+                    source=self.source,
+                    type=PlaybookTaskResultType.API_RESPONSE,
+                    api_response=ApiResponseResult(response_body=response_struct),
+                    metadata=metadata
+                )
+            except Exception:
+                return PlaybookTaskResult(
+                    source=self.source,
+                    type=PlaybookTaskResultType.TEXT,
+                    text=TextResult(output=StringValue(value=f"Trace fetched. Found {count} spans for trace {trace_id}. Response: {str(spans)}")),
+                    metadata=metadata
+                )
+
+        except Exception as e:
+            logger.error(f"Error executing Coralogix fetch trace task: {e}")
+            domain = self._extract_domain_from_connector(coralogix_connector)
+            metadata = self._create_metadata_with_coralogix_url(domain, "spans", {})
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.TEXT,
+                text=TextResult(output=StringValue(value=f"Error while executing Coralogix trace task: {e}")),
+                source=self.source, metadata=metadata
             )
 
     def execute_fetch_metrics(self, time_range: TimeRange, coralogix_task: Coralogix, coralogix_connector: ConnectorProto):

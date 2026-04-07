@@ -276,6 +276,8 @@ class ArgoCDSourceManager(SourceManager):
             deployment_info = self.get_connector_processor(argocd_connector).get_deployment_info()
             deployment_count = argocd_task.fetch_deployment_info.count
             app_name = argocd_task.fetch_deployment_info.app_name
+
+            print('app_name', app_name)
             
             argocd_app_path = None
             
@@ -296,6 +298,7 @@ class ArgoCDSourceManager(SourceManager):
 
             rows = []
             for item in deployment_info.get('items', []):
+                metadata_name = item.get('metadata', {}).get('name')
                 for hist in item.get('status', {}).get('history', []):
                     timestamp_str = hist['deployedAt']
                     dt = datetime.strptime(timestamp_str, "%Y-%m-%dT%H:%M:%SZ")
@@ -315,13 +318,13 @@ class ArgoCDSourceManager(SourceManager):
 
                     if include:
                         name_column = TableResult.TableColumn(name=StringValue(value='app_name'),
-                                                              value=StringValue(value=hist['source']['path']))
+                                                              value=StringValue(value=hist['source'].get('path', metadata_name)))
                         time_column = TableResult.TableColumn(name=StringValue(value='deployment_time'),
-                                                              value=StringValue(value=hist['deployedAt']))
+                                                              value=StringValue(value=hist.get('deployedAt', '')))
                         revision_column = TableResult.TableColumn(name=StringValue(value='Revision'),
-                                                                  value=StringValue(value=hist['revision']))
+                                                                  value=StringValue(value=hist.get('revision', hist.get('revisions', ['']))[0]))
                         deployment_id_column = TableResult.TableColumn(name=StringValue(value='Deployment ID'),
-                                                                       value=StringValue(value=str(hist['id'])))
+                                                                       value=StringValue(value=str(hist.get('id', ''))))
                         row = TableResult.TableRow(
                             columns=[name_column, time_column, revision_column, deployment_id_column])
                         rows.append(row)

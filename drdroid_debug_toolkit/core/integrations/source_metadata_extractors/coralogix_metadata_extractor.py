@@ -161,6 +161,68 @@ class CoralogixSourceMetadataExtractor(SourceMetadataExtractor):
         return model_data
 
     @log_function_call
+    def extract_services(self):
+        """
+        Extract distinct services from Coralogix span/trace data.
+
+        Returns:
+            dict: Mapping of service_name -> service metadata dict.
+        """
+        model_type = SourceModelType.CORALOGIX_SERVICE
+        model_data = {}
+        try:
+            services = self.__coralogix_api_processor.fetch_services()
+            if not services:
+                return model_data
+
+            for service in services:
+                service_name = service.get("service_name")
+                if not service_name:
+                    continue
+                model_data[service_name] = service
+
+            if model_data:
+                self.create_or_update_model_metadata(model_type, model_data)
+            logger.info(f"Extracted {len(model_data)} Coralogix services")
+        except Exception as e:
+            logger.error(f"Error extracting Coralogix services: {e}")
+
+        return model_data
+
+    @log_function_call
+    def extract_apm_services(self):
+        """
+        Extract services from the Coralogix APM Service Catalog (gRPC).
+
+        Each service is keyed by its name and the full API response is stored
+        as-is so callers have access to id, type, workloads, technology, and
+        sloStatusCount.
+
+        Returns:
+            dict: Mapping of service name -> raw service dict from the API.
+        """
+        model_type = SourceModelType.CORALOGIX_APM_SERVICE
+        model_data = {}
+        try:
+            services = self.__coralogix_api_processor.fetch_apm_services()
+            if not services:
+                return model_data
+
+            for service in services:
+                name = service.get("name")
+                if not name:
+                    continue
+                model_data[name] = service
+
+            if model_data:
+                self.create_or_update_model_metadata(model_type, model_data)
+            logger.info(f"Extracted {len(model_data)} Coralogix APM services")
+        except Exception as e:
+            logger.error(f"Error extracting Coralogix APM services: {e}")
+
+        return model_data
+
+    @log_function_call
     def extract_index_mappings(self, index_pattern="*"):
         """
         Extract index mappings from Coralogix.
