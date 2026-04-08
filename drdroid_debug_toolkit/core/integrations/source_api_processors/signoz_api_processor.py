@@ -13,6 +13,55 @@ from core.settings import EXTERNAL_CALL_TIMEOUT
 
 logger = logging.getLogger(__name__)
 
+# Trace tables use DateTime64(9) for `timestamp`. Comparing it to raw integer literals
+# (especially 19-digit nanosecond epochs) can trigger ClickHouse error 407 (Decimal math
+# overflow) inside SigNoz's trace query path. Rewrite literals to explicit conversions.
+_TRACE_TABLE_MARKERS = (
+    "distributed_signoz_index_v3",
+    "signoz_index_v3",
+)
+_TRACE_TIMESTAMP_CMP_RE = re.compile(
+    r"\btimestamp\s*(?P<op>>=|<=|!=|=|>|<)\s*(?P<lit>\d+)\b",
+    re.IGNORECASE,
+)
+
+
+def _signoz_sql_touches_trace_index(sql: str) -> bool:
+    lower = sql.lower()
+    return any(m in lower for m in _TRACE_TABLE_MARKERS)
+
+
+def normalize_signoz_trace_timestamp_sql(sql: str) -> str:
+    """
+    Rewrite `timestamp <op> <integer>` for SigNoz trace index queries so literals match
+    DateTime64(9). Safe for UInt64-duration schemas; required when raw ns integers are used.
+    Skips literals that are already wrapped in fromUnixTimestamp* / toDateTime64.
+    """
+    if not sql or not _signoz_sql_touches_trace_index(sql):
+        return sql
+
+    def repl(match):
+        op = match.group("op")
+        lit = match.group("lit")
+        n = len(lit)
+        if n >= 16:
+            conv = f"fromUnixTimestamp64Nano({lit})"
+        elif n == 13:
+            conv = f"fromUnixTimestamp64Milli({lit})"
+        elif 10 <= n <= 11:
+            conv = f"toDateTime64({lit}, 9)"
+        else:
+            return match.group(0)
+        return f"timestamp {op} {conv}"
+
+    new_sql, n_subs = _TRACE_TIMESTAMP_CMP_RE.subn(repl, sql)
+    if n_subs:
+        logger.debug(
+            "SigNoz trace SQL: normalized %s timestamp literal comparison(s) for DateTime64(9)",
+            n_subs,
+        )
+    return new_sql
+
 
 class SignozDashboardQueryBuilder:
     def __init__(self, global_step, variables):
@@ -1363,7 +1412,11 @@ class SignozApiProcessor(Processor):
         else:
             logger.warning(f"Invalid request_type '{request_type}', defaulting to 'trace'")
             api_request_type = "trace"
-        
+
+        effective_query = query
+        if api_request_type == "trace":
+            effective_query = normalize_signoz_trace_timestamp_sql(query)
+
         payload = {
             "start": from_time,
             "end": to_time,
@@ -1374,7 +1427,7 @@ class SignozApiProcessor(Processor):
                         "type": "clickhouse_sql",
                         "spec": {
                             "name": "A",
-                            "query": query
+                            "query": effective_query
                         }
                     }
                 ]
