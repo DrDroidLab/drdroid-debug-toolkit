@@ -1583,7 +1583,9 @@ class NewRelicSourceManager(SourceManager):
                 facets = response['rawResponse']['facets']
 
                 for facet in facets:
-                    facet_name = facet.get('name', 'unknown')
+                    raw_facet_name = facet.get('name', 'unknown')
+                    # Multi-field FACET returns name as a list; join into a readable string
+                    facet_name = ' | '.join(str(f) for f in raw_facet_name) if isinstance(raw_facet_name, list) else str(raw_facet_name)
                     metric_datapoints = []
 
                     # Process timeseries data for this facet
@@ -1625,7 +1627,9 @@ class NewRelicSourceManager(SourceManager):
                 # Group results by facet
                 facet_groups = {}
                 for result in response['results']:
-                    facet_name = result.get('facet', 'unknown')
+                    raw_facet = result.get('facet', 'unknown')
+                    # Multi-field FACET returns a list; convert to hashable string key
+                    facet_name = ' | '.join(str(f) for f in raw_facet) if isinstance(raw_facet, list) else str(raw_facet)
                     if facet_name not in facet_groups:
                         facet_groups[facet_name] = []
                     facet_groups[facet_name].append(result)
@@ -1730,7 +1734,9 @@ class NewRelicSourceManager(SourceManager):
                 facets = response['rawResponse']['facets']
 
                 for facet in facets:
-                    facet_name = facet.get('name', 'unknown')
+                    raw_facet_name = facet.get('name', 'unknown')
+                    # Multi-field FACET returns name as a list; join into a readable string
+                    facet_name = ' | '.join(str(f) for f in raw_facet_name) if isinstance(raw_facet_name, list) else str(raw_facet_name)
                     metric_datapoints = []
 
                     for ts in facet.get('timeSeries', []):
@@ -1773,7 +1779,9 @@ class NewRelicSourceManager(SourceManager):
                 for result in response['results']:
                     if 'facet' in result:
                         has_facet = True
-                        facet_name = result.get('facet', 'unknown')
+                        raw_facet = result.get('facet', 'unknown')
+                        # Multi-field FACET returns a list; convert to hashable string key
+                        facet_name = ' | '.join(str(f) for f in raw_facet) if isinstance(raw_facet, list) else str(raw_facet)
                         if facet_name not in facet_groups:
                             facet_groups[facet_name] = []
                         facet_groups[facet_name].append(result)
@@ -1876,7 +1884,9 @@ class NewRelicSourceManager(SourceManager):
                         facets = offset_response['rawResponse']['facets']
 
                         for facet in facets:
-                            facet_name = facet.get('name', 'unknown')
+                            raw_facet_name = facet.get('name', 'unknown')
+                            # Multi-field FACET returns name as a list; join into a readable string
+                            facet_name = ' | '.join(str(f) for f in raw_facet_name) if isinstance(raw_facet_name, list) else str(raw_facet_name)
                             offset_metric_datapoints = []
 
                             for ts in facet.get('timeSeries', []):
@@ -1923,7 +1933,9 @@ class NewRelicSourceManager(SourceManager):
                         for result in offset_response['results']:
                             if 'facet' in result:
                                 has_facet = True
-                                facet_name = result.get('facet', 'unknown')
+                                raw_facet = result.get('facet', 'unknown')
+                                # Multi-field FACET returns a list; convert to hashable string key
+                                facet_name = ' | '.join(str(f) for f in raw_facet) if isinstance(raw_facet, list) else str(raw_facet)
                                 if facet_name not in facet_groups:
                                     facet_groups[facet_name] = []
                                 facet_groups[facet_name].append(result)
