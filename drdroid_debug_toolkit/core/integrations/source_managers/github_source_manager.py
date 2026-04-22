@@ -223,7 +223,7 @@ class GithubSourceManager(SourceManager):
                     SourceKeyType.GITHUB_TOKEN: FormField(
                         key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.GITHUB_TOKEN)),
                         display_name=StringValue(value="GitHub Token"),
-                        description=StringValue(value='e.g. "ghp_1234567890abcdefghijklmnopqrstuvwxyz"'),
+                        description=StringValue(value='e.g. "<your-github-personal-access-token>"'),
                         helper_text=StringValue(value="Enter your GitHub Personal Access Token with 'repo' and 'org:read' scopes from Developer Settings > Personal Access Tokens"),
                         data_type=LiteralType.STRING,
                         form_field_type=FormFieldType.TEXT_FT,

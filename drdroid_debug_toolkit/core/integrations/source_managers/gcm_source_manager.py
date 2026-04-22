@@ -228,7 +228,7 @@ class GcmSourceManager(SourceManager):
                     SourceKeyType.GCM_SERVICE_ACCOUNT_JSON: FormField(
                         key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.GCM_SERVICE_ACCOUNT_JSON)),
                         display_name=StringValue(value="Service Account JSON"),
-                        description=StringValue(value='e.g. {"type": "service_account", "project_id": "my-project", "private_key_id": "abc123..."}'),
+                        description=StringValue(value='e.g. {"type": "<service-account-type>", "project_id": "<your-project-id>", "private_key_id": "<your-key-id>"}'),
                         helper_text=StringValue(value="Paste the entire JSON content of your service account key file from IAM & Admin > Service Accounts"),
                         data_type=LiteralType.STRING,
                         form_field_type=FormFieldType.MULTILINE_FT,

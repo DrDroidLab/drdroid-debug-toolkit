@@ -54,7 +54,7 @@ class BigQuerySourceManager(SourceManager):
                     SourceKeyType.BIG_QUERY_SERVICE_ACCOUNT_JSON: FormField(
                         key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.BIG_QUERY_SERVICE_ACCOUNT_JSON)),
                         display_name=StringValue(value="Service Account JSON"),
-                        description=StringValue(value='e.g. {\n  "type": "service_account",\n  "project_id": "my-project-123",\n  "private_key_id": "abc123...",\n  "private_key": "-----BEGIN PRIVATE KEY-----\\n..."\n}'),
+                        description=StringValue(value='e.g. {\n  "type": "<service-account-type>",\n  "project_id": "<your-project-id>",\n  "private_key_id": "<your-key-id>",\n  "private_key": "<your-private-key>"\n}'),
                         helper_text=StringValue(value="Paste the content of your Google Cloud Service Account JSON key file"),
                         data_type=LiteralType.STRING,
                         form_field_type=FormFieldType.MULTILINE_FT,
