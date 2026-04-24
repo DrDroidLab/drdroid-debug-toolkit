@@ -257,42 +257,81 @@ class AWSBoto3ApiProcessor(Processor):
     def test_pi_describe_dimension_keys_permission(self):
         """Tests permission to describe dimension keys in Performance Insights (pi:DescribeDimensionKeys)."""
         try:
+            logger.warning("PI permission test started | region=%s", self.region)
             client = self.get_connection()
+            rds_client = boto3.client(
+                'rds',
+                aws_access_key_id=self.__aws_access_key,
+                aws_secret_access_key=self.__aws_secret_key,
+                region_name=self.region,
+                aws_session_token=self.__aws_session_token
+            )
             end_time = datetime.now()
             start_time = end_time - timedelta(minutes=5)
 
-            # Use a mock resource uri format - for permission check only
-            mock_resource_uri = "db-FAIHNTYBKTGAUSUZQYPDS2GW4A"
+            # Use a real in-account RDS resource id for a meaningful PI authorization check.
+            rds_response = rds_client.describe_db_instances(MaxRecords=20)
+            db_instances = rds_response.get('DBInstances', [])
+            if not db_instances:
+                logger.warning(
+                    "PI DescribeDimensionKeys permission check skipped strict resource validation: "
+                    "no RDS instances found in account/region."
+                )
+                return True
 
-            # Make a lightweight call with minimal parameters
+            pi_enabled_instances = [
+                db_instance for db_instance in db_instances
+                if db_instance.get('PerformanceInsightsEnabled') and db_instance.get('DbiResourceId')
+            ]
+            if not pi_enabled_instances:
+                logger.warning(
+                    "PI DescribeDimensionKeys permission check failed strict validation: "
+                    "no RDS instances with Performance Insights enabled were found in account/region."
+                )
+                raise Exception(
+                    f"No RDS instances with Performance Insights enabled in region {self.region}"
+                )
+
+            db_resource_uri = pi_enabled_instances[0].get('DbiResourceId')
+
+            # Make a lightweight call with minimal parameters against a real DB resource id.
+            logger.warning("PI permission test using DbiResourceId=%s", db_resource_uri)
             client.describe_dimension_keys(
                 ServiceType='RDS',
-                Identifier=mock_resource_uri,
+                Identifier=db_resource_uri,
                 StartTime=start_time,
                 EndTime=end_time,
                 Metric='db.load.avg',
                 GroupBy={'Group': 'db'}
             )
+            logger.warning("PI permission test passed | region=%s | db_resource_id=%s", self.region, db_resource_uri)
             return True
         except client.exceptions.ClientError as ce:
             error_code = ce.response.get('Error', {}).get('Code')
             error_message = str(ce).lower()
 
-            # If we get a ValidationException, that means our credentials were accepted
-            # but the resource format is invalid, which is expected with our mock ARN
+            # Validation errors indicate PI API is reachable and credentials are accepted.
             if error_code == 'ValidationException' or 'validation' in error_message:
                 logger.info(
-                    "PI DescribeDimensionKeys permission check passed (validation error is expected with mock ARN)")
+                    "PI DescribeDimensionKeys permission check passed (PI reachable; validation-style error)"
+                )
                 return True
 
-            # If the error is ResourceNotFound, the permission is granted but the resource doesn't exist
-            if error_code == 'InvalidIdentifier' or 'ResourceNotFound' in error_message:
-                logger.info("PI DescribeDimensionKeys permission check passed (resource not found is expected)")
+            # Resource/data unavailability should not be treated as permission denial.
+            if error_code == 'InvalidIdentifier' or \
+                    'resourcenotfound' in error_message:
+                logger.info(
+                    "PI DescribeDimensionKeys permission check passed (resource/data not found, but PI access is available)"
+                )
                 return True
 
-            # Check for explicit access denied errors
-            elif error_code == 'AccessDeniedException' or 'access denied' in error_message or 'forbidden' in error_message:
-                logger.warning(f"PI DescribeDimensionKeys permission check failed due to access denied: {ce}")
+            # Explicit authorization failures should fail the permission check.
+            elif error_code in ['NotAuthorizedException', 'AccessDeniedException', 'UnauthorizedOperation',
+                                'UnrecognizedClientException'] or \
+                    'not authorized for this account' in error_message or \
+                    'access denied' in error_message or \
+                    'forbidden' in error_message:
+                logger.warning(f"PI DescribeDimensionKeys permission check failed due to authorization error: {ce}")
                 raise ce
 
             else:
