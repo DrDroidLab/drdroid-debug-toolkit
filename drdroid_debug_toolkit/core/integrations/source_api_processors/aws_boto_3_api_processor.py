@@ -257,6 +257,7 @@ class AWSBoto3ApiProcessor(Processor):
     def test_pi_describe_dimension_keys_permission(self):
         """Tests permission to describe dimension keys in Performance Insights (pi:DescribeDimensionKeys)."""
         try:
+            logger.warning("PI permission test started | region=%s", self.region)
             client = self.get_connection()
             rds_client = boto3.client(
                 'rds',
@@ -272,7 +273,7 @@ class AWSBoto3ApiProcessor(Processor):
             rds_response = rds_client.describe_db_instances(MaxRecords=20)
             db_instances = rds_response.get('DBInstances', [])
             if not db_instances:
-                logger.info(
+                logger.warning(
                     "PI DescribeDimensionKeys permission check skipped strict resource validation: "
                     "no RDS instances found in account/region."
                 )
@@ -285,13 +286,14 @@ class AWSBoto3ApiProcessor(Processor):
                     break
 
             if not db_resource_uri:
-                logger.info(
+                logger.warning(
                     "PI DescribeDimensionKeys permission check skipped strict resource validation: "
                     "no DbiResourceId found on listed RDS instances."
                 )
                 return True
 
             # Make a lightweight call with minimal parameters against a real DB resource id.
+            logger.warning("PI permission test using DbiResourceId=%s", db_resource_uri)
             client.describe_dimension_keys(
                 ServiceType='RDS',
                 Identifier=db_resource_uri,
@@ -300,6 +302,7 @@ class AWSBoto3ApiProcessor(Processor):
                 Metric='db.load.avg',
                 GroupBy={'Group': 'db'}
             )
+            logger.warning("PI permission test passed | region=%s | db_resource_id=%s", self.region, db_resource_uri)
             return True
         except client.exceptions.ClientError as ce:
             error_code = ce.response.get('Error', {}).get('Code')
