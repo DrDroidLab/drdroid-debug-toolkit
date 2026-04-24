@@ -279,18 +279,20 @@ class AWSBoto3ApiProcessor(Processor):
                 )
                 return True
 
-            db_resource_uri = None
-            for db_instance in db_instances:
-                db_resource_uri = db_instance.get('DbiResourceId')
-                if db_resource_uri:
-                    break
-
-            if not db_resource_uri:
+            pi_enabled_instances = [
+                db_instance for db_instance in db_instances
+                if db_instance.get('PerformanceInsightsEnabled') and db_instance.get('DbiResourceId')
+            ]
+            if not pi_enabled_instances:
                 logger.warning(
-                    "PI DescribeDimensionKeys permission check skipped strict resource validation: "
-                    "no DbiResourceId found on listed RDS instances."
+                    "PI DescribeDimensionKeys permission check failed strict validation: "
+                    "no RDS instances with Performance Insights enabled were found in account/region."
                 )
-                return True
+                raise Exception(
+                    f"No RDS instances with Performance Insights enabled in region {self.region}"
+                )
+
+            db_resource_uri = pi_enabled_instances[0].get('DbiResourceId')
 
             # Make a lightweight call with minimal parameters against a real DB resource id.
             logger.warning("PI permission test using DbiResourceId=%s", db_resource_uri)
