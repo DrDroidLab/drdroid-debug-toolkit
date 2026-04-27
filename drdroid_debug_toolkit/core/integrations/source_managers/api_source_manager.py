@@ -113,9 +113,11 @@ class ApiSourceManager(SourceManager):
 
             headers.update(headers_json)
 
-            ssl_verify = False
-            if http_request.ssl_verify and http_request.ssl_verify.value:
-                ssl_verify = True
+            # Default to no certificate verification for backward compatibility
+            # (preserves prior behavior for existing API connectors that target
+            # self-signed-cert endpoints). Customers opt in to validation by
+            # setting ssl_verify=true on the connector.
+            ssl_verify = bool(http_request.ssl_verify and http_request.ssl_verify.value)
 
             request_method = method_proto_string_mapping.get(method)
             request_arguments = {

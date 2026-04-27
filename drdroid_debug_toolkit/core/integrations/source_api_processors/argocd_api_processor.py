@@ -1,6 +1,9 @@
 import logging
+import ssl
 
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.poolmanager import PoolManager
 
 from core.integrations.processor import Processor
 from core.settings import EXTERNAL_CALL_TIMEOUT
@@ -8,18 +11,44 @@ from core.settings import EXTERNAL_CALL_TIMEOUT
 logger = logging.getLogger(__name__)
 
 
+class _TLSMinV1_2Adapter(HTTPAdapter):
+    """HTTPAdapter that pins outbound HTTPS to TLS 1.2 or higher.
+
+    Matches the system OpenSSL default on the runtime image; declared explicitly
+    so static analysers see the minimum-version requirement.
+    """
+
+    def init_poolmanager(self, connections, maxsize, block=False, **pool_kwargs):
+        ctx = ssl.create_default_context()
+        ctx.minimum_version = ssl.TLSVersion.TLSv1_2
+        pool_kwargs["ssl_context"] = ctx
+        self.poolmanager = PoolManager(
+            num_pools=connections,
+            maxsize=maxsize,
+            block=block,
+            **pool_kwargs,
+        )
+
+
 class ArgoCDAPIProcessor(Processor):
-    def __init__(self, argocd_server, argocd_token):
+    def __init__(self, argocd_server, argocd_token, ssl_verify=False):
         self.__token = argocd_token
         self.__server = argocd_server
+        # Default preserves the prior behavior (no certificate verification) so
+        # existing customers running self-signed-cert ArgoCD instances continue
+        # to work after upgrade. Pass ssl_verify=True to enable validation.
+        self._ssl_verify = ssl_verify
+        self._session = requests.Session()
+        self._session.mount("https://", _TLSMinV1_2Adapter())
+        self._session.verify = self._ssl_verify
+
+    def _auth_headers(self):
+        return {'Authorization': f'Bearer {self.__token}'}
 
     def test_connection(self):
         try:
             url = f'{self.__server}/api/v1/projects'
-            headers = {
-                'Authorization': f'Bearer {self.__token}'
-            }
-            response = requests.request("GET", url, headers=headers, verify=False)
+            response = self._session.get(url, headers=self._auth_headers())
             if response.status_code == 200:
                 return True
             else:
@@ -31,10 +60,7 @@ class ArgoCDAPIProcessor(Processor):
     def get_deployment_info(self):
         try:
             url = f'{self.__server}/api/v1/applications'
-            headers = {
-                'Authorization': f'Bearer {self.__token}'
-            }
-            response = requests.request("GET", url, headers=headers, verify=False)
+            response = self._session.get(url, headers=self._auth_headers())
             if response.status_code == 200:
                 return response.json()
             else:
@@ -43,15 +69,12 @@ class ArgoCDAPIProcessor(Processor):
         except Exception as e:
             logger.error(f"Exception occurred while fetching deployment info from ArgoCD with error: {e}")
             raise e
-        
+
     def get_application_details(self, app_name):
         try:
             url = f'{self.__server}/api/v1/applications/{app_name}'
-            headers = {
-                'Authorization': f'Bearer {self.__token}'
-            }
-            response = requests.request("GET", url, headers=headers, verify=False)
-            
+            response = self._session.get(url, headers=self._auth_headers())
+
             if response.status_code == 200:
                 return response.json()
             else:
@@ -60,22 +83,18 @@ class ArgoCDAPIProcessor(Processor):
         except Exception as e:
             logger.error(f"Exception occurred while fetching application details from ArgoCD with error: {e}")
             raise e
-        
-        
+
+
     def disable_auto_sync(self, app_name):
         try:
             url = f'{self.__server}/api/v1/applications/{app_name}'
-            headers = {
-                'Authorization': f'Bearer {self.__token}'
-            }
-            
             payload = {
                 "patch": "[{\"op\": \"remove\", \"path\": \"/spec/syncPolicy/automated\"}]",
                 "patchType": "json"
             }
-            
-            response = requests.patch(url, headers=headers, json=payload, verify=False)
-                        
+
+            response = self._session.patch(url, headers=self._auth_headers(), json=payload)
+
             if response.status_code == 200:
                 return response.json()
             else:
@@ -91,18 +110,15 @@ class ArgoCDAPIProcessor(Processor):
         """
         try:
             url = f'{self.__server}/api/v1/applications/{app_name}/rollback'
-            headers = {
-                'Authorization': f'Bearer {self.__token}',
-                'Content-Type': 'application/json'
-            }
-            
+            headers = {**self._auth_headers(), 'Content-Type': 'application/json'}
+
             payload = {
                 "id": deployment_id,
                 "revision": target_revision
             }
-                                    
-            response = requests.post(url, headers=headers, json=payload, verify=False)
-                                    
+
+            response = self._session.post(url, headers=headers, json=payload)
+
             if response.status_code in (200, 204):
                 logger.info(
                     f"Successfully updated target revision to '{target_revision}' for application '{app_name}'.")
@@ -117,20 +133,17 @@ class ArgoCDAPIProcessor(Processor):
     def get_application_health(self, app_name):
         """
         Get the health status of a specific ArgoCD application.
-        
+
         Args:
             app_name (str): Name of the ArgoCD application
-            
+
         Returns:
             dict: Application health information including status, message, etc.
             None: If there's an error or application not found
         """
         try:
             url = f'{self.__server}/api/v1/applications/{app_name}'
-            headers = {
-                'Authorization': f'Bearer {self.__token}'
-            }
-            response = requests.get(url, headers=headers, verify=False)
+            response = self._session.get(url, headers=self._auth_headers())
             logger.info(f"ArgoCD application health response: {response.json()}")
             if response.status_code == 200:
                 app_data = response.json()
@@ -142,7 +155,7 @@ class ArgoCDAPIProcessor(Processor):
             else:
                 logger.error(f"Error getting ArgoCD application health: {response.status_code} - {response.text}")
                 return None
-            
+
         except Exception as e:
             logger.error(f"Exception occurred while getting ArgoCD application health for {app_name} with error: {e}")
             raise e
@@ -150,26 +163,23 @@ class ArgoCDAPIProcessor(Processor):
     def fetch_apps(self, count=None):
         """
         Fetch a list of all ArgoCD applications with optional count limit.
-        
+
         Args:
             count (int, optional): Maximum number of applications to return
-            
+
         Returns:
             dict: Raw JSON response from ArgoCD API
         """
         try:
             url = f'{self.__server}/api/v1/applications'
-            headers = {
-                'Authorization': f'Bearer {self.__token}'
-            }
-            
+
             # Add count parameter if specified
             params = {}
             if count is not None:
                 params['limit'] = count
-                
-            response = requests.get(url, headers=headers, params=params, verify=False)
-            
+
+            response = self._session.get(url, headers=self._auth_headers(), params=params)
+
             if response.status_code == 200:
                 return response.json()
             else:
@@ -182,40 +192,37 @@ class ArgoCDAPIProcessor(Processor):
     def get_revision_history(self, app_name, count=None):
         """
         Get the revision history of a specific ArgoCD application.
-        
+
         Args:
             app_name (str): Name of the ArgoCD application
             count (int, optional): Maximum number of revisions to return
-            
+
         Returns:
             dict: Application details including revision history
             None: If there's an error or application not found
         """
         try:
             url = f'{self.__server}/api/v1/applications/{app_name}'
-            headers = {
-                'Authorization': f'Bearer {self.__token}'
-            }
-            
-            response = requests.get(url, headers=headers, verify=False)
-            
+
+            response = self._session.get(url, headers=self._auth_headers())
+
             if response.status_code == 200:
                 app_data = response.json()
-                
+
                 # Extract revision history from the application status
                 history = app_data.get('status', {}).get('history', [])
-                
+
                 # Limit the number of revisions if count is specified
                 if count is not None and count > 0:
                     history = history[:count]
-                
+
                 # Return the application data with filtered history
                 app_data['status']['history'] = history
                 return app_data
             else:
                 logger.error(f"Error getting ArgoCD application revision history: {response.status_code} - {response.text}")
                 return None
-                
+
         except Exception as e:
             logger.error(f"Exception occurred while getting ArgoCD application revision history for {app_name} with error: {e}")
             raise e
