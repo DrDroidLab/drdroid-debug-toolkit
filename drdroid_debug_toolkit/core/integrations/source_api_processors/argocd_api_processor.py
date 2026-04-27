@@ -15,12 +15,25 @@ class _TLSMinV1_2Adapter(HTTPAdapter):
     """HTTPAdapter that pins outbound HTTPS to TLS 1.2 or higher.
 
     Matches the system OpenSSL default on the runtime image; declared explicitly
-    so static analysers see the minimum-version requirement.
+    so static analysers see the minimum-version requirement. The adapter also
+    carries the verification posture so the SSLContext built here is internally
+    consistent — relying on `session.verify=False` to override a CERT_REQUIRED
+    context after the fact has historically been fragile across urllib3
+    versions.
     """
+
+    def __init__(self, ssl_verify=True, **kwargs):
+        self._ssl_verify = ssl_verify
+        super().__init__(**kwargs)
 
     def init_poolmanager(self, connections, maxsize, block=False, **pool_kwargs):
         ctx = ssl.create_default_context()
         ctx.minimum_version = ssl.TLSVersion.TLSv1_2
+        if not self._ssl_verify:
+            # Order matters: check_hostname must be cleared before verify_mode
+            # can be set to CERT_NONE.
+            ctx.check_hostname = False
+            ctx.verify_mode = ssl.CERT_NONE
         pool_kwargs["ssl_context"] = ctx
         self.poolmanager = PoolManager(
             num_pools=connections,
@@ -39,7 +52,7 @@ class ArgoCDAPIProcessor(Processor):
         # to work after upgrade. Pass ssl_verify=True to enable validation.
         self._ssl_verify = ssl_verify
         self._session = requests.Session()
-        self._session.mount("https://", _TLSMinV1_2Adapter())
+        self._session.mount("https://", _TLSMinV1_2Adapter(ssl_verify=self._ssl_verify))
         self._session.verify = self._ssl_verify
 
     def _auth_headers(self):
@@ -48,7 +61,7 @@ class ArgoCDAPIProcessor(Processor):
     def test_connection(self):
         try:
             url = f'{self.__server}/api/v1/projects'
-            response = self._session.get(url, headers=self._auth_headers())
+            response = self._session.get(url, headers=self._auth_headers(), timeout=EXTERNAL_CALL_TIMEOUT)
             if response.status_code == 200:
                 return True
             else:
@@ -60,7 +73,7 @@ class ArgoCDAPIProcessor(Processor):
     def get_deployment_info(self):
         try:
             url = f'{self.__server}/api/v1/applications'
-            response = self._session.get(url, headers=self._auth_headers())
+            response = self._session.get(url, headers=self._auth_headers(), timeout=EXTERNAL_CALL_TIMEOUT)
             if response.status_code == 200:
                 return response.json()
             else:
@@ -73,7 +86,7 @@ class ArgoCDAPIProcessor(Processor):
     def get_application_details(self, app_name):
         try:
             url = f'{self.__server}/api/v1/applications/{app_name}'
-            response = self._session.get(url, headers=self._auth_headers())
+            response = self._session.get(url, headers=self._auth_headers(), timeout=EXTERNAL_CALL_TIMEOUT)
 
             if response.status_code == 200:
                 return response.json()
@@ -93,7 +106,7 @@ class ArgoCDAPIProcessor(Processor):
                 "patchType": "json"
             }
 
-            response = self._session.patch(url, headers=self._auth_headers(), json=payload)
+            response = self._session.patch(url, headers=self._auth_headers(), json=payload, timeout=EXTERNAL_CALL_TIMEOUT)
 
             if response.status_code == 200:
                 return response.json()
@@ -117,7 +130,7 @@ class ArgoCDAPIProcessor(Processor):
                 "revision": target_revision
             }
 
-            response = self._session.post(url, headers=headers, json=payload)
+            response = self._session.post(url, headers=headers, json=payload, timeout=EXTERNAL_CALL_TIMEOUT)
 
             if response.status_code in (200, 204):
                 logger.info(
@@ -143,7 +156,7 @@ class ArgoCDAPIProcessor(Processor):
         """
         try:
             url = f'{self.__server}/api/v1/applications/{app_name}'
-            response = self._session.get(url, headers=self._auth_headers())
+            response = self._session.get(url, headers=self._auth_headers(), timeout=EXTERNAL_CALL_TIMEOUT)
             logger.info(f"ArgoCD application health response: {response.json()}")
             if response.status_code == 200:
                 app_data = response.json()
@@ -178,7 +191,7 @@ class ArgoCDAPIProcessor(Processor):
             if count is not None:
                 params['limit'] = count
 
-            response = self._session.get(url, headers=self._auth_headers(), params=params)
+            response = self._session.get(url, headers=self._auth_headers(), params=params, timeout=EXTERNAL_CALL_TIMEOUT)
 
             if response.status_code == 200:
                 return response.json()
@@ -204,7 +217,7 @@ class ArgoCDAPIProcessor(Processor):
         try:
             url = f'{self.__server}/api/v1/applications/{app_name}'
 
-            response = self._session.get(url, headers=self._auth_headers())
+            response = self._session.get(url, headers=self._auth_headers(), timeout=EXTERNAL_CALL_TIMEOUT)
 
             if response.status_code == 200:
                 app_data = response.json()
