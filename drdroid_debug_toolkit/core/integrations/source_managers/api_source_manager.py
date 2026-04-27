@@ -1,6 +1,5 @@
 import json
 
-import requests
 from google.protobuf.struct_pb2 import Struct
 
 from google.protobuf.wrappers_pb2 import StringValue, UInt64Value, Int64Value, BoolValue
@@ -13,6 +12,7 @@ from core.protos.playbooks.playbook_commons_pb2 import PlaybookTaskResult, ApiRe
 from core.protos.playbooks.source_task_definitions.api_task_pb2 import Api
 from core.protos.ui_definition_pb2 import FormField, FormFieldType
 from core.utils.credentilal_utils import DISPLAY_NAME, CATEGORY, WEB
+from core.utils.http_utils import make_secure_session
 from core.utils.proto_utils import proto_to_dict
 
 method_proto_string_mapping = {
@@ -113,9 +113,11 @@ class ApiSourceManager(SourceManager):
 
             headers.update(headers_json)
 
-            ssl_verify = False
-            if http_request.ssl_verify and http_request.ssl_verify.value:
-                ssl_verify = True
+            # When ssl_verify is unset on the proto (e.g., connectors persisted
+            # before this field existed), fall through to False to preserve
+            # prior runtime behavior. New connectors created via the UI default
+            # to True (see the form field above).
+            ssl_verify = bool(http_request.ssl_verify and http_request.ssl_verify.value)
 
             request_method = method_proto_string_mapping.get(method)
             request_arguments = {
@@ -134,7 +136,12 @@ class ApiSourceManager(SourceManager):
                 raise Exception(f"Unsupported api method: {request_method}")
 
             try:
-                response = requests.request(**request_arguments, verify=ssl_verify)
+                # Use a session with TLS 1.2 minimum and an SSLContext whose
+                # verification posture matches `ssl_verify`. Session is local
+                # to this call (no reuse benefit for one-shot requests); the
+                # cost is negligible relative to the network round-trip.
+                session = make_secure_session(ssl_verify=ssl_verify)
+                response = session.request(**request_arguments)
                 response_headers = response.headers
                 response_headers_struct = Struct()
                 response_headers_struct.update(response_headers)
