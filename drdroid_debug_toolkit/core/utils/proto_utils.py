@@ -1,3 +1,5 @@
+import re
+from datetime import datetime, timezone
 from typing import Dict
 
 from django.http import JsonResponse
@@ -7,6 +9,33 @@ from google.protobuf.wrappers_pb2 import BoolValue, UInt32Value
 
 from core.protos.base_pb2 import TimeRange, Page
 from core.protos.connectors.api_pb2 import Meta
+
+# Field names that represent uint64 Unix timestamps (seconds).
+# Agents may supply ISO 8601 strings; we normalise them here so ParseDict succeeds.
+_TIMESTAMP_FIELD_NAMES = frozenset({"time_geq", "time_lt", "time_leq"})
+_ISO8601_RE = re.compile(
+    r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$"
+)
+
+
+def _coerce_timestamps(obj):
+    """Recursively walk *obj* and replace ISO 8601 strings in known timestamp
+    fields with their Unix-epoch-seconds integer equivalents."""
+    if isinstance(obj, dict):
+        result = {}
+        for k, v in obj.items():
+            if k in _TIMESTAMP_FIELD_NAMES and isinstance(v, str) and _ISO8601_RE.match(v):
+                try:
+                    dt = datetime.fromisoformat(v.replace("Z", "+00:00"))
+                    result[k] = int(dt.timestamp())
+                except (ValueError, OverflowError):
+                    result[k] = v
+            else:
+                result[k] = _coerce_timestamps(v)
+        return result
+    if isinstance(obj, list):
+        return [_coerce_timestamps(item) for item in obj]
+    return obj
 
 
 class ProtoException(ValueError):
@@ -81,7 +110,7 @@ def dict_to_proto(d: Dict, proto_clazz, ignore_unknown_fields=True) -> Message:
         raise ProtoException('No message class defined')
 
     try:
-        msg = ParseDict(d, msg, ignore_unknown_fields)
+        msg = ParseDict(_coerce_timestamps(d), msg, ignore_unknown_fields)
     except Exception as e:
         raise ProtoException(f'Error while parsing text: {e}')
     return msg
