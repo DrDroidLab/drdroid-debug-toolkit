@@ -2421,12 +2421,14 @@ class GrafanaSourceManager(SourceManager):
                 interval = 60
             interval_ms = interval * 1000
             grafana_api_processor = self.get_connector_processor(grafana_connector)
-            # Assuming panel_ids is a string field in the proto message (comma-separated)
             panel_ids_filter = None
             if task.HasField("panel_ids") and task.panel_ids.value:
-                # Split the comma-separated string and remove any leading/trailing whitespace
-                panel_ids_filter = [str(int(float(pid.strip()))) for pid in task.panel_ids.value.split(",") if
-                                    pid.strip()]
+                raw_panel_ids = task.panel_ids.value
+                if isinstance(raw_panel_ids, list):
+                    panel_ids_filter = [str(int(float(pid))) for pid in raw_panel_ids if str(pid).strip()]
+                else:
+                    panel_ids_filter = [str(int(float(pid.strip()))) for pid in raw_panel_ids.split(",") if
+                                        pid.strip()]
 
             # 1. Fetch and parse dashboard details
             dashboard_details_response = grafana_api_processor.fetch_dashboard_details(dashboard_uid)
