@@ -33,10 +33,17 @@ def resolve_global_variables(form_fields: [FormField], global_variable_set: Stru
                              source_task_type_def: Dict) -> (Dict, Dict):
     all_string_fields = [ff.key_name.value for ff in form_fields if ff.data_type == LiteralType.STRING]
     all_string_array_fields = [ff.key_name.value for ff in form_fields if ff.data_type == LiteralType.STRING_ARRAY]
+    all_boolean_fields = [ff.key_name.value for ff in form_fields if ff.data_type == LiteralType.BOOLEAN]
     all_composite_fields = {}
     for ff in form_fields:
         if ff.is_composite:
             all_composite_fields[ff.key_name.value] = ff.composite_fields
+
+    # Coerce string booleans to Python booleans for BOOLEAN fields so that
+    # ParseDict (which expects a JSON bool for BoolValue) doesn't reject them.
+    for field_name in all_boolean_fields:
+        if field_name in source_task_type_def and isinstance(source_task_type_def[field_name], str):
+            source_task_type_def[field_name] = source_task_type_def[field_name].strip().lower() == 'true'
 
     task_local_variable_map = {}
     for gk, gv in global_variable_set.items():
