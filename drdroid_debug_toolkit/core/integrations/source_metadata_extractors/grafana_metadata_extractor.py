@@ -629,6 +629,37 @@ class GrafanaSourceMetadataExtractor(SourceMetadataExtractor):
         return model_data
 
     @log_function_call
+    def extract_prometheus_metrics(self):
+        model_type = SourceModelType.GRAFANA_PROMETHEUS_METRIC
+        prometheus_datasources = self.extract_prometheus_data_source()
+        if not prometheus_datasources:
+            return
+        model_data = {}
+        for ds_uid, ds in prometheus_datasources.items():
+            ds_name = ds.get('name', '')
+            try:
+                metadata = self.__grafana_api_processor.fetch_prometheus_metric_metadata(ds_uid)
+            except Exception as e:
+                logger.error(f'Error fetching Prometheus metric metadata for datasource {ds_uid}: {e}')
+                continue
+            for metric_name, entries in metadata.items():
+                model_uid = f"{ds_uid}::{metric_name}"
+                # /api/v1/metadata can return multiple entries per metric (e.g. from different targets)
+                # Use the first entry that has a non-empty type
+                entry = next((e for e in entries if e.get('type')), entries[0] if entries else {})
+                model_data[model_uid] = {
+                    'datasource_uid': ds_uid,
+                    'datasource_name': ds_name,
+                    'metric_name': metric_name,
+                    'metric_type': entry.get('type', ''),
+                    'metric_help': entry.get('help', ''),
+                    'metric_unit': entry.get('unit', ''),
+                }
+        if model_data:
+            self.create_or_update_model_metadata(model_type, model_data)
+        return model_data
+
+    @log_function_call
     def extract_alert_rules(self):
         model_type = SourceModelType.GRAFANA_ALERT_RULE
         try:

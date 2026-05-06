@@ -316,6 +316,19 @@ class GrafanaApiProcessor(Processor):
             logger.error(f"Exception fetching default datasource of type {ds_type}: {e}")
             return None
 
+    def fetch_prometheus_metric_metadata(self, promql_datasource_uid, limit=10000):
+        try:
+            url = f'{self.__host}/api/datasources/proxy/uid/{promql_datasource_uid}/api/v1/metadata'
+            response = requests.get(url, headers=self.headers,
+                                    params={'limit': limit}, verify=self.__ssl_verify, timeout=30)
+            if response and response.status_code == 200:
+                return response.json().get('data', {})
+            logger.error(f"fetch_prometheus_metric_metadata: HTTP {response.status_code} – {response.text[:200]}")
+            return {}
+        except Exception as e:
+            logger.error(f"Exception fetching Prometheus metric metadata for datasource {promql_datasource_uid}: {e}")
+            return {}
+
     def fetch_loki_labels(self, loki_datasource_uid):
         """
         Fetches available labels from a Loki datasource.
