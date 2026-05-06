@@ -107,6 +107,24 @@ message GrafanaTempoServiceAssetModel {
   google.protobuf.StringValue service_name = 3;
 }
 
+message GrafanaPrometheusMetricAssetModel {
+  google.protobuf.StringValue datasource_uid = 1;
+  google.protobuf.StringValue datasource_name = 2;
+  google.protobuf.StringValue metric_name = 3;
+  google.protobuf.StringValue metric_type = 4;
+  google.protobuf.StringValue metric_help = 5;
+  google.protobuf.StringValue metric_unit = 6;
+}
+
+message GrafanaPrometheusMetricAssetOptions {
+  message GrafanaPrometheusMetricOption {
+    google.protobuf.StringValue datasource_uid = 1;
+    google.protobuf.StringValue metric_name = 2;
+    google.protobuf.StringValue metric_type = 3;
+  }
+  repeated GrafanaPrometheusMetricOption metrics = 1;
+}
+
 message GrafanaTempoServiceAssetOptions {
   message GrafanaTempoServiceOption {
     google.protobuf.StringValue datasource_uid = 1;
@@ -128,6 +146,7 @@ message GrafanaAssetModel {
     GrafanaDashboardAssetModel grafana_dashboard = 9;
     GrafanaDatasourceAssetModel grafana_tempo_datasource = 10;
     GrafanaTempoServiceAssetModel grafana_tempo_service = 11;
+    GrafanaPrometheusMetricAssetModel grafana_prometheus_metric = 12;
   }
 }
 
