@@ -2,6 +2,7 @@ syntax = "proto3";
 package core.protos.connectors;
 
 import "google/protobuf/wrappers.proto";
+import "google/protobuf/struct.proto";
 import "core/protos/base.proto";
 
 
@@ -59,6 +60,28 @@ message GcmCloudRunServiceAssetOptions {
   repeated string regions = 2;
 }
 
+// Generic wrapper for GCP infrastructure assets (compute, storage, sql, pubsub,
+// bigquery, networking, secrets, IAM, logging) extracted by the GCM connector
+// under SourceModelType.GCP_* (1310-1331). The full extractor payload — which
+// varies per kind — is preserved in `metadata` (Struct) so type-specific fields
+// remain accessible without forcing a bespoke proto per kind.
+message GcpInfraAssetModel {
+  google.protobuf.StringValue entity_id    = 1;  // matches ConnectorMetadataModelStore.model_uid
+  google.protobuf.StringValue display_name = 2;
+  google.protobuf.StringValue kind         = 3;  // SourceModelType.Name(model_type), e.g. "GCP_COMPUTE_INSTANCE"
+  google.protobuf.StringValue project_id   = 4;
+  google.protobuf.StringValue location     = 5;  // region/zone/global, when applicable
+  google.protobuf.StringValue console_url  = 6;
+  google.protobuf.Struct metadata          = 7;  // raw extractor payload
+}
+
+message GcpInfraAssetOptions {
+  repeated string kinds        = 1;  // distinct SourceModelType.Name values across results
+  repeated string regions      = 2;
+  repeated string project_ids  = 3;
+  repeated string entity_ids   = 4;  // model_uid filter (rarely used; kept for symmetry)
+}
+
 message GcmAssetModel {
   google.protobuf.UInt64Value id = 1;
   Source connector_type = 2;
@@ -69,6 +92,7 @@ message GcmAssetModel {
     GcmMetricAssetModel gcm_metric = 6;
     GcmDashboardEntityAssetModel gcm_dashboard = 7;
     GcmCloudRunServiceAssetModel gcm_cloud_run_service_dashboard = 8;
+    GcpInfraAssetModel gcp_infra = 9;
   }
 }
 
