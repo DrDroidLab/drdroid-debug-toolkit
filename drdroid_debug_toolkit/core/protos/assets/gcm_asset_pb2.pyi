@@ -8,6 +8,7 @@ import core.protos.base_pb2
 import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.message
+import google.protobuf.struct_pb2
 import google.protobuf.wrappers_pb2
 import sys
 
@@ -238,6 +239,88 @@ class GcmCloudRunServiceAssetOptions(google.protobuf.message.Message):
 global___GcmCloudRunServiceAssetOptions = GcmCloudRunServiceAssetOptions
 
 @typing_extensions.final
+class GcpInfraAssetModel(google.protobuf.message.Message):
+    """Generic wrapper for GCP infrastructure assets (compute, storage, sql, pubsub,
+    bigquery, networking, secrets, IAM, logging) extracted by the GCM connector
+    under SourceModelType.GCP_* (1310-1331). The full extractor payload — which
+    varies per kind — is preserved in `metadata` (Struct) so type-specific fields
+    remain accessible without forcing a bespoke proto per kind.
+    """
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    ENTITY_ID_FIELD_NUMBER: builtins.int
+    DISPLAY_NAME_FIELD_NUMBER: builtins.int
+    KIND_FIELD_NUMBER: builtins.int
+    PROJECT_ID_FIELD_NUMBER: builtins.int
+    LOCATION_FIELD_NUMBER: builtins.int
+    CONSOLE_URL_FIELD_NUMBER: builtins.int
+    METADATA_FIELD_NUMBER: builtins.int
+    @property
+    def entity_id(self) -> google.protobuf.wrappers_pb2.StringValue:
+        """matches ConnectorMetadataModelStore.model_uid"""
+    @property
+    def display_name(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    @property
+    def kind(self) -> google.protobuf.wrappers_pb2.StringValue:
+        """SourceModelType.Name(model_type), e.g. "GCP_COMPUTE_INSTANCE" """
+    @property
+    def project_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    @property
+    def location(self) -> google.protobuf.wrappers_pb2.StringValue:
+        """region/zone/global, when applicable"""
+    @property
+    def console_url(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    @property
+    def metadata(self) -> google.protobuf.struct_pb2.Struct:
+        """raw extractor payload"""
+    def __init__(
+        self,
+        *,
+        entity_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        display_name: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        kind: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        project_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        location: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        console_url: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        metadata: google.protobuf.struct_pb2.Struct | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["console_url", b"console_url", "display_name", b"display_name", "entity_id", b"entity_id", "kind", b"kind", "location", b"location", "metadata", b"metadata", "project_id", b"project_id"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["console_url", b"console_url", "display_name", b"display_name", "entity_id", b"entity_id", "kind", b"kind", "location", b"location", "metadata", b"metadata", "project_id", b"project_id"]) -> None: ...
+
+global___GcpInfraAssetModel = GcpInfraAssetModel
+
+@typing_extensions.final
+class GcpInfraAssetOptions(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    KINDS_FIELD_NUMBER: builtins.int
+    REGIONS_FIELD_NUMBER: builtins.int
+    PROJECT_IDS_FIELD_NUMBER: builtins.int
+    ENTITY_IDS_FIELD_NUMBER: builtins.int
+    @property
+    def kinds(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]:
+        """distinct SourceModelType.Name values across results"""
+    @property
+    def regions(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+    @property
+    def project_ids(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+    @property
+    def entity_ids(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]:
+        """model_uid filter (rarely used; kept for symmetry)"""
+    def __init__(
+        self,
+        *,
+        kinds: collections.abc.Iterable[builtins.str] | None = ...,
+        regions: collections.abc.Iterable[builtins.str] | None = ...,
+        project_ids: collections.abc.Iterable[builtins.str] | None = ...,
+        entity_ids: collections.abc.Iterable[builtins.str] | None = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["entity_ids", b"entity_ids", "kinds", b"kinds", "project_ids", b"project_ids", "regions", b"regions"]) -> None: ...
+
+global___GcpInfraAssetOptions = GcpInfraAssetOptions
+
+@typing_extensions.final
 class GcmAssetModel(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -248,6 +331,7 @@ class GcmAssetModel(google.protobuf.message.Message):
     GCM_METRIC_FIELD_NUMBER: builtins.int
     GCM_DASHBOARD_FIELD_NUMBER: builtins.int
     GCM_CLOUD_RUN_SERVICE_DASHBOARD_FIELD_NUMBER: builtins.int
+    GCP_INFRA_FIELD_NUMBER: builtins.int
     @property
     def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     connector_type: core.protos.base_pb2.Source.ValueType
@@ -259,6 +343,8 @@ class GcmAssetModel(google.protobuf.message.Message):
     def gcm_dashboard(self) -> global___GcmDashboardEntityAssetModel: ...
     @property
     def gcm_cloud_run_service_dashboard(self) -> global___GcmCloudRunServiceAssetModel: ...
+    @property
+    def gcp_infra(self) -> global___GcpInfraAssetModel: ...
     def __init__(
         self,
         *,
@@ -269,10 +355,11 @@ class GcmAssetModel(google.protobuf.message.Message):
         gcm_metric: global___GcmMetricAssetModel | None = ...,
         gcm_dashboard: global___GcmDashboardEntityAssetModel | None = ...,
         gcm_cloud_run_service_dashboard: global___GcmCloudRunServiceAssetModel | None = ...,
+        gcp_infra: global___GcpInfraAssetModel | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["asset", b"asset", "gcm_cloud_run_service_dashboard", b"gcm_cloud_run_service_dashboard", "gcm_dashboard", b"gcm_dashboard", "gcm_metric", b"gcm_metric", "id", b"id"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["asset", b"asset", "connector_type", b"connector_type", "gcm_cloud_run_service_dashboard", b"gcm_cloud_run_service_dashboard", "gcm_dashboard", b"gcm_dashboard", "gcm_metric", b"gcm_metric", "id", b"id", "last_updated", b"last_updated", "type", b"type"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing_extensions.Literal["asset", b"asset"]) -> typing_extensions.Literal["gcm_metric", "gcm_dashboard", "gcm_cloud_run_service_dashboard"] | None: ...
+    def HasField(self, field_name: typing_extensions.Literal["asset", b"asset", "gcm_cloud_run_service_dashboard", b"gcm_cloud_run_service_dashboard", "gcm_dashboard", b"gcm_dashboard", "gcm_metric", b"gcm_metric", "gcp_infra", b"gcp_infra", "id", b"id"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["asset", b"asset", "connector_type", b"connector_type", "gcm_cloud_run_service_dashboard", b"gcm_cloud_run_service_dashboard", "gcm_dashboard", b"gcm_dashboard", "gcm_metric", b"gcm_metric", "gcp_infra", b"gcp_infra", "id", b"id", "last_updated", b"last_updated", "type", b"type"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing_extensions.Literal["asset", b"asset"]) -> typing_extensions.Literal["gcm_metric", "gcm_dashboard", "gcm_cloud_run_service_dashboard", "gcp_infra"] | None: ...
 
 global___GcmAssetModel = GcmAssetModel
 
