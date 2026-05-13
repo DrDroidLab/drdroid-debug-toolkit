@@ -41,6 +41,7 @@ from core.integrations.source_managers.coralogix_source_manager import Coralogix
 from core.integrations.source_managers.render_source_manager import RenderSourceManager
 from core.integrations.source_managers.victoria_logs_source_manager import VictoriaLogsSourceManager
 from core.integrations.source_managers.metabase_source_manager import MetabaseSourceManager
+from core.integrations.source_managers.checkly_source_manager import ChecklySourceManager
 from core.protos.base_pb2 import Source
 from core.protos.connectors.connector_pb2 import Connector as ConnectorProto
 from core.protos.playbooks.playbook_commons_pb2 import PlaybookTaskResult
@@ -161,3 +162,4 @@ source_facade.register(Source.CORALOGIX, CoralogixSourceManager())
 source_facade.register(Source.RENDER, RenderSourceManager())
 source_facade.register(Source.VICTORIA_LOGS, VictoriaLogsSourceManager())
 source_facade.register(Source.METABASE, MetabaseSourceManager())
+source_facade.register(Source.CHECKLY, ChecklySourceManager())
