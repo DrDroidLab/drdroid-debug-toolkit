@@ -23,6 +23,45 @@ from core.utils.time_utils import calculate_timeseries_bucket_size
 
 logger = logging.getLogger(__name__)
 
+
+def _parse_gcm_timestamp(value: str) -> datetime:
+    """Parse an ISO-ish timestamp from an agent-supplied GCM log filter, tolerating both
+    microsecond and whole-second precision (e.g. '2026-07-10T15:30:00.123Z' AND
+    '2026-07-10T15:30:00Z'). The agent frequently emits whole-second timestamps, which the
+    old hard-coded '%Y-%m-%dT%H:%M:%S.%fZ' format rejected — that caused ~36% of
+    filter_log_events calls to fail with a datetime parse error. Always returns UTC-aware."""
+    s = str(value).strip()
+    # Normalize a trailing 'Z' so datetime.fromisoformat (which many runtimes reject 'Z' on)
+    # can take it, then fall back to explicit formats for older interpreters.
+    normalized = (s[:-1] + "+00:00") if s.endswith("Z") else s
+    try:
+        dt = datetime.fromisoformat(normalized)
+        return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
+    except ValueError:
+        for fmt in ("%Y-%m-%dT%H:%M:%S.%fZ", "%Y-%m-%dT%H:%M:%SZ",
+                    "%Y-%m-%dT%H:%M:%S.%f", "%Y-%m-%dT%H:%M:%S"):
+            try:
+                return datetime.strptime(s, fmt).replace(tzinfo=timezone.utc)
+            except ValueError:
+                continue
+        raise
+
+
+def _strip_orphan_bool_ops(f: str) -> str:
+    """Remove boolean operators orphaned by timestamp-clause removal. Stripping
+    `timestamp >= "..."` out of `resource.type="x" AND timestamp >= "..."` leaves a
+    dangling `AND`, which GCP Logging rejects as "Unparseable filter: syntax error". Collapse
+    doubled operators and trim leading/trailing ones so the residual filter stays valid."""
+    f = re.sub(r'\s+', ' ', f).strip()
+    prev = None
+    while prev != f:  # collapse "AND AND" / "AND OR" chains left between clauses
+        prev = f
+        f = re.sub(r'\b(?:AND|OR)\s+(?:AND|OR)\b', 'AND', f, flags=re.IGNORECASE)
+    f = re.sub(r'^\s*(?:AND|OR)\b\s*', '', f, flags=re.IGNORECASE)
+    f = re.sub(r'\s*\b(?:AND|OR)\s*$', '', f, flags=re.IGNORECASE)
+    return f.strip()
+
+
 # GCM Regions
 GCM_REGIONS = [
     "us-central1",    # US Central (Iowa)
@@ -355,12 +394,10 @@ class GcmSourceManager(SourceManager):
             timestamp_gte_match = re.search(r'timestamp\s*>=\s*"([^"]+)"', filter_query)
             timestamp_gt_match = re.search(r'timestamp\s*>\s*"([^"]+)"', filter_query)
             if timestamp_gte_match:
-                start_time = datetime.strptime(timestamp_gte_match.group(1), "%Y-%m-%dT%H:%M:%S.%fZ").replace(
-                    tzinfo=timezone.utc)
+                start_time = _parse_gcm_timestamp(timestamp_gte_match.group(1))
                 filter_query = re.sub(r'timestamp\s*>=\s*"[^"]+"', '', filter_query).strip()
             elif timestamp_gt_match:
-                start_time = datetime.strptime(timestamp_gt_match.group(1), "%Y-%m-%dT%H:%M:%S.%fZ").replace(
-                    tzinfo=timezone.utc)
+                start_time = _parse_gcm_timestamp(timestamp_gt_match.group(1))
                 filter_query = re.sub(r'timestamp\s*>=\s*"[^"]+"', '', filter_query).strip()
             else:
                 start_time = datetime.utcfromtimestamp(time_range.time_geq).replace(tzinfo=timezone.utc)
@@ -368,15 +405,17 @@ class GcmSourceManager(SourceManager):
             timestamp_lte_match = re.search(r'timestamp\s*<=\s*"([^"]+)"', filter_query)
             timestamp_lt_match = re.search(r'timestamp\s*<\s*"([^"]+)"', filter_query)
             if timestamp_lte_match:
-                end_time = datetime.strptime(timestamp_lte_match.group(1), "%Y-%m-%dT%H:%M:%S.%fZ").replace(
-                    tzinfo=timezone.utc)
+                end_time = _parse_gcm_timestamp(timestamp_lte_match.group(1))
                 filter_query = re.sub(r'timestamp\s*<=\s*"[^"]+"', '', filter_query).strip()
             elif timestamp_lt_match:
-                end_time = datetime.strptime(timestamp_lt_match.group(1), "%Y-%m-%dT%H:%M:%S.%fZ").replace(
-                    tzinfo=timezone.utc)
+                end_time = _parse_gcm_timestamp(timestamp_lt_match.group(1))
                 filter_query = re.sub(r'timestamp\s*<\s*"[^"]+"', '', filter_query).strip()
             else:
                 end_time = datetime.utcfromtimestamp(time_range.time_lt).replace(tzinfo=timezone.utc)
+
+            # Removing the timestamp clauses above can leave dangling AND/OR operators; clean
+            # them so the residual filter doesn't fail as "Unparseable filter".
+            filter_query = _strip_orphan_bool_ops(filter_query)
 
             time_filter = f'timestamp >= "{start_time.strftime("%Y-%m-%dT%H:%M:%S.%fZ")}" AND timestamp <= "{end_time.strftime("%Y-%m-%dT%H:%M:%S.%fZ")}"'
             if filter_query:
