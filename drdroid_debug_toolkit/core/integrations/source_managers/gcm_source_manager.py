@@ -47,6 +47,21 @@ def _parse_gcm_timestamp(value: str) -> datetime:
         raise
 
 
+def _strip_orphan_bool_ops(f: str) -> str:
+    """Remove boolean operators orphaned by timestamp-clause removal. Stripping
+    `timestamp >= "..."` out of `resource.type="x" AND timestamp >= "..."` leaves a
+    dangling `AND`, which GCP Logging rejects as "Unparseable filter: syntax error". Collapse
+    doubled operators and trim leading/trailing ones so the residual filter stays valid."""
+    f = re.sub(r'\s+', ' ', f).strip()
+    prev = None
+    while prev != f:  # collapse "AND AND" / "AND OR" chains left between clauses
+        prev = f
+        f = re.sub(r'\b(?:AND|OR)\s+(?:AND|OR)\b', 'AND', f, flags=re.IGNORECASE)
+    f = re.sub(r'^\s*(?:AND|OR)\b\s*', '', f, flags=re.IGNORECASE)
+    f = re.sub(r'\s*\b(?:AND|OR)\s*$', '', f, flags=re.IGNORECASE)
+    return f.strip()
+
+
 # GCM Regions
 GCM_REGIONS = [
     "us-central1",    # US Central (Iowa)
@@ -397,6 +412,10 @@ class GcmSourceManager(SourceManager):
                 filter_query = re.sub(r'timestamp\s*<\s*"[^"]+"', '', filter_query).strip()
             else:
                 end_time = datetime.utcfromtimestamp(time_range.time_lt).replace(tzinfo=timezone.utc)
+
+            # Removing the timestamp clauses above can leave dangling AND/OR operators; clean
+            # them so the residual filter doesn't fail as "Unparseable filter".
+            filter_query = _strip_orphan_bool_ops(filter_query)
 
             time_filter = f'timestamp >= "{start_time.strftime("%Y-%m-%dT%H:%M:%S.%fZ")}" AND timestamp <= "{end_time.strftime("%Y-%m-%dT%H:%M:%S.%fZ")}"'
             if filter_query:

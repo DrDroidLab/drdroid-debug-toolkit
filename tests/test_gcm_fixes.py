@@ -99,3 +99,27 @@ def test_parse_ts_without_z_is_utc_aware():
 def test_parse_ts_invalid_raises():
     with pytest.raises(ValueError):
         _parse()("not-a-timestamp")
+
+
+# ── Bug 3 (found via E2E): orphaned AND/OR after timestamp stripping ────────
+def _strip():
+    from core.integrations.source_managers.gcm_source_manager import _strip_orphan_bool_ops
+    return _strip_orphan_bool_ops
+
+
+def test_strip_trailing_orphan_and():
+    # what timestamp removal leaves from: resource.type="x" AND timestamp >= "..." AND timestamp <= "..."
+    assert _strip()('resource.type="k8s_container" AND  AND') == 'resource.type="k8s_container"'
+
+
+def test_strip_pure_timestamp_filter_becomes_empty():
+    # removing both timestamp clauses from a timestamp-only filter leaves just an operator
+    assert _strip()('AND') == ''
+
+
+def test_strip_leaves_valid_filter_untouched():
+    assert _strip()('resource.type="k8s_container"') == 'resource.type="k8s_container"'
+
+
+def test_strip_collapses_double_and_between_clauses():
+    assert _strip()('a="1" AND AND b="2"') == 'a="1" AND b="2"'
