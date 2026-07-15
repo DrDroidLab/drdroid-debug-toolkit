@@ -23,6 +23,7 @@ from core.utils.time_utils import calculate_timeseries_bucket_size
 from core.utils.playbooks_client import PrototypeClient
 
 logger = logging.getLogger(__name__)
+from core.integrations.utils.task_result_utils import build_task_failure_result, build_task_empty_result
 
 # AWS Regions
 AWS_REGIONS = [
@@ -474,22 +475,6 @@ class CloudwatchSourceManager(SourceManager):
                         form_field_type=FormFieldType.TEXT_FT,
                         is_optional=False
                     ),
-                    SourceKeyType.AWS_EXTERNAL_ID: FormField(
-                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.AWS_EXTERNAL_ID)),
-                        display_name=StringValue(value="External ID"),
-                        description=StringValue(
-                            value="External ID to use when Doctor Droid assumes your IAM role. "
-                                  "If you configured an External ID condition on the trust relationship, "
-                                  "paste that value here."
-                        ),
-                        helper_text=StringValue(
-                            value="Required when your IAM role trust policy specifies an External ID condition."
-                        ),
-                        data_type=LiteralType.STRING,
-                        form_field_type=FormFieldType.TEXT_FT,
-                        is_optional=True,  # Backend: optional so connectors without External ID pass validation
-                        is_sensitive=True,
-                    ),
                     SourceKeyType.AWS_REGION: FormField( # This AWS_REGION key is duplicated from the first config, ensure its FormField definition is consistent or handled.
                         key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.AWS_REGION)),
                         display_name=StringValue(value="AWS Region"),
@@ -707,12 +692,8 @@ class CloudwatchSourceManager(SourceManager):
             else:
                 # If even the current data fails, return a message
                 dimension_str = ', '.join([f"{d['Name']}:{d['Value']}" for d in dimensions])
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(
-                        value=f"No data returned from Cloudwatch for ns: {namespace}, metric: {metric_name}, "
-                              f"dims: [{dimension_str}], stat: {statistic}")),
-                    source=self.source)
+                return build_task_empty_result(self.source, f"No data returned from Cloudwatch for ns: {namespace}, metric: {metric_name}, "
+                              f"dims: [{dimension_str}], stat: {statistic}")
 
             # Fetch offset timeseries if specified
             for offset in timeseries_offsets:
@@ -728,12 +709,8 @@ class CloudwatchSourceManager(SourceManager):
             if not labeled_metric_timeseries_list:
                 # This case should ideally not be reached if current_timeseries succeeded, but as a safeguard
                 dimension_str = ', '.join([f"{d['Name']}:{d['Value']}" for d in dimensions])
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(
-                        value=f"Failed to fetch any data for ns: {namespace}, metric: {metric_name}, "
-                              f"dims: [{dimension_str}], stat: {statistic}")),
-                    source=self.source)
+                return build_task_failure_result(self.source, f"Failed to fetch any data for ns: {namespace}, metric: {metric_name}, "
+                              f"dims: [{dimension_str}], stat: {statistic}")
 
             metric_metadata = f"{namespace}.{metric_name} ({statistic}) for region {region} "
             for i in dimensions:
@@ -775,9 +752,7 @@ class CloudwatchSourceManager(SourceManager):
 
             response = logs_boto3_processor.logs_filter_events(log_group, query_pattern, start_time, end_time)
             if not response:
-                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT, text=TextResult(output=StringValue(
-                    value=f"No logs returned from Cloudwatch for query: {query_pattern} on log group: {log_group}")),
-                                          source=self.source)
+                return build_task_empty_result(self.source, f"No logs returned from Cloudwatch for query: {query_pattern} on log group: {log_group}")
 
             table_rows: [TableResult.TableRow] = []
             for item in response:
@@ -823,8 +798,7 @@ class CloudwatchSourceManager(SourceManager):
             end_time_dt = datetime.utcfromtimestamp(tr_end_time)
             response = pi_boto3_processor.pi_get_long_running_queries(db_resource_uri, end_time_dt)
             if not response:
-                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT, text=TextResult(output=StringValue(
-                    value=f"No Stats returned from RDS DB for: {db_resource_uri}")), source=self.source)
+                return build_task_empty_result(self.source, f"No Stats returned from RDS DB for: {db_resource_uri}")
 
             table_rows: [TableResult.TableRow] = []
             for stat in response:
@@ -855,11 +829,7 @@ class CloudwatchSourceManager(SourceManager):
             clusters = processor.list_all_clusters()
             
             if not clusters:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value="No ECS clusters found")),
-                    source=self.source
-                )
+                return build_task_empty_result(self.source, "No ECS clusters found")
             
             # Convert all datetime objects in the clusters data to strings
             clusters = convert_datetime_recursive(clusters)
@@ -895,20 +865,12 @@ class CloudwatchSourceManager(SourceManager):
                     break
             
             if not cluster_arn:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=f"Cluster '{cluster_name}' not found")),
-                    source=self.source
-                )
+                return build_task_empty_result(self.source, f"Cluster '{cluster_name}' not found")
             
             tasks = processor.list_tasks_in_cluster(cluster_arn)
             
             if not tasks:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=f"No tasks found in cluster '{cluster_name}'")),
-                    source=self.source
-                )
+                return build_task_empty_result(self.source, f"No tasks found in cluster '{cluster_name}'")
             
             # Convert all datetime objects in the tasks data to strings
             tasks = convert_datetime_recursive(tasks)
@@ -1002,12 +964,7 @@ class CloudwatchSourceManager(SourceManager):
             
             # If a task definition filter was provided but no matching logs were found
             if task_definition_filter and not restructured_logs:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(
-                        value=f"No logs found for task definition '{task_definition_filter}' in cluster '{cluster_name}'")),
-                    source=self.source
-                )
+                return build_task_empty_result(self.source, f"No logs found for task definition '{task_definition_filter}' in cluster '{cluster_name}'")
             
             response_struct = dict_to_proto({"logs": restructured_logs}, Struct)
             logs_output = ApiResponseResult(response_body=response_struct)
@@ -1057,8 +1014,11 @@ class CloudwatchSourceManager(SourceManager):
 
             if not assets or not assets.HasField('cloudwatch') or not assets.cloudwatch.assets:
                 logger.error(f"Dashboard asset not found or empty for name: {dashboard_name}")
-                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT, text=TextResult(output=StringValue(
-                    value=f"Could not find dashboard asset information for '{dashboard_name}'. Please ensure metadata extraction ran successfully.")))
+                return build_task_empty_result(
+                    self.source,
+                    f"Could not find dashboard asset information for '{dashboard_name}'. Please ensure metadata extraction ran successfully.",
+                    response_status=404,
+                )
 
             # Find the dashboard matching the name
             dashboard_asset_model = None
@@ -1076,8 +1036,11 @@ class CloudwatchSourceManager(SourceManager):
 
             if not dashboard_asset_model:
                 logger.error(f"Dashboard asset not found for name: {dashboard_name}")
-                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT, text=TextResult(output=StringValue(
-                    value=f"Could not find dashboard asset information for '{dashboard_name}'. Please ensure metadata extraction ran successfully.")))
+                return build_task_empty_result(
+                    self.source,
+                    f"Could not find dashboard asset information for '{dashboard_name}'. Please ensure metadata extraction ran successfully.",
+                    response_status=404,
+                )
 
             dashboard_data: CloudwatchDashboardAssetModel = dashboard_asset_model.cloudwatch_dashboard
             widget_title = proto_to_dict(dashboard_asset_model).get('metadata', {}).get('title', dashboard_name) # Use title from metadata if available
@@ -1156,15 +1119,18 @@ class CloudwatchSourceManager(SourceManager):
                     )
                     task_results.append(single_task_result)
             if not task_results:
-                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT, text=TextResult(output=StringValue(
-                    value=f"No metric data could be fetched for any widget in dashboard '{dashboard_name}'.")))
+                return build_task_empty_result(
+                    self.source,
+                    f"No metric data could be fetched for any widget in dashboard '{dashboard_name}'.",
+                    response_status=404,
+                )
 
             # Return the list of individual PlaybookTaskResults
             return task_results
 
         except ValueError as ve:
              logger.error(f"Configuration error executing FETCH_DASHBOARD for '{cloudwatch_task.fetch_dashboard.dashboard_name.value}': {ve}")
-             return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT, text=TextResult(output=StringValue(value=f"Configuration Error: {ve}")))
+             return build_task_failure_result(self.source, f"Configuration Error: {ve}")
         except Exception as e:
             logger.error(f"Error executing FETCH_DASHBOARD for '{cloudwatch_task.fetch_dashboard.dashboard_name.value}': {e}", exc_info=True)
             raise Exception(f"Error while fetching dashboard metrics: {e}")
