@@ -14,6 +14,7 @@ from core.protos.playbooks.source_task_definitions.open_search_task_pb2 import O
 from core.protos.ui_definition_pb2 import FormField, FormFieldType
 from core.utils.credentilal_utils import generate_credentials_dict, get_connector_key_type_string, DISPLAY_NAME, CATEGORY, APPLICATION_MONITORING
 from core.utils.proto_utils import dict_to_proto
+from core.integrations.utils.task_result_utils import build_task_failure_result
 
 
 class OpenSearchSourceManager(SourceManager):
@@ -294,9 +295,7 @@ class OpenSearchSourceManager(SourceManager):
             result = os_client.query(index, query)
 
             if 'hits' not in result or not result['hits']['hits']:
-                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT, text=TextResult(output=StringValue(
-                    value=f"No data returned from Open Search for query: {query_dsl} on index: {index}")),
-                                          source=self.source)
+                return build_task_failure_result(self.source, f"No data returned from Open Search for query: {query_dsl} on index: {index}")
 
             hits = result['hits']['hits']
             total_hits = result['hits']['total']['value']
@@ -336,10 +335,8 @@ class OpenSearchSourceManager(SourceManager):
             result = os_client.delete_index(index)
 
             if result and 'acknowledged' in result and result['acknowledged']:
-                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT, text=TextResult(output=StringValue(
-                    value=f"Index {index} deleted successfully")), source=self.source)
-            return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT, text=TextResult(output=StringValue(
-                value=f"Failed to delete Index {index}")), source=self.source)
+                return build_task_failure_result(self.source, f"Index {index} deleted successfully")
+            return build_task_failure_result(self.source, f"Failed to delete Index {index}")
         except Exception as e:
             raise Exception(f"OpenSearchSourceManager.execute_delete_index:: Error while executing OpenSearch "
                             f"task: {str(e)}")

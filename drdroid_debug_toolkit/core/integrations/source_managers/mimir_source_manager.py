@@ -13,6 +13,7 @@ from core.protos.playbooks.playbook_commons_pb2 import PlaybookTaskResult, Times
 from core.protos.playbooks.source_task_definitions.promql_task_pb2 import PromQl
 from core.protos.ui_definition_pb2 import FormField, FormFieldType
 from core.utils.credentilal_utils import generate_credentials_dict, get_connector_key_type_string, DISPLAY_NAME, CATEGORY, APPLICATION_MONITORING
+from core.integrations.utils.task_result_utils import build_task_failure_result
 
 
 class MimirSourceManager(SourceManager):
@@ -134,8 +135,7 @@ class MimirSourceManager(SourceManager):
             response = mimir_api_processor.fetch_promql_metric_timeseries(promql_metric_query,
                                                                           start_time, end_time, period)
             if not response:
-                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT, text=TextResult(output=StringValue(
-                    value=f"No data returned from Mimir for metric query: {promql_metric_query}")), source=self.source)
+                return build_task_failure_result(self.source, f"No data returned from Mimir for metric query: {promql_metric_query}")
 
             labeled_metric_timeseries_list = []
 
