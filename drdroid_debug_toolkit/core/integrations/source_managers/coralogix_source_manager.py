@@ -1,11 +1,11 @@
 import logging
 import json
 import ast
+import inspect
 import re
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
-import re
 from urllib.parse import urlparse
 from typing import Optional
 
@@ -28,6 +28,27 @@ from drdroid_debug_toolkit.core.protos.literal_pb2 import Literal
 from core.utils.proto_utils import dict_to_proto, proto_to_dict
 
 logger = logging.getLogger(__name__)
+
+
+def _coralogix_task_type(name: str):
+    """Return Coralogix.TaskType.<name> when present in the packaged protobuf.
+
+    Older cloud toolkit wheels may lag the manager (e.g. missing
+    FETCH_DASHBOARD_LIST). Looking up a missing enum crashes SourceManager
+    construction at Django startup — skip optional task types instead.
+    """
+    try:
+        return Coralogix.TaskType.Value(name)
+    except ValueError:
+        return None
+
+
+def _proto_has_field(message, field_name: str) -> bool:
+    """True when ``field_name`` exists on this message's descriptor."""
+    try:
+        return field_name in message.DESCRIPTOR.fields_by_name
+    except Exception:
+        return False
 
 
 def buildCoralogixUrl(domain: str, task_type: str, params: dict = None) -> str:
@@ -230,14 +251,6 @@ class CoralogixSourceManager(SourceManager):
                     ),
                 ],
             },
-            Coralogix.TaskType.FETCH_DASHBOARD_LIST: {
-                "executor": self.execute_fetch_dashboard_list,
-                "model_types": [],
-                "result_type": PlaybookTaskResultType.API_RESPONSE,
-                "display_name": "Fetch list of all Coralogix Dashboards",
-                "category": "Metrics",
-                "form_fields": [],
-            },
             Coralogix.TaskType.FETCH_ALERT_DEFS: {
                 "executor": self.execute_fetch_alert_defs,
                 "model_types": [],
@@ -324,6 +337,23 @@ class CoralogixSourceManager(SourceManager):
                 ],
             },
         }
+
+        # Optional: only present when packaged coralogix_task_pb2 includes enum value 9.
+        _fetch_dashboard_list = _coralogix_task_type("FETCH_DASHBOARD_LIST")
+        if _fetch_dashboard_list is not None:
+            self.task_type_callable_map[_fetch_dashboard_list] = {
+                "executor": self.execute_fetch_dashboard_list,
+                "model_types": [],
+                "result_type": PlaybookTaskResultType.API_RESPONSE,
+                "display_name": "Fetch list of all Coralogix Dashboards",
+                "category": "Metrics",
+                "form_fields": [],
+            }
+        else:
+            logger.warning(
+                "Coralogix TaskType.FETCH_DASHBOARD_LIST missing from packaged protobuf; "
+                "dashboard list task disabled until toolkit protos are upgraded."
+            )
         
         self.connector_form_configs = [
             {
@@ -656,7 +686,10 @@ class CoralogixSourceManager(SourceManager):
             to_time = task.to_time.value if task.HasField("to_time") and task.to_time.value else "now"
             limit = task.limit.value if task.HasField("limit") and task.limit.value else 100
             # Default to DataPrime; agent can pass "lucene" to opt back into the legacy syntax.
-            syntax = task.syntax.value if task.HasField("syntax") and task.syntax.value else "dataprime"
+            # Soft-check field so older packaged protos without `syntax` still boot/run.
+            syntax = "dataprime"
+            if _proto_has_field(task, "syntax") and task.HasField("syntax") and task.syntax.value:
+                syntax = task.syntax.value
 
             # Get the API processor
             processor = self.get_connector_processor(coralogix_connector)
@@ -666,13 +699,20 @@ class CoralogixSourceManager(SourceManager):
                 f"From -> {from_time}, To -> {to_time}, Limit -> {limit}, Syntax -> {syntax}"
             )
 
-            response = processor.fetch_logs(
-                query=query,
-                from_time=from_time,
-                to_time=to_time,
-                limit=limit,
-                syntax=syntax,
-            )
+            fetch_kwargs = {
+                "query": query,
+                "from_time": from_time,
+                "to_time": to_time,
+                "limit": limit,
+            }
+            # Older processors may not accept syntax=; only pass when supported.
+            try:
+                if "syntax" in inspect.signature(processor.fetch_logs).parameters:
+                    fetch_kwargs["syntax"] = syntax
+            except (TypeError, ValueError):
+                pass
+
+            response = processor.fetch_logs(**fetch_kwargs)
 
             if not response:
                 # Extract endpoint URL and create metadata with Coralogix URL
@@ -1109,7 +1149,9 @@ class CoralogixSourceManager(SourceManager):
         """
         task = coralogix_task.fetch_metrics
 
-        queries = [q.value for q in task.queries if q.value]
+        queries = []
+        if _proto_has_field(task, "queries"):
+            queries = [q.value for q in task.queries if q.value]
         if not queries:
             single = task.query.value if task.HasField("query") and task.query.value else "up"
             queries = [single]
@@ -1117,8 +1159,12 @@ class CoralogixSourceManager(SourceManager):
         from_time = task.from_time.value if task.HasField("from_time") and task.from_time.value else "now-1h"
         to_time = task.to_time.value if task.HasField("to_time") and task.to_time.value else "now"
         step = task.step.value if task.HasField("step") and task.step.value else "1m"
-        limit = int(task.limit.value) if task.HasField("limit") and task.limit.value else 0
-        truncate_from = task.truncate_from.value if task.HasField("truncate_from") and task.truncate_from.value else "right"
+        limit = 0
+        if _proto_has_field(task, "limit") and task.HasField("limit") and task.limit.value:
+            limit = int(task.limit.value)
+        truncate_from = "right"
+        if _proto_has_field(task, "truncate_from") and task.HasField("truncate_from") and task.truncate_from.value:
+            truncate_from = task.truncate_from.value
 
         try:
             self._validate_connector(coralogix_connector)
