@@ -17,6 +17,7 @@ from core.utils.credentilal_utils import generate_credentials_dict, get_connecto
 from core.utils.proto_utils import dict_to_proto, proto_to_dict
 
 logger = logging.getLogger(__name__)
+from core.integrations.utils.task_result_utils import build_task_failure_result
 
 
 def _normalize_dashboard_cards_list(response):
@@ -559,11 +560,7 @@ class MetabaseSourceManager(SourceManager):
         except Exception as e:
             error_msg = f"Error listing Metabase alerts: {str(e)}"
             logger.error(error_msg, exc_info=True)
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=error_msg)),
-                source=self.source
-            )
+            return build_task_failure_result(self.source, error_msg)
 
     def get_alert(self, time_range: TimeRange, metabase_task: Metabase,
                   metabase_connector: ConnectorProto):
@@ -574,11 +571,7 @@ class MetabaseSourceManager(SourceManager):
             task = metabase_task.get_alert
             alert_id = task.alert_id.value
             if not alert_id:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value="Missing required field: alert_id")),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, "Missing required field: alert_id")
 
             processor = self.get_connector_processor(metabase_connector)
             result = processor.get_alert(alert_id)
@@ -592,11 +585,7 @@ class MetabaseSourceManager(SourceManager):
         except Exception as e:
             error_msg = f"Error getting Metabase alert: {str(e)}"
             logger.error(error_msg, exc_info=True)
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=error_msg)),
-                source=self.source
-            )
+            return build_task_failure_result(self.source, error_msg)
 
     def create_alert(self, time_range: TimeRange, metabase_task: Metabase,
                      metabase_connector: ConnectorProto):
@@ -612,10 +601,9 @@ class MetabaseSourceManager(SourceManager):
                 missing = []
                 if not card_id: missing.append("card_id")
                 if not alert_condition: missing.append("alert_condition")
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=f"Missing required fields: {', '.join(missing)}")),
-                    source=self.source
+                return build_task_failure_result(
+                    self.source,
+                    f"Missing required fields: {', '.join(missing)}",
                 )
 
             payload = {
@@ -645,11 +633,7 @@ class MetabaseSourceManager(SourceManager):
         except Exception as e:
             error_msg = f"Error creating Metabase alert: {str(e)}"
             logger.error(error_msg, exc_info=True)
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=error_msg)),
-                source=self.source
-            )
+            return build_task_failure_result(self.source, error_msg)
 
     def update_alert(self, time_range: TimeRange, metabase_task: Metabase,
                      metabase_connector: ConnectorProto):
@@ -660,11 +644,7 @@ class MetabaseSourceManager(SourceManager):
             task = metabase_task.update_alert
             alert_id = task.alert_id.value
             if not alert_id:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value="Missing required field: alert_id")),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, "Missing required field: alert_id")
 
             updates = proto_to_dict(task.updates) if task.HasField('updates') else {}
 
@@ -680,11 +660,7 @@ class MetabaseSourceManager(SourceManager):
         except Exception as e:
             error_msg = f"Error updating Metabase alert: {str(e)}"
             logger.error(error_msg, exc_info=True)
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=error_msg)),
-                source=self.source
-            )
+            return build_task_failure_result(self.source, error_msg)
 
     def delete_alert(self, time_range: TimeRange, metabase_task: Metabase,
                      metabase_connector: ConnectorProto):
@@ -695,11 +671,7 @@ class MetabaseSourceManager(SourceManager):
             task = metabase_task.delete_alert
             alert_id = task.alert_id.value
             if not alert_id:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value="Missing required field: alert_id")),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, "Missing required field: alert_id")
 
             processor = self.get_connector_processor(metabase_connector)
             processor.delete_alert(alert_id)
@@ -713,11 +685,7 @@ class MetabaseSourceManager(SourceManager):
         except Exception as e:
             error_msg = f"Error deleting Metabase alert: {str(e)}"
             logger.error(error_msg, exc_info=True)
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=error_msg)),
-                source=self.source
-            )
+            return build_task_failure_result(self.source, error_msg)
 
     # Pulse executors
 
@@ -739,11 +707,7 @@ class MetabaseSourceManager(SourceManager):
         except Exception as e:
             error_msg = f"Error listing Metabase pulses: {str(e)}"
             logger.error(error_msg, exc_info=True)
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=error_msg)),
-                source=self.source
-            )
+            return build_task_failure_result(self.source, error_msg)
 
     def get_pulse(self, time_range: TimeRange, metabase_task: Metabase,
                   metabase_connector: ConnectorProto):
@@ -754,11 +718,7 @@ class MetabaseSourceManager(SourceManager):
             task = metabase_task.get_pulse
             pulse_id = task.pulse_id.value
             if not pulse_id:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value="Missing required field: pulse_id")),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, "Missing required field: pulse_id")
 
             processor = self.get_connector_processor(metabase_connector)
             result = processor.get_pulse(pulse_id)
@@ -772,11 +732,7 @@ class MetabaseSourceManager(SourceManager):
         except Exception as e:
             error_msg = f"Error getting Metabase pulse: {str(e)}"
             logger.error(error_msg, exc_info=True)
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=error_msg)),
-                source=self.source
-            )
+            return build_task_failure_result(self.source, error_msg)
 
     def create_pulse(self, time_range: TimeRange, metabase_task: Metabase,
                      metabase_connector: ConnectorProto):
@@ -788,11 +744,7 @@ class MetabaseSourceManager(SourceManager):
             name = task.name.value
 
             if not name:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value="Missing required field: name")),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, "Missing required field: name")
 
             payload = {"name": name}
 
@@ -825,11 +777,7 @@ class MetabaseSourceManager(SourceManager):
         except Exception as e:
             error_msg = f"Error creating Metabase pulse: {str(e)}"
             logger.error(error_msg, exc_info=True)
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=error_msg)),
-                source=self.source
-            )
+            return build_task_failure_result(self.source, error_msg)
 
     def update_pulse(self, time_range: TimeRange, metabase_task: Metabase,
                      metabase_connector: ConnectorProto):
@@ -840,11 +788,7 @@ class MetabaseSourceManager(SourceManager):
             task = metabase_task.update_pulse
             pulse_id = task.pulse_id.value
             if not pulse_id:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value="Missing required field: pulse_id")),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, "Missing required field: pulse_id")
 
             updates = proto_to_dict(task.updates) if task.HasField('updates') else {}
 
@@ -860,11 +804,7 @@ class MetabaseSourceManager(SourceManager):
         except Exception as e:
             error_msg = f"Error updating Metabase pulse: {str(e)}"
             logger.error(error_msg, exc_info=True)
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=error_msg)),
-                source=self.source
-            )
+            return build_task_failure_result(self.source, error_msg)
 
     def delete_pulse(self, time_range: TimeRange, metabase_task: Metabase,
                      metabase_connector: ConnectorProto):
@@ -875,11 +815,7 @@ class MetabaseSourceManager(SourceManager):
             task = metabase_task.delete_pulse
             pulse_id = task.pulse_id.value
             if not pulse_id:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value="Missing required field: pulse_id")),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, "Missing required field: pulse_id")
 
             processor = self.get_connector_processor(metabase_connector)
             processor.delete_pulse(pulse_id)
@@ -893,11 +829,7 @@ class MetabaseSourceManager(SourceManager):
         except Exception as e:
             error_msg = f"Error deleting Metabase pulse: {str(e)}"
             logger.error(error_msg, exc_info=True)
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=error_msg)),
-                source=self.source
-            )
+            return build_task_failure_result(self.source, error_msg)
 
     # Dashboard executors
 
@@ -916,11 +848,7 @@ class MetabaseSourceManager(SourceManager):
             )
         except Exception as e:
             logger.error(f"Error listing dashboards: {e}", exc_info=True)
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=str(e))),
-                source=self.source
-            )
+            return build_task_failure_result(self.source, str(e))
 
     def create_dashboard(self, time_range: TimeRange, metabase_task: Metabase,
                           metabase_connector: ConnectorProto):
@@ -930,10 +858,9 @@ class MetabaseSourceManager(SourceManager):
             task = metabase_task.create_dashboard
             payload = proto_to_dict(task.payload) if task.HasField('payload') else {}
             if not payload:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value="Missing required field: payload (JSON with name, etc.)")),
-                    source=self.source
+                return build_task_failure_result(
+                    self.source,
+                    "Missing required field: payload (JSON with name, etc.)",
                 )
             processor = self.get_connector_processor(metabase_connector)
             result = processor.create_dashboard(payload)
@@ -945,11 +872,7 @@ class MetabaseSourceManager(SourceManager):
             )
         except Exception as e:
             logger.error(f"Error creating dashboard: {e}", exc_info=True)
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=str(e))),
-                source=self.source
-            )
+            return build_task_failure_result(self.source, str(e))
 
     def update_dashboard(self, time_range: TimeRange, metabase_task: Metabase,
                           metabase_connector: ConnectorProto):
@@ -959,11 +882,7 @@ class MetabaseSourceManager(SourceManager):
             task = metabase_task.update_dashboard
             dashboard_id = task.dashboard_id.value if task.HasField('dashboard_id') else None
             if not dashboard_id:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value="Missing required field: dashboard_id")),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, "Missing required field: dashboard_id")
             updates = proto_to_dict(task.updates) if task.HasField('updates') else {}
             processor = self.get_connector_processor(metabase_connector)
             result = processor.update_dashboard(dashboard_id, updates)
@@ -975,11 +894,7 @@ class MetabaseSourceManager(SourceManager):
             )
         except Exception as e:
             logger.error(f"Error updating dashboard: {e}", exc_info=True)
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=str(e))),
-                source=self.source
-            )
+            return build_task_failure_result(self.source, str(e))
 
     def get_dashboard_cards(self, time_range: TimeRange, metabase_task: Metabase,
                             metabase_connector: ConnectorProto):
@@ -989,11 +904,7 @@ class MetabaseSourceManager(SourceManager):
             task = metabase_task.get_dashboard_cards
             dashboard_id = task.dashboard_id.value if task.HasField('dashboard_id') else None
             if not dashboard_id:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value="Missing required field: dashboard_id")),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, "Missing required field: dashboard_id")
             processor = self.get_connector_processor(metabase_connector)
             result = processor.get_dashboard_cards(dashboard_id)
             response_struct = dict_to_proto({'cards': result}, Struct)
@@ -1004,11 +915,7 @@ class MetabaseSourceManager(SourceManager):
             )
         except Exception as e:
             logger.error(f"Error getting dashboard cards: {e}", exc_info=True)
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=str(e))),
-                source=self.source
-            )
+            return build_task_failure_result(self.source, str(e))
 
     def add_card_to_dashboard(self, time_range: TimeRange, metabase_task: Metabase,
                               metabase_connector: ConnectorProto):
@@ -1019,11 +926,7 @@ class MetabaseSourceManager(SourceManager):
             dashboard_id = task.dashboard_id.value if task.HasField('dashboard_id') else None
             card_id = task.card_id.value if task.HasField('card_id') else None
             if not dashboard_id or not card_id:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value="Missing required fields: dashboard_id, card_id")),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, "Missing required fields: dashboard_id, card_id")
             processor = self.get_connector_processor(metabase_connector)
             row = task.row.value if task.HasField('row') else 0
             col = task.col.value if task.HasField('col') else 0
@@ -1050,11 +953,7 @@ class MetabaseSourceManager(SourceManager):
             )
         except Exception as e:
             logger.error(f"Error adding card to dashboard: {e}", exc_info=True)
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=str(e))),
-                source=self.source
-            )
+            return build_task_failure_result(self.source, str(e))
 
     def remove_card_from_dashboard(self, time_range: TimeRange, metabase_task: Metabase,
                                    metabase_connector: ConnectorProto):
@@ -1065,11 +964,7 @@ class MetabaseSourceManager(SourceManager):
             dashboard_id = task.dashboard_id.value if task.HasField('dashboard_id') else None
             dashcard_id = task.dashcard_id.value if task.HasField('dashcard_id') else None
             if not dashboard_id or not dashcard_id:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value="Missing required fields: dashboard_id, dashcard_id")),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, "Missing required fields: dashboard_id, dashcard_id")
             processor = self.get_connector_processor(metabase_connector)
             dashboard = processor.get_dashboard(dashboard_id)
             cards = [c for c in _normalize_dashboard_cards_list(dashboard) if c.get('id') != dashcard_id]
@@ -1084,11 +979,7 @@ class MetabaseSourceManager(SourceManager):
             )
         except Exception as e:
             logger.error(f"Error removing card from dashboard: {e}", exc_info=True)
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=str(e))),
-                source=self.source
-            )
+            return build_task_failure_result(self.source, str(e))
 
     def update_dashboard_card(self, time_range: TimeRange, metabase_task: Metabase,
                                metabase_connector: ConnectorProto):
@@ -1100,11 +991,7 @@ class MetabaseSourceManager(SourceManager):
             dashcard_id = task.dashcard_id.value if task.HasField('dashcard_id') else None
             updates = proto_to_dict(task.updates) if task.HasField('updates') else {}
             if not dashboard_id or not dashcard_id:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value="Missing required fields: dashboard_id, dashcard_id")),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, "Missing required fields: dashboard_id, dashcard_id")
             processor = self.get_connector_processor(metabase_connector)
             dashboard = processor.get_dashboard(dashboard_id)
             cards = _normalize_dashboard_cards_list(dashboard)
@@ -1115,11 +1002,7 @@ class MetabaseSourceManager(SourceManager):
                     updated = True
                     break
             if not updated:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=f"Dashcard id {dashcard_id} not found on dashboard")),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, f"Dashcard id {dashcard_id} not found on dashboard")
             dashboard = dict(dashboard)
             dashboard[_dashboard_cards_key(dashboard)] = cards
             result = processor.update_dashboard(dashboard_id, dashboard)
@@ -1131,11 +1014,7 @@ class MetabaseSourceManager(SourceManager):
             )
         except Exception as e:
             logger.error(f"Error updating dashboard card: {e}", exc_info=True)
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=str(e))),
-                source=self.source
-            )
+            return build_task_failure_result(self.source, str(e))
 
     # Question/Card executors
 
@@ -1154,11 +1033,7 @@ class MetabaseSourceManager(SourceManager):
             )
         except Exception as e:
             logger.error(f"Error listing questions: {e}", exc_info=True)
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=str(e))),
-                source=self.source
-            )
+            return build_task_failure_result(self.source, str(e))
 
     def get_question(self, time_range: TimeRange, metabase_task: Metabase,
                      metabase_connector: ConnectorProto):
@@ -1168,11 +1043,7 @@ class MetabaseSourceManager(SourceManager):
             task = metabase_task.get_question
             card_id = task.card_id.value if task.HasField('card_id') else None
             if not card_id:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value="Missing required field: card_id")),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, "Missing required field: card_id")
             processor = self.get_connector_processor(metabase_connector)
             result = processor.get_card(card_id)
             response_struct = dict_to_proto({'card': result}, Struct)
@@ -1183,11 +1054,7 @@ class MetabaseSourceManager(SourceManager):
             )
         except Exception as e:
             logger.error(f"Error getting question: {e}", exc_info=True)
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=str(e))),
-                source=self.source
-            )
+            return build_task_failure_result(self.source, str(e))
 
     def create_question(self, time_range: TimeRange, metabase_task: Metabase,
                         metabase_connector: ConnectorProto):
@@ -1197,10 +1064,9 @@ class MetabaseSourceManager(SourceManager):
             task = metabase_task.create_question
             payload = proto_to_dict(task.payload) if task.HasField('payload') else {}
             if not payload:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value="Missing required field: payload (JSON)")),
-                    source=self.source
+                return build_task_failure_result(
+                    self.source,
+                    "Missing required field: payload (JSON)",
                 )
             processor = self.get_connector_processor(metabase_connector)
             result = processor.create_card(payload)
@@ -1212,11 +1078,7 @@ class MetabaseSourceManager(SourceManager):
             )
         except Exception as e:
             logger.error(f"Error creating question: {e}", exc_info=True)
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=str(e))),
-                source=self.source
-            )
+            return build_task_failure_result(self.source, str(e))
 
     def update_question(self, time_range: TimeRange, metabase_task: Metabase,
                         metabase_connector: ConnectorProto):
@@ -1227,11 +1089,7 @@ class MetabaseSourceManager(SourceManager):
             card_id = task.card_id.value if task.HasField('card_id') else None
             updates = proto_to_dict(task.updates) if task.HasField('updates') else {}
             if not card_id:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value="Missing required field: card_id")),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, "Missing required field: card_id")
             processor = self.get_connector_processor(metabase_connector)
             result = processor.update_card(card_id, updates)
             response_struct = dict_to_proto({'card': result, 'status': 'Updated'}, Struct)
@@ -1242,11 +1100,7 @@ class MetabaseSourceManager(SourceManager):
             )
         except Exception as e:
             logger.error(f"Error updating question: {e}", exc_info=True)
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=str(e))),
-                source=self.source
-            )
+            return build_task_failure_result(self.source, str(e))
 
     def execute_question(self, time_range: TimeRange, metabase_task: Metabase,
                          metabase_connector: ConnectorProto):
@@ -1256,11 +1110,7 @@ class MetabaseSourceManager(SourceManager):
             task = metabase_task.execute_question
             card_id = task.card_id.value if task.HasField('card_id') else None
             if not card_id:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value="Missing required field: card_id")),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, "Missing required field: card_id")
             parameters = []
             if task.HasField('parameters'):
                 params_dict = proto_to_dict(task.parameters)
@@ -1278,11 +1128,7 @@ class MetabaseSourceManager(SourceManager):
             )
         except Exception as e:
             logger.error(f"Error executing question: {e}", exc_info=True)
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=str(e))),
-                source=self.source
-            )
+            return build_task_failure_result(self.source, str(e))
 
     # Database executors
 
@@ -1301,11 +1147,7 @@ class MetabaseSourceManager(SourceManager):
             )
         except Exception as e:
             logger.error(f"Error listing databases: {e}", exc_info=True)
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=str(e))),
-                source=self.source
-            )
+            return build_task_failure_result(self.source, str(e))
 
     def execute_sql_query(self, time_range: TimeRange, metabase_task: Metabase,
                           metabase_connector: ConnectorProto):
@@ -1316,11 +1158,7 @@ class MetabaseSourceManager(SourceManager):
             database_id = task.database_id.value if task.HasField('database_id') else None
             query = task.query.value if task.HasField('query') else None
             if not database_id or not query:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value="Missing required fields: database_id, query")),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, "Missing required fields: database_id, query")
             processor = self.get_connector_processor(metabase_connector)
             result = processor.execute_native_query(database_id, query)
             response_struct = dict_to_proto({'result': result}, Struct)
@@ -1331,11 +1169,7 @@ class MetabaseSourceManager(SourceManager):
             )
         except Exception as e:
             logger.error(f"Error executing SQL: {e}", exc_info=True)
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=str(e))),
-                source=self.source
-            )
+            return build_task_failure_result(self.source, str(e))
 
     def get_database_schema(self, time_range: TimeRange, metabase_task: Metabase,
                             metabase_connector: ConnectorProto):
@@ -1345,11 +1179,7 @@ class MetabaseSourceManager(SourceManager):
             task = metabase_task.get_database_schema
             database_id = task.database_id.value if task.HasField('database_id') else None
             if not database_id:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value="Missing required field: database_id")),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, "Missing required field: database_id")
             processor = self.get_connector_processor(metabase_connector)
             result = processor.get_database_metadata(database_id)
             response_struct = dict_to_proto({'metadata': result}, Struct)
@@ -1360,11 +1190,7 @@ class MetabaseSourceManager(SourceManager):
             )
         except Exception as e:
             logger.error(f"Error getting database schema: {e}", exc_info=True)
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=str(e))),
-                source=self.source
-            )
+            return build_task_failure_result(self.source, str(e))
 
     def get_database_tables(self, time_range: TimeRange, metabase_task: Metabase,
                             metabase_connector: ConnectorProto):
@@ -1374,11 +1200,7 @@ class MetabaseSourceManager(SourceManager):
             task = metabase_task.get_database_tables
             database_id = task.database_id.value if task.HasField('database_id') else None
             if not database_id:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value="Missing required field: database_id")),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, "Missing required field: database_id")
             processor = self.get_connector_processor(metabase_connector)
             metadata = processor.get_database_metadata(database_id)
             tables = metadata.get('tables', []) if isinstance(metadata, dict) else []
@@ -1390,11 +1212,7 @@ class MetabaseSourceManager(SourceManager):
             )
         except Exception as e:
             logger.error(f"Error getting database tables: {e}", exc_info=True)
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=str(e))),
-                source=self.source
-            )
+            return build_task_failure_result(self.source, str(e))
 
     # Collection executor
 
@@ -1413,11 +1231,7 @@ class MetabaseSourceManager(SourceManager):
             )
         except Exception as e:
             logger.error(f"Error listing collections: {e}", exc_info=True)
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=str(e))),
-                source=self.source
-            )
+            return build_task_failure_result(self.source, str(e))
 
     # Search executor
 
@@ -1438,8 +1252,4 @@ class MetabaseSourceManager(SourceManager):
             )
         except Exception as e:
             logger.error(f"Error searching content: {e}", exc_info=True)
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=str(e))),
-                source=self.source
-            )
+            return build_task_failure_result(self.source, str(e))

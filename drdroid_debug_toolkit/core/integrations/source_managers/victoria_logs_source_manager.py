@@ -13,6 +13,7 @@ from core.protos.playbooks.playbook_commons_pb2 import PlaybookTaskResult, Playb
 from core.protos.playbooks.source_task_definitions.victoria_logs_task_pb2 import VictoriaLogs
 from core.protos.ui_definition_pb2 import FormField, FormFieldType
 from core.utils.credentilal_utils import DISPLAY_NAME, CATEGORY, APPLICATION_MONITORING, get_connector_key_type_string, generate_credentials_dict
+from core.integrations.utils.task_result_utils import build_task_failure_result
 
 
 class VictoriaLogsSourceManager(SourceManager):
@@ -140,11 +141,7 @@ class VictoriaLogsSourceManager(SourceManager):
             response = api.query_logsql(q, limit=int(limit) if '| limit' not in q else None,
                                         start=start_arg, end=end_arg)
             if not response:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=f"No data returned from VictoriaLogs for query: {q}")),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, f"No data returned from VictoriaLogs for query: {q}")
 
             # Normalize into TableResult similar to Loki
             rows = self._convert_response_to_table_rows(response)
@@ -184,11 +181,7 @@ class VictoriaLogsSourceManager(SourceManager):
 
             response = api.fetch_field_values(field_name, time_filter=time_filter, limit=int(limit))
             if not response:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=f"No values returned for field: {field_name}")),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, f"No values returned for field: {field_name}")
 
             rows = self._convert_response_to_table_rows(response)
             table = TableResult(

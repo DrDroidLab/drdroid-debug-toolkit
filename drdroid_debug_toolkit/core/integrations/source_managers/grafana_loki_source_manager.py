@@ -16,6 +16,7 @@ from core.protos.playbooks.playbook_commons_pb2 import PlaybookTaskResult, Playb
 from core.protos.playbooks.source_task_definitions.grafana_loki_task_pb2 import GrafanaLoki
 from core.protos.ui_definition_pb2 import FormField, FormFieldType
 from core.utils.credentilal_utils import generate_credentials_dict, get_connector_key_type_string, CATEGORY, DISPLAY_NAME, APPLICATION_MONITORING
+from core.integrations.utils.task_result_utils import build_task_failure_result
 
 
 class GrafanaLokiSourceManager(SourceManager):
@@ -224,8 +225,7 @@ class GrafanaLokiSourceManager(SourceManager):
 
             response = grafana_loki_api_processor.query(query, start_time, end_time, limit)
             if not response:
-                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT, text=TextResult(output=StringValue(
-                    value=f"No data returned from Grafana Loki for query: {query}")), source=self.source)
+                return build_task_failure_result(self.source, f"No data returned from Grafana Loki for query: {query}")
 
             result = response.get('data', {}).get('result', [])
             table_rows: [TableResult.TableRow] = []

@@ -19,6 +19,7 @@ from core.protos.playbooks.source_task_definitions.github_task_pb2 import Github
 from core.protos.ui_definition_pb2 import FormField, FormFieldType
 
 logger = logging.getLogger(__name__)
+from core.integrations.utils.task_result_utils import build_task_failure_result
 
 
 class TimeoutException(Exception):
@@ -223,7 +224,7 @@ class GithubSourceManager(SourceManager):
                     SourceKeyType.GITHUB_TOKEN: FormField(
                         key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.GITHUB_TOKEN)),
                         display_name=StringValue(value="GitHub Token"),
-                        description=StringValue(value='e.g. "<your-github-personal-access-token>"'),
+                        description=StringValue(value='Your GitHub Personal Access Token (classic or fine-grained)'),
                         helper_text=StringValue(value="Enter your GitHub Personal Access Token with 'repo' and 'org:read' scopes from Developer Settings > Personal Access Tokens"),
                         data_type=LiteralType.STRING,
                         form_field_type=FormFieldType.TEXT_FT,
@@ -238,39 +239,12 @@ class GithubSourceManager(SourceManager):
                         data_type=LiteralType.STRING,
                         form_field_type=FormFieldType.TEXT_FT,
                         is_optional=False
-                    )
-                }
-            },
-            {
-                "name": StringValue(value="GitHub App Authentication"),
-                "description": StringValue(value="Connect to GitHub using a GitHub App. This provides more granular permissions and is recommended for production environments. Note: The GitHub App Private Key is configured as a service-level environment variable (GITHUB_APP_PRIVATE_KEY) and is not stored per connector."),
-                "form_fields": {
-                    SourceKeyType.GITHUB_APP_ID: FormField(
-                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.GITHUB_APP_ID)),
-                        display_name=StringValue(value="GitHub App ID"),
-                        description=StringValue(value='e.g. "123456"'),
-                        helper_text=StringValue(value="Enter your GitHub App ID (found in your GitHub App settings)"),
-                        data_type=LiteralType.STRING,
-                        form_field_type=FormFieldType.TEXT_FT,
-                        is_optional=False
                     ),
-                    # Note: GITHUB_APP_PRIVATE_KEY is NOT shown in the form
-                    # It is retrieved from service settings (GITHUB_APP_PRIVATE_KEY) when needed
-                    # This is a service-level secret, same for all installations
-                    SourceKeyType.GITHUB_APP_INSTALLATION_ID: FormField(
-                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.GITHUB_APP_INSTALLATION_ID)),
-                        display_name=StringValue(value="GitHub App Installation ID"),
-                        description=StringValue(value='e.g. "12345678"'),
-                        helper_text=StringValue(value="Enter the Installation ID for your GitHub App (obtained after installing the app on an organization/account)"),
-                        data_type=LiteralType.STRING,
-                        form_field_type=FormFieldType.TEXT_FT,
-                        is_optional=False
-                    ),
-                    SourceKeyType.GITHUB_ORG: FormField(
-                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.GITHUB_ORG)),
-                        display_name=StringValue(value="GitHub Organization (Optional)"),
-                        description=StringValue(value='e.g. "my-org", "acme-corp"'),
-                        helper_text=StringValue(value="Enter the GitHub organization name if the app is installed on an organization. Leave empty if installed on a user account."),
+                    SourceKeyType.GITHUB_API_URL: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.GITHUB_API_URL)),
+                        display_name=StringValue(value="GitHub API URL (Optional)"),
+                        description=StringValue(value='e.g. "https://github.mycompany.com/api/v3"'),
+                        helper_text=StringValue(value="Leave empty for GitHub.com. For GitHub Enterprise Server, enter the API URL: https://<hostname>/api/v3"),
                         data_type=LiteralType.STRING,
                         form_field_type=FormFieldType.TEXT_FT,
                         is_optional=True
@@ -315,9 +289,8 @@ class GithubSourceManager(SourceManager):
             branch = task.branch.value
             commits = self.get_connector_processor(github_connector).get_file_commits(repo, file_path, branch)
             if not commits:
-                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT, text=TextResult(output=StringValue(
-                    value=f"No commits returned from Github for repo: {repo}, file: {file_path}, branch: {branch} and "
-                          f"function: {function_name}")), source=self.source)
+                return build_task_failure_result(self.source, f"No commits returned from Github for repo: {repo}, file: {file_path}, branch: {branch} and "
+                          f"function: {function_name}")
 
             # Loop through the commits and get the diff for each one
             related_commits = []
@@ -445,15 +418,13 @@ class GithubSourceManager(SourceManager):
                                                                                                time_until, author)
             
             if recent_commits is None:
-                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT, text=TextResult(output=StringValue(
-                    value=f"Failed to fetch commits from Github for repo: {repo}, branch: {branch}. The repository may not exist, the branch may not exist, or there may be an authentication issue.")), source=self.source)
+                return build_task_failure_result(self.source, f"Failed to fetch commits from Github for repo: {repo}, branch: {branch}. The repository may not exist, the branch may not exist, or there may be an authentication issue.")
             
             if not recent_commits or len(recent_commits) == 0:
                 time_filter_msg = ""
                 if time_since or time_until:
                     time_filter_msg = f" within the specified time range"
-                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT, text=TextResult(output=StringValue(
-                    value=f"No commits found for repo: {repo}, branch: {branch}{time_filter_msg}. Try removing time filters or checking if the branch has any commits.")), source=self.source)
+                return build_task_failure_result(self.source, f"No commits found for repo: {repo}, branch: {branch}{time_filter_msg}. Try removing time filters or checking if the branch has any commits.")
             
             response_struct = dict_to_proto({"recent_commits": recent_commits}, Struct)
             commit_output = ApiResponseResult(response_body=response_struct)
@@ -501,8 +472,7 @@ class GithubSourceManager(SourceManager):
                                                        commit_message=commit_message, committer_name=committer_name,
                                                        committer_email=committer_email)
             if not pr_details:
-                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT, text=TextResult(
-                    output=StringValue(value=f"Failed to create PR in repository {repo}")), source=self.source)
+                return build_task_failure_result(self.source, f"Failed to create PR in repository {repo}")
 
             # Check for error message
             if 'error' in pr_details:
@@ -510,8 +480,7 @@ class GithubSourceManager(SourceManager):
                 # Make error message more user-friendly
                 if "No commits between" in error_msg:
                     error_msg = "Branch exists but has no commits. Add commits before creating PR"
-                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
-                                          text=TextResult(output=StringValue(value=error_msg)), source=self.source)
+                return build_task_failure_result(self.source, error_msg)
 
             response_struct = dict_to_proto({"pr_number": pr_details['number'], "pr_url": pr_details['html_url']},
                                             Struct)

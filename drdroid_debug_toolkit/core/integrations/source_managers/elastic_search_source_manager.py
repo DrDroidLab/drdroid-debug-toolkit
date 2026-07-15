@@ -13,6 +13,7 @@ from core.protos.playbooks.playbook_commons_pb2 import PlaybookTaskResult, Table
 from core.protos.playbooks.source_task_definitions.elastic_search_task_pb2 import ElasticSearch as ElasticSearchProto
 from core.protos.ui_definition_pb2 import FormField, FormFieldType
 from core.utils.credentilal_utils import generate_credentials_dict, get_connector_key_type_string, DISPLAY_NAME, CATEGORY, DATABASES
+from core.integrations.utils.task_result_utils import build_task_failure_result, build_task_empty_result
 
 ACCOUNT_INDEX_MAPPING = {
     17: "apm-*"
@@ -577,21 +578,15 @@ class ElasticSearchSourceManager(SourceManager):
                 # Check if the result structure indicates an empty response (which could be from a missing index)
                 if result.get('hits', {}).get('total', {}).get('value') == 0 and not result.get('hits', {}).get('hits'):
                     # This could be a missing index scenario handled gracefully by the API processor
-                    return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT, text=TextResult(output=StringValue(
-                        value=f"Index '{index}' not found or no data returned from Elasticsearch for query: {lucene_query}. "
-                              f"This could indicate that the index doesn't exist or contains no matching documents.")),
-                                              source=self.source)
+                    return build_task_failure_result(self.source, f"Index '{index}' not found or no data returned from Elasticsearch for query: {lucene_query}. "
+                              f"This could indicate that the index doesn't exist or contains no matching documents.")
                 else:
-                    return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT, text=TextResult(output=StringValue(
-                        value=f"No data returned from Elastic Search for query: {lucene_query} on index: {index}")),
-                                              source=self.source)
+                    return build_task_failure_result(self.source, f"No data returned from Elastic Search for query: {lucene_query} on index: {index}")
 
             hits = result['hits']['hits']
             count_result = len(hits)
             if count_result == 0:
-                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT, text=TextResult(output=StringValue(
-                    value=f"No data returned from Elasticsearch for query: {lucene_query} on index: {index}")),
-                                          source=self.source)
+                return build_task_failure_result(self.source, f"No data returned from Elasticsearch for query: {lucene_query} on index: {index}")
 
             table_rows: [TableResult.TableRow] = []
             for hit in hits:
@@ -665,11 +660,7 @@ class ElasticSearchSourceManager(SourceManager):
             output += json.dumps(result, indent=2)
             output += "\n```"
 
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=output)),
-                source=self.source
-            )
+            return build_task_failure_result(self.source, output)
         except Exception as e:
             raise Exception(f"Error while checking ElasticSearch cluster health: {e}")
 
@@ -690,11 +681,7 @@ class ElasticSearchSourceManager(SourceManager):
             output += json.dumps(result, indent=2)
             output += "\n```"
 
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=output)),
-                source=self.source
-            )
+            return build_task_failure_result(self.source, output)
         except Exception as e:
             raise Exception(f"Error while fetching ElasticSearch node stats: {e}")
 
@@ -731,11 +718,7 @@ class ElasticSearchSourceManager(SourceManager):
                 )
                 return PlaybookTaskResult(type=PlaybookTaskResultType.LOGS, logs=table, source=self.source)
             else:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value="No indices found")),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, "No indices found")
         except Exception as e:
             raise Exception(f"Error while fetching ElasticSearch cat indices: {e}")
 
@@ -772,11 +755,7 @@ class ElasticSearchSourceManager(SourceManager):
                 )
                 return PlaybookTaskResult(type=PlaybookTaskResultType.LOGS, logs=table, source=self.source)
             else:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value="No thread pool search data found")),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, "No thread pool search data found")
         except Exception as e:
             raise Exception(f"Error while fetching ElasticSearch cat thread pool search: {e}")
 
@@ -809,11 +788,7 @@ class ElasticSearchSourceManager(SourceManager):
 
             buckets = result.get('aggregations', {}).get('per_minute', {}).get('buckets', [])
             if not buckets or len(buckets) < 2:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value="Not enough monitoring data to plot")),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, "Not enough monitoring data to plot")
 
             for i in range(1, len(buckets)):
 
@@ -1006,10 +981,7 @@ class ElasticSearchSourceManager(SourceManager):
             )
 
             if not metrics_data:
-                return [PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=f"No metrics data found for service: {service_name}")),
-                    source=self.source)]
+                return [build_task_empty_result(self.source, f"No metrics data found for service: {service_name}")]
 
             final_result = []
 
@@ -1198,12 +1170,7 @@ class ElasticSearchSourceManager(SourceManager):
             # with open('dashboard_data.json', 'w') as f:
             #     json.dump(dashboard_data, f)
             if not dashboard_data or not dashboard_data[0].get('data'):
-                return [PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(
-                        value=f"No data returned from Elastic Search for dashboard: {dashboard_name}")),
-                    source=self.source
-                )]
+                return [build_task_empty_result(self.source, f"No data returned from Elastic Search for dashboard: {dashboard_name}")]
 
             # Process each widget based on its type
             results = []
@@ -1335,10 +1302,7 @@ class ElasticSearchSourceManager(SourceManager):
             )
 
             if not transaction_data:
-                return [PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=f"No transaction data found for service: {service_name}")),
-                    source=self.source)]
+                return [build_task_empty_result(self.source, f"No transaction data found for service: {service_name}")]
 
             final_result = []
 
@@ -1538,12 +1502,7 @@ class ElasticSearchSourceManager(SourceManager):
             transaction_names = es_client.get_transaction_names_by_service(service_name=service_name, index_pattern=self._get_account_index(es_connector.account_id.value))
 
             if not transaction_names:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(
-                        output=StringValue(value=f"No transaction names found for service: {service_name}")),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, f"No transaction names found for service: {service_name}")
 
             # Convert to table format
             table_rows = []
@@ -1604,11 +1563,7 @@ class ElasticSearchSourceManager(SourceManager):
                                                       sort_by=sort_by, sort_order=sort_order, include_summary=True, index_pattern=self._get_account_index(es_connector.account_id.value))
 
             if not result or 'hits' not in result or not result['hits']['hits']:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=f"No traces found for service: {service_name}")),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, f"No traces found for service: {service_name}")
 
             hits = result['hits']['hits']
             summary = result.get('summary', {})
@@ -1727,11 +1682,7 @@ class ElasticSearchSourceManager(SourceManager):
                                                           sort_by=sort_by, sort_order=sort_order, include_summary=True, index_pattern=self._get_account_index(es_connector.account_id.value))
 
             if not result or 'hits' not in result or not result['hits']['hits']:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=f"No traces found for transaction: {transaction_name}")),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, f"No traces found for transaction: {transaction_name}")
 
             hits = result['hits']['hits']
             summary = result.get('summary', {})

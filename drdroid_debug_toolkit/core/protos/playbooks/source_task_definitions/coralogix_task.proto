@@ -9,6 +9,10 @@ message Coralogix {
     google.protobuf.StringValue from_time = 2;
     google.protobuf.StringValue to_time = 3;
     google.protobuf.UInt64Value limit = 4;
+    // Query language: "dataprime" (default) or "lucene". DataPrime is the
+    // newer, more capable language Coralogix uses by default. Lucene is the
+    // legacy field:value syntax, useful for simple text searches.
+    google.protobuf.StringValue syntax = 5;
   }
 
   message FetchDashboardWidgetsTask {
@@ -21,12 +25,20 @@ message Coralogix {
   message FetchDashboardVariablesTask {
     google.protobuf.StringValue dashboard_id = 1;
   }
-  
+
+  message FetchDashboardListTask {
+  }
+
   message FetchMetricsTask {
     google.protobuf.StringValue query = 1;
     google.protobuf.StringValue from_time = 2;
     google.protobuf.StringValue to_time = 3;
     google.protobuf.StringValue step = 4;
+    repeated google.protobuf.StringValue queries = 5;
+    // Per-series datapoint cap. 0/unset disables truncation.
+    google.protobuf.UInt64Value limit = 6;
+    // "right" (keep newest), "left" (keep oldest), or "sample" (evenly spaced).
+    google.protobuf.StringValue truncate_from = 7;
   }
 
   message FetchIndexMappingsTask {
@@ -59,6 +71,7 @@ message Coralogix {
     FETCH_ALERT_DEFS = 6;
     FETCH_SPANS = 7;
     FETCH_TRACE = 8;
+    FETCH_DASHBOARD_LIST = 9;
   }
 
   TaskType type = 1;
@@ -71,5 +84,6 @@ message Coralogix {
     FetchAlertDefsTask fetch_alert_defs = 7;
     FetchSpansTask fetch_spans = 8;
     FetchTraceTask fetch_trace = 9;
+    FetchDashboardListTask fetch_dashboard_list = 10;
   }
 }

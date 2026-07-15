@@ -37,6 +37,7 @@ from core.protos.playbooks.playbook_commons_pb2 import (
     TextResult,
     TimeseriesResult,
 )
+from core.integrations.utils.task_result_utils import build_task_failure_result, build_task_empty_result
 from core.protos.playbooks.source_task_definitions.signoz_task_pb2 import Signoz
 from core.protos.ui_definition_pb2 import FormField, FormFieldType
 from core.utils.credentilal_utils import generate_credentials_dict, get_connector_key_type_string, DISPLAY_NAME, CATEGORY, APPLICATION_MONITORING
@@ -540,7 +541,7 @@ def buildSignozUrl(api_url: str, task_type: str, params: dict = None) -> str:
         # Build final URL
         query_string = "&".join(url_params)
         return f"{frontend_url}/logs/logs-explorer?{query_string}"
-    
+
     elif task_type == "service_map":
         return f"{frontend_url}/service-map"
 
@@ -825,14 +826,6 @@ class SignozSourceManager(SourceManager):
                             string=StringValue(value="{}"),
                         ),
                         form_field_type=FormFieldType.MULTILINE_FT,  # Use multiline for JSON
-                    ),
-                    FormField(
-                        key_name=StringValue(value="panel_ids"),
-                        display_name=StringValue(value="Panel IDs"),
-                        description=StringValue(value="Comma-separated panel titles to query (max 4). If empty, queries all panels."),
-                        data_type=LiteralType.STRING,
-                        is_optional=True,
-                        form_field_type=FormFieldType.TEXT_FT,
                     ),
                 ],
             },
@@ -2010,11 +2003,10 @@ class SignozSourceManager(SourceManager):
             # Get parameters
             step = task.step.value if task.HasField("step") else None
             variables_json = task.variables_json.value if task.HasField("variables_json") else None
-            panel_ids = task.panel_ids.value if task.HasField("panel_ids") else None
 
             signoz_api_processor = self.get_connector_processor(signoz_connector)
             result = signoz_api_processor.fetch_dashboard_data(
-                dashboard_name, start_time, end_time, step, variables_json, panel_ids=panel_ids
+                dashboard_name, start_time, end_time, step, variables_json
             )
 
             if result and result.get("status") == "success":
@@ -2063,14 +2055,7 @@ class SignozSourceManager(SourceManager):
                         "end_time": end_time
                     })
                     
-                    return [
-                        PlaybookTaskResult(
-                            type=PlaybookTaskResultType.TEXT,
-                            text=TextResult(output=StringValue(value=f"No timeseries data could be extracted from dashboard: {dashboard_name}")),
-                            source=self.source,
-                            metadata=metadata,
-                        )
-                    ]
+                    return [build_task_empty_result(self.source, f"No timeseries data could be extracted from dashboard: {dashboard_name}", task_metadata=metadata)]
             else:
                 # Extract API URL and create metadata with SignOz URL
                 api_url = self._extract_api_url_from_connector(signoz_connector)
@@ -2081,15 +2066,7 @@ class SignozSourceManager(SourceManager):
                 })
                 
                 error_msg = result.get("message", "Failed to fetch dashboard data") if result else "Failed to fetch dashboard data"
-                return [
-                    PlaybookTaskResult(
-                        type=PlaybookTaskResultType.TEXT,
-                        text=TextResult(output=StringValue(value=error_msg)),
-                        source=self.source,
-                        metadata=metadata,
-                    )
-                ]
-
+                return [build_task_failure_result(self.source, error_msg, task_metadata=metadata)]
         except Exception as e:
             logger.error(f"Error while executing Signoz dashboard data task: {e}", exc_info=True)
             # Extract API URL and create metadata with SignOz URL
@@ -2100,15 +2077,7 @@ class SignozSourceManager(SourceManager):
                 "end_time": end_time
             })
             
-            return [
-                PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=f"Unexpected error executing dashboard task: {e}")),
-                    source=self.source,
-                    metadata=metadata,
-                )
-            ]
-
+            return [build_task_failure_result(self.source, f"Unexpected error executing dashboard task: {e}", task_metadata=metadata)]
     def execute_fetch_dashboards(
         self,
         time_range: TimeRange,
@@ -2151,24 +2120,13 @@ class SignozSourceManager(SourceManager):
                 # Extract API URL and create metadata with SignOz URL
                 api_url = self._extract_api_url_from_connector(signoz_connector)
                 metadata = self._create_metadata_with_signoz_url(api_url, "dashboards")
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.API_RESPONSE,
-                    text=TextResult(output=StringValue(value="Failed to fetch dashboards")),
-                    source=self.source,
-                    metadata=metadata,
-                )
+                return build_task_failure_result(self.source, "Failed to fetch dashboards", task_metadata=metadata)
         except Exception as e:
             logger.error(f"Error while executing Signoz fetch dashboards task: {e}")
             # Extract API URL and create metadata with SignOz URL for error case
             api_url = self._extract_api_url_from_connector(signoz_connector)
             metadata = self._create_metadata_with_signoz_url(api_url, "dashboards")
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.API_RESPONSE,
-                text=TextResult(output=StringValue(value=f"Error executing fetch dashboards task: {e}")),
-                source=self.source,
-                metadata=metadata,
-            )
-
+            return build_task_failure_result(self.source, f"Error executing fetch dashboards task: {e}", task_metadata=metadata)
     def execute_fetch_dashboard_details(
         self,
         time_range: TimeRange,
@@ -2256,12 +2214,7 @@ class SignozSourceManager(SourceManager):
                     "end_time": end_time
                 })
                 
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.API_RESPONSE,
-                    text=TextResult(output=StringValue(value=f"Failed to fetch dashboard details for ID: {dashboard_id}")),
-                    source=self.source,
-                    metadata=metadata,
-                )
+                return build_task_failure_result(self.source, f"Failed to fetch dashboard details for ID: {dashboard_id}", task_metadata=metadata)
         except Exception as e:
             logger.error(f"Error while executing Signoz fetch dashboard details task: {e}")
             # Extract time parameters from time_range for error case
@@ -2276,13 +2229,7 @@ class SignozSourceManager(SourceManager):
                 "end_time": end_time
             })
             
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.API_RESPONSE,
-                text=TextResult(output=StringValue(value=f"Error executing dashboard details task: {e}")),
-                source=self.source,
-                metadata=metadata,
-            )
-
+            return build_task_failure_result(self.source, f"Error executing dashboard details task: {e}", task_metadata=metadata)
     def execute_fetch_services(
         self,
         time_range: TimeRange,
@@ -2338,12 +2285,7 @@ class SignozSourceManager(SourceManager):
                     "end_time": end_time,
                     "duration": duration
                 })
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.API_RESPONSE,
-                    text=TextResult(output=StringValue(value="Failed to fetch services")),
-                    source=self.source,
-                    metadata=metadata,
-                )
+                return build_task_failure_result(self.source, "Failed to fetch services", task_metadata=metadata)
         except Exception as e:
             logger.error(f"Error while executing Signoz fetch services task: {e}")
             # Extract API URL and create metadata with SignOz URL for error case
@@ -2353,13 +2295,7 @@ class SignozSourceManager(SourceManager):
                 "end_time": end_time,
                 "duration": duration
             })
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.API_RESPONSE,
-                text=TextResult(output=StringValue(value=f"Error executing services task: {e}")),
-                source=self.source,
-                metadata=metadata,
-            )
-
+            return build_task_failure_result(self.source, f"Error executing services task: {e}", task_metadata=metadata)
     def execute_fetch_apm_metrics(
         self,
         time_range: TimeRange,
@@ -2455,11 +2391,10 @@ class SignozSourceManager(SourceManager):
                 if task_results:
                     return task_results
                 else:
-                    return [PlaybookTaskResult(
-                        type=PlaybookTaskResultType.API_RESPONSE,
-                        text=TextResult(output=StringValue(value="Failed to convert APM metrics to timeseries format")),
-                        source=self.source,
-                        metadata=metadata,
+                    return [build_task_failure_result(
+                        self.source,
+                        "Failed to convert APM metrics to timeseries format",
+                        task_metadata=metadata,
                     )]
             else:
                 # Extract API URL and create metadata with SignOz URL
@@ -2472,12 +2407,7 @@ class SignozSourceManager(SourceManager):
                 })
                 
                 error_msg = result.get("error", "Failed to fetch APM metrics") if result else "Failed to fetch APM metrics"
-                return [PlaybookTaskResult(
-                    type=PlaybookTaskResultType.API_RESPONSE,
-                    text=TextResult(output=StringValue(value=error_msg)),
-                    source=self.source,
-                    metadata=metadata,
-                )]
+                return [build_task_failure_result(self.source, error_msg, task_metadata=metadata)]
         except Exception as e:
             logger.error(f"Error while executing Signoz fetch APM metrics task: {e}")
             # Extract API URL and create metadata with SignOz URL for error case
@@ -2489,13 +2419,7 @@ class SignozSourceManager(SourceManager):
                 "window": window,
                 "duration": duration
             })
-            return [PlaybookTaskResult(
-                type=PlaybookTaskResultType.API_RESPONSE,
-                text=TextResult(output=StringValue(value=f"Error executing APM metrics task: {e}")),
-                source=self.source,
-                metadata=metadata,
-            )]
-
+            return [build_task_failure_result(self.source, f"Error executing APM metrics task: {e}", task_metadata=metadata)]
     def execute_fetch_logs(
         self,
         time_range: TimeRange,
@@ -2557,12 +2481,7 @@ class SignozSourceManager(SourceManager):
                     "limit": limit
                 })
                 
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.API_RESPONSE,
-                    text=TextResult(output=StringValue(value="Failed to fetch logs")),
-                    source=self.source,
-                    metadata=metadata,
-                )
+                return build_task_failure_result(self.source, "Failed to fetch logs", task_metadata=metadata)
         except Exception as e:
             logger.error(f"Error while executing Signoz fetch logs task: {e}")
             # Extract API URL and create metadata with SignOz URL for error case
@@ -2574,13 +2493,7 @@ class SignozSourceManager(SourceManager):
                 "duration": duration,
                 "limit": limit
             })
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.API_RESPONSE,
-                text=TextResult(output=StringValue(value=f"Error executing fetch logs task: {e}")),
-                source=self.source,
-                metadata=metadata,
-            )
-
+            return build_task_failure_result(self.source, f"Error executing fetch logs task: {e}", task_metadata=metadata)
     def _convert_apm_metrics_to_timeseries(self, apm_metrics_result: dict, service_name: str) -> typing.Optional[TimeseriesResult]:
         """Converts APM metrics result to TimeseriesResult format."""
         try:
@@ -2872,12 +2785,7 @@ class SignozSourceManager(SourceManager):
                     "limit": limit
                 })
                 
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.API_RESPONSE,
-                    text=TextResult(output=StringValue(value="Failed to fetch logs for trace")),
-                    source=self.source,
-                    metadata=metadata,
-                )
+                return build_task_failure_result(self.source, "Failed to fetch logs for trace", task_metadata=metadata)
         except Exception as e:
             logger.error(f"Error while executing Signoz fetch logs for trace task: {e}")
             # Extract API URL and create metadata with SignOz URL for error case
@@ -2886,13 +2794,7 @@ class SignozSourceManager(SourceManager):
                 "trace_id": trace_id,
                 "limit": limit
             })
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.API_RESPONSE,
-                text=TextResult(output=StringValue(value=f"Error executing fetch logs for trace task: {e}")),
-                source=self.source,
-                metadata=metadata,
-            )
-
+            return build_task_failure_result(self.source, f"Error executing fetch logs for trace task: {e}", task_metadata=metadata)
     def execute_fetch_traces(
         self,
         time_range: TimeRange,
@@ -2954,12 +2856,7 @@ class SignozSourceManager(SourceManager):
                     "limit": limit
                 })
                 
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.API_RESPONSE,
-                    text=TextResult(output=StringValue(value="Failed to fetch traces")),
-                    source=self.source,
-                    metadata=metadata,
-                )
+                return build_task_failure_result(self.source, "Failed to fetch traces", task_metadata=metadata)
         except Exception as e:
             logger.error(f"Error while executing Signoz fetch traces task: {e}")
             # Extract API URL and create metadata with SignOz URL for error case
@@ -2971,13 +2868,7 @@ class SignozSourceManager(SourceManager):
                 "duration": duration,
                 "limit": limit
             })
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.API_RESPONSE,
-                text=TextResult(output=StringValue(value=f"Error executing fetch traces task: {e}")),
-                source=self.source,
-                metadata=metadata,
-            )
-
+            return build_task_failure_result(self.source, f"Error executing fetch traces task: {e}", task_metadata=metadata)
     def execute_fetch_alert_rules(
         self,
         time_range: TimeRange,
@@ -3274,7 +3165,7 @@ class SignozSourceManager(SourceManager):
     def analyze_trace_correlation(self, trace_data, spans_data, logs_data):
         """
         Analyze correlation between traces, spans, and logs
-        
+
         Args:
             trace_data: Trace information
             spans_data: Spans data for the trace
