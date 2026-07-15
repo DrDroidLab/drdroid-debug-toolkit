@@ -132,3 +132,8 @@ Old investigations keep wrong historical stamps — out of scope unless a restam
 2. Update prototype `requirements.txt` pin → master SHA/tag.  
 3. Open tracking issues for TK-Product items if full monorepo parity is desired.  
 4. Do **not** reopen shared-manager TEXT→helper ports unless inventory regresses.
+
+
+## Related: 1.15 query patterns / self-learning
+
+**No toolkit changes required.** Pattern indexing lives in podracer + prototype purge table + Falcon UI. Toolkit emit stamps (5.19) feed indexing quality only.
