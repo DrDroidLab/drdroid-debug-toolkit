@@ -12,7 +12,7 @@ from core.protos.base_pb2 import TimeRange, Source, SourceModelType, SourceKeyTy
 from core.protos.connectors.connector_pb2 import Connector as ConnectorProto
 from core.protos.literal_pb2 import LiteralType, Literal
 from core.protos.playbooks.playbook_commons_pb2 import TimeseriesResult, LabelValuePair, PlaybookTaskResult, \
-    PlaybookTaskResultType, TableResult, TextResult
+    PlaybookTaskResultType, TableResult
 from core.protos.playbooks.source_task_definitions.gcm_task_pb2 import Gcm
 from core.protos.ui_definition_pb2 import FormField, FormFieldType
 from core.utils.credentilal_utils import generate_credentials_dict, get_connector_key_type_string, DISPLAY_NAME, CATEGORY, CLOUD_MANAGED_SERVICES
@@ -22,6 +22,7 @@ from core.utils.time_utils import calculate_timeseries_bucket_size
 
 
 logger = logging.getLogger(__name__)
+from core.integrations.utils.task_result_utils import build_task_failure_result, build_task_empty_result
 
 
 def _parse_gcm_timestamp(value: str) -> datetime:
@@ -334,11 +335,7 @@ class GcmSourceManager(SourceManager):
 
                 response = gcm_api_processor.execute_mql(query_with_time, project_id, interval)
                 if isinstance(response, str):
-                    return PlaybookTaskResult(
-                        type=PlaybookTaskResultType.TEXT,
-                        text=TextResult(output=StringValue(value=response)),
-                        source=self.source
-                    )
+                    return build_task_failure_result(self.source, response)
                 if not response:
                     print(f"No data returned from GCM for offset {offset} seconds")
                     continue
@@ -433,8 +430,7 @@ class GcmSourceManager(SourceManager):
             response = logs_api_processor.fetch_logs(filter_query, order_by=order_by, page_size=page_size,
                                                      page_token=page_token, resource_names=resource_names)
             if not response:
-                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT, text=TextResult(output=StringValue(
-                    value=f"No data returned from GCM Logs for query: {filter_query}")), source=self.source)
+                return build_task_empty_result(self.source, f"No data returned from GCM Logs for query: {filter_query}")
 
             table_rows = []
             for item in response:
@@ -488,11 +484,7 @@ class GcmSourceManager(SourceManager):
                 message += f"Project: {project_id}\n"
                 message += f"Dashboard URL: {dashboard_url}\n"
 
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=message)),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, message)
 
             print(
                 f"Playbook Task Downstream Request: Type -> VIEW_DASHBOARD_WIDGET, Account -> {gcm_connector.account_id.value}, "
@@ -594,11 +586,7 @@ class GcmSourceManager(SourceManager):
             message += f"Widget title: {widget_info['widget_title']}\n"
             message += f"Query details: {widget_info['query']}"
 
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=message)),
-                source=self.source
-            )
+            return build_task_failure_result(self.source, message)
         except Exception as e:
             logger.error(f"Error while executing GCM dashboard task: {e}")
             import traceback
@@ -641,13 +629,7 @@ class GcmSourceManager(SourceManager):
             # Find the spreadsheet by name
             spreadsheet = gcm_api_processor.find_spreadsheet_by_name(spreadsheet_name)
             if not spreadsheet:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(
-                        value=f"No spreadsheet found with name: {spreadsheet_name}"
-                    )),
-                    source=self.source
-                )
+                return build_task_empty_result(self.source, f"No spreadsheet found with name: {spreadsheet_name}")
 
             spreadsheet_id = spreadsheet['id']
 
@@ -655,13 +637,7 @@ class GcmSourceManager(SourceManager):
             values = gcm_api_processor.fetch_spreadsheet_values(spreadsheet_id, sheet_name, max_rows)
 
             if not values:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(
-                        value=f"No data found in spreadsheet '{spreadsheet_name}' in sheet '{sheet_name}'"
-                    )),
-                    source=self.source
-                )
+                return build_task_empty_result(self.source, f"No data found in spreadsheet '{spreadsheet_name}' in sheet '{sheet_name}'")
 
             # Handle the case where we want to include headers
             headers = []
@@ -701,11 +677,7 @@ class GcmSourceManager(SourceManager):
                     f"Data: {json_output}"
                 )
 
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=result_text)),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, result_text)
 
             # Support other formats as alternative options
             elif output_format == "TABLE":
@@ -752,33 +724,17 @@ class GcmSourceManager(SourceManager):
 
                 csv_content = output.getvalue()
 
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=csv_content)),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, csv_content)
 
             # Default fallback to ensure we always return a PlaybookTaskResult
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(
-                    value=f"Data retrieved from {spreadsheet_name}, but could not format with output_format={output_format}"
-                )),
-                source=self.source
-            )
+            return build_task_failure_result(self.source, f"Data retrieved from {spreadsheet_name}, but could not format with output_format={output_format}")
 
         except Exception as e:
             logger.error(f"Error while executing Google Sheets task: {e}")
             import traceback
             traceback.print_exc()
             # Return an error result rather than raising an exception
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(
-                    value=f"Error while executing Google Sheets task: {str(e)}"
-                )),
-                source=self.source
-            )
+            return build_task_failure_result(self.source, f"Error while executing Google Sheets task: {str(e)}")
 
     def execute_cloud_run_service_dashboard(self, time_range: TimeRange, gcm_task: Gcm,
                                             gcm_connector: ConnectorProto):
@@ -798,11 +754,7 @@ class GcmSourceManager(SourceManager):
                     f"2. Ensure the service account has the 'Monitoring Viewer' role\n"
                     f"3. Verify the service account key is valid and not expired"
                 )
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=error_message)),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, error_message)
 
             cloud_run_task = gcm_task.cloud_run_service_dashboard
             service_name = cloud_run_task.service_name.value
@@ -823,11 +775,7 @@ class GcmSourceManager(SourceManager):
                     message += f"{i}. {metric_name}\n"
                 message += f"\nCloud Run console URL: {cloud_run_url}"
 
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=message)),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, message)
 
             # Get metric info from the mapping
             if widget_name not in GCM_SERVICE_DASHBOARD_QUERIES:
@@ -840,13 +788,7 @@ class GcmSourceManager(SourceManager):
                 # If still not found, return an error
                 if widget_name not in GCM_SERVICE_DASHBOARD_QUERIES:
                     available_metrics = "\n".join([f"- {name}" for name in GCM_SERVICE_DASHBOARD_QUERIES.keys()])
-                    return PlaybookTaskResult(
-                        type=PlaybookTaskResultType.TEXT,
-                        text=TextResult(output=StringValue(
-                            value=f"Unknown metric type '{widget_name}'. Available metrics are:\n{available_metrics}"
-                        )),
-                        source=self.source
-                    )
+                    return build_task_failure_result(self.source, f"Unknown metric type '{widget_name}'. Available metrics are:\n{available_metrics}")
 
             aggregations = list(GCM_SERVICE_DASHBOARD_QUERIES[widget_name].keys())
 
@@ -944,11 +886,7 @@ class GcmSourceManager(SourceManager):
                 error_message += "3. You may not have sufficient permissions\n\n"
                 error_message += f"Verify the service in the Cloud Run console: {console_url}"
 
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=error_message)),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, error_message)
 
             # Process all aggregations into a single timeseries result
             labeled_metric_timeseries = []
@@ -1041,13 +979,7 @@ class GcmSourceManager(SourceManager):
                 flush=True)
 
             if not labeled_metric_timeseries:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(
-                        value=f"Retrieved data for '{widget_name}' but couldn't process it into a timeseries chart."
-                    )),
-                    source=self.source
-                )
+                return build_task_empty_result(self.source, f"Retrieved data for '{widget_name}' but couldn't process it into a timeseries chart.")
 
             # Create timeseries result
             timeseries_result = TimeseriesResult(

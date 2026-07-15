@@ -1,11 +1,11 @@
-"""Inventory guard: critical managers must emit structured empty/failure helpers.
+"""Inventory guard: source managers that on-prem converted must emit helpers.
 
-GCM is intentionally excluded — cloud master has MQL/datetime fixes that on-prem
-lacks, so that manager needs a surgical follow-up PR.
+Slack/documentation keep intentional TEXT on both trees (no helpers on-prem).
+Argo/Gardener are on-prem-only product connectors (proto + managers) — out of
+this emit-parity PR.
 
 Run: python -m pytest tests/test_source_manager_emit_inventory.py -v
 """
-import os
 from pathlib import Path
 
 import pytest
@@ -13,7 +13,7 @@ import pytest
 MANAGERS_DIR = Path(__file__).resolve().parents[1] / "drdroid_debug_toolkit" / "core" / "integrations" / "source_managers"
 
 # Max remaining PlaybookTaskResultType.TEXT occurrences after parity port.
-# Non-zero values are intentional leftovers (documented in on-prem).
+# Non-zero values match intentional leftovers that also remain on on-prem.
 TEXT_BUDGET = {
     "datadog_source_manager.py": 0,
     "grafana_source_manager.py": 0,
@@ -33,6 +33,7 @@ TEXT_BUDGET = {
     "big_query_source_manager.py": 0,
     "grafana_loki_source_manager.py": 0,
     "mimir_source_manager.py": 0,
+    "gcm_source_manager.py": 0,
 }
 
 
