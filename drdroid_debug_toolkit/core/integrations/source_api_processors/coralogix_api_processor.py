@@ -155,16 +155,20 @@ class CoralogixApiProcessor(Processor):
             return time_str
 
 
-    def fetch_logs(self, query: str = "*", from_time: str = "now-1h", to_time: str = "now", limit: int = 100):
+    def fetch_logs(self, query: str = "*", from_time: str = "now-1h", to_time: str = "now", limit: int = 100, syntax: str = "dataprime"):
         """
-        Fetch logs from Coralogix using Lucene queries via direct query API.
-        
+        Fetch logs from Coralogix via the direct DataPrime query API.
+
         Args:
-            query: Lucene query string
-            from_time: Start time for the query (e.g., "now-1h", "2023-01-01T00:00:00Z")
-            to_time: End time for the query (e.g., "now", "2023-01-01T01:00:00Z")
+            query: Query string. Interpretation depends on `syntax`:
+                - "dataprime" (default): full DataPrime pipeline, e.g.
+                  `source logs | filter $d.applicationName == 'artifactory' | limit 50`
+                - "lucene": legacy field:value syntax, e.g. `applicationname:artifactory`
+            from_time: Start time (e.g., "now-1h", "2023-01-01T00:00:00Z")
+            to_time: End time (e.g., "now", "2023-01-01T01:00:00Z")
             limit: Maximum number of logs to return
-            
+            syntax: "dataprime" (default) or "lucene"
+
         Returns:
             dict: API response containing logs
         """
@@ -172,16 +176,23 @@ class CoralogixApiProcessor(Processor):
             # Parse time strings to RFC3339 format
             start_time_rfc3339 = self._parse_time_to_rfc3339(from_time)
             end_time_rfc3339 = self._parse_time_to_rfc3339(to_time)
-            
+
+            # Map friendly name to the wire-format enum value.
+            syntax_str = (syntax or "dataprime").strip().lower()
+            if syntax_str == "lucene":
+                wire_syntax = "QUERY_SYNTAX_LUCENE"
+            else:
+                wire_syntax = "QUERY_SYNTAX_DATAPRIME"
+
             # Use the direct query API endpoint
             url = f'{self.__endpoint}/api/v1/dataprime/query'
-            
+
             # Direct query payload structure with proper format
             payload = {
                 "query": query,
                 "metadata": {
                     "tier": "TIER_FREQUENT_SEARCH",
-                    "syntax": "QUERY_SYNTAX_LUCENE",
+                    "syntax": wire_syntax,
                     "startDate": start_time_rfc3339,
                     "endDate": end_time_rfc3339,
                     "defaultSource": "logs",
@@ -309,68 +320,180 @@ class CoralogixApiProcessor(Processor):
             raise e
 
 
+    def _grpcurl(self, service_method: str, payload: str = ''):
+        """Invoke a Coralogix gRPC method via grpcurl and return parsed JSON."""
+        cmd = [
+            'grpcurl',
+            '-H', f'Authorization: Bearer {self.__api_key}',
+            '-d', payload,
+            self._get_grpc_host(),
+            service_method,
+        ]
+        try:
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=30, check=True)
+            return json.loads(result.stdout) if result.stdout.strip() else {}
+        except subprocess.CalledProcessError as e:
+            raise Exception(f"grpcurl {service_method} failed: {e.stderr.strip()}")
+        except subprocess.TimeoutExpired:
+            raise Exception(f"Timeout calling Coralogix gRPC {service_method}")
+        except json.JSONDecodeError as e:
+            raise Exception(f"Invalid JSON from {service_method}: {e}")
+        except FileNotFoundError:
+            raise Exception("grpcurl not found. Install: https://github.com/fullstorydev/grpcurl")
+
     def fetch_dashboards(self):
         """
-        Fetch all custom dashboards from Coralogix.
-        
+        Fetch the dashboard catalog via the Coralogix gRPC API.
+
+        gRPC: com.coralogixapis.dashboards.v1.services.DashboardCatalogService/GetDashboardCatalog
+
         Returns:
-            dict: API response containing dashboards
+            dict: {"items": [{id, name, isDefault, isPinned, createTime, updateTime, ...}, ...]}
         """
         try:
-            # Use the correct dashboards catalog API endpoint
-            url = f'{self.__endpoint}/mgmt/openapi/v1/dashboards/catalog'
-            
-            response = requests.get(
-                url, 
-                headers=self.headers, 
-                verify=self.__ssl_verify, 
-                timeout=60
+            return self._grpcurl(
+                "com.coralogixapis.dashboards.v1.services.DashboardCatalogService/GetDashboardCatalog"
             )
-            
-            if response.status_code == 200:
-                return response.json()
-            else:
-                raise Exception(
-                    f"Failed to fetch dashboards. Status Code: {response.status_code}. "
-                    f"Response Text: {response.text}"
-                )
-                
         except Exception as e:
             logger.error(f"Exception occurred while fetching dashboards: {e}")
-            raise e
+            raise
 
     def fetch_dashboard_details(self, dashboard_id: str):
         """
-        Fetch detailed information about a specific dashboard including its widgets.
-        
-        Args:
-            dashboard_id: The ID of the dashboard to fetch
-            
+        Fetch a single dashboard (with full layout/widgets) via the Coralogix gRPC API.
+
+        gRPC: com.coralogixapis.dashboards.v1.services.DashboardsService/GetDashboard
+
         Returns:
-            dict: API response containing dashboard details and widgets
+            dict: raw gRPC response of shape {"dashboard": {id, name, layout: {sections: [...]}, ...},
+                                              "createdAt", "updatedAt", ...}
         """
         try:
-            # Use the specific dashboard API endpoint
-            url = f'{self.__endpoint}/mgmt/openapi/v1/dashboards/dashboards/{dashboard_id}'
-            
-            response = requests.get(
-                url, 
-                headers=self.headers, 
-                verify=self.__ssl_verify, 
-                timeout=60
+            payload = json.dumps({"dashboardId": dashboard_id})
+            return self._grpcurl(
+                "com.coralogixapis.dashboards.v1.services.DashboardsService/GetDashboard",
+                payload=payload,
             )
-            
-            if response.status_code == 200:
-                return response.json()
-            else:
-                raise Exception(
-                    f"Failed to fetch dashboard details for ID {dashboard_id}. Status Code: {response.status_code}. "
-                    f"Response Text: {response.text}"
-                )
-                
         except Exception as e:
             logger.error(f"Exception occurred while fetching dashboard details for ID {dashboard_id}: {e}")
-            raise e
+            raise
+
+    def fetch_grafana_dashboards(self):
+        """
+        List Grafana dashboards exposed via the Coralogix-hosted Grafana proxy.
+
+        Coralogix bundles a Grafana instance reachable at <endpoint>/grafana/api/...
+        The native Coralogix dashboard catalog (DashboardCatalogService) does NOT
+        return these — they have to be enumerated through the Grafana search API.
+
+        Returns:
+            list[dict]: Grafana search results, each item shaped roughly as
+                        {uid, title, url, type, folderTitle, ...}.
+        """
+        try:
+            url = f'{self.__endpoint}/grafana/api/search'
+            response = requests.get(
+                url,
+                headers=self.headers,
+                params={'type': 'dash-db'},
+                verify=self.__ssl_verify,
+                timeout=60,
+            )
+            if response.status_code != 200:
+                raise Exception(
+                    f"Failed to list Grafana dashboards. Status Code: {response.status_code}. "
+                    f"Response Text: {response.text}"
+                )
+            return response.json() or []
+        except Exception as e:
+            logger.error(f"Exception occurred while listing Coralogix Grafana dashboards: {e}")
+            raise
+
+    def fetch_grafana_dashboard_details(self, uid: str):
+        """
+        Fetch a single Grafana dashboard (with full panel JSON) via the Coralogix
+        Grafana proxy.
+
+        Returns:
+            dict: Grafana API response of shape {"dashboard": {...}, "meta": {...}}.
+        """
+        try:
+            url = f'{self.__endpoint}/grafana/api/dashboards/uid/{uid}'
+            response = requests.get(
+                url,
+                headers=self.headers,
+                verify=self.__ssl_verify,
+                timeout=60,
+            )
+            if response.status_code != 200:
+                raise Exception(
+                    f"Failed to fetch Grafana dashboard {uid}. Status Code: {response.status_code}. "
+                    f"Response Text: {response.text}"
+                )
+            return response.json()
+        except Exception as e:
+            logger.error(f"Exception occurred while fetching Coralogix Grafana dashboard {uid}: {e}")
+            raise
+
+    def fetch_grafana_datasources(self):
+        """
+        List datasources configured in the Coralogix-bundled Grafana instance.
+
+        Returns:
+            list[dict]: Grafana datasource records, each shaped like
+                        {uid, name, type, url, ...}.
+        """
+        try:
+            url = f'{self.__endpoint}/grafana/api/datasources'
+            response = requests.get(
+                url,
+                headers=self.headers,
+                verify=self.__ssl_verify,
+                timeout=30,
+            )
+            if response.status_code != 200:
+                logger.error(
+                    f"fetch_grafana_datasources: HTTP {response.status_code} – {response.text[:200]}"
+                )
+                return []
+            return response.json() or []
+        except Exception as e:
+            logger.error(f"Exception occurred while listing Coralogix Grafana datasources: {e}")
+            return []
+
+    def fetch_grafana_prometheus_metric_names(self, promql_datasource_uid):
+        """
+        Fetch Prometheus metric names via the Coralogix-bundled Grafana datasource proxy.
+
+        Coralogix's bundled Grafana does not expose /api/v1/metadata (returns 404), so
+        we enumerate metric names via the standard label-values endpoint for the
+        special __name__ label instead. This is the same call Grafana's Explore UI
+        makes for metric autocomplete and is supported by any Prometheus-compatible
+        backend.
+        """
+        try:
+            url = (
+                f'{self.__endpoint}/grafana/api/datasources/proxy/uid/'
+                f'{promql_datasource_uid}/api/v1/label/__name__/values'
+            )
+            response = requests.get(
+                url,
+                headers=self.headers,
+                verify=self.__ssl_verify,
+                timeout=30,
+            )
+            if response and response.status_code == 200:
+                return response.json().get('data', []) or []
+            logger.error(
+                f"fetch_grafana_prometheus_metric_names: HTTP {response.status_code} – {response.text[:200]}"
+            )
+            return []
+        except Exception as e:
+            logger.error(
+                f"Exception fetching Coralogix Grafana Prometheus metric names for datasource "
+                f"{promql_datasource_uid}: {e}"
+            )
+            return []
 
     def fetch_dashboard_widgets(self, dashboard_id: str):
         """
@@ -508,27 +631,86 @@ class CoralogixApiProcessor(Processor):
             logger.error(f"Error executing metrics query: {e}")
             raise
 
-    def execute_spans_query(self, query: str, from_time: str = None, to_time: str = None):
+    def execute_spans_query(self, query: str, from_time: str = None, to_time: str = None, limit: int = 1000):
         """
-        Execute a spans query using Lucene.
-        
+        Execute a DataPrime spans query against the Coralogix DataPrime API.
+
+        Coralogix's spans index only returns results for QUERY_SYNTAX_DATAPRIME,
+        so this method requires DataPrime queries. The query is passed straight
+        through (a trailing `| limit N` is appended if none is present, and an
+        empty query is replaced with `source spans | limit N`).
+
         Args:
-            query: Spans query string
-            from_time: Start time for the query
-            to_time: End time for the query
-            
-        Returns:
-            dict: API response containing spans
+            query: DataPrime query, e.g. `source spans | filter $l.serviceName == 'frontend'`
+            from_time / to_time: time bounds (RFC3339 or "now-1h"-style)
+            limit: max spans to return (only applied when the query has no `| limit`)
+
+        Retries with TIER_ARCHIVE automatically (via execute_dataprime_spans_query).
         """
         try:
-            return self.execute_lucene_query(query, from_time, to_time, "spans")
+            q = (query or "").strip()
+            # Normalize invalid/ambiguous queries to valid DataPrime.
+            # "source spans" is the only valid spans source — Lucene (*) and
+            # other source names (e.g. "source traces") silently return nothing.
+            if not q or q == "*":
+                q = f"source spans | limit {limit}"
+            else:
+                import re as _re
+                # Replace any "source <other>" prefix with "source spans"
+                q = _re.sub(r"^source\s+\w+", "source spans", q, flags=_re.IGNORECASE)
+                # Prepend "source spans |" if the query doesn't address a source at all
+                if not _re.match(r"^source\s+spans\b", q, _re.IGNORECASE):
+                    q = f"source spans | {q}"
+                if "| limit" not in q:
+                    q = f"{q} | limit {limit}"
+            dataprime_query = q if "| limit" in q else f"{q} | limit {limit}"
+            return self.execute_dataprime_spans_query(dataprime_query, from_time, to_time)
         except Exception as e:
             logger.error(f"Error executing spans query: {e}")
             raise
 
+    def _run_dataprime_spans(self, dataprime_query: str, start_time_rfc3339: str,
+                              end_time_rfc3339: str, tier: str) -> list:
+        """Single DataPrime spans request for a given tier. Returns result list."""
+        url = f'{self.__endpoint}/api/v1/dataprime/query'
+        payload = {
+            "query": dataprime_query,
+            "metadata": {
+                "tier": tier,
+                "syntax": "QUERY_SYNTAX_DATAPRIME",
+                "startDate": start_time_rfc3339,
+                "endDate": end_time_rfc3339,
+                "defaultSource": "spans",
+            },
+        }
+        response = requests.post(url, headers=self.headers, json=payload,
+                                 verify=self.__ssl_verify, timeout=60)
+        if response.status_code != 200:
+            raise Exception(f"DataPrime spans query failed with status {response.status_code}: {response.text}")
+        results = []
+        for line in response.text.strip().split('\n'):
+            if not line.strip():
+                continue
+            try:
+                line_data = json.loads(line)
+                if "result" in line_data and "results" in line_data["result"]:
+                    for r in line_data["result"]["results"]:
+                        if isinstance(r, dict):
+                            results.append(r)
+                elif "results" in line_data:
+                    for r in line_data["results"]:
+                        if isinstance(r, dict):
+                            results.append(r)
+            except Exception as parse_err:
+                logger.warning(f"Could not parse DataPrime line: {parse_err}")
+        return results
+
     def execute_dataprime_spans_query(self, dataprime_query: str, from_time: str = None, to_time: str = None):
         """
         Execute a DataPrime query scoped to spans.
+
+        Tries TIER_FREQUENT_SEARCH first; falls back to TIER_ARCHIVE for accounts
+        that route spans to Monitoring & Compliance (archive) storage.
 
         Args:
             dataprime_query: Full DataPrime query string, e.g.
@@ -543,42 +725,11 @@ class CoralogixApiProcessor(Processor):
             start_time_rfc3339 = self._parse_time_to_rfc3339(from_time or "now-1h")
             end_time_rfc3339 = self._parse_time_to_rfc3339(to_time or "now")
 
-            url = f'{self.__endpoint}/api/v1/dataprime/query'
-            payload = {
-                "query": dataprime_query,
-                "metadata": {
-                    "tier": "TIER_FREQUENT_SEARCH",
-                    "syntax": "QUERY_SYNTAX_DATAPRIME",
-                    "startDate": start_time_rfc3339,
-                    "endDate": end_time_rfc3339,
-                    "defaultSource": "spans",
-                },
-            }
-
-            response = requests.post(
-                url, headers=self.headers, json=payload,
-                verify=self.__ssl_verify, timeout=60
-            )
-
-            if response.status_code != 200:
-                raise Exception(f"DataPrime spans query failed with status {response.status_code}: {response.text}")
-
-            results = []
-            for line in response.text.strip().split('\n'):
-                if not line.strip():
-                    continue
-                try:
-                    line_data = json.loads(line)
-                    if "result" in line_data and "results" in line_data["result"]:
-                        for r in line_data["result"]["results"]:
-                            if isinstance(r, dict):
-                                results.append(r)
-                    elif "results" in line_data:
-                        for r in line_data["results"]:
-                            if isinstance(r, dict):
-                                results.append(r)
-                except Exception as parse_err:
-                    logger.warning(f"Could not parse DataPrime line: {parse_err}")
+            results = self._run_dataprime_spans(dataprime_query, start_time_rfc3339,
+                                                end_time_rfc3339, "TIER_FREQUENT_SEARCH")
+            if not results:
+                results = self._run_dataprime_spans(dataprime_query, start_time_rfc3339,
+                                                    end_time_rfc3339, "TIER_ARCHIVE")
 
             return {"results": results, "count": len(results)}
 
@@ -832,10 +983,11 @@ class CoralogixApiProcessor(Processor):
         Runs three strategies and merges results so nothing is missed:
         1. DataPrime spans query — OTel ``service.name`` is stored as ``service_name``
            in the per-result ``labels`` dict; ``applicationName`` / ``subsystemName``
-           are in the per-result ``metadata`` dict.
+           are in the per-result ``metadata`` dict. Run across N time windows to
+           overcome the per-query row cap and capture less-active services.
         2. DataPrime logs query — ``applicationName`` / ``subsystemName`` from the
            per-result ``metadata`` dict (native Coralogix dimensions, covers services
-           that emit logs but have no APM spans).
+           that emit logs but have no APM spans). Also time-windowed.
         3. Prometheus label-values API for ``service_name`` (infrastructure /
            metrics-only services).
 
@@ -850,14 +1002,10 @@ class CoralogixApiProcessor(Processor):
         Returns:
             list[dict]: One entry per unique service_name with all available metadata.
         """
-        start_time_rfc3339 = self._parse_time_to_rfc3339(from_time)
-        end_time_rfc3339 = self._parse_time_to_rfc3339(to_time)
         url = f'{self.__endpoint}/api/v1/dataprime/query'
-        base_metadata = {
+        base_syntax = {
             "tier": "TIER_FREQUENT_SEARCH",
             "syntax": "QUERY_SYNTAX_DATAPRIME",
-            "startDate": start_time_rfc3339,
-            "endDate": end_time_rfc3339,
         }
 
         # Accumulate by service_name; later strategies can enrich earlier entries.
@@ -899,20 +1047,47 @@ class CoralogixApiProcessor(Processor):
                 return result
             return {}
 
-        # --- Strategy 1: spans ---
-        # labels contains: applicationName, subsystemName, serviceName (OTel service.name)
-        try:
-            payload = {
-                "query": "source spans | limit 5000",
-                "metadata": {**base_metadata, "defaultSource": "spans"},
-            }
-            response = requests.post(url, headers=self.headers, json=payload,
-                                     verify=self.__ssl_verify, timeout=60)
-            if response.status_code == 200:
-                results = _parse_dataprime_results(response.text)
-                for r in results:
-                    labels = _kv_list_to_dict(r.get("labels"))
+        # Split the full time range into N_WINDOWS equal sub-windows.
+        # Each window independently queries up to 5000 spans/logs, overcoming the
+        # per-query server-side row cap and capturing services active in different
+        # time periods (e.g. off-peak services, nightly batch jobs).
+        N_WINDOWS = 4
+        dt_end = datetime.strptime(self._parse_time_to_rfc3339(to_time), '%Y-%m-%dT%H:%M:%SZ')
+        dt_start = datetime.strptime(self._parse_time_to_rfc3339(from_time), '%Y-%m-%dT%H:%M:%SZ')
+        window_secs = max((dt_end - dt_start).total_seconds() / N_WINDOWS, 1)
+        time_windows = [
+            (
+                (dt_start + timedelta(seconds=i * window_secs)).strftime('%Y-%m-%dT%H:%M:%SZ'),
+                (dt_start + timedelta(seconds=(i + 1) * window_secs)).strftime('%Y-%m-%dT%H:%M:%SZ'),
+            )
+            for i in range(N_WINDOWS)
+        ]
 
+        for w_from, w_to in time_windows:
+            base_metadata = {**base_syntax, "startDate": w_from, "endDate": w_to}
+
+            # --- Strategy 1: spans ---
+            # labels contains: applicationName, subsystemName, serviceName (OTel service.name)
+            # Try TIER_FREQUENT_SEARCH first; fall back to TIER_ARCHIVE for accounts that
+            # route spans to Monitoring & Compliance (archive) storage.
+            try:
+                spans_results = []
+                for tier in ("TIER_FREQUENT_SEARCH", "TIER_ARCHIVE"):
+                    payload = {
+                        "query": "source spans | limit 5000",
+                        "metadata": {**base_metadata, "tier": tier, "defaultSource": "spans"},
+                    }
+                    response = requests.post(url, headers=self.headers, json=payload,
+                                             verify=self.__ssl_verify, timeout=60)
+                    if response.status_code == 200:
+                        spans_results = _parse_dataprime_results(response.text)
+                        if spans_results:
+                            logger.info(f"Strategy 1 (spans): {len(spans_results)} rows on tier {tier}")
+                            break
+                    else:
+                        logger.warning(f"Spans query [{w_from}] {tier} returned {response.status_code}: {response.text[:200]}")
+                for r in spans_results:
+                    labels = _kv_list_to_dict(r.get("labels"))
                     service_name = (
                         labels.get("servicename")
                         or labels.get("service_name")
@@ -920,54 +1095,42 @@ class CoralogixApiProcessor(Processor):
                     )
                     if not service_name:
                         continue
-
                     entry = merged.setdefault(service_name, {"service_name": service_name})
-                    # Store everything from labels for full context
                     for k, v in labels.items():
                         if v:
                             entry.setdefault(k, v)
+            except Exception as e:
+                logger.warning(f"Strategy 1 (spans) window {w_from}: {e}")
 
-                logger.info(f"Strategy 1 (spans): parsed {len(results)} rows, found {len(merged)} services so far")
-            else:
-                logger.warning(
-                    f"Spans DataPrime query returned {response.status_code}: {response.text[:200]}"
-                )
-        except Exception as e:
-            logger.warning(f"Strategy 1 (spans DataPrime) failed: {e}")
+            # --- Strategy 2: logs ---
+            # labels contains: applicationname, subsystemname (lowercased in logs)
+            try:
+                payload = {
+                    "query": "source logs | limit 5000",
+                    "metadata": {**base_metadata, "defaultSource": "logs"},
+                }
+                response = requests.post(url, headers=self.headers, json=payload,
+                                         verify=self.__ssl_verify, timeout=60)
+                if response.status_code == 200:
+                    results = _parse_dataprime_results(response.text)
+                    for r in results:
+                        labels = _kv_list_to_dict(r.get("labels"))
+                        app = labels.get("applicationname", "")
+                        subsystem = labels.get("subsystemname", "")
+                        service_name = subsystem or app
+                        if not service_name:
+                            continue
+                        entry = merged.setdefault(service_name, {"service_name": service_name})
+                        if app:
+                            entry.setdefault("applicationName", app)
+                        if subsystem:
+                            entry.setdefault("subsystemName", subsystem)
+                else:
+                    logger.warning(f"Logs query [{w_from}] returned {response.status_code}: {response.text[:200]}")
+            except Exception as e:
+                logger.warning(f"Strategy 2 (logs) window {w_from}: {e}")
 
-        # --- Strategy 2: logs ---
-        # labels contains: applicationname, subsystemname (lowercased in logs)
-        try:
-            payload = {
-                "query": "source logs | limit 5000",
-                "metadata": {**base_metadata, "defaultSource": "logs"},
-            }
-            response = requests.post(url, headers=self.headers, json=payload,
-                                     verify=self.__ssl_verify, timeout=60)
-            if response.status_code == 200:
-                results = _parse_dataprime_results(response.text)
-                for r in results:
-                    labels = _kv_list_to_dict(r.get("labels"))
-
-                    app = labels.get("applicationname", "")
-                    subsystem = labels.get("subsystemname", "")
-                    service_name = subsystem or app
-                    if not service_name:
-                        continue
-
-                    entry = merged.setdefault(service_name, {"service_name": service_name})
-                    if app:
-                        entry.setdefault("applicationName", app)
-                    if subsystem:
-                        entry.setdefault("subsystemName", subsystem)
-
-                logger.info(f"Strategy 2 (logs): parsed {len(results)} rows, found {len(merged)} services so far")
-            else:
-                logger.warning(
-                    f"Logs DataPrime query returned {response.status_code}: {response.text[:200]}"
-                )
-        except Exception as e:
-            logger.warning(f"Strategy 2 (logs DataPrime) failed: {e}")
+        logger.info(f"fetch_services: {len(merged)} unique services after {N_WINDOWS}-window spans/logs queries")
 
         # --- Strategy 3: Prometheus label-values for 'service_name' ---
         try:
@@ -976,7 +1139,7 @@ class CoralogixApiProcessor(Processor):
             for svc in values:
                 if svc:
                     merged.setdefault(svc, {"service_name": svc})
-            logger.info(f"Strategy 3 (Prometheus labels): found {len(merged)} services total")
+            logger.info(f"Strategy 3 (Prometheus labels): {len(merged)} total unique services")
         except Exception as e:
             logger.warning(f"Strategy 3 (Prometheus label-values) failed: {e}")
 
