@@ -7,7 +7,7 @@
 **Related consumer:** `prototype` (stamps `tool_call_status`; must pin this package)  
 **Verified:** 2026-07-15  
 
-> **This document is a plan only.** Emit work for shared managers is already on this branch — remaining items are merge/publish + optional product parity.
+> **This document is a plan only.** Emit work for shared managers is already on this branch — remaining items are merge/publish + optional product parity (Argo / Gardener / OpsGenie). Tool-call emit contract is complete; do not reopen TEXT→helper sweeps unless inventory regresses.
 
 ---
 
