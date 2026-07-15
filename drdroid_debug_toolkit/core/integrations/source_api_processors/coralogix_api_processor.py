@@ -338,12 +338,48 @@ class CoralogixApiProcessor(Processor):
             raise Exception(f"Timeout calling Coralogix gRPC {service_method}")
         except json.JSONDecodeError as e:
             raise Exception(f"Invalid JSON from {service_method}: {e}")
-        except FileNotFoundError:
-            raise Exception("grpcurl not found. Install: https://github.com/fullstorydev/grpcurl")
+        except FileNotFoundError as e:
+            # Signal to callers that they should try the REST management API instead.
+            raise FileNotFoundError(
+                "grpcurl not found. Install: https://github.com/fullstorydev/grpcurl"
+            ) from e
+
+    def _fetch_dashboards_rest(self):
+        """Legacy REST catalog — used when grpcurl is unavailable on the host."""
+        url = f'{self.__endpoint}/mgmt/openapi/v1/dashboards/catalog'
+        response = requests.get(
+            url,
+            headers=self.headers,
+            verify=self.__ssl_verify,
+            timeout=60,
+        )
+        if response.status_code == 200:
+            return response.json()
+        raise Exception(
+            f"Failed to fetch dashboards via REST. Status Code: {response.status_code}. "
+            f"Response Text: {response.text}"
+        )
+
+    def _fetch_dashboard_details_rest(self, dashboard_id: str):
+        """Legacy REST dashboard details — used when grpcurl is unavailable on the host."""
+        url = f'{self.__endpoint}/mgmt/openapi/v1/dashboards/dashboards/{dashboard_id}'
+        response = requests.get(
+            url,
+            headers=self.headers,
+            verify=self.__ssl_verify,
+            timeout=60,
+        )
+        if response.status_code == 200:
+            return response.json()
+        raise Exception(
+            f"Failed to fetch dashboard details for ID {dashboard_id} via REST. "
+            f"Status Code: {response.status_code}. Response Text: {response.text}"
+        )
 
     def fetch_dashboards(self):
         """
-        Fetch the dashboard catalog via the Coralogix gRPC API.
+        Fetch the dashboard catalog via the Coralogix gRPC API, with REST fallback
+        when grpcurl is not installed (common on cloud images).
 
         gRPC: com.coralogixapis.dashboards.v1.services.DashboardCatalogService/GetDashboardCatalog
 
@@ -354,13 +390,23 @@ class CoralogixApiProcessor(Processor):
             return self._grpcurl(
                 "com.coralogixapis.dashboards.v1.services.DashboardCatalogService/GetDashboardCatalog"
             )
+        except FileNotFoundError:
+            logger.warning(
+                "grpcurl not found; falling back to Coralogix REST dashboard catalog"
+            )
+            try:
+                return self._fetch_dashboards_rest()
+            except Exception as e:
+                logger.error(f"Exception occurred while fetching dashboards via REST: {e}")
+                raise
         except Exception as e:
             logger.error(f"Exception occurred while fetching dashboards: {e}")
             raise
 
     def fetch_dashboard_details(self, dashboard_id: str):
         """
-        Fetch a single dashboard (with full layout/widgets) via the Coralogix gRPC API.
+        Fetch a single dashboard (with full layout/widgets) via the Coralogix gRPC API,
+        with REST fallback when grpcurl is not installed.
 
         gRPC: com.coralogixapis.dashboards.v1.services.DashboardsService/GetDashboard
 
@@ -374,6 +420,19 @@ class CoralogixApiProcessor(Processor):
                 "com.coralogixapis.dashboards.v1.services.DashboardsService/GetDashboard",
                 payload=payload,
             )
+        except FileNotFoundError:
+            logger.warning(
+                "grpcurl not found; falling back to Coralogix REST dashboard details "
+                f"for id={dashboard_id}"
+            )
+            try:
+                return self._fetch_dashboard_details_rest(dashboard_id)
+            except Exception as e:
+                logger.error(
+                    f"Exception occurred while fetching dashboard details via REST "
+                    f"for ID {dashboard_id}: {e}"
+                )
+                raise
         except Exception as e:
             logger.error(f"Exception occurred while fetching dashboard details for ID {dashboard_id}: {e}")
             raise

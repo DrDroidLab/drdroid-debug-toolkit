@@ -2217,6 +2217,7 @@ class DatadogSourceManager(SourceManager):
         Returns:
             A PlaybookTaskResult containing monitors as API response
         """
+        query = None
         try:
             if not datadog_connector:
                 raise Exception("Task execution Failed:: No Datadog source found")
@@ -2296,6 +2297,10 @@ class DatadogSourceManager(SourceManager):
             )
 
         except Exception as e:
+            api_domain = self._extract_api_domain_from_connector(datadog_connector) if datadog_connector else None
+            metadata = self._create_metadata_with_datadog_url(api_domain, "query_monitors", {
+                "query": query
+            }) if api_domain is not None else None
             return self._finish_datadog_task_exception(
                 e,
                 empty_message=f"No monitors found for query: {query or '*'}",
@@ -2432,13 +2437,18 @@ class DatadogSourceManager(SourceManager):
             )
 
         except Exception as e:
-            api_domain = self._extract_api_domain_from_connector(datadog_connector)
-            metadata = self._create_metadata_with_datadog_url(
-                api_domain, "get_monitor", {"monitor_id": monitor_id}
+            monitor_id_safe = locals().get("monitor_id")
+            api_domain = self._extract_api_domain_from_connector(datadog_connector) if datadog_connector else None
+            metadata = (
+                self._create_metadata_with_datadog_url(
+                    api_domain, "get_monitor", {"monitor_id": monitor_id_safe}
+                )
+                if api_domain is not None
+                else None
             )
             return self._finish_datadog_task_exception(
                 e,
-                empty_message=f"Monitor {monitor_id} not found",
+                empty_message=f"Monitor {monitor_id_safe} not found",
                 task_metadata=metadata,
             )
 

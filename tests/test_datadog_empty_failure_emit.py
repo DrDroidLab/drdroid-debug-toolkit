@@ -66,6 +66,29 @@ def test_finish_exception_operational_reraises():
         )
 
 
+def test_query_monitors_exception_rebuilds_metadata():
+    """API failures before metadata assignment must not UnboundLocalError."""
+    mgr = DatadogSourceManager()
+    dd_task = MagicMock()
+    dd_task.query_monitors.query.value = "status:alert"
+    dd_task.query_monitors.sort.value = None
+    connector = MagicMock()
+
+    with patch.object(mgr, "get_connector_processor") as get_proc, patch.object(
+        mgr, "_extract_api_domain_from_connector", return_value="https://app.datadoghq.com"
+    ), patch.object(
+        mgr, "_create_metadata_with_datadog_url", return_value=MagicMock()
+    ) as make_meta, patch.object(
+        mgr, "_finish_datadog_task_exception", return_value=MagicMock(name="result")
+    ) as finish:
+        get_proc.return_value.query_monitors.side_effect = Exception("ApiException (404)")
+        out = mgr.execute_query_monitors(MagicMock(), dd_task, connector)
+        assert out is finish.return_value
+        make_meta.assert_called()
+        finish.assert_called_once()
+        assert "No monitors found" in finish.call_args.kwargs["empty_message"]
+
+
 def test_no_text_result_type_in_module_source():
     """Regression: empties must not ship as success TEXT."""
     path = os.path.join(
