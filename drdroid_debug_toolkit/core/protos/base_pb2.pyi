@@ -472,6 +472,13 @@ class _SourceKeyTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     DATABRICKS_TOKEN: _SourceKeyType.ValueType  # 167
     GITHUB_API_URL: _SourceKeyType.ValueType  # 168
     """Github specific keys"""
+    MCP_SERVER_OAUTH_ACCESS_TOKEN: _SourceKeyType.ValueType  # 177
+    """MCP Server OAuth keys"""
+    MCP_SERVER_OAUTH_REFRESH_TOKEN: _SourceKeyType.ValueType  # 178
+    MCP_SERVER_OAUTH_TOKEN_METADATA: _SourceKeyType.ValueType  # 179
+    MCP_SERVER_OAUTH_CLIENT_ID: _SourceKeyType.ValueType  # 180
+    MCP_SERVER_OAUTH_CLIENT_SECRET: _SourceKeyType.ValueType  # 181
+    MCP_SERVER_OAUTH_TOKEN_URL: _SourceKeyType.ValueType  # 182
 
 class SourceKeyType(_SourceKeyType, metaclass=_SourceKeyTypeEnumTypeWrapper): ...
 
@@ -637,6 +644,13 @@ DATABRICKS_HOST: SourceKeyType.ValueType  # 166
 DATABRICKS_TOKEN: SourceKeyType.ValueType  # 167
 GITHUB_API_URL: SourceKeyType.ValueType  # 168
 """Github specific keys"""
+MCP_SERVER_OAUTH_ACCESS_TOKEN: SourceKeyType.ValueType  # 177
+"""MCP Server OAuth keys"""
+MCP_SERVER_OAUTH_REFRESH_TOKEN: SourceKeyType.ValueType  # 178
+MCP_SERVER_OAUTH_TOKEN_METADATA: SourceKeyType.ValueType  # 179
+MCP_SERVER_OAUTH_CLIENT_ID: SourceKeyType.ValueType  # 180
+MCP_SERVER_OAUTH_CLIENT_SECRET: SourceKeyType.ValueType  # 181
+MCP_SERVER_OAUTH_TOKEN_URL: SourceKeyType.ValueType  # 182
 global___SourceKeyType = SourceKeyType
 
 class _SourceModelType:
