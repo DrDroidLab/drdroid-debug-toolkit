@@ -25,6 +25,7 @@ from core.protos.playbooks.playbook_commons_pb2 import (
     TimeseriesResult,
     TableResult
 )
+from core.integrations.utils.task_result_utils import build_task_failure_result, build_task_empty_result
 from core.protos.playbooks.source_task_definitions.grafana_task_pb2 import Grafana
 from core.protos.ui_definition_pb2 import FormField, FormFieldType
 from core.protos.base_pb2 import Source, SourceKeyType
@@ -884,11 +885,7 @@ class GrafanaSourceManager(SourceManager):
                                                        grafana_connector: ConnectorProto):
         try:
             if not grafana_connector:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value="Task execution Failed:: No Grafana source found")),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, "Task execution Failed:: No Grafana source found")
 
             task = grafana_task.prometheus_datasource_metric_execution
             datasource_uid = task.datasource_uid.value
@@ -930,12 +927,7 @@ class GrafanaSourceManager(SourceManager):
                     **time_params
                 })
                 
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=f"No data returned from Grafana for query: {queries}")),
-                    source=self.source,
-                    metadata=metadata
-                )
+                return build_task_empty_result(self.source, f"No data returned from Grafana for query: {queries}", task_metadata=metadata)
 
             # --- TimeseriesResult logic ---
             # Build a minimal panel_ref_map for the single query
@@ -979,22 +971,13 @@ class GrafanaSourceManager(SourceManager):
                 **time_params
             })
             
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=f"Error while executing Grafana task: {e}")),
-                source=self.source,
-                metadata=metadata
-            )
+            return build_task_failure_result(self.source, f"Error while executing Grafana task: {e}", task_metadata=metadata)
 
     def execute_fetch_dashboard_variable_label_values(self, time_range: TimeRange, grafana_task: Grafana,
                                                       grafana_connector: ConnectorProto):
         try:
             if not grafana_connector:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value="Task execution Failed:: No Grafana source found")),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, "Task execution Failed:: No Grafana source found")
 
             task = grafana_task.fetch_dashboard_variable_label_values
             datasource_uid = task.datasource_uid.value
@@ -1020,12 +1003,7 @@ class GrafanaSourceManager(SourceManager):
                     **time_params
                 })
                 
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=f"No label values returned from Grafana for label: {label_name}")),
-                    source=self.source,
-                    metadata=metadata
-                )
+                return build_task_empty_result(self.source, f"No label values returned from Grafana for label: {label_name}", task_metadata=metadata)
 
             # Convert the list of label values to a structured response
             response_data = {
@@ -1060,22 +1038,13 @@ class GrafanaSourceManager(SourceManager):
                 **time_params
             })
             
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=f"Error while executing Grafana fetch dashboard variable label values task: {e}")),
-                source=self.source,
-                metadata=metadata
-            )
+            return build_task_failure_result(self.source, f"Error while executing Grafana fetch dashboard variable label values task: {e}", task_metadata=metadata)
 
     def execute_fetch_dashboard_variables(self, time_range: TimeRange, grafana_task: Grafana,
                                          grafana_connector: ConnectorProto):
         try:
             if not grafana_connector:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value="Task execution Failed:: No Grafana source found")),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, "Task execution Failed:: No Grafana source found")
 
             # Access the task using the correct attribute name from the proto
             if hasattr(grafana_task, 'fetch_dashboard_variables'):
@@ -1092,12 +1061,7 @@ class GrafanaSourceManager(SourceManager):
                     "orgId": "1"
                 })
                 
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value="Task type not properly configured in proto")),
-                    source=self.source,
-                    metadata=metadata
-                )
+                return build_task_failure_result(self.source, "Task type not properly configured in proto", task_metadata=metadata, response_status=400)
             
             dashboard_uid = task.dashboard_uid.value
             # Precompute metadata for all return paths
@@ -1147,21 +1111,11 @@ class GrafanaSourceManager(SourceManager):
             variables_data = grafana_api_processor.get_dashboard_variables(dashboard_uid, fixed_variables, time_range)
             
             if not variables_data:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=f"No variables found for dashboard: {dashboard_uid}. Send an empty dictionary for template variables")),
-                    source=self.source,
-                    metadata=metadata
-                )
+                return build_task_empty_result(self.source, f"No variables found for dashboard: {dashboard_uid}. Send an empty dictionary for template variables", task_metadata=metadata)
 
             if not variables_data.get('variables'):
                 message = variables_data.get('message', f"No variables found for dashboard: {dashboard_uid}. Send an empty dictionary for template variables")
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=message)),
-                    source=self.source,
-                    metadata=metadata,
-                )
+                return build_task_empty_result(self.source, message, task_metadata=metadata)
 
             # Ensure we have a proper Struct instance
             if isinstance(variables_data, dict):
@@ -1185,11 +1139,10 @@ class GrafanaSourceManager(SourceManager):
                 "orgId": "1"
             })
             
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=f"Error executing dashboard variables task: {str(e)}")),
-                source=self.source,
-                metadata=metadata
+            return build_task_failure_result(
+                self.source,
+                f"Error executing dashboard variables task: {str(e)}",
+                task_metadata=metadata,
             )
 
     def execute_fetch_alert_rules(self, time_range: TimeRange, grafana_task: Grafana,
@@ -1203,19 +1156,10 @@ class GrafanaSourceManager(SourceManager):
 
         try:
             if not grafana_connector:
-                response_data = {
-                    "error": "Task execution Failed:: No Grafana source found",
-                    "alert_rules": [],
-                    "count": 0
-                }
-                response_struct = Struct()
-                response_struct.update(response_data)
-                output = ApiResponseResult(response_body=response_struct)
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.API_RESPONSE,
-                    api_response=output,
-                    source=self.source,
-                    metadata=metadata
+                return build_task_failure_result(
+                    self.source,
+                    "Task execution Failed:: No Grafana source found",
+                    task_metadata=metadata,
                 )
 
             grafana_api_processor = self.get_connector_processor(grafana_connector)
@@ -1227,18 +1171,17 @@ class GrafanaSourceManager(SourceManager):
 
             alert_rules = grafana_api_processor.fetch_alert_rules()
 
-            # Convert the alert rules to a structured response
-            # Handle both empty/None cases and successful responses
             if not alert_rules:
-                response_data = {
-                    "alert_rules": [],
-                    "count": 0
-                }
-            else:
-                response_data = {
-                    "alert_rules": alert_rules,
-                    "count": len(alert_rules) if isinstance(alert_rules, list) else 1
-                }
+                return build_task_empty_result(
+                    self.source,
+                    "No alert rules found in Grafana",
+                    task_metadata=metadata,
+                )
+
+            response_data = {
+                "alert_rules": alert_rules,
+                "count": len(alert_rules) if isinstance(alert_rules, list) else 1
+            }
 
             # Ensure we have a proper Struct instance
             if isinstance(response_data, dict):
@@ -1254,22 +1197,10 @@ class GrafanaSourceManager(SourceManager):
             return task_result
         except Exception as e:
             logger.error(f"Error while executing Grafana fetch alert rules task: {e}")
-
-            # Return error as API_RESPONSE
-            response_data = {
-                "error": f"Error executing fetch alert rules task: {str(e)}",
-                "alert_rules": [],
-                "count": 0
-            }
-            response_struct = Struct()
-            response_struct.update(response_data)
-            output = ApiResponseResult(response_body=response_struct)
-
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.API_RESPONSE,
-                api_response=output,
-                source=self.source,
-                metadata=metadata
+            return build_task_failure_result(
+                self.source,
+                f"Error executing fetch alert rules task: {str(e)}",
+                task_metadata=metadata,
             )
 
     def _extract_template_variable_values(self, dashboard_dict: dict) -> dict:
@@ -2408,11 +2339,7 @@ class GrafanaSourceManager(SourceManager):
         """Executes all query targets for all panels in a given Grafana dashboard."""
         try:
             if not grafana_connector:
-                return [PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value="Task execution Failed:: No Grafana source found")),
-                    source=self.source
-                )]
+                raise Exception("Task execution Failed:: No Grafana source found")
 
             task = grafana_task.execute_all_dashboard_panels
             dashboard_uid = task.dashboard_uid.value
@@ -2421,14 +2348,12 @@ class GrafanaSourceManager(SourceManager):
                 interval = 60
             interval_ms = interval * 1000
             grafana_api_processor = self.get_connector_processor(grafana_connector)
+            # Assuming panel_ids is a string field in the proto message (comma-separated)
             panel_ids_filter = None
             if task.HasField("panel_ids") and task.panel_ids.value:
-                raw_panel_ids = task.panel_ids.value
-                if isinstance(raw_panel_ids, list):
-                    panel_ids_filter = [str(int(float(pid))) for pid in raw_panel_ids if str(pid).strip()]
-                else:
-                    panel_ids_filter = [str(int(float(pid.strip()))) for pid in raw_panel_ids.split(",") if
-                                        pid.strip()]
+                # Split the comma-separated string and remove any leading/trailing whitespace
+                panel_ids_filter = [str(int(float(pid.strip()))) for pid in task.panel_ids.value.split(",") if
+                                    pid.strip()]
 
             # 1. Fetch and parse dashboard details
             dashboard_details_response = grafana_api_processor.fetch_dashboard_details(dashboard_uid)
@@ -2519,15 +2444,7 @@ class GrafanaSourceManager(SourceManager):
                     "orgId": "1"
                 })
                 
-                return [PlaybookTaskResult(
-                    source=self.source,
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(
-                        output=StringValue(
-                            value=f"No valid metric queries could be found for dashboard UID: {dashboard_uid} {filter_message}")
-                    ),
-                    metadata=metadata
-                )]
+                return [build_task_empty_result(self.source, f"No valid metric queries could be found for dashboard UID: {dashboard_uid} {filter_message}", task_metadata=metadata)]
 
             # 4. Execute API call
             print(
@@ -2568,13 +2485,7 @@ class GrafanaSourceManager(SourceManager):
                     "orgId": "1"
                 })
                 
-                return [PlaybookTaskResult(
-                    source=self.source,
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(
-                        value=f"No data returned from Grafana API for dashboard UID: {dashboard_uid}")),
-                    metadata=metadata
-                )]
+                return [build_task_empty_result(self.source, f"No data returned from Grafana API for dashboard UID: {dashboard_uid}", task_metadata=metadata)]
 
             # 5. Diagnose any execution issues
             self._diagnose_dashboard_execution_issues(dashboard_uid, all_queries, panel_ref_map, response)
@@ -2598,10 +2509,7 @@ class GrafanaSourceManager(SourceManager):
             if len(all_task_results) > 0:
                 return all_task_results
             else:
-                return [PlaybookTaskResult(
-                    source=self.source, type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value="No data found for the given query"))
-                )]
+                return [build_task_failure_result(self.source, "No data found for the given query")]
 
         except requests.exceptions.HTTPError as e:
             error_message = f"Error executing Grafana task for dashboard {grafana_task.execute_all_dashboard_panels.dashboard_uid.value}: {e}"
@@ -2622,11 +2530,7 @@ class GrafanaSourceManager(SourceManager):
                 "orgId": "1"
             })
             
-            return [PlaybookTaskResult(
-                source=self.source, type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=error_message)),
-                metadata=metadata
-            )]
+            return [build_task_failure_result(self.source, error_message, task_metadata=metadata)]
 
         except Exception as e:
             logger.error(
@@ -2643,12 +2547,9 @@ class GrafanaSourceManager(SourceManager):
                 "orgId": "1"
             })
             
-            error_result = PlaybookTaskResult(
-                source=self.source, type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=error_message)),
-                metadata=metadata
-            )
-            return [error_result]
+            return [build_task_failure_result(
+                self.source, error_message, task_metadata=metadata,
+            )]
 
     def _calculate_bucket_size_seconds(self, total_seconds):
         """Calculate appropriate bucket size based on duration, aiming for < MAX_DATA_POINTS buckets."""
@@ -2756,11 +2657,7 @@ class GrafanaSourceManager(SourceManager):
         """Executes a LogQL query against a Loki datasource."""
         try:
             if not grafana_connector:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value="Task execution Failed:: No Grafana source found")),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, "Task execution Failed:: No Grafana source found")
 
             task = grafana_task.loki_datasource_log_query
             datasource_uid = task.datasource_uid.value
@@ -2812,12 +2709,7 @@ class GrafanaSourceManager(SourceManager):
                     **self._get_grafana_time_params(time_range)
                 })
                 
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=f"No data returned from Grafana Loki for query: {logql_query}")),
-                    source=self.source,
-                    metadata=metadata
-                )
+                return build_task_empty_result(self.source, f"No data returned from Grafana Loki for query: {logql_query}", task_metadata=metadata)
 
             # Parse the Loki response into a structured format
             parsed_logs = self._parse_loki_response(response, logql_query)
@@ -2831,12 +2723,7 @@ class GrafanaSourceManager(SourceManager):
                     **self._get_grafana_time_params(time_range)
                 })
                 
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=f"No log entries found for query: {logql_query}")),
-                    source=self.source,
-                    metadata=metadata
-                )
+                return build_task_empty_result(self.source, f"No log entries found for query: {logql_query}", task_metadata=metadata)
 
             # Create metadata with Grafana URL using effective host
             metadata = self._create_metadata_with_grafana_url(grafana_connector, "explore", {
@@ -2854,17 +2741,19 @@ class GrafanaSourceManager(SourceManager):
 
         except Exception as e:
             # A genuine execution error reaches here (4xx/5xx from Grafana's /api/ds/query, a LogQL
-            # parse error, or datasource-not-found). This used to be RETURNED as a TEXT result, which
-            # postprocess_task_result then stamped status=FINISHED — so the caller saw a successful task
-            # and the agent concluded "no relevant logs" (a silent false-negative in RCAs, and invisible
-            # to failure monitoring). RAISE instead so it surfaces as a real tool failure (execute_task
-            # wraps it as "Error while executing task for source: grafana ..."), letting the agent see the
-            # actual reason and retry. Genuine empty/no-data results are handled gracefully above and
-            # never reach this block.
-            raise Exception(
-                f"Grafana Loki query failed (datasource '{locals().get('datasource_uid', '?')}', "
-                f"query '{locals().get('logql_query', '?')}'): {e}"
-            )
+            # parse error, or datasource-not-found). Return a task-FAILURE result (not a FINISHED TEXT
+            # result) so the caller sees a real failure instead of concluding "no logs" — the error `e`
+            # now carries the Grafana response body (see panel_query_datasource_api). Genuine empty/no-data
+            # results are handled gracefully above and never reach this block.
+            time_params = self._get_grafana_time_params(time_range)
+            metadata = self._create_metadata_with_grafana_url(grafana_connector, "explore", {
+                "datasource_uid": datasource_uid,
+                "query": logql_query,
+                "orgId": "1",
+                **time_params
+            })
+
+            return build_task_failure_result(self.source, f"Error while executing Grafana Loki task: {e}", task_metadata=metadata)
 
     def _parse_loki_response(self, response: dict, query: str) -> list[dict]:
         """Parses Loki response frames into structured log entries."""
@@ -3040,11 +2929,7 @@ class GrafanaSourceManager(SourceManager):
         traceql_query = None
         try:
             if not grafana_connector:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value="Task execution Failed:: No Grafana source found")),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, "Task execution Failed:: No Grafana source found")
 
             task = grafana_task.tempo_datasource_trace_search
             datasource_uid = task.datasource_uid.value
@@ -3075,12 +2960,7 @@ class GrafanaSourceManager(SourceManager):
             })
 
             if not response or 'traces' not in response or not response['traces']:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=f"No traces found for query: {traceql_query}")),
-                    source=self.source,
-                    metadata=metadata
-                )
+                return build_task_empty_result(self.source, f"No traces found for query: {traceql_query}", task_metadata=metadata)
 
             traces = response['traces']
             table_rows = []
@@ -3135,12 +3015,7 @@ class GrafanaSourceManager(SourceManager):
                 "orgId": "1",
                 **time_params
             })
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=f"Error while executing Grafana Tempo trace search: {e}")),
-                source=self.source,
-                metadata=metadata
-            )
+            return build_task_failure_result(self.source, f"Error while executing Grafana Tempo trace search: {e}", task_metadata=metadata)
 
     def execute_tempo_datasource_get_trace(self, time_range: TimeRange, grafana_task: Grafana,
                                            grafana_connector: ConnectorProto):
@@ -3149,11 +3024,7 @@ class GrafanaSourceManager(SourceManager):
         trace_id = None
         try:
             if not grafana_connector:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value="Task execution Failed:: No Grafana source found")),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, "Task execution Failed:: No Grafana source found")
 
             task = grafana_task.tempo_datasource_get_trace
             datasource_uid = task.datasource_uid.value
@@ -3177,12 +3048,7 @@ class GrafanaSourceManager(SourceManager):
             })
 
             if not response:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=f"No trace found for ID: {trace_id}")),
-                    source=self.source,
-                    metadata=metadata
-                )
+                return build_task_empty_result(self.source, f"No trace found for ID: {trace_id}", task_metadata=metadata)
 
             # Parse OTLP trace response - flatten spans into table rows
             table_rows = []
@@ -3237,12 +3103,7 @@ class GrafanaSourceManager(SourceManager):
                         table_rows.append(TableResult.TableRow(columns=table_columns))
 
             if not table_rows:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=f"Trace {trace_id} found but contains no spans")),
-                    source=self.source,
-                    metadata=metadata
-                )
+                return build_task_empty_result(self.source, f"Trace {trace_id} found but contains no spans", task_metadata=metadata)
 
             table_result = TableResult(
                 raw_query=StringValue(value=f"Trace ID: ```{trace_id}```"),
@@ -3262,12 +3123,7 @@ class GrafanaSourceManager(SourceManager):
                 "orgId": "1",
                 **time_params
             })
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=f"Error while fetching Grafana Tempo trace: {e}")),
-                source=self.source,
-                metadata=metadata
-            )
+            return build_task_failure_result(self.source, f"Error while fetching Grafana Tempo trace: {e}", task_metadata=metadata)
 
     @staticmethod
     def _normalize_tempo_labels(labels):
@@ -3288,11 +3144,7 @@ class GrafanaSourceManager(SourceManager):
         metrics_query = None
         try:
             if not grafana_connector:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value="Task execution Failed:: No Grafana source found")),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, "Task execution Failed:: No Grafana source found")
 
             task = grafana_task.tempo_datasource_metrics_query_range
             datasource_uid = task.datasource_uid.value
@@ -3322,12 +3174,7 @@ class GrafanaSourceManager(SourceManager):
             })
 
             if not response or 'series' not in response or not response['series']:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=f"No metrics data returned for query: {metrics_query}")),
-                    source=self.source,
-                    metadata=metadata
-                )
+                return build_task_empty_result(self.source, f"No metrics data returned for query: {metrics_query}", task_metadata=metadata)
 
             # Parse Prometheus-style range response into timeseries
             timeseries_list = []
@@ -3377,12 +3224,7 @@ class GrafanaSourceManager(SourceManager):
                 "orgId": "1",
                 **time_params
             })
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=f"Error while executing Tempo metrics range query: {e}")),
-                source=self.source,
-                metadata=metadata
-            )
+            return build_task_failure_result(self.source, f"Error while executing Tempo metrics range query: {e}", task_metadata=metadata)
 
     def execute_tempo_datasource_metrics_query_instant(self, time_range: TimeRange, grafana_task: Grafana,
                                                        grafana_connector: ConnectorProto):
@@ -3391,11 +3233,7 @@ class GrafanaSourceManager(SourceManager):
         metrics_query = None
         try:
             if not grafana_connector:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value="Task execution Failed:: No Grafana source found")),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, "Task execution Failed:: No Grafana source found")
 
             task = grafana_task.tempo_datasource_metrics_query_instant
             datasource_uid = task.datasource_uid.value
@@ -3424,12 +3262,7 @@ class GrafanaSourceManager(SourceManager):
             })
 
             if not response or 'series' not in response or not response['series']:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=f"No metrics data returned for query: {metrics_query}")),
-                    source=self.source,
-                    metadata=metadata
-                )
+                return build_task_empty_result(self.source, f"No metrics data returned for query: {metrics_query}", task_metadata=metadata)
 
             # Parse instant query response into table
             table_rows = []
@@ -3466,12 +3299,7 @@ class GrafanaSourceManager(SourceManager):
                 "orgId": "1",
                 **time_params
             })
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=f"Error while executing Tempo metrics instant query: {e}")),
-                source=self.source,
-                metadata=metadata
-            )
+            return build_task_failure_result(self.source, f"Error while executing Tempo metrics instant query: {e}", task_metadata=metadata)
 
     def execute_tempo_datasource_get_services(self, time_range: TimeRange, grafana_task: Grafana,
                                               grafana_connector: ConnectorProto):
@@ -3479,11 +3307,7 @@ class GrafanaSourceManager(SourceManager):
         datasource_uid = None
         try:
             if not grafana_connector:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value="Task execution Failed:: No Grafana source found")),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, "Task execution Failed:: No Grafana source found")
 
             task = grafana_task.tempo_datasource_get_services
             datasource_uid = task.datasource_uid.value
@@ -3506,12 +3330,7 @@ class GrafanaSourceManager(SourceManager):
 
             tag_values = response.get('tagValues', [])
             if not tag_values:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value="No services found in Tempo")),
-                    source=self.source,
-                    metadata=metadata
-                )
+                return build_task_empty_result(self.source, "No services found in Tempo", task_metadata=metadata)
 
             table_rows = []
             for tv in tag_values:
@@ -3537,12 +3356,7 @@ class GrafanaSourceManager(SourceManager):
                 "orgId": "1",
                 **self._get_grafana_time_params(time_range)
             })
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=f"Error while fetching Tempo services: {e}")),
-                source=self.source,
-                metadata=metadata
-            )
+            return build_task_failure_result(self.source, f"Error while fetching Tempo services: {e}", task_metadata=metadata)
 
     def execute_tempo_datasource_get_tags(self, time_range: TimeRange, grafana_task: Grafana,
                                           grafana_connector: ConnectorProto):
@@ -3550,11 +3364,7 @@ class GrafanaSourceManager(SourceManager):
         datasource_uid = None
         try:
             if not grafana_connector:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value="Task execution Failed:: No Grafana source found")),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, "Task execution Failed:: No Grafana source found")
 
             task = grafana_task.tempo_datasource_get_tags
             datasource_uid = task.datasource_uid.value
@@ -3578,12 +3388,7 @@ class GrafanaSourceManager(SourceManager):
 
             scopes = response.get('scopes', [])
             if not scopes:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value="No tags found in Tempo")),
-                    source=self.source,
-                    metadata=metadata
-                )
+                return build_task_empty_result(self.source, "No tags found in Tempo", task_metadata=metadata)
 
             table_rows = []
             for scope_entry in scopes:
@@ -3612,12 +3417,7 @@ class GrafanaSourceManager(SourceManager):
                 "orgId": "1",
                 **self._get_grafana_time_params(time_range)
             })
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=f"Error while fetching Tempo tags: {e}")),
-                source=self.source,
-                metadata=metadata
-            )
+            return build_task_failure_result(self.source, f"Error while fetching Tempo tags: {e}", task_metadata=metadata)
 
     def execute_tempo_datasource_get_tag_values(self, time_range: TimeRange, grafana_task: Grafana,
                                                 grafana_connector: ConnectorProto):
@@ -3626,11 +3426,7 @@ class GrafanaSourceManager(SourceManager):
         tag_name = None
         try:
             if not grafana_connector:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value="Task execution Failed:: No Grafana source found")),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, "Task execution Failed:: No Grafana source found")
 
             task = grafana_task.tempo_datasource_get_tag_values
             datasource_uid = task.datasource_uid.value
@@ -3657,12 +3453,7 @@ class GrafanaSourceManager(SourceManager):
 
             tag_values = response.get('tagValues', [])
             if not tag_values:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=f"No values found for tag: {tag_name}")),
-                    source=self.source,
-                    metadata=metadata
-                )
+                return build_task_empty_result(self.source, f"No values found for tag: {tag_name}", task_metadata=metadata)
 
             table_rows = []
             for tv in tag_values:
@@ -3688,12 +3479,7 @@ class GrafanaSourceManager(SourceManager):
                 "orgId": "1",
                 **self._get_grafana_time_params(time_range)
             })
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=f"Error while fetching Tempo tag values: {e}")),
-                source=self.source,
-                metadata=metadata
-            )
+            return build_task_failure_result(self.source, f"Error while fetching Tempo tag values: {e}", task_metadata=metadata)
 
     def execute_fetch_triggered_alerts(self, time_range: TimeRange, grafana_task: Grafana,
                                        grafana_connector: ConnectorProto):
@@ -3703,14 +3489,10 @@ class GrafanaSourceManager(SourceManager):
 
         try:
             if not grafana_connector:
-                response_data = {"error": "Task execution Failed:: No Grafana source found"}
-                response_struct = Struct()
-                response_struct.update(response_data)
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.API_RESPONSE,
-                    api_response=ApiResponseResult(response_body=response_struct),
-                    source=self.source,
-                    metadata=metadata
+                return build_task_failure_result(
+                    self.source,
+                    "Task execution Failed:: No Grafana source found",
+                    task_metadata=metadata,
                 )
 
             task = grafana_task.fetch_triggered_alerts
@@ -3738,7 +3520,22 @@ class GrafanaSourceManager(SourceManager):
 
             response_data = result if result is not None else []
             if isinstance(response_data, list):
-                response_data = {"alerts": response_data, "count": len(response_data)}
+                alerts = response_data
+                if not alerts:
+                    return build_task_empty_result(
+                        self.source,
+                        "No triggered alerts found in Grafana for the given filters",
+                        task_metadata=metadata,
+                    )
+                response_data = {"alerts": alerts, "count": len(alerts)}
+            elif isinstance(response_data, dict):
+                alerts = response_data.get("alerts", [])
+                if isinstance(alerts, list) and not alerts:
+                    return build_task_empty_result(
+                        self.source,
+                        "No triggered alerts found in Grafana for the given filters",
+                        task_metadata=metadata,
+                    )
 
             response_struct = Struct()
             response_struct.update(response_data)
@@ -3750,12 +3547,9 @@ class GrafanaSourceManager(SourceManager):
             )
         except Exception as e:
             logger.error(f"Error while executing Grafana fetch triggered alerts task: {e}")
-            response_struct = Struct()
-            response_struct.update({"error": str(e)})
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.API_RESPONSE,
-                api_response=ApiResponseResult(response_body=response_struct),
-                source=self.source,
-                metadata=metadata
+            return build_task_failure_result(
+                self.source,
+                f"Error executing fetch triggered alerts task: {str(e)}",
+                task_metadata=metadata,
             )
 

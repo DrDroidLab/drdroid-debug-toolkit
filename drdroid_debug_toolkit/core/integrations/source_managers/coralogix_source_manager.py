@@ -1,14 +1,18 @@
 import logging
 import json
 import ast
+import inspect
 import re
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
+from urllib.parse import urlparse
 from typing import Optional
 
 from core.utils.credentilal_utils import generate_credentials_dict, get_connector_key_type_string, DISPLAY_NAME, CATEGORY, APPLICATION_MONITORING
 from core.integrations.source_api_processors.coralogix_api_processor import CoralogixApiProcessor
 from core.integrations.source_manager import SourceManager
+from core.integrations.utils.task_result_utils import build_task_failure_result, build_task_empty_result
 from core.protos.assets.coralogix_asset_pb2 import CoralogixAssetModel, CoralogixDashboardAssetOptions
 from drdroid_debug_toolkit.core.protos.base_pb2 import TimeRange
 from drdroid_debug_toolkit.core.protos.connectors.connector_pb2 import Connector as ConnectorProto
@@ -24,6 +28,27 @@ from drdroid_debug_toolkit.core.protos.literal_pb2 import Literal
 from core.utils.proto_utils import dict_to_proto, proto_to_dict
 
 logger = logging.getLogger(__name__)
+
+
+def _coralogix_task_type(name: str):
+    """Return Coralogix.TaskType.<name> when present in the packaged protobuf.
+
+    Older cloud toolkit wheels may lag the manager (e.g. missing
+    FETCH_DASHBOARD_LIST). Looking up a missing enum crashes SourceManager
+    construction at Django startup — skip optional task types instead.
+    """
+    try:
+        return Coralogix.TaskType.Value(name)
+    except ValueError:
+        return None
+
+
+def _proto_has_field(message, field_name: str) -> bool:
+    """True when ``field_name`` exists on this message's descriptor."""
+    try:
+        return field_name in message.DESCRIPTOR.fields_by_name
+    except Exception:
+        return False
 
 
 def buildCoralogixUrl(domain: str, task_type: str, params: dict = None) -> str:
@@ -57,10 +82,11 @@ def buildCoralogixUrl(domain: str, task_type: str, params: dict = None) -> str:
             return f"{base_url}/#/dashboards/{params['dashboard_id']}"
         else:
             return f"{base_url}/#/dashboards"
-    
-    else:
-        logger.warning(f"Unsupported Coralogix task type: {task_type}")
-        return ""
+
+    if task_type == "FETCH_DASHBOARD_LIST":
+        return f"{base_url}/#/dashboards"
+
+    return ""
 
 
 class CoralogixSourceManager(SourceManager):
@@ -82,8 +108,13 @@ class CoralogixSourceManager(SourceManager):
                 "form_fields": [
                     FormField(
                         key_name=StringValue(value="query"),
-                        display_name=StringValue(value="Lucene Query"),
-                        description=StringValue(value="Lucene query to fetch logs (e.g., '*', 'level:ERROR', 'message:error AND service:api', 'timestamp:[2023-01-01 TO 2023-01-02]')"),
+                        display_name=StringValue(value="Query"),
+                        description=StringValue(value=(
+                            "Query string. Interpretation depends on the Syntax field. "
+                            "DataPrime (default): `source logs | filter $d.<field> == '<value>' | limit 50`. "
+                            "Lucene: `<field>:<value> AND <term>`. "
+                            "Note: Coralogix Lucene does not have a generic `text:` field — use unqualified terms for free-text search; `severity:` expects a numeric value, not a string."
+                        )),
                         data_type=LiteralType.STRING,
                         form_field_type=FormFieldType.MULTILINE_FT,
                         is_optional=True,
@@ -109,6 +140,14 @@ class CoralogixSourceManager(SourceManager):
                         display_name=StringValue(value="Limit"),
                         description=StringValue(value="Maximum number of logs to return (default: 100)"),
                         data_type=LiteralType.LONG,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=True,
+                    ),
+                    FormField(
+                        key_name=StringValue(value="syntax"),
+                        display_name=StringValue(value="Syntax"),
+                        description=StringValue(value="Query language: 'dataprime' (default) or 'lucene'. DataPrime is more capable; Lucene is the legacy field:value syntax."),
+                        data_type=LiteralType.STRING,
                         form_field_type=FormFieldType.TEXT_FT,
                         is_optional=True,
                     ),
@@ -229,8 +268,11 @@ class CoralogixSourceManager(SourceManager):
                 "form_fields": [
                     FormField(
                         key_name=StringValue(value="query"),
-                        display_name=StringValue(value="Lucene Query"),
-                        description=StringValue(value="Lucene query to filter spans (e.g., '*', 'serviceName:frontend', 'operationName:\"GET /api/users\" AND duration:>1000')"),
+                        display_name=StringValue(value="DataPrime Query"),
+                        description=StringValue(value=(
+                            "DataPrime query, e.g. `source spans | filter $l.<field> == '<value>' | limit 100`. "
+                            "Spans require DataPrime — Coralogix's spans index does not return results for Lucene queries."
+                        )),
                         data_type=LiteralType.STRING,
                         form_field_type=FormFieldType.MULTILINE_FT,
                         is_optional=True,
@@ -295,6 +337,23 @@ class CoralogixSourceManager(SourceManager):
                 ],
             },
         }
+
+        # Optional: only present when packaged coralogix_task_pb2 includes enum value 9.
+        _fetch_dashboard_list = _coralogix_task_type("FETCH_DASHBOARD_LIST")
+        if _fetch_dashboard_list is not None:
+            self.task_type_callable_map[_fetch_dashboard_list] = {
+                "executor": self.execute_fetch_dashboard_list,
+                "model_types": [],
+                "result_type": PlaybookTaskResultType.API_RESPONSE,
+                "display_name": "Fetch list of all Coralogix Dashboards",
+                "category": "Metrics",
+                "form_fields": [],
+            }
+        else:
+            logger.warning(
+                "Coralogix TaskType.FETCH_DASHBOARD_LIST missing from packaged protobuf; "
+                "dashboard list task disabled until toolkit protos are upgraded."
+            )
         
         self.connector_form_configs = [
             {
@@ -370,6 +429,29 @@ class CoralogixSourceManager(SourceManager):
         if not coralogix_connector:
             raise Exception("No Coralogix connector configuration found")
 
+    @staticmethod
+    def _is_valid_endpoint(endpoint: str) -> bool:
+        if not endpoint:
+            return False
+        parsed = urlparse(endpoint)
+        return bool(parsed.scheme and parsed.netloc)
+
+    @staticmethod
+    def _build_api_endpoint_from_domain(domain: str) -> str:
+        """
+        Build a sensible Coralogix API endpoint from workspace domain/region.
+        Falls back to the global API endpoint.
+        """
+        if not domain:
+            return "https://api.coralogix.com"
+        normalized = domain.strip().lower()
+        normalized = normalized.replace("https://", "").replace("http://", "")
+        normalized = normalized.split("/")[0]
+        region_match = re.search(r"(eu1|eu2|us1|us2|ap1|ap2|ap3|in1)", normalized)
+        if region_match:
+            return f"https://api.{region_match.group(1)}.coralogix.com"
+        return "https://api.coralogix.com"
+
     def get_connector_processor(self, coralogix_connector, **kwargs):
         """
         Get the Coralogix API processor instance.
@@ -398,6 +480,20 @@ class CoralogixSourceManager(SourceManager):
         if 'endpoint' not in generated_credentials or not generated_credentials['endpoint']:
             raise Exception("Coralogix endpoint is required but not found in connector configuration.")
         
+        # Self-heal malformed endpoint values (seen in the wild when encrypted
+        # token text is accidentally stored in endpoint).
+        endpoint = str(generated_credentials.get("endpoint", "")).strip()
+        if not self._is_valid_endpoint(endpoint):
+            fallback_endpoint = self._build_api_endpoint_from_domain(
+                str(generated_credentials.get("domain", "")).strip()
+            )
+            logger.warning(
+                "Coralogix endpoint is invalid (%s). Falling back to inferred endpoint %s.",
+                endpoint,
+                fallback_endpoint,
+            )
+            generated_credentials["endpoint"] = fallback_endpoint
+
         # Filter out domain parameter as it's not needed for the API processor
         processor_credentials = {k: v for k, v in generated_credentials.items() if k != 'domain'}
         return CoralogixApiProcessor(**processor_credentials)
@@ -549,7 +645,8 @@ class CoralogixSourceManager(SourceManager):
         span = {
             "traceId": labels.get("traceId") or metadata.get("traceId") or user_data.get("traceId", ""),
             "spanId": labels.get("spanId") or metadata.get("spanId") or user_data.get("spanId", ""),
-            "parentSpanId": labels.get("parentSpanId") or metadata.get("parentSpanId") or user_data.get("parentSpanId", ""),
+            "parentSpanId": (labels.get("parentSpanId") or metadata.get("parentSpanId") or
+                              user_data.get("parentSpanId") or user_data.get("parentId", "")),
             "serviceName": labels.get("serviceName") or labels.get("service.name") or user_data.get("serviceName", ""),
             "operationName": labels.get("operationName") or user_data.get("operationName", ""),
             "applicationName": labels.get("applicationName") or labels.get("applicationname", ""),
@@ -588,22 +685,34 @@ class CoralogixSourceManager(SourceManager):
             from_time = task.from_time.value if task.HasField("from_time") and task.from_time.value else "now-1h"
             to_time = task.to_time.value if task.HasField("to_time") and task.to_time.value else "now"
             limit = task.limit.value if task.HasField("limit") and task.limit.value else 100
+            # Default to DataPrime; agent can pass "lucene" to opt back into the legacy syntax.
+            # Soft-check field so older packaged protos without `syntax` still boot/run.
+            syntax = "dataprime"
+            if _proto_has_field(task, "syntax") and task.HasField("syntax") and task.syntax.value:
+                syntax = task.syntax.value
 
             # Get the API processor
             processor = self.get_connector_processor(coralogix_connector)
 
             print(
                 f"Playbook Task Downstream Request: Type -> Coralogix, Query -> {query}, "
-                f"From -> {from_time}, To -> {to_time}, Limit -> {limit}"
+                f"From -> {from_time}, To -> {to_time}, Limit -> {limit}, Syntax -> {syntax}"
             )
 
-            # Fetch logs from Coralogix using Lucene query directly
-            response = processor.fetch_logs(
-                query=query,
-                from_time=from_time,
-                to_time=to_time,
-                limit=limit
-            )
+            fetch_kwargs = {
+                "query": query,
+                "from_time": from_time,
+                "to_time": to_time,
+                "limit": limit,
+            }
+            # Older processors may not accept syntax=; only pass when supported.
+            try:
+                if "syntax" in inspect.signature(processor.fetch_logs).parameters:
+                    fetch_kwargs["syntax"] = syntax
+            except (TypeError, ValueError):
+                pass
+
+            response = processor.fetch_logs(**fetch_kwargs)
 
             if not response:
                 # Extract endpoint URL and create metadata with Coralogix URL
@@ -617,12 +726,7 @@ class CoralogixSourceManager(SourceManager):
                     **time_params
                 })
                 
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=f"No logs returned from Coralogix for query: {query}")),
-                    source=self.source,
-                    metadata=metadata
-                )
+                return build_task_empty_result(self.source, f"No logs returned from Coralogix for query: {query}", task_metadata=metadata)
 
             
             # Handle response using normalizer first; fallback to legacy branches
@@ -704,18 +808,35 @@ class CoralogixSourceManager(SourceManager):
                             text=TextResult(output=StringValue(value=f"Logs fetched successfully. Found {len(actual_logs)} log entries. Full response: {str(actual_logs)}"))
                         )
                 else:
-                    # No results in the response
-                    task_result = PlaybookTaskResult(
-                        source=self.source,
-                        type=PlaybookTaskResultType.TEXT,
-                        text=TextResult(output=StringValue(value=f"No log results found. Response: {str(response)}"))
+                    domain = self._extract_domain_from_connector(coralogix_connector)
+                    time_params = self._get_coralogix_time_params(time_range)
+                    metadata = self._create_metadata_with_coralogix_url(domain, "logs", {
+                        "query": query,
+                        "from_time": from_time,
+                        "to_time": to_time,
+                        "limit": limit,
+                        **time_params,
+                    })
+                    return build_task_empty_result(
+                        self.source,
+                        f"No log results found. Response: {str(response)}",
+                        task_metadata=metadata,
                     )
             else:
-                # Fallback for unexpected response format
-                task_result = PlaybookTaskResult(
-                    source=self.source,
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=f"Unexpected response format: {str(response)}"))
+                domain = self._extract_domain_from_connector(coralogix_connector)
+                time_params = self._get_coralogix_time_params(time_range)
+                metadata = self._create_metadata_with_coralogix_url(domain, "logs", {
+                    "query": query,
+                    "from_time": from_time,
+                    "to_time": to_time,
+                    "limit": limit,
+                    **time_params,
+                })
+                return build_task_failure_result(
+                    self.source,
+                    f"Unexpected response format: {str(response)}",
+                    task_metadata=metadata,
+                    response_status=500,
                 )
             
             return task_result
@@ -734,12 +855,7 @@ class CoralogixSourceManager(SourceManager):
                 **time_params
             })
             
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=f"Error while executing Coralogix logs task: {e}")),
-                source=self.source,
-                metadata=metadata
-            )
+            return build_task_failure_result(self.source, f"Error while executing Coralogix logs task: {e}", task_metadata=metadata)
 
     def execute_fetch_spans(self, time_range: TimeRange, coralogix_task: Coralogix, coralogix_connector: ConnectorProto):
         try:
@@ -758,7 +874,7 @@ class CoralogixSourceManager(SourceManager):
                 f"From -> {from_time}, To -> {to_time}, Limit -> {limit}"
             )
 
-            response = processor.execute_spans_query(query=query, from_time=from_time, to_time=to_time)
+            response = processor.execute_spans_query(query=query, from_time=from_time, to_time=to_time, limit=limit)
 
             domain = self._extract_domain_from_connector(coralogix_connector)
             time_params = self._get_coralogix_time_params(time_range)
@@ -767,11 +883,7 @@ class CoralogixSourceManager(SourceManager):
             })
 
             if not response:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=f"No spans returned from Coralogix for query: {query}")),
-                    source=self.source, metadata=metadata
-                )
+                return build_task_empty_result(self.source, f"No spans returned from Coralogix for query: {query}", task_metadata=metadata)
 
             normalized = self._normalize_logs_response(response)
             if normalized is not None:
@@ -804,11 +916,7 @@ class CoralogixSourceManager(SourceManager):
             logger.error(f"Error executing Coralogix fetch spans task: {e}")
             domain = self._extract_domain_from_connector(coralogix_connector)
             metadata = self._create_metadata_with_coralogix_url(domain, "spans", {})
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=f"Error while executing Coralogix spans task: {e}")),
-                source=self.source, metadata=metadata
-            )
+            return build_task_failure_result(self.source, f"Error while executing Coralogix spans task: {e}", task_metadata=metadata)
 
     def execute_fetch_trace(self, time_range: TimeRange, coralogix_task: Coralogix, coralogix_connector: ConnectorProto):
         try:
@@ -859,11 +967,7 @@ class CoralogixSourceManager(SourceManager):
             })
 
             if not response:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=f"No spans found for trace ID: {trace_id}")),
-                    source=self.source, metadata=metadata
-                )
+                return build_task_empty_result(self.source, f"No spans found for trace ID: {trace_id}", task_metadata=metadata)
 
             normalized = self._normalize_logs_response(response)
             if normalized is not None:
@@ -878,13 +982,11 @@ class CoralogixSourceManager(SourceManager):
             count = len(spans)
 
             if count == 0:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(
-                        value=f"No spans found for trace ID: {trace_id} in the last 24h. "
-                              f"Try specifying a wider from_time."
-                    )),
-                    source=self.source, metadata=metadata
+                return build_task_empty_result(
+                    self.source,
+                    f"No spans found for trace ID: {trace_id} in the last 24h. "
+                    f"Try specifying a wider from_time.",
+                    task_metadata=metadata,
                 )
 
             # Sort by timestamp so the trace waterfall is in order
@@ -913,141 +1015,204 @@ class CoralogixSourceManager(SourceManager):
             logger.error(f"Error executing Coralogix fetch trace task: {e}")
             domain = self._extract_domain_from_connector(coralogix_connector)
             metadata = self._create_metadata_with_coralogix_url(domain, "spans", {})
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=f"Error while executing Coralogix trace task: {e}")),
-                source=self.source, metadata=metadata
+            return build_task_failure_result(self.source, f"Error while executing Coralogix trace task: {e}", task_metadata=metadata)
+
+    _METRICS_FANOUT_MAX_WORKERS = 5
+
+    @staticmethod
+    def _truncate_raw_values(values, limit, truncate_from):
+        """Truncate the Prometheus-style [[ts, val_str], ...] list BEFORE proto
+        construction so the dropped points never become Datapoint messages and
+        never cross the wire to Podracer.
+
+        truncate_from:
+            "right" (default) — keep newest `limit` points (drop oldest).
+            "left"            — keep oldest `limit` points (drop newest).
+            "sample"          — evenly spaced indices spanning the full range,
+                                first and last points always preserved.
+
+        Returns (kept_values, original_len, was_truncated).
+        """
+        if not isinstance(values, list):
+            return values, 0, False
+        original_len = len(values)
+        if not limit or limit <= 0 or original_len <= limit:
+            return values, original_len, False
+
+        if truncate_from == "left":
+            return values[:limit], original_len, True
+        if truncate_from == "sample":
+            if limit == 1:
+                return [values[-1]], original_len, True
+            seen, sampled = set(), []
+            for i in range(limit):
+                idx = round(i * (original_len - 1) / (limit - 1))
+                if idx not in seen:
+                    seen.add(idx)
+                    sampled.append(values[idx])
+            return sampled, original_len, True
+        # Default and any unknown value: "right".
+        return values[-limit:], original_len, True
+
+    def _build_metrics_metadata(self, coralogix_connector, time_range, query, from_time, to_time, step):
+        domain = self._extract_domain_from_connector(coralogix_connector)
+        time_params = self._get_coralogix_time_params(time_range)
+        return self._create_metadata_with_coralogix_url(domain, "metrics", {
+            "query": query,
+            "from_time": from_time,
+            "to_time": to_time,
+            "step": step,
+            **time_params,
+        })
+
+    def _build_metrics_result_for_query(self, response, query, from_time, to_time, step,
+                                        coralogix_connector, time_range,
+                                        limit=None, truncate_from="right"):
+        metadata = self._build_metrics_metadata(coralogix_connector, time_range, query, from_time, to_time, step)
+
+        if not response or not response.get('data') or not response['data'].get('result'):
+            return build_task_empty_result(
+                self.source,
+                f"No metrics returned from Coralogix for query: {query}",
+                task_metadata=metadata,
             )
+
+        labeled_metric_timeseries_list = []
+        for item in response['data']['result']:
+            labels = []
+            if 'metric' in item:
+                for label_name, label_value in item['metric'].items():
+                    labels.append(LabelValuePair(
+                        name=StringValue(value=label_name),
+                        value=StringValue(value=str(label_value)),
+                    ))
+
+            raw_values = item.get('values') or []
+            kept_values, original_len, was_truncated = self._truncate_raw_values(
+                raw_values, limit, truncate_from,
+            )
+            if was_truncated:
+                # Synthetic labels surface truncation context to the agent without
+                # needing a new field on the shared TIMESERIES proto.
+                labels.append(LabelValuePair(
+                    name=StringValue(value="__dr_original_datapoints__"),
+                    value=StringValue(value=str(original_len)),
+                ))
+                labels.append(LabelValuePair(
+                    name=StringValue(value="__dr_truncated_datapoints__"),
+                    value=StringValue(value=str(len(kept_values))),
+                ))
+                labels.append(LabelValuePair(
+                    name=StringValue(value="__dr_truncate_from__"),
+                    value=StringValue(value=truncate_from or "right"),
+                ))
+
+            datapoints = []
+            for value_pair in kept_values:
+                timestamp = int(float(value_pair[0]) * 1000)
+                value = float(value_pair[1])
+                datapoints.append(TimeseriesResult.LabeledMetricTimeseries.Datapoint(
+                    timestamp=timestamp,
+                    value=DoubleValue(value=value),
+                ))
+
+            labeled_metric_timeseries_list.append(
+                TimeseriesResult.LabeledMetricTimeseries(
+                    metric_label_values=labels,
+                    datapoints=datapoints,
+                )
+            )
+
+        timeseries_result = TimeseriesResult(
+            metric_expression=StringValue(value=query),
+            labeled_metric_timeseries=labeled_metric_timeseries_list,
+        )
+
+        return PlaybookTaskResult(
+            source=self.source,
+            type=PlaybookTaskResultType.TIMESERIES,
+            timeseries=timeseries_result,
+            metadata=metadata,
+        )
 
     def execute_fetch_metrics(self, time_range: TimeRange, coralogix_task: Coralogix, coralogix_connector: ConnectorProto):
         """
-        Execute the fetch metrics task.
-        
-        Args:
-            time_range: Time range for the query
-            coralogix_task: The Coralogix task configuration
-            coralogix_connector: The Coralogix connector configuration
-            
-        Returns:
-            PlaybookTaskResult: Result containing the fetched metrics as time series
+        Execute the fetch metrics task. Supports a single PromQL query (`query`) or
+        a batch of queries (`queries`). When `queries` is set, runs each query
+        concurrently against Coralogix and returns one PlaybookTaskResult per query.
+        Time range, step, limit, and truncate_from are shared across all queries
+        in the batch.
+
+        Per-series datapoint truncation is applied here, on the raw Coralogix
+        response, before constructing protobuf Datapoint messages — the dropped
+        points never become protos and never traverse the wire to Podracer.
         """
+        task = coralogix_task.fetch_metrics
+
+        queries = []
+        if _proto_has_field(task, "queries"):
+            queries = [q.value for q in task.queries if q.value]
+        if not queries:
+            single = task.query.value if task.HasField("query") and task.query.value else "up"
+            queries = [single]
+
+        from_time = task.from_time.value if task.HasField("from_time") and task.from_time.value else "now-1h"
+        to_time = task.to_time.value if task.HasField("to_time") and task.to_time.value else "now"
+        step = task.step.value if task.HasField("step") and task.step.value else "1m"
+        limit = 0
+        if _proto_has_field(task, "limit") and task.HasField("limit") and task.limit.value:
+            limit = int(task.limit.value)
+        truncate_from = "right"
+        if _proto_has_field(task, "truncate_from") and task.HasField("truncate_from") and task.truncate_from.value:
+            truncate_from = task.truncate_from.value
+
         try:
             self._validate_connector(coralogix_connector)
-            task = coralogix_task.fetch_metrics
-            
-            # Get task parameters with defaults
-            query = task.query.value if task.HasField("query") and task.query.value else "up"
-            from_time = task.from_time.value if task.HasField("from_time") and task.from_time.value else "now-1h"
-            to_time = task.to_time.value if task.HasField("to_time") and task.to_time.value else "now"
-            step = task.step.value if task.HasField("step") and task.step.value else "1m"
-
-            # Get the API processor
             processor = self.get_connector_processor(coralogix_connector)
-
-
-            # Fetch metrics from Coralogix
-            response = processor.fetch_metrics(
-                query=query,
-                from_time=from_time,
-                to_time=to_time,
-                step=step
-            )
-
-            if not response or not response.get('data') or not response['data'].get('result'):
-                # Extract endpoint URL and create metadata with Coralogix URL
-                domain = self._extract_domain_from_connector(coralogix_connector)
-                time_params = self._get_coralogix_time_params(time_range)
-                metadata = self._create_metadata_with_coralogix_url(domain, "metrics", {
-                    "query": query,
-                    "from_time": from_time,
-                    "to_time": to_time,
-                    "step": step,
-                    **time_params
-                })
-                
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=f"No metrics returned from Coralogix for query: {query}")),
-                    source=self.source,
-                    metadata=metadata
-                )
-
-            # Process the Prometheus-compatible response into time series format
-            labeled_metric_timeseries_list = []
-            
-            for item in response['data']['result']:
-                # Extract metric labels
-                labels = []
-                if 'metric' in item:
-                    for label_name, label_value in item['metric'].items():
-                        labels.append(LabelValuePair(
-                            name=StringValue(value=label_name),
-                            value=StringValue(value=str(label_value))
-                        ))
-                
-                # Extract time series data points
-                datapoints = []
-                if 'values' in item:
-                    for value_pair in item['values']:
-                        timestamp = int(float(value_pair[0]) * 1000)  # Convert to milliseconds
-                        value = float(value_pair[1])
-                        datapoints.append(TimeseriesResult.LabeledMetricTimeseries.Datapoint(
-                            timestamp=timestamp,
-                            value=DoubleValue(value=value)
-                        ))
-                
-                # Create labeled metric time series
-                labeled_metric_timeseries = TimeseriesResult.LabeledMetricTimeseries(
-                    metric_label_values=labels,
-                    datapoints=datapoints
-                )
-                labeled_metric_timeseries_list.append(labeled_metric_timeseries)
-            
-            # Create the time series result
-            timeseries_result = TimeseriesResult(
-                labeled_metric_timeseries=labeled_metric_timeseries_list
-            )
-            
-            # Extract endpoint URL and create metadata with Coralogix URL
-            domain = self._extract_domain_from_connector(coralogix_connector)
-            time_params = self._get_coralogix_time_params(time_range)
-            metadata = self._create_metadata_with_coralogix_url(domain, "metrics", {
-                "query": query,
-                "from_time": from_time,
-                "to_time": to_time,
-                "step": step,
-                **time_params
-            })
-            
-            task_result = PlaybookTaskResult(
-                source=self.source, 
-                type=PlaybookTaskResultType.TIMESERIES,
-                timeseries=timeseries_result,
-                metadata=metadata
-            )
-            
-            return task_result
-            
         except Exception as e:
-            logger.error(f"Error executing Coralogix fetch metrics task: {e}")
-            
-            # Extract endpoint URL and create metadata with Coralogix URL for error case
-            domain = self._extract_domain_from_connector(coralogix_connector)
-            time_params = self._get_coralogix_time_params(time_range)
-            metadata = self._create_metadata_with_coralogix_url(domain, "metrics", {
-                "query": query,
-                "from_time": from_time,
-                "to_time": to_time,
-                "step": step,
-                **time_params
-            })
-            
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=f"Error while executing Coralogix metrics task: {e}")),
-                source=self.source,
-                metadata=metadata
-            )
+            logger.error(f"Error preparing Coralogix metrics fan-out: {e}")
+            metadata = self._build_metrics_metadata(coralogix_connector, time_range, queries[0], from_time, to_time, step)
+            return [build_task_failure_result(
+                self.source,
+                f"Error while executing Coralogix metrics task: {e}",
+                task_metadata=metadata,
+            )]
+
+        def _run(q: str):
+            try:
+                response = processor.fetch_metrics(query=q, from_time=from_time, to_time=to_time, step=step)
+                return q, response, None
+            except Exception as exc:
+                return q, None, exc
+
+        results_by_query = {}
+        if len(queries) == 1:
+            results_by_query[queries[0]] = _run(queries[0])[1:]
+        else:
+            workers = min(self._METRICS_FANOUT_MAX_WORKERS, len(queries))
+            with ThreadPoolExecutor(max_workers=workers) as executor:
+                futures = {executor.submit(_run, q): q for q in queries}
+                for future in as_completed(futures):
+                    q, response, exc = future.result()
+                    results_by_query[q] = (response, exc)
+
+        task_results = []
+        for q in queries:
+            response, exc = results_by_query.get(q, (None, None))
+            if exc is not None:
+                metadata = self._build_metrics_metadata(coralogix_connector, time_range, q, from_time, to_time, step)
+                task_results.append(build_task_failure_result(
+                    self.source,
+                    f"Error while executing Coralogix metrics query '{q}': {exc}",
+                    task_metadata=metadata,
+                ))
+            else:
+                task_results.append(self._build_metrics_result_for_query(
+                    response, q, from_time, to_time, step, coralogix_connector, time_range,
+                    limit=limit, truncate_from=truncate_from,
+                ))
+
+        return task_results[0] if len(task_results) == 1 else task_results
 
     def execute_fetch_dashboard_widgets(self, time_range: TimeRange, coralogix_task: Coralogix, coralogix_connector: ConnectorProto):
         """
@@ -1172,11 +1337,10 @@ class CoralogixSourceManager(SourceManager):
                     **time_params
                 })
                 
-                return [PlaybookTaskResult(
-                    source=self.source,
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=f"No dashboard assets found for dashboard ID: {dashboard_id}")),
-                    metadata=metadata
+                return [build_task_empty_result(
+                    self.source,
+                    f"No dashboard assets found for dashboard ID: {dashboard_id}",
+                    task_metadata=metadata,
                 )]
 
             # Find the dashboard asset matching the dashboard_id
@@ -1196,11 +1360,10 @@ class CoralogixSourceManager(SourceManager):
                     **time_params
                 })
                 
-                return [PlaybookTaskResult(
-                    source=self.source,
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=f"No dashboard asset found for dashboard ID: {dashboard_id}")),
-                    metadata=metadata
+                return [build_task_empty_result(
+                    self.source,
+                    f"No dashboard asset found for dashboard ID: {dashboard_id}",
+                    task_metadata=metadata,
                 )]
             
             # Get the dashboard asset
@@ -1229,11 +1392,10 @@ class CoralogixSourceManager(SourceManager):
                     **time_params
                 })
                 
-                return [PlaybookTaskResult(
-                    source=self.source,
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=f"No valid widget queries found for dashboard ID: {dashboard_id} {filter_message}")),
-                    metadata=metadata
+                return [build_task_empty_result(
+                    self.source,
+                    f"No valid widget queries found for dashboard ID: {dashboard_id} {filter_message}",
+                    task_metadata=metadata,
                 )]
 
             # 4. Execute queries and collect results
@@ -1294,12 +1456,10 @@ class CoralogixSourceManager(SourceManager):
                 except Exception as widget_error:
                     logger.error(f"Error executing widget {widget_query.get('widget_id', 'unknown')}: {widget_error}")
                     # Add error result for this widget
-                    error_result = PlaybookTaskResult(
-                        source=self.source,
-                        type=PlaybookTaskResultType.TEXT,
-                        text=TextResult(output=StringValue(value=f"Error executing widget {widget_query.get('widget_id', 'unknown')}: {str(widget_error)}")),
-                    )
-                    all_task_results.append(error_result)
+                    all_task_results.append(build_task_failure_result(
+                        self.source,
+                        f"Error executing widget {widget_query.get('widget_id', 'unknown')}: {str(widget_error)}",
+                    ))
 
             if all_task_results:
                 # Add metadata to all results
@@ -1327,12 +1487,7 @@ class CoralogixSourceManager(SourceManager):
                     **time_params
                 })
                 
-                return [PlaybookTaskResult(
-                    source=self.source,
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=f"No data returned from any widgets in dashboard: {dashboard_id}")),
-                    metadata=metadata
-                )]
+                return [build_task_empty_result(self.source, f"No data returned from any widgets in dashboard: {dashboard_id}", task_metadata=metadata)]
             
         except Exception as e:
             logger.error(f"Error executing Coralogix fetch dashboard widgets task: {e}")
@@ -1346,11 +1501,10 @@ class CoralogixSourceManager(SourceManager):
                 **time_params
             })
             
-            return [PlaybookTaskResult(
-                source=self.source,
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=f"Error executing Coralogix fetch dashboard widgets task: {str(e)}")),
-                metadata=metadata
+            return [build_task_failure_result(
+                self.source,
+                f"Error executing Coralogix fetch dashboard widgets task: {str(e)}",
+                task_metadata=metadata,
             )]
 
     def execute_fetch_dashboard_variables(self, time_range: TimeRange, coralogix_task: Coralogix, coralogix_connector: ConnectorProto):
@@ -1416,11 +1570,10 @@ class CoralogixSourceManager(SourceManager):
                     **time_params
                 })
                 
-                return PlaybookTaskResult(
-                    source=self.source,
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=f"No dashboard assets found for dashboard ID: {dashboard_id}")),
-                    metadata=metadata
+                return build_task_empty_result(
+                    self.source,
+                    f"No dashboard assets found for dashboard ID: {dashboard_id}",
+                    task_metadata=metadata,
                 )
 
             # Find the dashboard asset matching the dashboard_id
@@ -1439,11 +1592,10 @@ class CoralogixSourceManager(SourceManager):
                     **time_params
                 })
                 
-                return PlaybookTaskResult(
-                    source=self.source,
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=f"No dashboard asset found for dashboard ID: {dashboard_id}")),
-                    metadata=metadata
+                return build_task_empty_result(
+                    self.source,
+                    f"No dashboard asset found for dashboard ID: {dashboard_id}",
+                    task_metadata=metadata,
                 )
             logger.info(f"Dashboard asset found for dashboard ID: {dashboard_id}")
             # Get the dashboard asset
@@ -1467,11 +1619,10 @@ class CoralogixSourceManager(SourceManager):
                     **time_params
                 })
                 
-                return PlaybookTaskResult(
-                    source=self.source,
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=f"No variables found for dashboard ID: {dashboard_id}. Send an empty dictionary for template variables")),
-                    metadata=metadata
+                return build_task_empty_result(
+                    self.source,
+                    f"No variables found for dashboard ID: {dashboard_id}. Send an empty dictionary for template variables",
+                    task_metadata=metadata,
                 )
 
             # Convert to protobuf struct
@@ -1506,11 +1657,10 @@ class CoralogixSourceManager(SourceManager):
                 **time_params
             })
             
-            return PlaybookTaskResult(
-                source=self.source,
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=f"Error executing Coralogix fetch dashboard variables task: {str(e)}")),
-                metadata=metadata
+            return build_task_failure_result(
+                self.source,
+                f"Error executing Coralogix fetch dashboard variables task: {str(e)}",
+                task_metadata=metadata,
             )
 
     def execute_fetch_alert_defs(self, time_range: TimeRange, coralogix_task: Coralogix, coralogix_connector: ConnectorProto):
@@ -1527,17 +1677,9 @@ class CoralogixSourceManager(SourceManager):
         """
         try:
             if not coralogix_connector:
-                response_data = {
-                    "error": "Task execution Failed:: No Coralogix source found",
-                    "alert_defs": [],
-                    "count": 0
-                }
-                response_struct = Struct()
-                response_struct.update(response_data)
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.API_RESPONSE,
-                    api_response=ApiResponseResult(response_body=response_struct),
-                    source=self.source
+                return build_task_failure_result(
+                    self.source,
+                    "Task execution Failed:: No Coralogix source found",
                 )
 
             coralogix_api_processor = self.get_connector_processor(coralogix_connector)
@@ -1549,45 +1691,46 @@ class CoralogixSourceManager(SourceManager):
 
             alert_defs = coralogix_api_processor.fetch_alert_defs()
 
-            # Convert the alert definitions to a structured response
-            # Handle both empty/None cases and successful responses
-            if not alert_defs:
-                response_data = {
-                    "alert_defs": [],
-                    "count": 0
-                }
-            else:
-                # Handle different response formats
-                if isinstance(alert_defs, list):
-                    response_data = {
-                        "alert_defs": alert_defs,
-                        "count": len(alert_defs)
-                    }
-                elif isinstance(alert_defs, dict):
-                    # If response is a dict, check for common keys
-                    defs_list = alert_defs.get("data", alert_defs.get("definitions", alert_defs.get("alert_defs", [])))
-                    if isinstance(defs_list, list):
-                        response_data = {
-                            "alert_defs": defs_list,
-                            "count": len(defs_list)
-                        }
-                    else:
-                        # If it's a dict but not a list, wrap it
-                        response_data = {
-                            "alert_defs": [alert_defs],
-                            "count": 1,
-                            "raw_response": alert_defs
-                        }
-                else:
-                    response_data = {
-                        "alert_defs": [],
-                        "count": 0,
-                        "raw_response": alert_defs
-                    }
-
-            # Extract domain and create metadata with Coralogix URL
             domain = self._extract_domain_from_connector(coralogix_connector)
             metadata = self._create_metadata_with_coralogix_url(domain, "FETCH_ALERT_DEFS", {})
+
+            if not alert_defs:
+                return build_task_empty_result(
+                    self.source,
+                    "No alert definitions found in Coralogix",
+                    task_metadata=metadata,
+                )
+
+            if isinstance(alert_defs, list):
+                response_data = {
+                    "alert_defs": alert_defs,
+                    "count": len(alert_defs)
+                }
+            elif isinstance(alert_defs, dict):
+                defs_list = alert_defs.get("data", alert_defs.get("definitions", alert_defs.get("alert_defs", [])))
+                if isinstance(defs_list, list) and defs_list:
+                    response_data = {
+                        "alert_defs": defs_list,
+                        "count": len(defs_list)
+                    }
+                elif isinstance(defs_list, list) and not defs_list:
+                    return build_task_empty_result(
+                        self.source,
+                        "No alert definitions found in Coralogix",
+                        task_metadata=metadata,
+                    )
+                else:
+                    response_data = {
+                        "alert_defs": [alert_defs],
+                        "count": 1,
+                        "raw_response": alert_defs
+                    }
+            else:
+                return build_task_empty_result(
+                    self.source,
+                    "No alert definitions found in Coralogix",
+                    task_metadata=metadata,
+                )
 
             # Ensure we have a proper Struct instance
             if isinstance(response_data, dict):
@@ -1605,25 +1748,97 @@ class CoralogixSourceManager(SourceManager):
 
         except Exception as e:
             logger.error(f"Error while executing Coralogix fetch alert definitions task: {e}", exc_info=True)
-            
-            # Return error as API_RESPONSE
-            response_data = {
-                "error": f"Error executing fetch alert definitions task: {str(e)}",
-                "alert_defs": [],
-                "count": 0
-            }
-            response_struct = Struct()
-            response_struct.update(response_data)
-
-            # Extract domain and create metadata with Coralogix URL for error case
             domain = self._extract_domain_from_connector(coralogix_connector) if coralogix_connector else None
             metadata = self._create_metadata_with_coralogix_url(domain, "FETCH_ALERT_DEFS", {}) if domain else None
+            return build_task_failure_result(
+                self.source,
+                f"Error executing fetch alert definitions task: {str(e)}",
+                task_metadata=metadata,
+            )
+
+    def execute_fetch_dashboard_list(self, time_range: TimeRange, coralogix_task: Coralogix, coralogix_connector: ConnectorProto):
+        """
+        Execute fetch dashboard list task to get all dashboard summaries from Coralogix.
+
+        Returns a flat list of {dashboard_id, dashboard_title} entries so callers
+        can discover dashboards before invoking widget/variable tasks.
+        """
+        try:
+            self._validate_connector(coralogix_connector)
+
+            processor = self.get_connector_processor(coralogix_connector)
+
+            print(
+                f"Playbook Task Downstream Request: Type -> Coralogix FETCH_DASHBOARD_LIST",
+                flush=True,
+            )
+
+            raw_response = processor.fetch_dashboards()
+
+            # Normalize different response shapes into a flat list of dashboard dicts
+            if isinstance(raw_response, dict):
+                if 'dashboards' in raw_response and isinstance(raw_response['dashboards'], list):
+                    dashboard_list = raw_response['dashboards']
+                elif 'data' in raw_response and isinstance(raw_response['data'], list):
+                    dashboard_list = raw_response['data']
+                elif 'items' in raw_response and isinstance(raw_response['items'], list):
+                    dashboard_list = raw_response['items']
+                else:
+                    dashboard_list = [raw_response]
+            elif isinstance(raw_response, list):
+                dashboard_list = raw_response
+            else:
+                dashboard_list = []
+
+            dashboards = []
+            for dashboard in dashboard_list:
+                if not isinstance(dashboard, dict):
+                    continue
+                dashboard_id = dashboard.get('id') or dashboard.get('dashboard_id')
+                if not dashboard_id:
+                    continue
+                dashboards.append({
+                    'dashboard_id': str(dashboard_id),
+                    'dashboard_title': dashboard.get('name') or dashboard.get('title') or '',
+                    'dashboard_description': dashboard.get('description', ''),
+                    'folder_id': dashboard.get('folderId') or dashboard.get('folder_id', ''),
+                })
+
+            domain = self._extract_domain_from_connector(coralogix_connector)
+            metadata = self._create_metadata_with_coralogix_url(domain, "FETCH_DASHBOARD_LIST", {})
+
+            if not dashboards:
+                return build_task_empty_result(
+                    self.source,
+                    "No dashboards found in Coralogix",
+                    task_metadata=metadata,
+                )
+
+            response_data = {
+                'dashboards': dashboards,
+                'count': len(dashboards),
+            }
+
+            response_struct = Struct()
+            response_struct.update(response_data)
 
             return PlaybookTaskResult(
                 type=PlaybookTaskResultType.API_RESPONSE,
                 api_response=ApiResponseResult(response_body=response_struct),
                 source=self.source,
                 metadata=metadata,
+            )
+
+        except Exception as e:
+            logger.error(f"Error while executing Coralogix fetch dashboard list task: {e}", exc_info=True)
+
+            domain = self._extract_domain_from_connector(coralogix_connector) if coralogix_connector else None
+            metadata = self._create_metadata_with_coralogix_url(domain, "FETCH_DASHBOARD_LIST", {}) if domain else None
+
+            return build_task_failure_result(
+                self.source,
+                f"Error executing fetch dashboard list task: {str(e)}",
+                task_metadata=metadata,
             )
 
     def _extract_dashboard_variables(self, dashboard_dict: dict, dashboard_id: str, processor=None) -> dict:

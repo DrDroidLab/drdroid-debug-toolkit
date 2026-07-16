@@ -24,6 +24,7 @@ from core.utils.time_utils import calculate_timeseries_bucket_size
 from collections.abc import MutableMapping
 
 logger = logging.getLogger(__name__)
+from core.integrations.utils.task_result_utils import build_task_failure_result
 
 
 def get_nrql_expression_result_alias(nrql_expression):
@@ -368,10 +369,7 @@ class NewRelicSourceManager(SourceManager):
 
             response = nr_gql_processor.execute_nrql_query(nrql_expression)
             if not response or 'results' not in response:
-                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
-                                          text=TextResult(output=StringValue(
-                                              value=f"No data returned from New Relic for nrql expression: {nrql_expression}")),
-                                          source=self.source)
+                return build_task_failure_result(self.source, f"No data returned from New Relic for nrql expression: {nrql_expression}")
 
             results = response.get('results', [])
             metric_datapoints = []
@@ -956,11 +954,7 @@ class NewRelicSourceManager(SourceManager):
 
         results = response.get('results', [])
         if not results:
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(
-                    value=f"No data returned from New Relic for nrql expression: {nrql_expression}")),
-                source=self.source)
+            return build_task_failure_result(self.source, f"No data returned from New Relic for nrql expression: {nrql_expression}")
 
         table_rows = []
         for result in results:
@@ -1013,10 +1007,7 @@ class NewRelicSourceManager(SourceManager):
             )
 
             if not assets:
-                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
-                                          text=TextResult(output=StringValue(
-                                              value=f"Application asset with GUID '{application_name}' not found")),
-                                          source=self.source)
+                return build_task_failure_result(self.source, f"Application asset with GUID '{application_name}' not found")
 
             application_asset = None
             for newrelic_asset in assets.new_relic.assets:
@@ -1026,18 +1017,12 @@ class NewRelicSourceManager(SourceManager):
                     break
 
             if not application_asset:
-                 return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
-                                           text=TextResult(output=StringValue(
-                                               value=f"Application asset with GUID '{application_name}' not found within returned data")),
-                                           source=self.source)
+                 return build_task_failure_result(self.source, f"Application asset with GUID '{application_name}' not found within returned data")
 
             # 2. Filter APM metrics if requested
             all_apm_metrics = list(application_asset.apm_metrics)
             if not all_apm_metrics:
-                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
-                                          text=TextResult(output=StringValue(
-                                              value=f"No APM metrics defined for application with GUID '{application_name}'")),
-                                          source=self.source)
+                return build_task_failure_result(self.source, f"No APM metrics defined for application with GUID '{application_name}'")
 
             metrics_to_process = []
             if filter_metric_names:
@@ -1045,10 +1030,7 @@ class NewRelicSourceManager(SourceManager):
                     if metric.metric_name.value.lower() in filter_metric_names:
                         metrics_to_process.append(metric)
                 if not metrics_to_process:
-                     return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
-                                           text=TextResult(output=StringValue(
-                                               value=f"No APM metrics matching names {filter_metric_names_str} found for application with GUID")),
-                                           source=self.source)
+                     return build_task_failure_result(self.source, f"No APM metrics matching names {filter_metric_names_str} found for application with GUID")
             else:
                 metrics_to_process = all_apm_metrics # Process all if no filter
 
@@ -1150,10 +1132,7 @@ class NewRelicSourceManager(SourceManager):
             if not task_results:
                 filter_msg = f" matching names '{filter_metric_names_str}'" if filter_metric_names_str else ""
                 logger.warning(f"No data retrieved for any APM metrics{filter_msg} in application '{application_name}'.")
-                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
-                                          text=TextResult(output=StringValue(
-                                              value=f"No data found for the specified APM metrics{filter_msg} in application '{application_name}'. Check metric configurations and time range.")),
-                                          source=self.source)
+                return build_task_failure_result(self.source, f"No data found for the specified APM metrics{filter_msg} in application '{application_name}'. Check metric configurations and time range.")
 
             return task_results # Return list of results
 
@@ -1190,10 +1169,7 @@ class NewRelicSourceManager(SourceManager):
                 )
 
                 if not assets:
-                    return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
-                                              text=TextResult(output=StringValue(
-                                                  value=f"Application asset not found for '{application_guid}'")),
-                                              source=self.source)
+                    return build_task_failure_result(self.source, f"Application asset not found for '{application_guid}'")
 
                 application_asset = None
                 for newrelic_asset in assets.new_relic.assets:
@@ -1203,10 +1179,7 @@ class NewRelicSourceManager(SourceManager):
                         break
 
                 if not application_asset:
-                    return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
-                                              text=TextResult(output=StringValue(
-                                                  value=f"Application asset not found for '{application_guid}'")),
-                                              source=self.source)
+                    return build_task_failure_result(self.source, f"Application asset not found for '{application_guid}'")
 
                 app_name_for_span = application_asset.application_name.value
 
@@ -1344,10 +1317,7 @@ class NewRelicSourceManager(SourceManager):
             # Check if any results were generated
             if not task_results:
                 logger.warning(f"No data retrieved for any database metrics for application '{application_guid}' with sort_by '{sort_by}'.")
-                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
-                                          text=TextResult(output=StringValue(
-                                              value=f"No database metrics data found for application '{application_guid}' with sort criteria '{sort_by}'. Check application configuration and time range.")),
-                                          source=self.source)
+                return build_task_failure_result(self.source, f"No database metrics data found for application '{application_guid}' with sort criteria '{sort_by}'. Check application configuration and time range.")
 
             return task_results  # Return list of results
 
@@ -1502,10 +1472,7 @@ class NewRelicSourceManager(SourceManager):
             # Check if any results were generated
             if not task_results:
                 logger.warning(f"No data retrieved for any transaction metrics for application '{application_guid}' with sort_by '{sort_by}'.")
-                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
-                                          text=TextResult(output=StringValue(
-                                              value=f"No transaction metrics data found for application '{application_guid}' with sort criteria '{sort_by}'. Check application configuration and time range.")),
-                                          source=self.source)
+                return build_task_failure_result(self.source, f"No transaction metrics data found for application '{application_guid}' with sort criteria '{sort_by}'. Check application configuration and time range.")
 
             return task_results  # Return list of results
 
@@ -1560,10 +1527,7 @@ class NewRelicSourceManager(SourceManager):
             nr_gql_processor = self.get_connector_processor(nr_connector)
             response = nr_gql_processor.execute_nrql_query(nrql_expression)
             if not response:
-                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
-                                          text=TextResult(output=StringValue(
-                                              value=f"No data returned from New Relic for nrql expression: {nrql_expression}")),
-                                          source=self.source)
+                return build_task_failure_result(self.source, f"No data returned from New Relic for nrql expression: {nrql_expression}")
 
             if not has_timeseries:
                 return self._convert_nrql_aggregate_to_table(response, nrql_expression, metric_name)
@@ -1583,9 +1547,7 @@ class NewRelicSourceManager(SourceManager):
                 facets = response['rawResponse']['facets']
 
                 for facet in facets:
-                    raw_facet_name = facet.get('name', 'unknown')
-                    # Multi-field FACET returns name as a list; join into a readable string
-                    facet_name = ' | '.join(str(f) for f in raw_facet_name) if isinstance(raw_facet_name, list) else str(raw_facet_name)
+                    facet_name = facet.get('name', 'unknown')
                     metric_datapoints = []
 
                     # Process timeseries data for this facet
@@ -1627,9 +1589,7 @@ class NewRelicSourceManager(SourceManager):
                 # Group results by facet
                 facet_groups = {}
                 for result in response['results']:
-                    raw_facet = result.get('facet', 'unknown')
-                    # Multi-field FACET returns a list; convert to hashable string key
-                    facet_name = ' | '.join(str(f) for f in raw_facet) if isinstance(raw_facet, list) else str(raw_facet)
+                    facet_name = result.get('facet', 'unknown')
                     if facet_name not in facet_groups:
                         facet_groups[facet_name] = []
                     facet_groups[facet_name].append(result)
@@ -1712,10 +1672,7 @@ class NewRelicSourceManager(SourceManager):
 
             response = nr_gql_processor.execute_nrql_query(nrql_expression)
             if not response:
-                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
-                                          text=TextResult(output=StringValue(
-                                              value=f"No data returned from New Relic for nrql expression: {nrql_expression}")),
-                                          source=self.source)
+                return build_task_failure_result(self.source, f"No data returned from New Relic for nrql expression: {nrql_expression}")
 
             if not has_timeseries:
                 return self._convert_nrql_aggregate_to_table(response, nrql_expression, metric_name)
@@ -1734,9 +1691,7 @@ class NewRelicSourceManager(SourceManager):
                 facets = response['rawResponse']['facets']
 
                 for facet in facets:
-                    raw_facet_name = facet.get('name', 'unknown')
-                    # Multi-field FACET returns name as a list; join into a readable string
-                    facet_name = ' | '.join(str(f) for f in raw_facet_name) if isinstance(raw_facet_name, list) else str(raw_facet_name)
+                    facet_name = facet.get('name', 'unknown')
                     metric_datapoints = []
 
                     for ts in facet.get('timeSeries', []):
@@ -1779,9 +1734,7 @@ class NewRelicSourceManager(SourceManager):
                 for result in response['results']:
                     if 'facet' in result:
                         has_facet = True
-                        raw_facet = result.get('facet', 'unknown')
-                        # Multi-field FACET returns a list; convert to hashable string key
-                        facet_name = ' | '.join(str(f) for f in raw_facet) if isinstance(raw_facet, list) else str(raw_facet)
+                        facet_name = result.get('facet', 'unknown')
                         if facet_name not in facet_groups:
                             facet_groups[facet_name] = []
                         facet_groups[facet_name].append(result)
@@ -1884,9 +1837,7 @@ class NewRelicSourceManager(SourceManager):
                         facets = offset_response['rawResponse']['facets']
 
                         for facet in facets:
-                            raw_facet_name = facet.get('name', 'unknown')
-                            # Multi-field FACET returns name as a list; join into a readable string
-                            facet_name = ' | '.join(str(f) for f in raw_facet_name) if isinstance(raw_facet_name, list) else str(raw_facet_name)
+                            facet_name = facet.get('name', 'unknown')
                             offset_metric_datapoints = []
 
                             for ts in facet.get('timeSeries', []):
@@ -1933,9 +1884,7 @@ class NewRelicSourceManager(SourceManager):
                         for result in offset_response['results']:
                             if 'facet' in result:
                                 has_facet = True
-                                raw_facet = result.get('facet', 'unknown')
-                                # Multi-field FACET returns a list; convert to hashable string key
-                                facet_name = ' | '.join(str(f) for f in raw_facet) if isinstance(raw_facet, list) else str(raw_facet)
+                                facet_name = result.get('facet', 'unknown')
                                 if facet_name not in facet_groups:
                                     facet_groups[facet_name] = []
                                 facet_groups[facet_name].append(result)
@@ -2456,10 +2405,7 @@ class NewRelicSourceManager(SourceManager):
             except Exception as e:
                 # If dashboard/widgets not found, return a text result with the error
                 logger.error(f"Error finding dashboard/widgets: {e}")
-                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
-                                          text=TextResult(
-                                              output=StringValue(value=f'Error finding dashboard/widgets: {e}')),
-                                          source=self.source)
+                return build_task_failure_result(self.source, f'Error finding dashboard/widgets: {e}')
 
             # 2. Process each matching widget
             for widget in matching_widgets:
@@ -2549,10 +2495,7 @@ class NewRelicSourceManager(SourceManager):
             if not task_results:
                 logger.warning(f"No data retrieved for any widgets in dashboard '{dashboard_name}'.")
                 # Return a text message indicating no data was found for any widget processed.
-                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
-                                          text=TextResult(output=StringValue(
-                                              value=f"No data found for the specified widgets in dashboard '{dashboard_name}'. Check widget configurations and time range.")),
-                                          source=self.source)
+                return build_task_failure_result(self.source, f"No data found for the specified widgets in dashboard '{dashboard_name}'. Check widget configurations and time range.")
 
             # Return the list of task results (one per widget)
             return task_results

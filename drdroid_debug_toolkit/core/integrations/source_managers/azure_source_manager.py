@@ -15,6 +15,7 @@ from core.protos.ui_definition_pb2 import FormField, FormFieldType
 from core.utils.credentilal_utils import generate_credentials_dict, get_connector_key_type_string, DISPLAY_NAME, CATEGORY, CLOUD_MANAGED_SERVICES
 
 logger = logging.getLogger(__name__)
+from core.integrations.utils.task_result_utils import build_task_failure_result
 
 
 class AzureSourceManager(SourceManager):
@@ -162,9 +163,7 @@ class AzureSourceManager(SourceManager):
 
             response = azure_api_processor.query_log_analytics(workspace_id, query_pattern, timespan=timespan)
             if not response:
-                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT, text=TextResult(output=StringValue(
-                    value=f"No data returned from Azure for workspace_id: {workspace_id} and query patter: {query_pattern}")),
-                                          source=self.source)
+                return build_task_failure_result(self.source, f"No data returned from Azure for workspace_id: {workspace_id} and query patter: {query_pattern}")
             table_rows: [TableResult.TableRow] = []
             for table, rows in response.items():
                 for i in rows:
@@ -218,9 +217,7 @@ class AzureSourceManager(SourceManager):
             response = azure_api_processor.query_metrics(resource_id, time_range=time_range, metric_names=metric_names,
                                                          aggregation=aggregation, granularity=granularity)  # can pass metric_name as well, for now fethcing all metrics in api processor
             if not response:
-                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT, text=TextResult(output=StringValue(
-                    value=f"No data returned from Azure for resource_id: {resource_id} and metric_names: {metric_names}")),
-                                          source=self.source)
+                return build_task_failure_result(self.source, f"No data returned from Azure for resource_id: {resource_id} and metric_names: {metric_names}")
             # Convert Azure response into Time Series format
             time_series_data = []
             for metric_name, data_points in response.items():
