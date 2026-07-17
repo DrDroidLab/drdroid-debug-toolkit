@@ -897,6 +897,8 @@ class GrafanaSourceManager(SourceManager):
             metric_query = task.promql_expression.value
 
             grafana_api_processor = self.get_connector_processor(grafana_connector)
+            # Resolve a datasource NAME/TYPE the model may have passed instead of the UID (top 404 cause).
+            datasource_uid = self._resolve_datasource_uid(grafana_api_processor, datasource_uid, 'prometheus')
 
             if query_type == 'Flux':
                 queries = [
@@ -2652,6 +2654,51 @@ class GrafanaSourceManager(SourceManager):
         q = re.sub(r'\|\s*$', '', q).strip()  # drop a dangling trailing pipe if we removed the last stage
         return q, max_lines
 
+    @staticmethod
+    def _resolve_datasource_uid(grafana_api_processor, provided, expected_type):
+        """Map a provided datasource identifier to a real UID for THIS connector.
+
+        Agents very frequently pass a datasource NAME ('loki-k8-employer') or a bare TYPE
+        ('loki'/'prometheus'/'tempo') in datasource_uid, which makes Grafana's /api/ds/query return
+        404 — the top Grafana failure class in prod (account 39992). We look the identifier up against
+        the connector's actual datasources and substitute the real UID.
+
+        SAFETY (mirrors the connector-resolution "never misroute" invariant): only substitute on an
+        unambiguous match, and NEVER across datasource types (a Loki query must not run on a Prometheus
+        source). Any miss / ambiguity / lookup error returns `provided` UNCHANGED, so the query behaves
+        exactly as before (and now 4xx-unmasks with actionable detail). One extra GET /api/datasources
+        on the query path; acceptable at investigation QPS (could be memoized from stored
+        GRAFANA_DATASOURCE metadata later).
+        """
+        provided = (provided or "").strip()
+        if not provided:
+            return provided
+        try:
+            datasources = grafana_api_processor.fetch_data_sources() or []
+        except Exception as e:
+            logger.warning("datasource-uid resolve: could not list datasources (%s); using provided as-is", e)
+            return provided
+        # 1. already a real UID -> use as-is (happy path, no substitution)
+        if any(d.get('uid') == provided for d in datasources):
+            return provided
+        of_type = [d for d in datasources if (d.get('type') or '').lower() == (expected_type or '').lower()]
+        # 2. exact NAME match, restricted to the tool's OWN datasource type
+        named = [d for d in of_type if (d.get('name') or '').lower() == provided.lower()]
+        if len(named) == 1 and named[0].get('uid'):
+            logger.info("datasource-uid resolve: name '%s' -> uid '%s'", provided, named[0]['uid'])
+            return named[0]['uid']
+        # 3. bare TYPE alias ('loki'/'prometheus'/'tempo') -> the default of that type, else the only one
+        if provided.lower() == (expected_type or '').lower():
+            chosen = next((d for d in of_type if d.get('isDefault')), None)
+            if chosen is None and len(of_type) == 1:
+                chosen = of_type[0]
+            if chosen is not None and chosen.get('uid'):
+                logger.info("datasource-uid resolve: type '%s' -> uid '%s' (%s)",
+                            provided, chosen['uid'], chosen.get('name'))
+                return chosen['uid']
+        # 4. no confident, unambiguous match -> leave as provided (query 4xx's, now unmasked)
+        return provided
+
     def execute_loki_datasource_log_query(self, time_range: TimeRange, grafana_task: Grafana,
                                          grafana_connector: ConnectorProto):
         """Executes a LogQL query against a Loki datasource."""
@@ -2669,6 +2716,8 @@ class GrafanaSourceManager(SourceManager):
             logql_query, max_lines = self._sanitize_loki_pipeline(logql_query, max_lines)
 
             grafana_api_processor = self.get_connector_processor(grafana_connector)
+            # Resolve a datasource NAME/TYPE the model may have passed instead of the UID (top 404 cause).
+            datasource_uid = self._resolve_datasource_uid(grafana_api_processor, datasource_uid, 'loki')
 
             print(
                 f"Playbook Task Downstream Request: Type -> Grafana Loki, Datasource_Uid -> {datasource_uid}, "
@@ -2938,6 +2987,8 @@ class GrafanaSourceManager(SourceManager):
             spss = task.spss.value if task.spss and task.spss.value else 3
 
             grafana_api_processor = self.get_connector_processor(grafana_connector)
+            # Resolve a datasource NAME/TYPE the model may have passed instead of the UID (top 404 cause).
+            datasource_uid = self._resolve_datasource_uid(grafana_api_processor, datasource_uid, 'tempo')
 
             print(
                 f"Playbook Task Downstream Request: Type -> Grafana Tempo Search, Datasource_Uid -> {datasource_uid}, "
@@ -3031,6 +3082,8 @@ class GrafanaSourceManager(SourceManager):
             trace_id = task.trace_id.value
 
             grafana_api_processor = self.get_connector_processor(grafana_connector)
+            # Resolve a datasource NAME/TYPE the model may have passed instead of the UID (top 404 cause).
+            datasource_uid = self._resolve_datasource_uid(grafana_api_processor, datasource_uid, 'tempo')
 
             print(
                 f"Playbook Task Downstream Request: Type -> Grafana Tempo Get Trace, "
@@ -3152,6 +3205,8 @@ class GrafanaSourceManager(SourceManager):
             step = task.step.value if task.step and task.step.value else 60
 
             grafana_api_processor = self.get_connector_processor(grafana_connector)
+            # Resolve a datasource NAME/TYPE the model may have passed instead of the UID (top 404 cause).
+            datasource_uid = self._resolve_datasource_uid(grafana_api_processor, datasource_uid, 'tempo')
 
             start = int(time_range.time_geq) if time_range and time_range.time_geq else None
             end = int(time_range.time_lt) if time_range and time_range.time_lt else None
@@ -3240,6 +3295,8 @@ class GrafanaSourceManager(SourceManager):
             metrics_query = task.traceql_metrics_query.value
 
             grafana_api_processor = self.get_connector_processor(grafana_connector)
+            # Resolve a datasource NAME/TYPE the model may have passed instead of the UID (top 404 cause).
+            datasource_uid = self._resolve_datasource_uid(grafana_api_processor, datasource_uid, 'tempo')
 
             start = int(time_range.time_geq) if time_range and time_range.time_geq else None
             end = int(time_range.time_lt) if time_range and time_range.time_lt else None
@@ -3313,6 +3370,8 @@ class GrafanaSourceManager(SourceManager):
             datasource_uid = task.datasource_uid.value
 
             grafana_api_processor = self.get_connector_processor(grafana_connector)
+            # Resolve a datasource NAME/TYPE the model may have passed instead of the UID (top 404 cause).
+            datasource_uid = self._resolve_datasource_uid(grafana_api_processor, datasource_uid, 'tempo')
 
             print(
                 f"Playbook Task Downstream Request: Type -> Grafana Tempo Get Services, "
@@ -3371,6 +3430,8 @@ class GrafanaSourceManager(SourceManager):
             scope = task.scope.value if task.scope and task.scope.value and task.scope.value != 'none' else None
 
             grafana_api_processor = self.get_connector_processor(grafana_connector)
+            # Resolve a datasource NAME/TYPE the model may have passed instead of the UID (top 404 cause).
+            datasource_uid = self._resolve_datasource_uid(grafana_api_processor, datasource_uid, 'tempo')
 
             print(
                 f"Playbook Task Downstream Request: Type -> Grafana Tempo Get Tags, "
@@ -3434,6 +3495,8 @@ class GrafanaSourceManager(SourceManager):
             traceql_filter = task.traceql_filter.value if task.traceql_filter and task.traceql_filter.value else None
 
             grafana_api_processor = self.get_connector_processor(grafana_connector)
+            # Resolve a datasource NAME/TYPE the model may have passed instead of the UID (top 404 cause).
+            datasource_uid = self._resolve_datasource_uid(grafana_api_processor, datasource_uid, 'tempo')
 
             print(
                 f"Playbook Task Downstream Request: Type -> Grafana Tempo Get Tag Values, "

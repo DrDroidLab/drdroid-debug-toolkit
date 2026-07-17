@@ -157,16 +157,31 @@ class KubectlApiProcessor(Processor):
                 kubectl_command, stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT if merge_stderr else subprocess.PIPE, text=True)
             stdout, stderr = process.communicate()
+            # Remember kubectl's OWN outcome before the pipe loop overwrites `process`/`stderr`.
+            # A real cluster/server error (NotFound, Forbidden, unknown flag) surfaces here; a
+            # failing kubectl feeds empty input to a downstream grep, which then exits 1 and used
+            # to look like the failure — masking the actual kubectl error.
+            kubectl_returncode, kubectl_stderr = process.returncode, stderr
             # Pipe kubectl's output through the remaining shell segments (grep/jq/awk/...).
             for cmd in segments[1:]:
                 process = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                            stderr=subprocess.PIPE, text=True, shell=True)
                 stdout, stderr = process.communicate(input=stdout)
+            # Surface a genuine kubectl failure regardless of what a downstream filter returned.
+            if kubectl_returncode not in (0, None) and not merge_stderr:
+                raise Exception(f"kubectl command failed (exit code {kubectl_returncode}): {kubectl_stderr}")
             if process.returncode == 0:
                 print("Command Output:", stdout)
                 return stdout
-            else:
-                raise Exception(f"kubectl command failed (exit code {process.returncode}): {stderr}")
+            # A downstream filter (grep/jq/awk) exiting 1 with NO stderr means "no lines matched" —
+            # a valid empty result, not a failure. Agents pipe `... | grep <x>` constantly, and a
+            # no-match (grep exit 1) was being reported as an error (~420 false failures on account
+            # 39992 alone). A real filter error (grep exit 2, jq parse error) writes to stderr, so
+            # that path still raises below.
+            if len(segments) > 1 and process.returncode == 1 and not (stderr or "").strip():
+                print("Command Output (no matches):", stdout)
+                return stdout
+            raise Exception(f"kubectl command failed (exit code {process.returncode}): {stderr}")
         except Exception as e:
             logger.error(f"Exception occurred while executing kubectl command with error: {e}")
             raise
