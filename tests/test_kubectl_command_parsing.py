@@ -197,3 +197,64 @@ def test_old_naive_split_would_have_produced_invalid_shell():
     invalid = [s for s in naive
                if subprocess.run(["sh", "-n", "-c", s], capture_output=True, text=True).returncode != 0]
     assert invalid, "expected the naive split to yield invalid-shell fragments"
+
+
+# ── exit-code handling: grep/jq no-match is NOT a failure; real kubectl errors must surface ──
+class _ScriptProc:
+    """A Popen stand-in whose (returncode, stdout, stderr) is scripted per call."""
+    def __init__(self, rc, out, err):
+        self.returncode, self._out, self._err = rc, out, err
+
+    def communicate(self, input=None):
+        return (self._out, self._err)
+
+
+def _run_scripted(proc, command, script):
+    """script = list of (returncode, stdout, stderr), one per Popen call in order."""
+    seq = iter(script)
+    with patch.object(subprocess, "Popen", side_effect=lambda *a, **kw: _ScriptProc(*next(seq))):
+        return proc.execute_command(command)
+
+
+def test_grep_no_match_returns_empty_not_error():
+    # kubectl succeeds (rc 0), downstream grep matches nothing (rc 1, empty stderr). This is the
+    # ~420-error class on 39992 (`get pods -A | grep metabase`). Must return "" — NOT raise.
+    out = _run_scripted(_mk(native=True), "get pods --all-namespaces | grep metabase",
+                        script=[(0, "pod-list\n", ""), (1, "", "")])
+    assert out == ""
+
+
+def test_jq_no_match_returns_empty_not_error():
+    out = _run_scripted(_mk(native=True), CMD_JQ, script=[(0, "{...}\n", ""), (1, "", "")])
+    assert out == ""
+
+
+def test_real_kubectl_error_in_pipeline_is_surfaced_not_masked():
+    # kubectl itself fails (NotFound) INSIDE a pipe; the downstream grep then exits 1 on empty
+    # input. The real kubectl error must win — not be hidden as a grep no-match.
+    with pytest.raises(Exception) as e:
+        _run_scripted(_mk(native=True), "get pods -n gone | grep x",
+                      script=[(1, "", 'Error from server (NotFound): namespaces "gone" not found'), (1, "", "")])
+    assert "NotFound" in str(e.value)
+    assert "exit code 1" in str(e.value)
+
+
+def test_grep_hard_error_still_raises():
+    # grep exit 2 (real error, e.g. bad regex) writes to stderr → must still raise, not swallow.
+    with pytest.raises(Exception) as e:
+        _run_scripted(_mk(native=True), "get pods | grep -P '(' ",
+                      script=[(0, "pods\n", ""), (2, "", "grep: missing terminating ) for group")])
+    assert "exit code 2" in str(e.value)
+
+
+def test_no_pipe_kubectl_failure_still_raises():
+    # single-segment command with no downstream filter: kubectl NotFound must raise as before.
+    with pytest.raises(Exception) as e:
+        _run_scripted(_mk(native=True), "get pod does-not-exist -n ns",
+                      script=[(1, "", 'Error from server (NotFound): pods "does-not-exist" not found')])
+    assert "NotFound" in str(e.value)
+
+
+def test_no_pipe_success_returns_output():
+    out = _run_scripted(_mk(native=True), "get pods -n ns", script=[(0, "NAME  READY\n", "")])
+    assert out == "NAME  READY\n"

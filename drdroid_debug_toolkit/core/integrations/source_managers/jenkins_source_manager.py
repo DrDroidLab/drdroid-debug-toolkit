@@ -55,6 +55,25 @@ class JenkinsSourceManager(SourceManager):
                               form_field_type=FormFieldType.MULTILINE_FT)
                 ]
             },
+            # Task type 3 (GET_ALL_BRANCHES) existed in the proto + api processor but was never
+            # wired into this dispatch map, so `jenkins_get_all_branches` failed with "Task type 3
+            # not supported for source: jenkins". That dead-ended the multibranch flow:
+            # fetch_last_build_details on a multibranch job tells the agent to "Use the Get All
+            # Branches task", which then errored — an infinite loop for the agent.
+            Jenkins.TaskType.GET_ALL_BRANCHES: {
+                'executor': self.get_all_branches,
+                'model_types': [SourceModelType.JENKINS_JOBS],
+                'result_type': PlaybookTaskResultType.TABLE,
+                'display_name': 'Get All Branches',
+                'category': 'CI/CD',
+                'form_fields': [
+                    FormField(key_name=StringValue(value="job_name"),
+                              display_name=StringValue(value="Job Path"),
+                              description=StringValue(value='Enter multibranch job path (e.g., folder/job or nested/folder/job)'),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT)
+                ]
+            },
         }
 
         self.connector_form_configs = [
@@ -210,6 +229,39 @@ class JenkinsSourceManager(SourceManager):
                 table_rows.append(table_row)
             table = TableResult(raw_query=StringValue(value=f"Last Build details for ```{job_name}```"),
                                 total_count=UInt64Value(value=len(list(result))),
+                                rows=table_rows)
+            return PlaybookTaskResult(type=PlaybookTaskResultType.TABLE, table=table, source=self.source)
+        except Exception as e:
+            raise Exception(f"Error while executing Jenkins task: {e}")
+
+    def get_all_branches(self, time_range: TimeRange, jenkins_task: Jenkins,
+                         jenkins_connector: Connector):
+        # Executor for GET_ALL_BRANCHES (task type 3). The api processor already implements the
+        # multibranch branch listing; this just adapts it into a TABLE PlaybookTaskResult, mirroring
+        # fetch_last_build_details. Needed so the agent can actually follow the "Use Get All Branches"
+        # guidance that fetch_last_build_details emits for multibranch pipeline jobs.
+        try:
+            if not jenkins_connector:
+                raise Exception("Task execution Failed:: No Jenkins source found")
+
+            get_all_branches = jenkins_task.get_all_branches
+            if not get_all_branches.job_name.value:
+                raise Exception("Task execution Failed:: Job Name is required")
+
+            job_name = get_all_branches.job_name.value
+            jenkins_processor = self.get_connector_processor(jenkins_connector)
+            print("Playbook Task Downstream Request: Type -> {}, Account -> {}".format(
+                "Jenkins", jenkins_connector.account_id.value), job_name, flush=True)
+            result = jenkins_processor.get_all_branches(job_name)
+            table_rows: [TableResult.TableRow] = []
+            for r in list(result):
+                table_columns = []
+                for key, value in r.items():
+                    table_columns.append(TableResult.TableColumn(name=StringValue(value=str(key)),
+                                                                 value=StringValue(value=str(value))))
+                table_rows.append(TableResult.TableRow(columns=table_columns))
+            table = TableResult(raw_query=StringValue(value=f"All branches for ```{job_name}```"),
+                                total_count=UInt64Value(value=len(table_rows)),
                                 rows=table_rows)
             return PlaybookTaskResult(type=PlaybookTaskResultType.TABLE, table=table, source=self.source)
         except Exception as e:
