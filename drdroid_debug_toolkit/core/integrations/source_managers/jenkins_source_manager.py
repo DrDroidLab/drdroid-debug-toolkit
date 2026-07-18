@@ -74,6 +74,25 @@ class JenkinsSourceManager(SourceManager):
                               form_field_type=FormFieldType.TEXT_FT)
                 ]
             },
+            # Discovery task. Every other Jenkins task needs an exact job path, but nothing
+            # told the agent what paths exist — so it guessed from service names
+            # (`wi-candidate-profile-ms`, then `gh-wi-candidate-profile-ms-wi-candidate-profile-ms`)
+            # and Jenkins answered 404. This lists the real paths so the agent can look one up.
+            Jenkins.TaskType.LIST_JOBS: {
+                'executor': self.list_jobs,
+                'model_types': [SourceModelType.JENKINS_JOBS],
+                'result_type': PlaybookTaskResultType.TABLE,
+                'display_name': 'List Jobs',
+                'category': 'CI/CD',
+                'form_fields': [
+                    FormField(key_name=StringValue(value="folder_path"),
+                              display_name=StringValue(value="Folder Path"),
+                              description=StringValue(value='Optional: restrict listing to a folder (e.g. team-a or team-a/subfolder). Leave empty to list all jobs.'),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT,
+                              is_optional=True)
+                ]
+            },
         }
 
         self.connector_form_configs = [
@@ -261,6 +280,55 @@ class JenkinsSourceManager(SourceManager):
                                                                  value=StringValue(value=str(value))))
                 table_rows.append(TableResult.TableRow(columns=table_columns))
             table = TableResult(raw_query=StringValue(value=f"All branches for ```{job_name}```"),
+                                total_count=UInt64Value(value=len(table_rows)),
+                                rows=table_rows)
+            return PlaybookTaskResult(type=PlaybookTaskResultType.TABLE, table=table, source=self.source)
+        except Exception as e:
+            raise Exception(f"Error while executing Jenkins task: {e}")
+
+    def list_jobs(self, time_range: TimeRange, jenkins_task: Jenkins,
+                  jenkins_connector: Connector):
+        # Executor for LIST_JOBS (task type 4). Returns the exact job paths that the other
+        # Jenkins tasks require, so the agent can look a path up instead of inventing one.
+        #
+        # Two deliberate shaping decisions:
+        #  - Folder entries are dropped. get_all_jobs_recursive returns folders alongside jobs,
+        #    but a folder is not runnable and their children are already included as separate
+        #    rows, so listing them is pure noise for the agent.
+        #  - `is_multibranch` is surfaced. A multibranch job rejects fetch_last_build_details
+        #    without a branch and tells the caller to use Get All Branches; flagging it here
+        #    lets the agent take that path directly rather than discovering it via an error.
+        try:
+            if not jenkins_connector:
+                raise Exception("Task execution Failed:: No Jenkins source found")
+
+            list_jobs_task = jenkins_task.list_jobs
+            folder_path = list_jobs_task.folder_path.value or ""
+
+            jenkins_processor = self.get_connector_processor(jenkins_connector)
+            print("Playbook Task Downstream Request: Type -> {}, Account -> {}".format(
+                "Jenkins", jenkins_connector.account_id.value), folder_path or "<root>", flush=True)
+            all_entries = jenkins_processor.get_all_jobs_recursive(folder_path)
+
+            table_rows: [TableResult.TableRow] = []
+            for entry in list(all_entries):
+                job_class = str(entry.get("class", ""))
+                if "folder" in job_class.lower() or "directory" in job_class.lower():
+                    continue
+                row = {
+                    "name": entry.get("name", ""),
+                    "full_path": entry.get("full_path", ""),
+                    "class": job_class,
+                    "is_multibranch": "multibranch" in job_class.lower(),
+                }
+                table_columns = []
+                for key, value in row.items():
+                    table_columns.append(TableResult.TableColumn(name=StringValue(value=str(key)),
+                                                                 value=StringValue(value=str(value))))
+                table_rows.append(TableResult.TableRow(columns=table_columns))
+
+            scope = f" under ```{folder_path}```" if folder_path else ""
+            table = TableResult(raw_query=StringValue(value=f"All Jenkins jobs{scope}"),
                                 total_count=UInt64Value(value=len(table_rows)),
                                 rows=table_rows)
             return PlaybookTaskResult(type=PlaybookTaskResultType.TABLE, table=table, source=self.source)

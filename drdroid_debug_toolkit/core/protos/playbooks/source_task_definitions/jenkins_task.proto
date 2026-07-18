@@ -21,11 +21,18 @@ message Jenkins {
     google.protobuf.Struct parameter_json = 3;
   }
 
+  // Discovery task: every other Jenkins task requires an exact job path, which the
+  // agent previously had to guess from service names (producing 404s in prod).
+  message ListJobs {
+    google.protobuf.StringValue folder_path = 1; // Optional: restrict to a folder, empty = whole instance
+  }
+
   enum TaskType {
     UNKNOWN = 0;
     FETCH_LAST_BUILD_DETAILS = 1;
     RUN_JOB = 2;
     GET_ALL_BRANCHES = 3;
+    LIST_JOBS = 4;
   }
 
   TaskType type = 1;
@@ -33,5 +40,6 @@ message Jenkins {
     LastBuildDetails fetch_last_build_details = 2;
     RunJob run_job = 3;
     GetAllBranches get_all_branches = 4;
+    ListJobs list_jobs = 5;
   }
 }
