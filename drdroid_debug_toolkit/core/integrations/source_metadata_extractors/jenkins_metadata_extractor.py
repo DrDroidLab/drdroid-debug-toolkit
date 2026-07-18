@@ -14,7 +14,14 @@ class JenkinsSourceMetadataExtractor(SourceMetadataExtractor):
     def __init__(self, request_id: str, connector_name: str, url: str, username: str, api_token: str,
                  crumb: bool = False, ):
         self.jenkins_processor = JenkinsAPIProcessor(url, username, api_token, crumb=crumb)
-        super().__init__(request_id, connector_name, Source.ARGOCD)
+        # Source.JENKINS, not ARGOCD. The active base class persists rows with
+        # connector_type=self.source and treats each (account, connector, source, model_type)
+        # batch as the authoritative set, so a wrong source silently files Jenkins jobs under
+        # ArgoCD. In prod this put all 537 of account 40720's jobs on connector_type=65.
+        # NOTE: after deploying this, the pre-existing connector_type=65 / model_type=2901 rows
+        # must be deactivated by hand -- the authoritative-set logic is scoped by connector_type,
+        # so it will never see, and therefore never retire, the mis-filed rows.
+        super().__init__(request_id, connector_name, Source.JENKINS)
 
     @log_function_call
     def extract_jobs(self):
@@ -58,35 +65,35 @@ class JenkinsSourceMetadataExtractor(SourceMetadataExtractor):
                         job_full_path = job.get("full_path", "")
                         
                         is_folder = "folder" in job_class.lower() or "directory" in job_class.lower()
-                        
+
                         if job_full_path:
-                            # Get parameters for this job (only for non-folders)
-                            parameters = [] if is_folder else self.jenkins_processor.get_job_parameters(job_full_path)
-                            
+                            # Folders are containers, not runnable jobs -- persisting them meant
+                            # they were indexed as jobs downstream and offered to the agent as
+                            # valid build targets. Their children are collected separately by
+                            # get_all_jobs_recursive, so skipping the folder loses nothing.
+                            # (This branch previously built a local `metadata` dict that was
+                            # never used, so folders were saved regardless of the check.)
+                            if is_folder:
+                                print(f"Skipping folder (not saving to DB): {job_full_path}", flush=True)
+                                continue
+
+                            parameters = self.jenkins_processor.get_job_parameters(job_full_path)
+
                             # Use full_path as the unique identifier, but keep the simple name
-                            model_data[job_full_path] = {
+                            metadata = {
                                 "name": job_name,
                                 "full_path": job_full_path,
                                 "class": job_class,
-                                "parameters": parameters
+                                "parameters": parameters,
+                                # Lets the agent tell a multibranch job (which requires a branch)
+                                # from a regular one without having to trigger the error first.
+                                "is_multibranch": "multibranch" in job_class.lower(),
                             }
-                            
-                                # Only save actual jobs, not folders
-                            if not is_folder:
-                                # Use the full path as the model_uid to ensure uniqueness across the hierarchy
-                                print(f"Saving to DB: {job_full_path}", flush=True)
-                                
-                                # Explicitly add parent folder info
-                                if '/' in job_full_path:
-                                    path_parts = job_full_path.split('/')
-                                    parent_path = '/'.join(path_parts[:-1])
-                                    metadata = model_data[job_full_path].copy()
-                                    metadata['parent_folder'] = parent_path
-                                else:
-                                    metadata = model_data[job_full_path].copy()
+                            if '/' in job_full_path:
+                                metadata['parent_folder'] = '/'.join(job_full_path.split('/')[:-1])
 
-                            else:
-                                print(f"Skipping folder (not saving to DB): {job_full_path}", flush=True)
+                            print(f"Saving to DB: {job_full_path}", flush=True)
+                            model_data[job_full_path] = metadata
                     except KeyError as e:
                         logger.error(f"Missing key {e} in job: {job}")
         except Exception as e:
