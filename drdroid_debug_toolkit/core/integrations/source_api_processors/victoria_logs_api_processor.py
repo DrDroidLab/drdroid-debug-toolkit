@@ -3,6 +3,8 @@ from typing import Any, Dict, Optional, List
 
 import requests
 
+from core.settings import LOG_QUERY_TIMEOUT
+
 
 class VictoriaLogsApiProcessor:
 
@@ -37,7 +39,7 @@ class VictoriaLogsApiProcessor:
 
     def _http_get(self, path: str, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         url = f"{self._base_url}{path}"
-        resp = requests.get(url, params=params or {}, headers=self._headers, timeout=60, verify=self._ssl_verify)
+        resp = requests.get(url, params=params or {}, headers=self._headers, timeout=LOG_QUERY_TIMEOUT, verify=self._ssl_verify)
         resp.raise_for_status()
         if not resp.text:
             return {}
@@ -54,7 +56,7 @@ class VictoriaLogsApiProcessor:
         url = f"{self._base_url}{path}"
         headers = {**self._headers}  # requests sets proper form content-type for dict data
 
-        resp = requests.post(url, data=data, headers=headers, timeout=60, verify=self._ssl_verify)
+        resp = requests.post(url, data=data, headers=headers, timeout=LOG_QUERY_TIMEOUT, verify=self._ssl_verify)
 
         resp.raise_for_status()
         return resp
