@@ -19,7 +19,7 @@ from core.protos.playbooks.source_task_definitions.github_task_pb2 import Github
 from core.protos.ui_definition_pb2 import FormField, FormFieldType
 
 logger = logging.getLogger(__name__)
-from core.integrations.utils.task_result_utils import build_task_failure_result
+from core.integrations.utils.task_result_utils import build_task_failure_result, build_task_empty_result
 
 
 class TimeoutException(Exception):
@@ -424,7 +424,11 @@ class GithubSourceManager(SourceManager):
                 time_filter_msg = ""
                 if time_since or time_until:
                     time_filter_msg = f" within the specified time range"
-                return build_task_failure_result(self.source, f"No commits found for repo: {repo}, branch: {branch}{time_filter_msg}. Try removing time filters or checking if the branch has any commits.")
+                # "No commits" means the query ran but the branch/time-range had none — that's an
+                # empty result, NOT an operational fault. Emitting it as empty_query_result (instead
+                # of a 500) stops benign "no commits" outcomes counting as tool-call failures.
+                branch_label = branch or "(default branch)"
+                return build_task_empty_result(self.source, f"No commits found for repo: {repo}, branch: {branch_label}{time_filter_msg}. Try removing time filters or checking if the branch has any commits.")
             
             response_struct = dict_to_proto({"recent_commits": recent_commits}, Struct)
             commit_output = ApiResponseResult(response_body=response_struct)
