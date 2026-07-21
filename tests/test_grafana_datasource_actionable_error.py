@@ -65,6 +65,15 @@ def test_match_garbage_is_a_miss():
     assert match(DS, "nope-xyz", "prometheus")[1] is False
 
 
+def test_match_type_alias_multiple_defaults_is_a_miss():
+    # two prometheus datasources both marked default -> ambiguous, must not route arbitrarily
+    two_defaults = [
+        {"uid": "promA", "name": "Prom A", "type": "prometheus", "isDefault": True},
+        {"uid": "promB", "name": "Prom B", "type": "prometheus", "isDefault": True},
+    ]
+    assert match(two_defaults, "prometheus", "prometheus") == ("prometheus", False)
+
+
 # --- actionable error on miss ---
 def _err_body(result):
     return proto_to_dict(result.api_response.response_body)

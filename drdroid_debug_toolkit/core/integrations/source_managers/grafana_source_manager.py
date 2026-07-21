@@ -2676,9 +2676,11 @@ class GrafanaSourceManager(SourceManager):
         named = [d for d in of_type if (d.get('name') or '').lower() == provided.lower()]
         if len(named) == 1 and named[0].get('uid'):
             return named[0]['uid'], True
-        # 3. bare TYPE alias ('loki'/'prometheus'/'tempo') -> the default of that type, else the only one
+        # 3. bare TYPE alias ('loki'/'prometheus'/'tempo') -> the SINGLE default of that type, else the
+        #    only one. Multiple defaults are ambiguous (never misroute) -> fall through to a miss.
         if provided.lower() == (expected_type or '').lower():
-            chosen = next((d for d in of_type if d.get('isDefault')), None)
+            defaults = [d for d in of_type if d.get('isDefault')]
+            chosen = defaults[0] if len(defaults) == 1 else None
             if chosen is None and len(of_type) == 1:
                 chosen = of_type[0]
             if chosen is not None and chosen.get('uid'):
