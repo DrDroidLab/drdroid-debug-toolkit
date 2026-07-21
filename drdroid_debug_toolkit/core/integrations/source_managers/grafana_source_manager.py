@@ -897,8 +897,11 @@ class GrafanaSourceManager(SourceManager):
             metric_query = task.promql_expression.value
 
             grafana_api_processor = self.get_connector_processor(grafana_connector)
-            # Resolve a datasource NAME/TYPE the model may have passed instead of the UID (top 404 cause).
-            datasource_uid = self._resolve_datasource_uid(grafana_api_processor, datasource_uid, 'prometheus')
+            # Resolve a datasource NAME/TYPE the model may have passed; on a miss return an actionable
+            # error (available datasources) instead of a bare /api/ds/query 404 (top Grafana failure on 39992).
+            datasource_uid, _ds_error = self._resolve_datasource_uid_or_error(grafana_api_processor, datasource_uid, 'prometheus')
+            if _ds_error:
+                return _ds_error
 
             if query_type == 'Flux':
                 queries = [
@@ -2655,21 +2658,38 @@ class GrafanaSourceManager(SourceManager):
         return q, max_lines
 
     @staticmethod
+    def _match_datasource_uid(datasources, provided, expected_type):
+        """Pure matcher (no I/O): map `provided` (a real UID, a NAME, or a bare TYPE alias) to a UID
+        for `expected_type`, returning (uid, resolved: bool). Never crosses datasource types and only
+        substitutes on an unambiguous match — the 'never misroute' invariant. On a miss returns
+        (provided, False)."""
+        provided = (provided or "").strip()
+        if not provided:
+            return provided, False
+        # 1. already a real UID -> use as-is (happy path, no substitution)
+        if any(d.get('uid') == provided for d in datasources):
+            return provided, True
+        of_type = [d for d in datasources if (d.get('type') or '').lower() == (expected_type or '').lower()]
+        # 2. exact NAME match, restricted to the tool's OWN datasource type
+        named = [d for d in of_type if (d.get('name') or '').lower() == provided.lower()]
+        if len(named) == 1 and named[0].get('uid'):
+            return named[0]['uid'], True
+        # 3. bare TYPE alias ('loki'/'prometheus'/'tempo') -> the default of that type, else the only one
+        if provided.lower() == (expected_type or '').lower():
+            chosen = next((d for d in of_type if d.get('isDefault')), None)
+            if chosen is None and len(of_type) == 1:
+                chosen = of_type[0]
+            if chosen is not None and chosen.get('uid'):
+                return chosen['uid'], True
+        # 4. no confident, unambiguous match
+        return provided, False
+
+    @staticmethod
     def _resolve_datasource_uid(grafana_api_processor, provided, expected_type):
-        """Map a provided datasource identifier to a real UID for THIS connector.
-
-        Agents very frequently pass a datasource NAME ('loki-k8-employer') or a bare TYPE
-        ('loki'/'prometheus'/'tempo') in datasource_uid, which makes Grafana's /api/ds/query return
-        404 — the top Grafana failure class in prod (account 39992). We look the identifier up against
-        the connector's actual datasources and substitute the real UID.
-
-        SAFETY (mirrors the connector-resolution "never misroute" invariant): only substitute on an
-        unambiguous match, and NEVER across datasource types (a Loki query must not run on a Prometheus
-        source). Any miss / ambiguity / lookup error returns `provided` UNCHANGED, so the query behaves
-        exactly as before (and now 4xx-unmasks with actionable detail). One extra GET /api/datasources
-        on the query path; acceptable at investigation QPS (could be memoized from stored
-        GRAFANA_DATASOURCE metadata later).
-        """
+        """Map a provided datasource identifier to a real UID for THIS connector (see _match_datasource_uid).
+        Any miss / lookup error returns `provided` UNCHANGED so the query behaves exactly as before. Used
+        by the tempo handlers; loki/prometheus use _resolve_datasource_uid_or_error for an actionable miss.
+        One extra GET /api/datasources on the query path; acceptable at investigation QPS."""
         provided = (provided or "").strip()
         if not provided:
             return provided
@@ -2678,26 +2698,36 @@ class GrafanaSourceManager(SourceManager):
         except Exception as e:
             logger.warning("datasource-uid resolve: could not list datasources (%s); using provided as-is", e)
             return provided
-        # 1. already a real UID -> use as-is (happy path, no substitution)
-        if any(d.get('uid') == provided for d in datasources):
-            return provided
-        of_type = [d for d in datasources if (d.get('type') or '').lower() == (expected_type or '').lower()]
-        # 2. exact NAME match, restricted to the tool's OWN datasource type
-        named = [d for d in of_type if (d.get('name') or '').lower() == provided.lower()]
-        if len(named) == 1 and named[0].get('uid'):
-            logger.info("datasource-uid resolve: name '%s' -> uid '%s'", provided, named[0]['uid'])
-            return named[0]['uid']
-        # 3. bare TYPE alias ('loki'/'prometheus'/'tempo') -> the default of that type, else the only one
-        if provided.lower() == (expected_type or '').lower():
-            chosen = next((d for d in of_type if d.get('isDefault')), None)
-            if chosen is None and len(of_type) == 1:
-                chosen = of_type[0]
-            if chosen is not None and chosen.get('uid'):
-                logger.info("datasource-uid resolve: type '%s' -> uid '%s' (%s)",
-                            provided, chosen['uid'], chosen.get('name'))
-                return chosen['uid']
-        # 4. no confident, unambiguous match -> leave as provided (query 4xx's, now unmasked)
-        return provided
+        uid, ok = GrafanaSourceManager._match_datasource_uid(datasources, provided, expected_type)
+        if ok and uid != provided:
+            logger.info("datasource-uid resolve: '%s' -> uid '%s'", provided, uid)
+        return uid
+
+    def _resolve_datasource_uid_or_error(self, grafana_api_processor, provided, expected_type):
+        """Resolve like _resolve_datasource_uid, but on a confident MISS return an ACTIONABLE error
+        (listing this connector's datasources of `expected_type`) instead of letting the query hit a bare
+        `/api/ds/query` 404 "Data source not found" — the top Grafana failure on account 39992. Returns
+        (uid, None) on success or (None, PlaybookTaskResult) on miss, so the agent can retry with a real
+        datasource_uid. If datasources can't be listed we preserve the old behavior (attempt the query)."""
+        original = (provided or "").strip()
+        try:
+            datasources = grafana_api_processor.fetch_data_sources() or []
+        except Exception as e:
+            logger.warning("datasource-uid resolve: could not list datasources (%s); using provided as-is", e)
+            return original, None
+        uid, ok = self._match_datasource_uid(datasources, original, expected_type)
+        if ok:
+            if uid != original:
+                logger.info("datasource-uid resolve: '%s' -> uid '%s'", original, uid)
+            return uid, None
+        available = [f"{d.get('name')} ({d.get('uid')})" for d in datasources
+                     if (d.get('type') or '').lower() == (expected_type or '').lower() and d.get('uid')]
+        hint = (f" Valid {expected_type} datasource(s) on this connector: {', '.join(available)}."
+                if available else f" No {expected_type} datasource is configured on this Grafana connector.")
+        return None, build_task_failure_result(
+            self.source,
+            f"Grafana datasource '{original}' could not be resolved to a {expected_type} datasource.{hint} "
+            f"Retry with a valid datasource_uid from the list above.")
 
     def execute_loki_datasource_log_query(self, time_range: TimeRange, grafana_task: Grafana,
                                          grafana_connector: ConnectorProto):
@@ -2716,8 +2746,11 @@ class GrafanaSourceManager(SourceManager):
             logql_query, max_lines = self._sanitize_loki_pipeline(logql_query, max_lines)
 
             grafana_api_processor = self.get_connector_processor(grafana_connector)
-            # Resolve a datasource NAME/TYPE the model may have passed instead of the UID (top 404 cause).
-            datasource_uid = self._resolve_datasource_uid(grafana_api_processor, datasource_uid, 'loki')
+            # Resolve a datasource NAME/TYPE the model may have passed; on a miss return an actionable
+            # error (available datasources) instead of a bare /api/ds/query 404 (top Grafana failure on 39992).
+            datasource_uid, _ds_error = self._resolve_datasource_uid_or_error(grafana_api_processor, datasource_uid, 'loki')
+            if _ds_error:
+                return _ds_error
 
             print(
                 f"Playbook Task Downstream Request: Type -> Grafana Loki, Datasource_Uid -> {datasource_uid}, "
