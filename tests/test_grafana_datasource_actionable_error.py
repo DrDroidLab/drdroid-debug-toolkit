@@ -56,6 +56,11 @@ def test_match_cross_type_is_a_miss():
     assert match(DS, "loki-k8-employer", "prometheus") == ("loki-k8-employer", False)
 
 
+def test_match_cross_type_uid_is_a_miss():
+    # a real loki UID passed to a prometheus query must NOT resolve as-is (never misroute across types)
+    assert match(DS, "TLOx7hq7z", "prometheus") == ("TLOx7hq7z", False)
+
+
 def test_match_garbage_is_a_miss():
     assert match(DS, "nope-xyz", "prometheus")[1] is False
 

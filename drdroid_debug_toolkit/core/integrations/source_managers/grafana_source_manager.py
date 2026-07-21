@@ -2666,10 +2666,12 @@ class GrafanaSourceManager(SourceManager):
         provided = (provided or "").strip()
         if not provided:
             return provided, False
-        # 1. already a real UID -> use as-is (happy path, no substitution)
-        if any(d.get('uid') == provided for d in datasources):
-            return provided, True
         of_type = [d for d in datasources if (d.get('type') or '').lower() == (expected_type or '').lower()]
+        # 1. already a real UID OF THE EXPECTED TYPE -> use as-is (happy path, no substitution).
+        #    Restricted to of_type so a wrong-type UID (e.g. a loki UID on a prometheus query) is a
+        #    miss, not a silent cross-type match — the 'never misroute' invariant.
+        if any(d.get('uid') == provided for d in of_type):
+            return provided, True
         # 2. exact NAME match, restricted to the tool's OWN datasource type
         named = [d for d in of_type if (d.get('name') or '').lower() == provided.lower()]
         if len(named) == 1 and named[0].get('uid'):
