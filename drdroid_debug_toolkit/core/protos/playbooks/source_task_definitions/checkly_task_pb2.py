@@ -25,7 +25,7 @@ _sym_db = _symbol_database.Default()
 from google.protobuf import wrappers_pb2 as google_dot_protobuf_dot_wrappers__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n@core/protos/playbooks/source_task_definitions/checkly_task.proto\x12\x15\x63ore.protos.playbooks\x1a\x1egoogle/protobuf/wrappers.proto\"\xb9\x08\n\x07\x43heckly\x12\x35\n\x04type\x18\x01 \x01(\x0e\x32\'.core.protos.playbooks.Checkly.TaskType\x12\x44\n\x0blist_checks\x18\x02 \x01(\x0b\x32-.core.protos.playbooks.Checkly.ListChecksTaskH\x00\x12Q\n\x12get_check_statuses\x18\x03 \x01(\x0b\x32\x33.core.protos.playbooks.Checkly.GetCheckStatusesTaskH\x00\x12O\n\x11get_check_results\x18\x04 \x01(\x0b\x32\x32.core.protos.playbooks.Checkly.GetCheckResultsTaskH\x00\x12S\n\x13get_check_analytics\x18\x05 \x01(\x0b\x32\x34.core.protos.playbooks.Checkly.GetCheckAnalyticsTaskH\x00\x12M\n\x10get_check_alerts\x18\x06 \x01(\x0b\x32\x31.core.protos.playbooks.Checkly.GetCheckAlertsTaskH\x00\x12M\n\x10get_check_groups\x18\x07 \x01(\x0b\x32\x31.core.protos.playbooks.Checkly.GetCheckGroupsTaskH\x00\x1a\x10\n\x0eListChecksTask\x1a\x16\n\x14GetCheckStatusesTask\x1ar\n\x13GetCheckResultsTask\x12.\n\x08\x63heck_id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12+\n\x05limit\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.UInt64Value\x1ay\n\x15GetCheckAnalyticsTask\x12.\n\x08\x63heck_id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x30\n\ncheck_type\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1a\x44\n\x12GetCheckAlertsTask\x12.\n\x08\x63heck_id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1a\x14\n\x12GetCheckGroupsTask\"\x9c\x01\n\x08TaskType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x0f\n\x0bLIST_CHECKS\x10\x01\x12\x16\n\x12GET_CHECK_STATUSES\x10\x02\x12\x15\n\x11GET_CHECK_RESULTS\x10\x03\x12\x17\n\x13GET_CHECK_ANALYTICS\x10\x04\x12\x14\n\x10GET_CHECK_ALERTS\x10\x05\x12\x14\n\x10GET_CHECK_GROUPS\x10\x06\x42\x06\n\x04taskb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n@core/protos/playbooks/source_task_definitions/checkly_task.proto\x12\x15\x63ore.protos.playbooks\x1a\x1egoogle/protobuf/wrappers.proto\"\xa2\x10\n\x07\x43heckly\x12\x35\n\x04type\x18\x01 \x01(\x0e\x32\'.core.protos.playbooks.Checkly.TaskType\x12\x44\n\x0blist_checks\x18\x02 \x01(\x0b\x32-.core.protos.playbooks.Checkly.ListChecksTaskH\x00\x12Q\n\x12get_check_statuses\x18\x03 \x01(\x0b\x32\x33.core.protos.playbooks.Checkly.GetCheckStatusesTaskH\x00\x12O\n\x11get_check_results\x18\x04 \x01(\x0b\x32\x32.core.protos.playbooks.Checkly.GetCheckResultsTaskH\x00\x12S\n\x13get_check_analytics\x18\x05 \x01(\x0b\x32\x34.core.protos.playbooks.Checkly.GetCheckAnalyticsTaskH\x00\x12M\n\x10get_check_alerts\x18\x06 \x01(\x0b\x32\x31.core.protos.playbooks.Checkly.GetCheckAlertsTaskH\x00\x12M\n\x10get_check_groups\x18\x07 \x01(\x0b\x32\x31.core.protos.playbooks.Checkly.GetCheckGroupsTaskH\x00\x12M\n\x10get_error_groups\x18\x08 \x01(\x0b\x32\x31.core.protos.playbooks.Checkly.GetErrorGroupsTaskH\x00\x12H\n\rget_reporting\x18\t \x01(\x0b\x32/.core.protos.playbooks.Checkly.GetReportingTaskH\x00\x12Z\n\x17get_check_result_detail\x18\n \x01(\x0b\x32\x37.core.protos.playbooks.Checkly.GetCheckResultDetailTaskH\x00\x12Q\n\x12get_alert_channels\x18\x0b \x01(\x0b\x32\x33.core.protos.playbooks.Checkly.GetAlertChannelsTaskH\x00\x1a\x10\n\x0eListChecksTask\x1a\x16\n\x14GetCheckStatusesTask\x1ar\n\x13GetCheckResultsTask\x12.\n\x08\x63heck_id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12+\n\x05limit\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.UInt64Value\x1ay\n\x15GetCheckAnalyticsTask\x12.\n\x08\x63heck_id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x30\n\ncheck_type\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1a\x44\n\x12GetCheckAlertsTask\x12.\n\x08\x63heck_id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1a\x14\n\x12GetCheckGroupsTask\x1a\x9d\x01\n\x12GetErrorGroupsTask\x12.\n\x08\x63heck_id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12+\n\x05limit\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.UInt64Value\x12*\n\x04page\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.UInt64Value\x1ax\n\x10GetReportingTask\x12\x31\n\x0bquick_range\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x31\n\x0bgranularity\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x1a\xb5\x01\n\x18GetCheckResultDetailTask\x12.\n\x08\x63heck_id\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x35\n\x0f\x63heck_result_id\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x32\n\x0einclude_assets\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.BoolValue\x1ao\n\x14GetAlertChannelsTask\x12+\n\x05limit\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.UInt64Value\x12*\n\x04page\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.UInt64Value\"\xfa\x01\n\x08TaskType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x0f\n\x0bLIST_CHECKS\x10\x01\x12\x16\n\x12GET_CHECK_STATUSES\x10\x02\x12\x15\n\x11GET_CHECK_RESULTS\x10\x03\x12\x17\n\x13GET_CHECK_ANALYTICS\x10\x04\x12\x14\n\x10GET_CHECK_ALERTS\x10\x05\x12\x14\n\x10GET_CHECK_GROUPS\x10\x06\x12\x14\n\x10GET_ERROR_GROUPS\x10\x07\x12\x11\n\rGET_REPORTING\x10\x08\x12\x1b\n\x17GET_CHECK_RESULT_DETAIL\x10\t\x12\x16\n\x12GET_ALERT_CHANNELS\x10\nB\x06\n\x04taskb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -33,19 +33,27 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'core.protos.playbooks.sourc
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
   _globals['_CHECKLY']._serialized_start=124
-  _globals['_CHECKLY']._serialized_end=1205
-  _globals['_CHECKLY_LISTCHECKSTASK']._serialized_start=667
-  _globals['_CHECKLY_LISTCHECKSTASK']._serialized_end=683
-  _globals['_CHECKLY_GETCHECKSTATUSESTASK']._serialized_start=685
-  _globals['_CHECKLY_GETCHECKSTATUSESTASK']._serialized_end=707
-  _globals['_CHECKLY_GETCHECKRESULTSTASK']._serialized_start=709
-  _globals['_CHECKLY_GETCHECKRESULTSTASK']._serialized_end=823
-  _globals['_CHECKLY_GETCHECKANALYTICSTASK']._serialized_start=825
-  _globals['_CHECKLY_GETCHECKANALYTICSTASK']._serialized_end=946
-  _globals['_CHECKLY_GETCHECKALERTSTASK']._serialized_start=948
-  _globals['_CHECKLY_GETCHECKALERTSTASK']._serialized_end=1016
-  _globals['_CHECKLY_GETCHECKGROUPSTASK']._serialized_start=1018
-  _globals['_CHECKLY_GETCHECKGROUPSTASK']._serialized_end=1038
-  _globals['_CHECKLY_TASKTYPE']._serialized_start=1041
-  _globals['_CHECKLY_TASKTYPE']._serialized_end=1197
+  _globals['_CHECKLY']._serialized_end=2206
+  _globals['_CHECKLY_LISTCHECKSTASK']._serialized_start=995
+  _globals['_CHECKLY_LISTCHECKSTASK']._serialized_end=1011
+  _globals['_CHECKLY_GETCHECKSTATUSESTASK']._serialized_start=1013
+  _globals['_CHECKLY_GETCHECKSTATUSESTASK']._serialized_end=1035
+  _globals['_CHECKLY_GETCHECKRESULTSTASK']._serialized_start=1037
+  _globals['_CHECKLY_GETCHECKRESULTSTASK']._serialized_end=1151
+  _globals['_CHECKLY_GETCHECKANALYTICSTASK']._serialized_start=1153
+  _globals['_CHECKLY_GETCHECKANALYTICSTASK']._serialized_end=1274
+  _globals['_CHECKLY_GETCHECKALERTSTASK']._serialized_start=1276
+  _globals['_CHECKLY_GETCHECKALERTSTASK']._serialized_end=1344
+  _globals['_CHECKLY_GETCHECKGROUPSTASK']._serialized_start=1346
+  _globals['_CHECKLY_GETCHECKGROUPSTASK']._serialized_end=1366
+  _globals['_CHECKLY_GETERRORGROUPSTASK']._serialized_start=1369
+  _globals['_CHECKLY_GETERRORGROUPSTASK']._serialized_end=1526
+  _globals['_CHECKLY_GETREPORTINGTASK']._serialized_start=1528
+  _globals['_CHECKLY_GETREPORTINGTASK']._serialized_end=1648
+  _globals['_CHECKLY_GETCHECKRESULTDETAILTASK']._serialized_start=1651
+  _globals['_CHECKLY_GETCHECKRESULTDETAILTASK']._serialized_end=1832
+  _globals['_CHECKLY_GETALERTCHANNELSTASK']._serialized_start=1834
+  _globals['_CHECKLY_GETALERTCHANNELSTASK']._serialized_end=1945
+  _globals['_CHECKLY_TASKTYPE']._serialized_start=1948
+  _globals['_CHECKLY_TASKTYPE']._serialized_end=2198
 # @@protoc_insertion_point(module_scope)

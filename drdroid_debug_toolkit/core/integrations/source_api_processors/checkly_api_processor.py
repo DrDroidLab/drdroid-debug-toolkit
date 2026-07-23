@@ -94,3 +94,57 @@ class ChecklyApiProcessor(Processor):
         except Exception as e:
             logger.error(f"ChecklyApiProcessor.get_check_groups:: Error: {e}")
             raise
+
+    def get_error_groups(self, check_id: str = None, limit: int = None, page: int = None) -> dict:
+        try:
+            params = {}
+            if limit:
+                params["limit"] = limit
+            if page:
+                params["page"] = page
+            path = f"/error-groups/checks/{check_id}" if check_id else "/error-groups"
+            return self._get(path, params=params or None)
+        except Exception as e:
+            logger.error(f"ChecklyApiProcessor.get_error_groups:: Error: {e}")
+            raise
+
+    def get_reporting(self, from_ts: str = None, to_ts: str = None, quick_range: str = None, granularity: str = None) -> dict:
+        try:
+            params = {}
+            if from_ts and to_ts:
+                params["from"] = from_ts
+                params["to"] = to_ts
+            elif quick_range:
+                params["quickRange"] = quick_range
+            if granularity:
+                params["granularity"] = granularity
+            return self._get("/reporting", params=params or None)
+        except Exception as e:
+            logger.error(f"ChecklyApiProcessor.get_reporting:: Error: {e}")
+            raise
+
+    def get_check_result_detail(self, check_id: str, check_result_id: str) -> dict:
+        try:
+            return self._get(f"/check-results/{check_id}/{check_result_id}")
+        except Exception as e:
+            logger.error(f"ChecklyApiProcessor.get_check_result_detail:: Error for check {check_id}: {e}")
+            raise
+
+    def get_check_result_assets(self, check_id: str, check_result_id: str) -> dict:
+        try:
+            return self._get(f"/check-results/{check_id}/{check_result_id}/assets")
+        except Exception as e:
+            logger.error(f"ChecklyApiProcessor.get_check_result_assets:: Error for check {check_id}: {e}")
+            raise
+
+    def get_alert_channels(self, limit: int = None, page: int = None) -> dict:
+        try:
+            params = {}
+            if limit:
+                params["limit"] = limit
+            if page:
+                params["page"] = page
+            return self._get("/alert-channels", params=params or None)
+        except Exception as e:
+            logger.error(f"ChecklyApiProcessor.get_alert_channels:: Error: {e}")
+            raise

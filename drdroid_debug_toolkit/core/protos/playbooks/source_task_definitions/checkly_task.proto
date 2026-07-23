@@ -33,6 +33,33 @@ message Checkly {
     // No parameters needed - fetches all check groups
   }
 
+  message GetErrorGroupsTask {
+    // Optional: if set, fetches error groups for a single check
+    google.protobuf.StringValue check_id = 1;
+    google.protobuf.UInt64Value limit = 2;
+    google.protobuf.UInt64Value page = 3;
+  }
+
+  message GetReportingTask {
+    // quick_range: one of last24Hrs, last7Days, last30Days, thisWeek,
+    // thisMonth, lastWeek, lastMonth. Used when no time range is provided.
+    google.protobuf.StringValue quick_range = 1;
+    // granularity: one of day, week, month
+    google.protobuf.StringValue granularity = 2;
+  }
+
+  message GetCheckResultDetailTask {
+    google.protobuf.StringValue check_id = 1;
+    google.protobuf.StringValue check_result_id = 2;
+    // If true, also fetch the result's assets (screenshots, traces, logs)
+    google.protobuf.BoolValue include_assets = 3;
+  }
+
+  message GetAlertChannelsTask {
+    google.protobuf.UInt64Value limit = 1;
+    google.protobuf.UInt64Value page = 2;
+  }
+
   enum TaskType {
     UNKNOWN = 0;
     LIST_CHECKS = 1;
@@ -41,6 +68,10 @@ message Checkly {
     GET_CHECK_ANALYTICS = 4;
     GET_CHECK_ALERTS = 5;
     GET_CHECK_GROUPS = 6;
+    GET_ERROR_GROUPS = 7;
+    GET_REPORTING = 8;
+    GET_CHECK_RESULT_DETAIL = 9;
+    GET_ALERT_CHANNELS = 10;
   }
 
   TaskType type = 1;
@@ -51,5 +82,9 @@ message Checkly {
     GetCheckAnalyticsTask get_check_analytics = 5;
     GetCheckAlertsTask get_check_alerts = 6;
     GetCheckGroupsTask get_check_groups = 7;
+    GetErrorGroupsTask get_error_groups = 8;
+    GetReportingTask get_reporting = 9;
+    GetCheckResultDetailTask get_check_result_detail = 10;
+    GetAlertChannelsTask get_alert_channels = 11;
   }
 }

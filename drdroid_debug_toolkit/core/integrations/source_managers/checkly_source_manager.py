@@ -120,6 +120,111 @@ class ChecklySourceManager(SourceManager):
                 "category": "Checks",
                 "form_fields": [],
             },
+            Checkly.TaskType.GET_ERROR_GROUPS: {
+                "executor": self.execute_get_error_groups,
+                "model_types": [],
+                "result_type": PlaybookTaskResultType.API_RESPONSE,
+                "display_name": "Get Error Groups",
+                "category": "Errors",
+                "form_fields": [
+                    FormField(
+                        key_name=StringValue(value="check_id"),
+                        display_name=StringValue(value="Check ID"),
+                        description=StringValue(value="UUID of the check (leave empty for all account error groups)"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=True,
+                    ),
+                    FormField(
+                        key_name=StringValue(value="limit"),
+                        display_name=StringValue(value="Limit"),
+                        description=StringValue(value="Max number of error groups to return"),
+                        data_type=LiteralType.LONG,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=True,
+                    ),
+                ],
+            },
+            Checkly.TaskType.GET_REPORTING: {
+                "executor": self.execute_get_reporting,
+                "model_types": [],
+                "result_type": PlaybookTaskResultType.API_RESPONSE,
+                "display_name": "Get Reporting",
+                "category": "Analytics",
+                "form_fields": [
+                    FormField(
+                        key_name=StringValue(value="quick_range"),
+                        display_name=StringValue(value="Quick Range"),
+                        description=StringValue(
+                            value=(
+                                "Used when no time range is set: last24Hrs, last7Days, "
+                                "last30Days, thisWeek, thisMonth, lastWeek, lastMonth"
+                            )
+                        ),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=True,
+                    ),
+                    FormField(
+                        key_name=StringValue(value="granularity"),
+                        display_name=StringValue(value="Granularity"),
+                        description=StringValue(value='One of "day", "week", or "month"'),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=True,
+                    ),
+                ],
+            },
+            Checkly.TaskType.GET_CHECK_RESULT_DETAIL: {
+                "executor": self.execute_get_check_result_detail,
+                "model_types": [],
+                "result_type": PlaybookTaskResultType.API_RESPONSE,
+                "display_name": "Get Check Result Detail",
+                "category": "Checks",
+                "form_fields": [
+                    FormField(
+                        key_name=StringValue(value="check_id"),
+                        display_name=StringValue(value="Check ID"),
+                        description=StringValue(value="UUID of the Checkly check"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False,
+                    ),
+                    FormField(
+                        key_name=StringValue(value="check_result_id"),
+                        display_name=StringValue(value="Check Result ID"),
+                        description=StringValue(value="UUID of the specific check result"),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False,
+                    ),
+                    FormField(
+                        key_name=StringValue(value="include_assets"),
+                        display_name=StringValue(value="Include Assets"),
+                        description=StringValue(value="Also fetch assets (screenshots, traces, logs) for this result"),
+                        data_type=LiteralType.BOOLEAN,
+                        form_field_type=FormFieldType.CHECKBOX_FT,
+                        is_optional=True,
+                    ),
+                ],
+            },
+            Checkly.TaskType.GET_ALERT_CHANNELS: {
+                "executor": self.execute_get_alert_channels,
+                "model_types": [],
+                "result_type": PlaybookTaskResultType.API_RESPONSE,
+                "display_name": "Get Alert Channels",
+                "category": "Alerts",
+                "form_fields": [
+                    FormField(
+                        key_name=StringValue(value="limit"),
+                        display_name=StringValue(value="Limit"),
+                        description=StringValue(value="Max number of alert channels to return"),
+                        data_type=LiteralType.LONG,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=True,
+                    ),
+                ],
+            },
         }
 
         self.connector_form_configs = [
@@ -252,3 +357,73 @@ class ChecklySourceManager(SourceManager):
         except Exception as e:
             logger.error(f"ChecklySourceManager.execute_get_check_groups:: Error: {e}")
             return PlaybookTaskResult(source=self.source, error=StringValue(value=str(e)))
+
+    def execute_get_error_groups(self, time_range: TimeRange, checkly_task: Checkly, connector: ConnectorProto):
+        try:
+            task_data = checkly_task.get_error_groups
+            check_id = task_data.check_id.value if task_data.check_id.value else None
+            limit = task_data.limit.value if task_data.HasField("limit") else None
+            page = task_data.page.value if task_data.HasField("page") else None
+
+            processor = self.get_connector_processor(connector)
+            result = processor.get_error_groups(check_id=check_id, limit=limit, page=page)
+            url_path = f"/v1/error-groups/checks/{check_id}" if check_id else "/v1/error-groups"
+            return self._build_api_response(result, url_path)
+        except Exception as e:
+            logger.error(f"ChecklySourceManager.execute_get_error_groups:: Error: {e}")
+            return PlaybookTaskResult(source=self.source, error=StringValue(value=str(e)))
+
+    def execute_get_reporting(self, time_range: TimeRange, checkly_task: Checkly, connector: ConnectorProto):
+        try:
+            task_data = checkly_task.get_reporting
+            quick_range = task_data.quick_range.value if task_data.quick_range.value else None
+            granularity = task_data.granularity.value if task_data.granularity.value else None
+
+            from_ts = self._epoch_to_iso(time_range.time_geq) if time_range and time_range.time_geq else None
+            to_ts = self._epoch_to_iso(time_range.time_lt) if time_range and time_range.time_lt else None
+            if not (from_ts and to_ts) and not quick_range:
+                quick_range = "last24Hrs"
+
+            processor = self.get_connector_processor(connector)
+            result = processor.get_reporting(from_ts=from_ts, to_ts=to_ts, quick_range=quick_range, granularity=granularity)
+            return self._build_api_response(result, "/v1/reporting")
+        except Exception as e:
+            logger.error(f"ChecklySourceManager.execute_get_reporting:: Error: {e}")
+            return PlaybookTaskResult(source=self.source, error=StringValue(value=str(e)))
+
+    def execute_get_check_result_detail(self, time_range: TimeRange, checkly_task: Checkly, connector: ConnectorProto):
+        try:
+            task_data = checkly_task.get_check_result_detail
+            check_id = task_data.check_id.value
+            check_result_id = task_data.check_result_id.value
+            if not check_id or not check_result_id:
+                raise Exception("check_id and check_result_id are required")
+            include_assets = task_data.include_assets.value if task_data.HasField("include_assets") else False
+
+            processor = self.get_connector_processor(connector)
+            result = processor.get_check_result_detail(check_id, check_result_id)
+            if include_assets and isinstance(result, dict):
+                result = {**result, "assets": processor.get_check_result_assets(check_id, check_result_id)}
+            return self._build_api_response(result, f"/v1/check-results/{check_id}/{check_result_id}")
+        except Exception as e:
+            logger.error(f"ChecklySourceManager.execute_get_check_result_detail:: Error: {e}")
+            return PlaybookTaskResult(source=self.source, error=StringValue(value=str(e)))
+
+    def execute_get_alert_channels(self, time_range: TimeRange, checkly_task: Checkly, connector: ConnectorProto):
+        try:
+            task_data = checkly_task.get_alert_channels
+            limit = task_data.limit.value if task_data.HasField("limit") else None
+            page = task_data.page.value if task_data.HasField("page") else None
+
+            processor = self.get_connector_processor(connector)
+            result = processor.get_alert_channels(limit=limit, page=page)
+            return self._build_api_response(result, "/v1/alert-channels")
+        except Exception as e:
+            logger.error(f"ChecklySourceManager.execute_get_alert_channels:: Error: {e}")
+            return PlaybookTaskResult(source=self.source, error=StringValue(value=str(e)))
+
+    @staticmethod
+    def _epoch_to_iso(epoch_seconds) -> str:
+        from datetime import datetime, timezone
+
+        return datetime.fromtimestamp(int(epoch_seconds), tz=timezone.utc).isoformat()

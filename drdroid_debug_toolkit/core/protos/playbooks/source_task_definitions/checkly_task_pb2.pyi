@@ -34,6 +34,10 @@ class Checkly(google.protobuf.message.Message):
         GET_CHECK_ANALYTICS: Checkly._TaskType.ValueType  # 4
         GET_CHECK_ALERTS: Checkly._TaskType.ValueType  # 5
         GET_CHECK_GROUPS: Checkly._TaskType.ValueType  # 6
+        GET_ERROR_GROUPS: Checkly._TaskType.ValueType  # 7
+        GET_REPORTING: Checkly._TaskType.ValueType  # 8
+        GET_CHECK_RESULT_DETAIL: Checkly._TaskType.ValueType  # 9
+        GET_ALERT_CHANNELS: Checkly._TaskType.ValueType  # 10
 
     class TaskType(_TaskType, metaclass=_TaskTypeEnumTypeWrapper): ...
     UNKNOWN: Checkly.TaskType.ValueType  # 0
@@ -43,6 +47,10 @@ class Checkly(google.protobuf.message.Message):
     GET_CHECK_ANALYTICS: Checkly.TaskType.ValueType  # 4
     GET_CHECK_ALERTS: Checkly.TaskType.ValueType  # 5
     GET_CHECK_GROUPS: Checkly.TaskType.ValueType  # 6
+    GET_ERROR_GROUPS: Checkly.TaskType.ValueType  # 7
+    GET_REPORTING: Checkly.TaskType.ValueType  # 8
+    GET_CHECK_RESULT_DETAIL: Checkly.TaskType.ValueType  # 9
+    GET_ALERT_CHANNELS: Checkly.TaskType.ValueType  # 10
 
     @typing_extensions.final
     class ListChecksTask(google.protobuf.message.Message):
@@ -129,6 +137,96 @@ class Checkly(google.protobuf.message.Message):
             self,
         ) -> None: ...
 
+    @typing_extensions.final
+    class GetErrorGroupsTask(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        CHECK_ID_FIELD_NUMBER: builtins.int
+        LIMIT_FIELD_NUMBER: builtins.int
+        PAGE_FIELD_NUMBER: builtins.int
+        @property
+        def check_id(self) -> google.protobuf.wrappers_pb2.StringValue:
+            """Optional: if set, fetches error groups for a single check"""
+        @property
+        def limit(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+        @property
+        def page(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+        def __init__(
+            self,
+            *,
+            check_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            limit: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+            page: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["check_id", b"check_id", "limit", b"limit", "page", b"page"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["check_id", b"check_id", "limit", b"limit", "page", b"page"]) -> None: ...
+
+    @typing_extensions.final
+    class GetReportingTask(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        QUICK_RANGE_FIELD_NUMBER: builtins.int
+        GRANULARITY_FIELD_NUMBER: builtins.int
+        @property
+        def quick_range(self) -> google.protobuf.wrappers_pb2.StringValue:
+            """quick_range: one of last24Hrs, last7Days, last30Days, thisWeek,
+            thisMonth, lastWeek, lastMonth. Used when no time range is provided.
+            """
+        @property
+        def granularity(self) -> google.protobuf.wrappers_pb2.StringValue:
+            """granularity: one of day, week, month"""
+        def __init__(
+            self,
+            *,
+            quick_range: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            granularity: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["granularity", b"granularity", "quick_range", b"quick_range"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["granularity", b"granularity", "quick_range", b"quick_range"]) -> None: ...
+
+    @typing_extensions.final
+    class GetCheckResultDetailTask(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        CHECK_ID_FIELD_NUMBER: builtins.int
+        CHECK_RESULT_ID_FIELD_NUMBER: builtins.int
+        INCLUDE_ASSETS_FIELD_NUMBER: builtins.int
+        @property
+        def check_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def check_result_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def include_assets(self) -> google.protobuf.wrappers_pb2.BoolValue:
+            """If true, also fetch the result's assets (screenshots, traces, logs)"""
+        def __init__(
+            self,
+            *,
+            check_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            check_result_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            include_assets: google.protobuf.wrappers_pb2.BoolValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["check_id", b"check_id", "check_result_id", b"check_result_id", "include_assets", b"include_assets"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["check_id", b"check_id", "check_result_id", b"check_result_id", "include_assets", b"include_assets"]) -> None: ...
+
+    @typing_extensions.final
+    class GetAlertChannelsTask(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        LIMIT_FIELD_NUMBER: builtins.int
+        PAGE_FIELD_NUMBER: builtins.int
+        @property
+        def limit(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+        @property
+        def page(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+        def __init__(
+            self,
+            *,
+            limit: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+            page: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["limit", b"limit", "page", b"page"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["limit", b"limit", "page", b"page"]) -> None: ...
+
     TYPE_FIELD_NUMBER: builtins.int
     LIST_CHECKS_FIELD_NUMBER: builtins.int
     GET_CHECK_STATUSES_FIELD_NUMBER: builtins.int
@@ -136,6 +234,10 @@ class Checkly(google.protobuf.message.Message):
     GET_CHECK_ANALYTICS_FIELD_NUMBER: builtins.int
     GET_CHECK_ALERTS_FIELD_NUMBER: builtins.int
     GET_CHECK_GROUPS_FIELD_NUMBER: builtins.int
+    GET_ERROR_GROUPS_FIELD_NUMBER: builtins.int
+    GET_REPORTING_FIELD_NUMBER: builtins.int
+    GET_CHECK_RESULT_DETAIL_FIELD_NUMBER: builtins.int
+    GET_ALERT_CHANNELS_FIELD_NUMBER: builtins.int
     type: global___Checkly.TaskType.ValueType
     @property
     def list_checks(self) -> global___Checkly.ListChecksTask: ...
@@ -149,6 +251,14 @@ class Checkly(google.protobuf.message.Message):
     def get_check_alerts(self) -> global___Checkly.GetCheckAlertsTask: ...
     @property
     def get_check_groups(self) -> global___Checkly.GetCheckGroupsTask: ...
+    @property
+    def get_error_groups(self) -> global___Checkly.GetErrorGroupsTask: ...
+    @property
+    def get_reporting(self) -> global___Checkly.GetReportingTask: ...
+    @property
+    def get_check_result_detail(self) -> global___Checkly.GetCheckResultDetailTask: ...
+    @property
+    def get_alert_channels(self) -> global___Checkly.GetAlertChannelsTask: ...
     def __init__(
         self,
         *,
@@ -159,9 +269,13 @@ class Checkly(google.protobuf.message.Message):
         get_check_analytics: global___Checkly.GetCheckAnalyticsTask | None = ...,
         get_check_alerts: global___Checkly.GetCheckAlertsTask | None = ...,
         get_check_groups: global___Checkly.GetCheckGroupsTask | None = ...,
+        get_error_groups: global___Checkly.GetErrorGroupsTask | None = ...,
+        get_reporting: global___Checkly.GetReportingTask | None = ...,
+        get_check_result_detail: global___Checkly.GetCheckResultDetailTask | None = ...,
+        get_alert_channels: global___Checkly.GetAlertChannelsTask | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["get_check_alerts", b"get_check_alerts", "get_check_analytics", b"get_check_analytics", "get_check_groups", b"get_check_groups", "get_check_results", b"get_check_results", "get_check_statuses", b"get_check_statuses", "list_checks", b"list_checks", "task", b"task"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["get_check_alerts", b"get_check_alerts", "get_check_analytics", b"get_check_analytics", "get_check_groups", b"get_check_groups", "get_check_results", b"get_check_results", "get_check_statuses", b"get_check_statuses", "list_checks", b"list_checks", "task", b"task", "type", b"type"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing_extensions.Literal["task", b"task"]) -> typing_extensions.Literal["list_checks", "get_check_statuses", "get_check_results", "get_check_analytics", "get_check_alerts", "get_check_groups"] | None: ...
+    def HasField(self, field_name: typing_extensions.Literal["get_alert_channels", b"get_alert_channels", "get_check_alerts", b"get_check_alerts", "get_check_analytics", b"get_check_analytics", "get_check_groups", b"get_check_groups", "get_check_result_detail", b"get_check_result_detail", "get_check_results", b"get_check_results", "get_check_statuses", b"get_check_statuses", "get_error_groups", b"get_error_groups", "get_reporting", b"get_reporting", "list_checks", b"list_checks", "task", b"task"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["get_alert_channels", b"get_alert_channels", "get_check_alerts", b"get_check_alerts", "get_check_analytics", b"get_check_analytics", "get_check_groups", b"get_check_groups", "get_check_result_detail", b"get_check_result_detail", "get_check_results", b"get_check_results", "get_check_statuses", b"get_check_statuses", "get_error_groups", b"get_error_groups", "get_reporting", b"get_reporting", "list_checks", b"list_checks", "task", b"task", "type", b"type"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing_extensions.Literal["task", b"task"]) -> typing_extensions.Literal["list_checks", "get_check_statuses", "get_check_results", "get_check_analytics", "get_check_alerts", "get_check_groups", "get_error_groups", "get_reporting", "get_check_result_detail", "get_alert_channels"] | None: ...
 
 global___Checkly = Checkly
