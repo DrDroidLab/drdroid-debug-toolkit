@@ -10,6 +10,7 @@ from core.protos.playbooks.playbook_commons_pb2 import PlaybookTaskResult, Table
 from core.protos.playbooks.source_task_definitions.big_query_task_pb2 import BigQuery
 from core.protos.ui_definition_pb2 import FormField, FormFieldType
 from core.utils.credentilal_utils import generate_credentials_dict, get_connector_key_type_string, CATEGORY, DISPLAY_NAME, ANALYTICS
+from core.integrations.utils.task_result_utils import build_task_failure_result
 
 
 class BigQuerySourceManager(SourceManager):
@@ -54,7 +55,7 @@ class BigQuerySourceManager(SourceManager):
                     SourceKeyType.BIG_QUERY_SERVICE_ACCOUNT_JSON: FormField(
                         key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.BIG_QUERY_SERVICE_ACCOUNT_JSON)),
                         display_name=StringValue(value="Service Account JSON"),
-                        description=StringValue(value='e.g. {\n  "type": "<service-account-type>",\n  "project_id": "<your-project-id>",\n  "private_key_id": "<your-key-id>",\n  "private_key": "<your-private-key>"\n}'),
+                        description=StringValue(value='Paste the full JSON content of your GCP service account key file'),
                         helper_text=StringValue(value="Paste the content of your Google Cloud Service Account JSON key file"),
                         data_type=LiteralType.STRING,
                         form_field_type=FormFieldType.MULTILINE_FT,
@@ -98,14 +99,12 @@ class BigQuerySourceManager(SourceManager):
 
             bq_job = bq_client.query(full_query)
             if not bq_job or not bq_job.total_rows:
-                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT, text=TextResult(output=StringValue(
-                    value=f"No data returned from Big Query for query: {full_query}")), source=self.source)
+                return build_task_failure_result(self.source, f"No data returned from Big Query for query: {full_query}")
 
             rows = [dict(row) for row in bq_job]
             count_result = len(rows)
             if count_result == 0:
-                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT, text=TextResult(output=StringValue(
-                    value=f"No data returned from Big Query for query: {full_query}")), source=self.source)
+                return build_task_failure_result(self.source, f"No data returned from Big Query for query: {full_query}")
 
             table_rows: [TableResult.TableRow] = []
             for row in rows:

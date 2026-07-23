@@ -3,7 +3,7 @@ import logging
 import requests
 
 from core.integrations.processor import Processor
-from core.settings import EXTERNAL_CALL_TIMEOUT
+from core.settings import EXTERNAL_CALL_TIMEOUT, LOG_QUERY_TIMEOUT
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +42,7 @@ class GrafanaLokiApiProcessor(Processor):
                 'end': end,
                 'limit': limit
             }
-            response = requests.get(url, headers=self.__headers, verify=self.__ssl_verify, params=params, timeout=EXTERNAL_CALL_TIMEOUT)
+            response = requests.get(url, headers=self.__headers, verify=self.__ssl_verify, params=params, timeout=LOG_QUERY_TIMEOUT)
             if response and response.status_code == 200:
                 return response.json()
         except Exception as e:

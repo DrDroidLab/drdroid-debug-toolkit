@@ -1075,8 +1075,17 @@ class GrafanaApiProcessor(Processor):
 
             return response.json()
         except requests.exceptions.HTTPError as e:
-            logger.error("Grafana query API error: status code %s, response: %s", e.response.status_code, e.response.text)
-            raise e
+            # Surface the Grafana response BODY, not just the bare status line. The body carries the
+            # actionable reason (e.g. a LogQL "parse error ... syntax error" or "data source not found"),
+            # which the agent needs to self-correct. Raising only "400 Client Error for url ..." hid it.
+            detail = ""
+            try:
+                detail = (e.response.text or "")[:500]
+            except Exception:
+                pass
+            status = getattr(getattr(e, "response", None), "status_code", "?")
+            logger.error("Grafana query API error: status code %s, response: %s", status, detail)
+            raise Exception(f"Grafana /api/ds/query returned {status}: {detail}") from e
         except Exception as e:
             logger.error("Exception occurred while querying Grafana datasource: %s", e)
             raise e

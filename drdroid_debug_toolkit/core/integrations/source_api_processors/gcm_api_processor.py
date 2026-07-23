@@ -1,5 +1,6 @@
 import json
 import logging
+import re
 
 from google.auth.transport.requests import Request
 from google.oauth2 import service_account
@@ -92,8 +93,36 @@ class GcmApiProcessor(Processor):
             logger.error(f"Exception occurred while fetching logs: {e}")
             raise e
 
-    def execute_mql(self, query, project_id):
+    def execute_mql(self, query, project_id, interval=None):
         try:
+            # `interval` is passed by gcm_source_manager for timeseries sampling alignment.
+            # It was missing from this signature, so every MQL call raised
+            # "execute_mql() takes 3 positional arguments but 4 were given" (100% failure).
+            # Accept it and apply it to the query (mirrors the prototype implementation).
+            if interval:
+                interval_str = str(interval).strip()
+                # If the query aligns via `align rate(...)`, the sampling `every` window must
+                # not exceed the align window or GCM rejects the query.
+                align_rate_match = re.search(r'align\s+rate\((\d+)([smhd])\)', query.lower())
+                if align_rate_match:
+                    align_seconds = int(align_rate_match.group(1))
+                    unit = align_rate_match.group(2)
+                    if unit == 'm':
+                        align_seconds *= 60
+                    elif unit == 'h':
+                        align_seconds *= 3600
+                    elif unit == 'd':
+                        align_seconds *= 86400
+                    interval_seconds = int(interval_str)
+                    if interval_seconds > align_seconds:
+                        return (f"Error: Interval ({interval_seconds}s) cannot be larger than align rate "
+                                f"({align_seconds}s). Please ensure interval is less than or equal to the align rate.")
+                # Inject/replace the `every` sampling clause in MQL duration format (e.g. '300s').
+                interval_clause = f"{interval_str}s"
+                if "every" in query.lower():
+                    query = re.sub(r'every\s+\S+', f'every {interval_clause}', query, flags=re.IGNORECASE)
+                else:
+                    query += f'\n| every {interval_clause}'
             service = build('monitoring', 'v3', credentials=self.__credentials)
             request = service.projects().timeSeries().query(
                 name=f"projects/{project_id}",

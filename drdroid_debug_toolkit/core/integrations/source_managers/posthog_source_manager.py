@@ -16,6 +16,7 @@ from core.protos.ui_definition_pb2 import FormField, FormFieldType
 from core.utils.credentilal_utils import generate_credentials_dict, get_connector_key_type_string, DISPLAY_NAME, CATEGORY, ANALYTICS
 
 logger = logging.getLogger(__name__)
+from core.integrations.utils.task_result_utils import build_task_failure_result
 
 
 class PosthogSourceManager(SourceManager):
@@ -119,11 +120,7 @@ class PosthogSourceManager(SourceManager):
 
                 except Exception as e:
                     logger.error(f"Error parsing properties: {e}")
-                    return PlaybookTaskResult(
-                        type=PlaybookTaskResultType.TEXT,
-                        text=TextResult(output=StringValue(value=f"Error parsing properties: {e}")),
-                        source=self.source
-                    )
+                    return build_task_failure_result(self.source, f"Error parsing properties: {e}")
             posthog_api_processor = self.get_connector_processor(posthog_connector)
             events = posthog_api_processor.fetch_events(
                 event_name=event_name,
@@ -134,11 +131,7 @@ class PosthogSourceManager(SourceManager):
                 after=end_time,
             )
             if not events:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value="No events returned from PostHog for the given criteria")),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, "No events returned from PostHog for the given criteria")
 
             table_rows = []
             for event in events:
@@ -202,11 +195,7 @@ class PosthogSourceManager(SourceManager):
             
         except Exception as e:
             logger.error(f"Error while executing PostHog task: {e}")
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=f"Error while executing PostHog task: {e}")),
-                source=self.source
-            )
+            return build_task_failure_result(self.source, f"Error while executing PostHog task: {e}")
 
     def execute_hogql_query(self, time_range: TimeRange, ph_task: PostHog,
                            posthog_connector: ConnectorProto):
@@ -216,11 +205,7 @@ class PosthogSourceManager(SourceManager):
 
             task = ph_task.hogql_query
             if not task.HasField("query") or not task.query.value:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value="No query provided for HogQL execution")),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, "No query provided for HogQL execution")
                 
             query = task.query.value
             
@@ -232,22 +217,14 @@ class PosthogSourceManager(SourceManager):
             print(f"Got query result: {query_result}")
             # Check for errors
             if 'error' in query_result:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=query_result['error'])),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, query_result['error'])
                 
             # Get results and columns
             results = query_result.get('results', [])
             columns = query_result.get('columns', [])
             
             if not results:
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value="No results returned from HogQL query")),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, "No results returned from HogQL query")
                 
             # Create table rows
             table_rows = []
@@ -289,8 +266,4 @@ class PosthogSourceManager(SourceManager):
             
         except Exception as e:
             logger.error(f"Error while executing PostHog HogQL query: {e}")
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=f"Error while executing PostHog HogQL query: {e}")),
-                source=self.source
-            )
+            return build_task_failure_result(self.source, f"Error while executing PostHog HogQL query: {e}")

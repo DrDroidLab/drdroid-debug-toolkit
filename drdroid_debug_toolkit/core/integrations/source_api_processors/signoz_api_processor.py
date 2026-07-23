@@ -9,7 +9,7 @@ from typing import Optional
 
 from core.integrations.processor import Processor
 from core.protos.base_pb2 import TimeRange
-from core.settings import EXTERNAL_CALL_TIMEOUT
+from core.settings import EXTERNAL_CALL_TIMEOUT, LOG_QUERY_TIMEOUT
 
 logger = logging.getLogger(__name__)
 
@@ -909,7 +909,8 @@ class SignozApiProcessor(Processor):
         logger.debug(f"Querying v5: {payload}")
         logger.debug(f"URL: {url}")
         try:
-            response = requests.post(url, headers=self.headers, json=payload, timeout=30)
+            # v5 query_range serves log fetches (fetch_logs_with_filter) — give it the log-query budget
+            response = requests.post(url, headers=self.headers, json=payload, timeout=LOG_QUERY_TIMEOUT)
             if response.status_code == 200:
                 try:
                     resp_json = response.json()

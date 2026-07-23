@@ -32,12 +32,14 @@ class Jenkins(google.protobuf.message.Message):
         FETCH_LAST_BUILD_DETAILS: Jenkins._TaskType.ValueType  # 1
         RUN_JOB: Jenkins._TaskType.ValueType  # 2
         GET_ALL_BRANCHES: Jenkins._TaskType.ValueType  # 3
+        LIST_JOBS: Jenkins._TaskType.ValueType  # 4
 
     class TaskType(_TaskType, metaclass=_TaskTypeEnumTypeWrapper): ...
     UNKNOWN: Jenkins.TaskType.ValueType  # 0
     FETCH_LAST_BUILD_DETAILS: Jenkins.TaskType.ValueType  # 1
     RUN_JOB: Jenkins.TaskType.ValueType  # 2
     GET_ALL_BRANCHES: Jenkins.TaskType.ValueType  # 3
+    LIST_JOBS: Jenkins.TaskType.ValueType  # 4
 
     @typing_extensions.final
     class LastBuildDetails(google.protobuf.message.Message):
@@ -98,10 +100,31 @@ class Jenkins(google.protobuf.message.Message):
         def HasField(self, field_name: typing_extensions.Literal["job_name", b"job_name", "parameter_json", b"parameter_json", "parameters", b"parameters"]) -> builtins.bool: ...
         def ClearField(self, field_name: typing_extensions.Literal["job_name", b"job_name", "parameter_json", b"parameter_json", "parameters", b"parameters"]) -> None: ...
 
+    @typing_extensions.final
+    class ListJobs(google.protobuf.message.Message):
+        """Discovery task: every other Jenkins task requires an exact job path, which the
+        agent previously had to guess from service names (producing 404s in prod).
+        """
+
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        FOLDER_PATH_FIELD_NUMBER: builtins.int
+        @property
+        def folder_path(self) -> google.protobuf.wrappers_pb2.StringValue:
+            """Optional: restrict to a folder, empty = whole instance"""
+        def __init__(
+            self,
+            *,
+            folder_path: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["folder_path", b"folder_path"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["folder_path", b"folder_path"]) -> None: ...
+
     TYPE_FIELD_NUMBER: builtins.int
     FETCH_LAST_BUILD_DETAILS_FIELD_NUMBER: builtins.int
     RUN_JOB_FIELD_NUMBER: builtins.int
     GET_ALL_BRANCHES_FIELD_NUMBER: builtins.int
+    LIST_JOBS_FIELD_NUMBER: builtins.int
     type: global___Jenkins.TaskType.ValueType
     @property
     def fetch_last_build_details(self) -> global___Jenkins.LastBuildDetails: ...
@@ -109,6 +132,8 @@ class Jenkins(google.protobuf.message.Message):
     def run_job(self) -> global___Jenkins.RunJob: ...
     @property
     def get_all_branches(self) -> global___Jenkins.GetAllBranches: ...
+    @property
+    def list_jobs(self) -> global___Jenkins.ListJobs: ...
     def __init__(
         self,
         *,
@@ -116,9 +141,10 @@ class Jenkins(google.protobuf.message.Message):
         fetch_last_build_details: global___Jenkins.LastBuildDetails | None = ...,
         run_job: global___Jenkins.RunJob | None = ...,
         get_all_branches: global___Jenkins.GetAllBranches | None = ...,
+        list_jobs: global___Jenkins.ListJobs | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["fetch_last_build_details", b"fetch_last_build_details", "get_all_branches", b"get_all_branches", "run_job", b"run_job", "task", b"task"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["fetch_last_build_details", b"fetch_last_build_details", "get_all_branches", b"get_all_branches", "run_job", b"run_job", "task", b"task", "type", b"type"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing_extensions.Literal["task", b"task"]) -> typing_extensions.Literal["fetch_last_build_details", "run_job", "get_all_branches"] | None: ...
+    def HasField(self, field_name: typing_extensions.Literal["fetch_last_build_details", b"fetch_last_build_details", "get_all_branches", b"get_all_branches", "list_jobs", b"list_jobs", "run_job", b"run_job", "task", b"task"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["fetch_last_build_details", b"fetch_last_build_details", "get_all_branches", b"get_all_branches", "list_jobs", b"list_jobs", "run_job", b"run_job", "task", b"task", "type", b"type"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing_extensions.Literal["task", b"task"]) -> typing_extensions.Literal["fetch_last_build_details", "run_job", "get_all_branches", "list_jobs"] | None: ...
 
 global___Jenkins = Jenkins

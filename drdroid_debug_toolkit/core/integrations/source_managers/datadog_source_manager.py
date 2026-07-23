@@ -1,7 +1,13 @@
 import json
 import logging
+from typing import Any, Optional
 
 from datetime import datetime
+
+try:
+    from datadog_api_client.exceptions import ApiException as DatadogApiException
+except ImportError:  # pragma: no cover
+    DatadogApiException = ()  # type: ignore
 
 from google.protobuf.struct_pb2 import Struct
 from google.protobuf.wrappers_pb2 import DoubleValue, StringValue, UInt64Value, Int64Value
@@ -24,9 +30,61 @@ from core.utils.string_utils import is_partial_match
 from core.utils.playbooks_client import PrototypeClient
 
 logger = logging.getLogger(__name__)
+from core.integrations.utils.task_result_utils import build_task_failure_result, build_task_empty_result
+
+
+def _datadog_http_status(exc: Exception) -> Optional[int]:
+    if isinstance(exc, DatadogApiException):
+        try:
+            return int(exc.status or 0) or None
+        except (TypeError, ValueError):
+            return None
+    return None
+
+
+def _is_datadog_not_found(exc: Exception) -> bool:
+    """True for Datadog API 404 / resource-not-found errors (no_data, not operational failure)."""
+    status = _datadog_http_status(exc)
+    if status == 404:
+        return True
+    msg = str(exc).lower()
+    return (
+        "(404)" in msg
+        or "reason: not found" in msg
+        or "errors': ['not found']" in msg
+        or "errors\": [\"not found\"]" in msg
+    )
 
 
 class DatadogSourceManager(SourceManager):
+    def _empty_datadog_result(
+        self,
+        message: str,
+        *,
+        task_metadata: Any = None,
+        response_status: int = 404,
+    ) -> PlaybookTaskResult:
+        return build_task_empty_result(
+            self.source,
+            message,
+            task_metadata=task_metadata,
+            response_status=response_status,
+        )
+
+    def _finish_datadog_task_exception(
+        self,
+        exc: Exception,
+        *,
+        empty_message: str,
+        task_metadata: Any = None,
+    ) -> PlaybookTaskResult:
+        """Return no_data for Datadog not-found; re-raise operational errors."""
+        if _is_datadog_not_found(exc):
+            logger.info("Datadog not-found treated as no_data: %s", exc)
+            return self._empty_datadog_result(empty_message, task_metadata=task_metadata)
+        logger.error("Datadog task error: %s", exc)
+        raise Exception(f"Error while executing Datadog task: {exc}") from exc
+
 
     def __init__(self):
         self.source = Source.DATADOG
@@ -644,8 +702,7 @@ class DatadogSourceManager(SourceManager):
                 }
                 metadata = self._create_metadata_with_datadog_url(api_domain, "service_metric_execution", task_params)
                 
-                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT, text=TextResult(output=StringValue(
-                    value=f"No data returned from Datadog for service metric: {metric_str}")), source=self.source, metadata=metadata)
+                return build_task_empty_result(self.source, f"No data returned from Datadog for service metric: {metric_str}", task_metadata=metadata)
 
             for itr, item in enumerate(current_results.series.value):
                 group_tags = item.group_tags.value
@@ -737,7 +794,19 @@ class DatadogSourceManager(SourceManager):
                 metadata=metadata)
             return task_result
         except Exception as e:
-            raise Exception(f"Error while executing Datadog task: {e}")
+            api_domain = self._extract_api_domain_from_connector(datadog_connector)
+            task_params = {
+                'service_name': service_name,
+                'environment_name': env_name,
+            }
+            metadata = self._create_metadata_with_datadog_url(
+                api_domain, "service_metric_execution", task_params
+            )
+            return self._finish_datadog_task_exception(
+                e,
+                empty_message=f"No data returned from Datadog for service: {service_name}",
+                task_metadata=metadata,
+            )
 
     
     def execute_log_query_execution(self, time_range: TimeRange, dd_task: Datadog,
@@ -758,8 +827,7 @@ class DatadogSourceManager(SourceManager):
                 api_domain = self._extract_api_domain_from_connector(datadog_connector)
                 metadata = self._create_metadata_with_datadog_url(api_domain, "log_query_execution")
                 
-                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT, text=TextResult(output=StringValue(
-                    value=f"No logs returned from Datadog for query: {query}")), source=self.source, metadata=metadata)
+                return build_task_empty_result(self.source, f"No logs returned from Datadog for query: {query}", task_metadata=metadata)
             table_rows: [TableResult.TableRow] = []
             for item in current_results:
                 # Create a list to hold the columns for the current row
@@ -821,7 +889,13 @@ class DatadogSourceManager(SourceManager):
             task_result = PlaybookTaskResult(type=PlaybookTaskResultType.LOGS, logs=result, source=self.source, metadata=metadata)
             return task_result
         except Exception as e:
-            raise Exception(f"Error while executing Datadog Log task: {e}")
+            api_domain = self._extract_api_domain_from_connector(datadog_connector)
+            metadata = self._create_metadata_with_datadog_url(api_domain, "log_query_execution")
+            return self._finish_datadog_task_exception(
+                e,
+                empty_message=f"No logs returned from Datadog for query: {query}",
+                task_metadata=metadata,
+            )
 
     def execute_dashboard_multiple_widgets(self, 
                                            time_range: TimeRange, 
@@ -876,10 +950,7 @@ class DatadogSourceManager(SourceManager):
                 )
                 
                 if not assets or not assets.HasField('datadog') or not assets.datadog.assets:
-                    return [PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
-                                             text=TextResult(output=StringValue(
-                                             value=f"No dashboard assets found for the account")),
-                                             source=self.source)]
+                    return [build_task_empty_result(self.source, f"No dashboard assets found for the account")]
                 
                 # The datadog assets are at assets.datadog.assets
                 dd_assets: [DatadogDashboardModel] = assets.datadog.assets
@@ -935,11 +1006,7 @@ class DatadogSourceManager(SourceManager):
                 api_domain = self._extract_api_domain_from_connector(datadog_connector)
                 metadata = self._create_metadata_with_datadog_url(api_domain, "dashboard_multiple_widgets")
                 
-                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
-                                         text=TextResult(output=StringValue(
-                                         value=f"Dashboard with name '{dashboard_name}' not found")),
-                                         source=self.source,
-                                         metadata=metadata)
+                return build_task_empty_result(self.source, f"Dashboard with name '{dashboard_name}' not found", task_metadata=metadata)
             
             if not widget_definition:
                 # Extract Datadog API domain and create metadata
@@ -949,11 +1016,7 @@ class DatadogSourceManager(SourceManager):
                 }
                 metadata = self._create_metadata_with_datadog_url(api_domain, "dashboard_multiple_widgets", task_params)
                 
-                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
-                                         text=TextResult(output=StringValue(
-                                         value=f"Widget with ID '{widget_id}' not found in dashboard '{dashboard_name}'")),
-                                         source=self.source,
-                                         metadata=metadata)
+                return build_task_empty_result(self.source, f"Widget with ID '{widget_id}' not found in dashboard '{dashboard_name}'", task_metadata=metadata)
             
             # Get the widget type
             widget_type = widget_definition.get('widget_type', 'timeseries')
@@ -1009,12 +1072,7 @@ class DatadogSourceManager(SourceManager):
                 }
                 metadata = self._create_metadata_with_datadog_url(api_domain, "dashboard_multiple_widgets", task_params)
                 
-                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
-                                        text=TextResult(output=StringValue(
-                                        value=f"No data returned from Datadog for widget ID '{widget_id}' in dashboard '{dashboard_name}'")),
-                                        widget_id=StringValue(value=widget_id),
-                                        source=self.source,
-                                        metadata=metadata)
+                return build_task_empty_result(self.source, f"No data returned from Datadog for widget ID '{widget_id}' in dashboard '{dashboard_name}'", task_metadata=metadata)
 
             # Process the response based on resource_type
             # For event_list resource type (log streams), return logs in a table format
@@ -1031,12 +1089,7 @@ class DatadogSourceManager(SourceManager):
                         }
                         metadata = self._create_metadata_with_datadog_url(api_domain, "dashboard_multiple_widgets", task_params)
                         
-                        return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
-                                                text=TextResult(output=StringValue(
-                                                value=f"No log entries found in response for widget ID '{widget_id}' in dashboard '{dashboard_name}'")),
-                                                widget_id=StringValue(value=widget_id),
-                                                source=self.source,
-                                                metadata=metadata)
+                        return build_task_empty_result(self.source, f"No log entries found in response for widget ID '{widget_id}' in dashboard '{dashboard_name}'", task_metadata=metadata)
                     
                     # Create table rows for each log entry
                     table_rows: [TableResult.TableRow] = []
@@ -1275,14 +1328,11 @@ class DatadogSourceManager(SourceManager):
                     metadata = self._create_metadata_with_datadog_url(api_domain, "dashboard_multiple_widgets", task_params)
                     
                     # If we couldn't extract any rows, return an error message
-                    return PlaybookTaskResult(
-                        type=PlaybookTaskResultType.TEXT,
-                        text=TextResult(output=StringValue(
-                            value=f"Could not extract scalar values from response for widget ID '{widget_id}' in dashboard '{dashboard_name}'"
-                        )),
-                        widget_id=StringValue(value=widget_id),
-                        source=self.source,
-                        metadata=metadata
+                    return build_task_failure_result(
+                        self.source,
+                        f"Could not extract scalar values from response for widget ID '{widget_id}' in dashboard '{dashboard_name}'",
+                        task_metadata=metadata,
+                        response_status=500,
                     )
             
             # Process the response into labeled metric timeseries for other resource types
@@ -1399,8 +1449,19 @@ class DatadogSourceManager(SourceManager):
             
             return task_result
         except Exception as e:
-            logger.error(f"Error while executing Dashboard Widget by Name/ID task: {str(e)}")
-            raise Exception(f"Error while executing Datadog task: {e}")
+            api_domain = self._extract_api_domain_from_connector(datadog_connector)
+            task_params = {'dashboard_id': dashboard_id} if dashboard_id else {}
+            metadata = self._create_metadata_with_datadog_url(
+                api_domain, "dashboard_multiple_widgets", task_params or None
+            )
+            return self._finish_datadog_task_exception(
+                e,
+                empty_message=(
+                    f"No data returned from Datadog for widget ID '{widget_id}' "
+                    f"in dashboard '{dashboard_name}'"
+                ),
+                task_metadata=metadata,
+            )
 
 
 
@@ -1448,11 +1509,10 @@ class DatadogSourceManager(SourceManager):
                 api_domain = self._extract_api_domain_from_connector(datadog_connector)
                 metadata = self._create_metadata_with_datadog_url(api_domain, "dashboard_multiple_widgets")
                 
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value="No dashboard assets found for the account")),
-                    source=self.source,
-                    metadata=metadata)
+                return self._empty_datadog_result(
+                    "No dashboard assets found for the account",
+                    task_metadata=metadata,
+                )
                     
             # The datadog assets are at assets.datadog.assets
             dd_assets: [DatadogDashboardModel] = assets.datadog.assets
@@ -1485,11 +1545,10 @@ class DatadogSourceManager(SourceManager):
                 api_domain = self._extract_api_domain_from_connector(datadog_connector)
                 metadata = self._create_metadata_with_datadog_url(api_domain, "dashboard_multiple_widgets")
                 
-                return [PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=f"Dashboard with name '{dashboard_name}' not found")),
-                    source=self.source,
-                    metadata=metadata)]
+                return [self._empty_datadog_result(
+                    f"Dashboard with name '{dashboard_name}' not found",
+                    task_metadata=metadata,
+                )]
             return result
 
     def filter_using_assets(self, dd_connector: ConnectorProto, service_name, filters: dict = None):
@@ -1588,9 +1647,7 @@ class DatadogSourceManager(SourceManager):
             }
             metadata = self._create_metadata_with_datadog_url(api_domain, "apm_query", task_params)
             
-            return [PlaybookTaskResult(type=PlaybookTaskResultType.TEXT, 
-                                      text=TextResult(output=StringValue(value=f"No APM metrics found for service with name: {service_name}")), 
-                                      source=self.source)]
+            return [build_task_empty_result(self.source, f"No APM metrics found for service with name: {service_name}")]
         
         # Filter matching_metrics by metric_families if specified
         if metric_families:
@@ -1606,9 +1663,7 @@ class DatadogSourceManager(SourceManager):
             matching_metrics = filtered_metrics
             
             if not matching_metrics:
-                return [PlaybookTaskResult(type=PlaybookTaskResultType.TEXT, 
-                                          text=TextResult(output=StringValue(value=f"No metrics found for the specified metric families: {metric_families}")), 
-                                          source=self.source)]
+                return [build_task_empty_result(self.source, f"No metrics found for the specified metric families: {metric_families}")]
         
         response = dd_api_processor.fetch_query_results(service_name=service_name, env=query_env, start_time=start_time, end_time=end_time, matching_metrics=matching_metrics, interval=interval)
         
@@ -1621,9 +1676,7 @@ class DatadogSourceManager(SourceManager):
             }
             metadata = self._create_metadata_with_datadog_url(api_domain, "apm_query", task_params)
             
-            return [PlaybookTaskResult(type=PlaybookTaskResultType.TEXT, 
-                                      text=TextResult(output=StringValue(value=f"No data returned from Datadog for service: {service_name}")), 
-                                      source=self.source)]
+            return [build_task_empty_result(self.source, f"No data returned from Datadog for service: {service_name}")]
 
         # Process each dictionary in the response list
         result = []
@@ -1766,10 +1819,13 @@ class DatadogSourceManager(SourceManager):
 
             if not response or not isinstance(response, dict):
                 logger.warning(f"Datadog span search returned invalid response: {response}")
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=f"No spans returned from Datadog for query: {query}")),
-                    source=self.source
+                return build_task_empty_result(self.source, f"No spans returned from Datadog for query: {query}")
+
+            spans = response.get("data")
+            if not spans:
+                return build_task_empty_result(
+                    self.source,
+                    f"No spans found for query: {query}",
                 )
 
             meta = response.get("meta", {}) if isinstance(response, dict) else {}
@@ -1799,8 +1855,10 @@ class DatadogSourceManager(SourceManager):
                 **metadata_kwargs
             )
         except Exception as e:
-            logger.error(f"Error while executing Datadog span search task: {e}")
-            raise Exception(f"Error while executing Datadog task: {e}")
+            return self._finish_datadog_task_exception(
+                e,
+                empty_message=f"No spans found for query: {query}",
+            )
 
     def execute_generic_query(self, time_range: TimeRange, dd_task: Datadog, datadog_connector: ConnectorProto):
         """
@@ -1837,12 +1895,7 @@ class DatadogSourceManager(SourceManager):
                 api_domain = self._extract_api_domain_from_connector(datadog_connector)
                 metadata = self._create_metadata_with_datadog_url(api_domain, "generic_query")
                 
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=f"No data returned from Datadog for query: {query}")),
-                    source=self.source,
-                    metadata=metadata
-                )
+                return build_task_empty_result(self.source, f"No data returned from Datadog for query: {query}", task_metadata=metadata)
 
             # Process the response into timeseries format
             labeled_metric_timeseries_list = []
@@ -1915,12 +1968,7 @@ class DatadogSourceManager(SourceManager):
                 api_domain = self._extract_api_domain_from_connector(datadog_connector)
                 metadata = self._create_metadata_with_datadog_url(api_domain, "generic_query")
                 
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=f"No data points found for query: {query}")),
-                    source=self.source,
-                    metadata=metadata
-                )
+                return build_task_empty_result(self.source, f"No data points found for query: {query}", task_metadata=metadata)
 
             # Create the final result
             timeseries_result = TimeseriesResult(
@@ -1941,8 +1989,13 @@ class DatadogSourceManager(SourceManager):
             )
 
         except Exception as e:
-            logger.error(f"Error while executing generic Datadog query: {e}")
-            raise Exception(f"Error while executing Datadog task: {e}")
+            api_domain = self._extract_api_domain_from_connector(datadog_connector)
+            metadata = self._create_metadata_with_datadog_url(api_domain, "generic_query")
+            return self._finish_datadog_task_exception(
+                e,
+                empty_message=f"No data returned from Datadog for query: {query}",
+                task_metadata=metadata,
+            )
 
     def execute_get_dashboard_config_details(self, time_range: TimeRange, dd_task: Datadog, datadog_connector: ConnectorProto):
         """
@@ -1973,24 +2026,14 @@ class DatadogSourceManager(SourceManager):
             import json
 
             if not response_json:
-                error_struct = Struct()
-                error_struct.update({"error": f"Dashboard not found: {dashboard_id}"})
-                
-                # Extract Datadog API domain and create metadata
                 api_domain = self._extract_api_domain_from_connector(datadog_connector)
                 task_params = {
                     'dashboard_id': dashboard_id
                 }
                 metadata = self._create_metadata_with_datadog_url(api_domain, "get_dashboard_config_details", task_params)
-                
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.API_RESPONSE,
-                    api_response=ApiResponseResult(
-                        response_status=UInt64Value(value=404),
-                        response_body=error_struct
-                    ),
-                    source=self.source,
-                    metadata=metadata
+                return self._empty_datadog_result(
+                    f"Dashboard not found: {dashboard_id}",
+                    task_metadata=metadata,
                 )
 
             # Parse JSON string back to dict for Struct
@@ -2016,8 +2059,16 @@ class DatadogSourceManager(SourceManager):
             )
 
         except Exception as e:
-            logger.error(f"Error while executing get dashboard config details task: {e}")
-            raise Exception(f"Error while executing Datadog task: {e}")
+            api_domain = self._extract_api_domain_from_connector(datadog_connector)
+            task_params = {'dashboard_id': dashboard_id}
+            metadata = self._create_metadata_with_datadog_url(
+                api_domain, "get_dashboard_config_details", task_params
+            )
+            return self._finish_datadog_task_exception(
+                e,
+                empty_message=f"Dashboard not found: {dashboard_id}",
+                task_metadata=metadata,
+            )
 
     def execute_get_dashboard_variable_values(self, time_range: TimeRange, dd_task: Datadog, datadog_connector: ConnectorProto):
         """
@@ -2049,24 +2100,14 @@ class DatadogSourceManager(SourceManager):
             import json
 
             if not response_json:
-                error_struct = Struct()
-                error_struct.update({"error": f"Dashboard not found: {dashboard_id}"})
-                
-                # Extract Datadog API domain and create metadata
                 api_domain = self._extract_api_domain_from_connector(datadog_connector)
                 task_params = {
                     'dashboard_id': dashboard_id
                 }
                 metadata = self._create_metadata_with_datadog_url(api_domain, "get_dashboard_variable_values", task_params)
-                
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.API_RESPONSE,
-                    api_response=ApiResponseResult(
-                        response_status=UInt64Value(value=404),
-                        response_body=error_struct
-                    ),
-                    source=self.source,
-                    metadata=metadata
+                return self._empty_datadog_result(
+                    f"Dashboard not found: {dashboard_id}",
+                    task_metadata=metadata,
                 )
 
             # Parse JSON string back to dict for Struct
@@ -2092,8 +2133,16 @@ class DatadogSourceManager(SourceManager):
             )
 
         except Exception as e:
-            logger.error(f"Error while executing get dashboard variable values task: {e}")
-            raise Exception(f"Error while executing Datadog task: {e}")
+            api_domain = self._extract_api_domain_from_connector(datadog_connector)
+            task_params = {'dashboard_id': dashboard_id}
+            metadata = self._create_metadata_with_datadog_url(
+                api_domain, "get_dashboard_variable_values", task_params
+            )
+            return self._finish_datadog_task_exception(
+                e,
+                empty_message=f"Dashboard not found: {dashboard_id}",
+                task_metadata=metadata,
+            )
 
     def execute_fetch_dashboards(self, time_range: TimeRange, dd_task: Datadog, datadog_connector: ConnectorProto):
         """
@@ -2121,21 +2170,11 @@ class DatadogSourceManager(SourceManager):
             import json
 
             if not response_json:
-                error_struct = Struct()
-                error_struct.update({"error": "No dashboards found"})
-                
-                # Extract Datadog API domain and create metadata
                 api_domain = self._extract_api_domain_from_connector(datadog_connector)
                 metadata = self._create_metadata_with_datadog_url(api_domain, "fetch_dashboards")
-                
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.API_RESPONSE,
-                    api_response=ApiResponseResult(
-                        response_status=UInt64Value(value=404),
-                        response_body=error_struct
-                    ),
-                    source=self.source,
-                    metadata=metadata
+                return self._empty_datadog_result(
+                    "No dashboards found",
+                    task_metadata=metadata,
                 )
 
             # Parse JSON string back to dict for Struct
@@ -2158,8 +2197,13 @@ class DatadogSourceManager(SourceManager):
             )
 
         except Exception as e:
-            logger.error(f"Error while executing fetch dashboards task: {e}")
-            raise Exception(f"Error while executing Datadog task: {e}")
+            api_domain = self._extract_api_domain_from_connector(datadog_connector)
+            metadata = self._create_metadata_with_datadog_url(api_domain, "fetch_dashboards")
+            return self._finish_datadog_task_exception(
+                e,
+                empty_message="No dashboards found",
+                task_metadata=metadata,
+            )
 
     def execute_query_monitors(self, time_range: TimeRange, dd_task: Datadog, datadog_connector: ConnectorProto):
         """
@@ -2173,6 +2217,7 @@ class DatadogSourceManager(SourceManager):
         Returns:
             A PlaybookTaskResult containing monitors as API response
         """
+        query = None
         try:
             if not datadog_connector:
                 raise Exception("Task execution Failed:: No Datadog source found")
@@ -2191,24 +2236,33 @@ class DatadogSourceManager(SourceManager):
             from google.protobuf.struct_pb2 import Struct
             import json
 
+            api_domain = self._extract_api_domain_from_connector(datadog_connector)
+            metadata = self._create_metadata_with_datadog_url(api_domain, "query_monitors", {
+                "query": query
+            })
+
             if not response_data:
-                error_struct = Struct()
-                error_struct.update({"error": "No monitors found"})
-                
-                # Extract Datadog API domain and create metadata
-                api_domain = self._extract_api_domain_from_connector(datadog_connector)
-                metadata = self._create_metadata_with_datadog_url(api_domain, "query_monitors", {
-                    "query": query
-                })
-                
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.API_RESPONSE,
-                    api_response=ApiResponseResult(
-                        response_status=UInt64Value(value=404),
-                        response_body=error_struct
-                    ),
-                    source=self.source,
-                    metadata=metadata
+                return build_task_empty_result(
+                    self.source,
+                    "No monitors found",
+                    task_metadata=metadata,
+                )
+
+            if isinstance(response_data, dict):
+                monitors = response_data.get("monitors", [])
+                counts = response_data.get("counts") or {}
+                total = counts.get("total", len(monitors)) if isinstance(counts, dict) else len(monitors)
+                if not monitors and total == 0:
+                    return build_task_empty_result(
+                        self.source,
+                        f"No monitors found for query: {query or '*'}",
+                        task_metadata=metadata,
+                    )
+            elif isinstance(response_data, list) and len(response_data) == 0:
+                return build_task_empty_result(
+                    self.source,
+                    f"No monitors found for query: {query or '*'}",
+                    task_metadata=metadata,
                 )
 
             # Convert response to Struct - ensure all values are JSON-serializable
@@ -2232,12 +2286,6 @@ class DatadogSourceManager(SourceManager):
                     # Last resort: wrap in a dict
                     response_struct = dict_to_proto({"data": str(response_data)}, Struct)
 
-            # Extract Datadog API domain and create metadata
-            api_domain = self._extract_api_domain_from_connector(datadog_connector)
-            metadata = self._create_metadata_with_datadog_url(api_domain, "query_monitors", {
-                "query": query
-            })
-
             return PlaybookTaskResult(
                 type=PlaybookTaskResultType.API_RESPONSE,
                 api_response=ApiResponseResult(
@@ -2249,8 +2297,15 @@ class DatadogSourceManager(SourceManager):
             )
 
         except Exception as e:
-            logger.error(f"Error executing query monitors task: {e}")
-            raise Exception(f"Task execution Failed:: {e}")
+            api_domain = self._extract_api_domain_from_connector(datadog_connector) if datadog_connector else None
+            metadata = self._create_metadata_with_datadog_url(api_domain, "query_monitors", {
+                "query": query
+            }) if api_domain is not None else None
+            return self._finish_datadog_task_exception(
+                e,
+                empty_message=f"No monitors found for query: {query or '*'}",
+                task_metadata=metadata,
+            )
 
     def execute_list_monitors(self, time_range: TimeRange, dd_task: Datadog, datadog_connector: ConnectorProto):
         """
@@ -2275,19 +2330,11 @@ class DatadogSourceManager(SourceManager):
             import json
 
             if not response_data:
-                error_struct = Struct()
-                error_struct.update({"error": "No monitors found"})
                 api_domain = self._extract_api_domain_from_connector(datadog_connector)
                 metadata = self._create_metadata_with_datadog_url(api_domain, "list_monitors", {})
-
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.API_RESPONSE,
-                    api_response=ApiResponseResult(
-                        response_status=UInt64Value(value=404),
-                        response_body=error_struct
-                    ),
-                    source=self.source,
-                    metadata=metadata
+                return self._empty_datadog_result(
+                    "No monitors found",
+                    task_metadata=metadata,
                 )
 
             # Convert response to list format
@@ -2321,8 +2368,13 @@ class DatadogSourceManager(SourceManager):
             )
 
         except Exception as e:
-            logger.error(f"Error executing list monitors task: {e}")
-            raise Exception(f"Task execution Failed:: {e}")
+            api_domain = self._extract_api_domain_from_connector(datadog_connector)
+            metadata = self._create_metadata_with_datadog_url(api_domain, "list_monitors", {})
+            return self._finish_datadog_task_exception(
+                e,
+                empty_message="No monitors found",
+                task_metadata=metadata,
+            )
 
     def execute_get_monitor_details(self, time_range: TimeRange, dd_task: Datadog, datadog_connector: ConnectorProto):
         """
@@ -2353,19 +2405,11 @@ class DatadogSourceManager(SourceManager):
             import json
 
             if not response_data:
-                error_struct = Struct()
-                error_struct.update({"error": f"Monitor {monitor_id} not found"})
                 api_domain = self._extract_api_domain_from_connector(datadog_connector)
                 metadata = self._create_metadata_with_datadog_url(api_domain, "get_monitor", {"monitor_id": monitor_id})
-
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.API_RESPONSE,
-                    api_response=ApiResponseResult(
-                        response_status=UInt64Value(value=404),
-                        response_body=error_struct
-                    ),
-                    source=self.source,
-                    metadata=metadata
+                return self._empty_datadog_result(
+                    f"Monitor {monitor_id} not found",
+                    task_metadata=metadata,
                 )
 
             # Convert response to dict
@@ -2393,8 +2437,20 @@ class DatadogSourceManager(SourceManager):
             )
 
         except Exception as e:
-            logger.error(f"Error executing get monitor details task: {e}")
-            raise Exception(f"Task execution Failed:: {e}")
+            monitor_id_safe = locals().get("monitor_id")
+            api_domain = self._extract_api_domain_from_connector(datadog_connector) if datadog_connector else None
+            metadata = (
+                self._create_metadata_with_datadog_url(
+                    api_domain, "get_monitor", {"monitor_id": monitor_id_safe}
+                )
+                if api_domain is not None
+                else None
+            )
+            return self._finish_datadog_task_exception(
+                e,
+                empty_message=f"Monitor {monitor_id_safe} not found",
+                task_metadata=metadata,
+            )
 
     def execute_create_monitor(self, time_range: TimeRange, dd_task: Datadog, datadog_connector: ConnectorProto):
         """
@@ -2490,8 +2546,13 @@ class DatadogSourceManager(SourceManager):
             )
 
         except Exception as e:
-            logger.error(f"Error executing create monitor task: {e}")
-            raise Exception(f"Task execution Failed:: {e}")
+            api_domain = self._extract_api_domain_from_connector(datadog_connector)
+            metadata = self._create_metadata_with_datadog_url(api_domain, "create_monitor", {})
+            return self._finish_datadog_task_exception(
+                e,
+                empty_message="Monitor could not be created",
+                task_metadata=metadata,
+            )
 
     def execute_update_monitor(self, time_range: TimeRange, dd_task: Datadog, datadog_connector: ConnectorProto):
         """
@@ -2587,6 +2648,18 @@ class DatadogSourceManager(SourceManager):
             )
 
         except Exception as e:
-            logger.error(f"Error executing update monitor task: {e}")
-            raise Exception(f"Task execution Failed:: {e}")
+            monitor_id_safe = locals().get("monitor_id")
+            api_domain = self._extract_api_domain_from_connector(datadog_connector) if datadog_connector else None
+            metadata = (
+                self._create_metadata_with_datadog_url(
+                    api_domain, "update_monitor", {"monitor_id": monitor_id_safe}
+                )
+                if api_domain is not None
+                else None
+            )
+            return self._finish_datadog_task_exception(
+                e,
+                empty_message=f"Monitor {monitor_id_safe} not found",
+                task_metadata=metadata,
+            )
 

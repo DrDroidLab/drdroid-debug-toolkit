@@ -524,7 +524,13 @@ class GithubAPIProcessor(Processor):
 
     def get_branch_commits(self, repo, branch='main', time_since=None, time_until=None, author=None):
         try:
-            query_params = f'sha={branch}&per_page=100'
+            # Omit `sha` when no branch is supplied so GitHub queries the repo's DEFAULT branch.
+            # The agent frequently calls fetch_recent_commits without a branch (task.branch.value == ""),
+            # and sending `sha=` (empty) makes GitHub return zero commits — the root cause of the
+            # spurious "No commits found" 500s.
+            query_params = 'per_page=100'
+            if branch:
+                query_params += f'&sha={branch}'
             if time_since:
                 query_params += f'&since={time_since}'
             if time_until:
@@ -554,7 +560,10 @@ class GithubAPIProcessor(Processor):
 
     def get_recent_merges(self, repo, branch='main'):
         try:
-            recent_pulls_url = f'https://api.github.com/repos/{self.org}/{repo}/pulls?base={branch}&per_page=100&sort=updated&direction=desc&state=closed'
+            # Omit the `base` filter when no branch is supplied so merges across ALL base branches
+            # are returned; an empty `base=` filters to a branch named "" and yields nothing.
+            base_filter = f'base={branch}&' if branch else ''
+            recent_pulls_url = f'https://api.github.com/repos/{self.org}/{repo}/pulls?{base_filter}per_page=100&sort=updated&direction=desc&state=closed'
             headers = {
                 'Authorization': f'Bearer {self.__api_key}'
             }
