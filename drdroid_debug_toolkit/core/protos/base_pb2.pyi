@@ -219,6 +219,7 @@ class _SourceEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTyp
     VICTORIA_LOGS: _Source.ValueType  # 77
     METABASE: _Source.ValueType  # 78
     DATABRICKS: _Source.ValueType  # 79
+    CHECKLY: _Source.ValueType  # 80
 
 class Source(_Source, metaclass=_SourceEnumTypeWrapper): ...
 
@@ -302,6 +303,7 @@ MCP_SERVER: Source.ValueType  # 76
 VICTORIA_LOGS: Source.ValueType  # 77
 METABASE: Source.ValueType  # 78
 DATABRICKS: Source.ValueType  # 79
+CHECKLY: Source.ValueType  # 80
 global___Source = Source
 
 class _SourceKeyType:
@@ -472,6 +474,9 @@ class _SourceKeyTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     DATABRICKS_TOKEN: _SourceKeyType.ValueType  # 167
     GITHUB_API_URL: _SourceKeyType.ValueType  # 168
     """Github specific keys"""
+    CHECKLY_API_KEY: _SourceKeyType.ValueType  # 169
+    """Checkly specific keys"""
+    CHECKLY_ACCOUNT_ID: _SourceKeyType.ValueType  # 170
     MCP_SERVER_OAUTH_ACCESS_TOKEN: _SourceKeyType.ValueType  # 177
     """MCP Server OAuth keys"""
     MCP_SERVER_OAUTH_REFRESH_TOKEN: _SourceKeyType.ValueType  # 178
@@ -644,6 +649,9 @@ DATABRICKS_HOST: SourceKeyType.ValueType  # 166
 DATABRICKS_TOKEN: SourceKeyType.ValueType  # 167
 GITHUB_API_URL: SourceKeyType.ValueType  # 168
 """Github specific keys"""
+CHECKLY_API_KEY: SourceKeyType.ValueType  # 169
+"""Checkly specific keys"""
+CHECKLY_ACCOUNT_ID: SourceKeyType.ValueType  # 170
 MCP_SERVER_OAUTH_ACCESS_TOKEN: SourceKeyType.ValueType  # 177
 """MCP Server OAuth keys"""
 MCP_SERVER_OAUTH_REFRESH_TOKEN: SourceKeyType.ValueType  # 178

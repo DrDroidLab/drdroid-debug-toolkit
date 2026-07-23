@@ -1,0 +1,55 @@
+syntax = "proto3";
+package core.protos.playbooks;
+
+import "google/protobuf/wrappers.proto";
+
+
+message Checkly {
+  message ListChecksTask {
+    // No parameters needed - fetches all checks
+  }
+
+  message GetCheckStatusesTask {
+    // No parameters needed - fetches current status of all checks
+  }
+
+  message GetCheckResultsTask {
+    google.protobuf.StringValue check_id = 1;
+    google.protobuf.UInt64Value limit = 2;
+  }
+
+  message GetCheckAnalyticsTask {
+    google.protobuf.StringValue check_id = 1;
+    // check_type: "api", "browser", "multistep", "tcp"
+    google.protobuf.StringValue check_type = 2;
+  }
+
+  message GetCheckAlertsTask {
+    // Optional: if empty, fetches alerts for entire account
+    google.protobuf.StringValue check_id = 1;
+  }
+
+  message GetCheckGroupsTask {
+    // No parameters needed - fetches all check groups
+  }
+
+  enum TaskType {
+    UNKNOWN = 0;
+    LIST_CHECKS = 1;
+    GET_CHECK_STATUSES = 2;
+    GET_CHECK_RESULTS = 3;
+    GET_CHECK_ANALYTICS = 4;
+    GET_CHECK_ALERTS = 5;
+    GET_CHECK_GROUPS = 6;
+  }
+
+  TaskType type = 1;
+  oneof task {
+    ListChecksTask list_checks = 2;
+    GetCheckStatusesTask get_check_statuses = 3;
+    GetCheckResultsTask get_check_results = 4;
+    GetCheckAnalyticsTask get_check_analytics = 5;
+    GetCheckAlertsTask get_check_alerts = 6;
+    GetCheckGroupsTask get_check_groups = 7;
+  }
+}

@@ -474,6 +474,12 @@ def generate_credentials_dict(connector_type, connector_keys):
                 credentials_dict['databricks_host'] = conn_key.key.value
             elif conn_key.key_type == SourceKeyType.DATABRICKS_TOKEN:
                 credentials_dict['databricks_token'] = conn_key.key.value
+    elif connector_type == Source.CHECKLY:
+        for conn_key in connector_keys:
+            if conn_key.key_type == SourceKeyType.CHECKLY_API_KEY:
+                credentials_dict['api_key'] = conn_key.key.value
+            elif conn_key.key_type == SourceKeyType.CHECKLY_ACCOUNT_ID:
+                credentials_dict['account_id'] = conn_key.key.value
     else:
         return None
     return credentials_dict
@@ -1086,6 +1092,18 @@ def credential_yaml_to_connector_proto(connector_name, credential_yaml, connecto
         c_keys.append(ConnectorKey(
             key_type=SourceKeyType.METABASE_API_KEY,
             key=StringValue(value=credential_yaml['metabase_api_key'])
+        ))
+    elif c_type == 'CHECKLY':
+        if 'api_key' not in credential_yaml or 'account_id' not in credential_yaml:
+            raise Exception(f'API key or account ID not found in credential yaml for checkly source in connector: {connector_name}')
+        c_source = Source.CHECKLY
+        c_keys.append(ConnectorKey(
+            key_type=SourceKeyType.CHECKLY_API_KEY,
+            key=StringValue(value=credential_yaml['api_key'])
+        ))
+        c_keys.append(ConnectorKey(
+            key_type=SourceKeyType.CHECKLY_ACCOUNT_ID,
+            key=StringValue(value=credential_yaml['account_id'])
         ))
     else:
         raise Exception(f'Invalid type in credential yaml for connector: {connector_name}')

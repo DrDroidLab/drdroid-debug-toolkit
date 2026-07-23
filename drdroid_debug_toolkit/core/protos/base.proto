@@ -167,6 +167,7 @@ enum Source {
   VICTORIA_LOGS=77;
   METABASE = 78;
   DATABRICKS = 79;
+  CHECKLY = 80;
 }
 
 enum SourceKeyType {
@@ -385,6 +386,10 @@ enum SourceKeyType {
 
   // Github specific keys
   GITHUB_API_URL = 168;
+
+  // Checkly specific keys
+  CHECKLY_API_KEY = 169;
+  CHECKLY_ACCOUNT_ID = 170;
 
   // MCP Server OAuth keys
   MCP_SERVER_OAUTH_ACCESS_TOKEN = 177;
