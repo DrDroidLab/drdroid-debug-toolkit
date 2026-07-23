@@ -59,7 +59,9 @@ class ChecklyApiProcessor(Processor):
             logger.error(f"ChecklyApiProcessor.get_check_results:: Error for check {check_id}: {e}")
             raise
 
-    def get_check_analytics(self, check_id: str, check_type: str, from_ts: int = None, to_ts: int = None) -> dict:
+    def get_check_analytics(
+        self, check_id: str, check_type: str, from_ts: int = None, to_ts: int = None, metrics: str = "responseTime"
+    ) -> dict:
         try:
             check_type = check_type.lower() if check_type else "api"
             type_map = {
@@ -69,12 +71,13 @@ class ChecklyApiProcessor(Processor):
                 "tcp": "tcp-checks",
             }
             endpoint_segment = type_map.get(check_type, "api-checks")
-            params = {}
+            # `metrics` is required by the analytics API; `from`/`to` must be epoch seconds.
+            params = {"metrics": metrics or "responseTime"}
             if from_ts:
                 params["from"] = from_ts
             if to_ts:
                 params["to"] = to_ts
-            return self._get(f"/analytics/{endpoint_segment}/{check_id}", params=params or None)
+            return self._get(f"/analytics/{endpoint_segment}/{check_id}", params=params)
         except Exception as e:
             logger.error(f"ChecklyApiProcessor.get_check_analytics:: Error for check {check_id}: {e}")
             raise
@@ -108,7 +111,7 @@ class ChecklyApiProcessor(Processor):
             logger.error(f"ChecklyApiProcessor.get_error_groups:: Error: {e}")
             raise
 
-    def get_reporting(self, from_ts: str = None, to_ts: str = None, quick_range: str = None, granularity: str = None) -> dict:
+    def get_reporting(self, from_ts: int = None, to_ts: int = None, quick_range: str = None, granularity: str = None) -> dict:
         try:
             params = {}
             if from_ts and to_ts:

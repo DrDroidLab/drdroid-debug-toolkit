@@ -97,19 +97,27 @@ class Checkly(google.protobuf.message.Message):
 
         CHECK_ID_FIELD_NUMBER: builtins.int
         CHECK_TYPE_FIELD_NUMBER: builtins.int
+        METRICS_FIELD_NUMBER: builtins.int
         @property
         def check_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
         @property
         def check_type(self) -> google.protobuf.wrappers_pb2.StringValue:
             """check_type: "api", "browser", "multistep", "tcp" """
+        @property
+        def metrics(self) -> google.protobuf.wrappers_pb2.StringValue:
+            """metrics: required by the API. Comma-separated, e.g. "responseTime" or
+            "availability". Cannot mix aggregate and non-aggregate metrics in one call.
+            Defaults to "responseTime" when empty.
+            """
         def __init__(
             self,
             *,
             check_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
             check_type: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            metrics: google.protobuf.wrappers_pb2.StringValue | None = ...,
         ) -> None: ...
-        def HasField(self, field_name: typing_extensions.Literal["check_id", b"check_id", "check_type", b"check_type"]) -> builtins.bool: ...
-        def ClearField(self, field_name: typing_extensions.Literal["check_id", b"check_id", "check_type", b"check_type"]) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["check_id", b"check_id", "check_type", b"check_type", "metrics", b"metrics"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["check_id", b"check_id", "check_type", b"check_type", "metrics", b"metrics"]) -> None: ...
 
     @typing_extensions.final
     class GetCheckAlertsTask(google.protobuf.message.Message):

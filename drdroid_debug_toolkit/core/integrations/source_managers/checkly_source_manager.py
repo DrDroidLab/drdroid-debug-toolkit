@@ -93,6 +93,19 @@ class ChecklySourceManager(SourceManager):
                         form_field_type=FormFieldType.TEXT_FT,
                         is_optional=True,
                     ),
+                    FormField(
+                        key_name=StringValue(value="metrics"),
+                        display_name=StringValue(value="Metrics"),
+                        description=StringValue(
+                            value=(
+                                "Comma-separated metrics (default responseTime), e.g. availability. "
+                                "Cannot mix aggregate and non-aggregate metrics in one call."
+                            )
+                        ),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=True,
+                    ),
                 ],
             },
             Checkly.TaskType.GET_CHECK_ALERTS: {
@@ -325,12 +338,13 @@ class ChecklySourceManager(SourceManager):
             if not check_id:
                 raise Exception("check_id is required")
             check_type = task_data.check_type.value if task_data.check_type.value else "api"
+            metrics = task_data.metrics.value if task_data.metrics.value else "responseTime"
 
             from_ts = int(time_range.time_geq) if time_range and time_range.time_geq else None
             to_ts = int(time_range.time_lt) if time_range and time_range.time_lt else None
 
             processor = self.get_connector_processor(connector)
-            result = processor.get_check_analytics(check_id, check_type, from_ts=from_ts, to_ts=to_ts)
+            result = processor.get_check_analytics(check_id, check_type, from_ts=from_ts, to_ts=to_ts, metrics=metrics)
             return self._build_api_response(result, f"/v1/analytics/{check_type}-checks/{check_id}")
         except Exception as e:
             logger.error(f"ChecklySourceManager.execute_get_check_analytics:: Error: {e}")
@@ -379,8 +393,9 @@ class ChecklySourceManager(SourceManager):
             quick_range = task_data.quick_range.value if task_data.quick_range.value else None
             granularity = task_data.granularity.value if task_data.granularity.value else None
 
-            from_ts = self._epoch_to_iso(time_range.time_geq) if time_range and time_range.time_geq else None
-            to_ts = self._epoch_to_iso(time_range.time_lt) if time_range and time_range.time_lt else None
+            # The reporting API expects epoch seconds for from/to, not ISO strings.
+            from_ts = int(time_range.time_geq) if time_range and time_range.time_geq else None
+            to_ts = int(time_range.time_lt) if time_range and time_range.time_lt else None
             if not (from_ts and to_ts) and not quick_range:
                 quick_range = "last24Hrs"
 
@@ -421,9 +436,3 @@ class ChecklySourceManager(SourceManager):
         except Exception as e:
             logger.error(f"ChecklySourceManager.execute_get_alert_channels:: Error: {e}")
             return PlaybookTaskResult(source=self.source, error=StringValue(value=str(e)))
-
-    @staticmethod
-    def _epoch_to_iso(epoch_seconds) -> str:
-        from datetime import datetime, timezone
-
-        return datetime.fromtimestamp(int(epoch_seconds), tz=timezone.utc).isoformat()

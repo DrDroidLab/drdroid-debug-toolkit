@@ -22,6 +22,10 @@ message Checkly {
     google.protobuf.StringValue check_id = 1;
     // check_type: "api", "browser", "multistep", "tcp"
     google.protobuf.StringValue check_type = 2;
+    // metrics: required by the API. Comma-separated, e.g. "responseTime" or
+    // "availability". Cannot mix aggregate and non-aggregate metrics in one call.
+    // Defaults to "responseTime" when empty.
+    google.protobuf.StringValue metrics = 3;
   }
 
   message GetCheckAlertsTask {
