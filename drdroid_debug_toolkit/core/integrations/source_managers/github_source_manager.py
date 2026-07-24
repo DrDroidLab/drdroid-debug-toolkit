@@ -240,7 +240,7 @@ class GithubSourceManager(SourceManager):
 
         self.connector_form_configs = [
             {
-                "name": StringValue(value="GitHub Authentication"),
+                "name": StringValue(value="GitHub Personal Access Token"),
                 "description": StringValue(value="Connect to GitHub using a Personal Access Token (PAT) and specify the Organization. Ensure the PAT has the necessary scopes (e.g., `repo` for private repositories, `org:read` for organization details)."),
                 "form_fields": {
                     SourceKeyType.GITHUB_TOKEN: FormField(
@@ -272,7 +272,54 @@ class GithubSourceManager(SourceManager):
                         is_optional=True
                     )
                 }
-            }
+            },
+            {
+                "name": StringValue(value="GitHub App"),
+                "description": StringValue(
+                    value=(
+                        "Connect to GitHub using a GitHub App installation. "
+                        "App ID and Installation ID are stored on the connector; "
+                        "the App private key is configured server-side and is not shown here."
+                    )
+                ),
+                "form_fields": {
+                    SourceKeyType.GITHUB_APP_ID: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.GITHUB_APP_ID)),
+                        display_name=StringValue(value="GitHub App ID"),
+                        description=StringValue(value="Numeric GitHub App ID for this installation"),
+                        helper_text=StringValue(
+                            value="Set automatically when you install the Doctor Droid GitHub App"
+                        ),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False,
+                    ),
+                    SourceKeyType.GITHUB_APP_INSTALLATION_ID: FormField(
+                        key_name=StringValue(
+                            value=get_connector_key_type_string(SourceKeyType.GITHUB_APP_INSTALLATION_ID)
+                        ),
+                        display_name=StringValue(value="GitHub App Installation ID"),
+                        description=StringValue(value="Installation ID for the App on your org/account"),
+                        helper_text=StringValue(
+                            value="Set automatically when you install the Doctor Droid GitHub App"
+                        ),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=False,
+                    ),
+                    SourceKeyType.GITHUB_ORG: FormField(
+                        key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.GITHUB_ORG)),
+                        display_name=StringValue(value="GitHub Organization"),
+                        description=StringValue(value='e.g. "my-org", "acme-corp", "awesome-team"'),
+                        helper_text=StringValue(
+                            value="Organization that owns this GitHub App installation"
+                        ),
+                        data_type=LiteralType.STRING,
+                        form_field_type=FormFieldType.TEXT_FT,
+                        is_optional=True,
+                    ),
+                }
+            },
         ]
         self.connector_type_details = {
             DISPLAY_NAME: "GITHUB",
