@@ -83,6 +83,18 @@ message Github {
     google.protobuf.UInt64Value per_page = 3;
   }
 
+  // Create a real repo Issue as a sub-issue of a parent Issue, then add it to the project.
+  message CreateProjectSubIssue {
+    google.protobuf.UInt64Value project_number = 1;
+    google.protobuf.StringValue title = 2;
+    google.protobuf.StringValue body = 3;
+    // Parent issue repository as "owner/repo" (preferred) or repo name under connector org.
+    google.protobuf.StringValue parent_repo = 4;
+    google.protobuf.UInt64Value parent_issue_number = 5;
+    // Numeric GitHub issue id of the parent (optional; looked up if omitted).
+    google.protobuf.UInt64Value parent_issue_id = 6;
+  }
+
   enum TaskType {
     UNKNOWN = 0;
     FETCH_RELATED_COMMITS = 1;
@@ -96,6 +108,7 @@ message Github {
     FETCH_ORG_PROJECTS = 9;
     FETCH_PROJECT = 10;
     FETCH_PROJECT_ITEMS = 11;
+    CREATE_PROJECT_SUB_ISSUE = 12;
   }
 
   TaskType type = 1;
@@ -110,5 +123,6 @@ message Github {
     FetchOrgProjects fetch_org_projects = 9;
     FetchProject fetch_project = 10;
     FetchProjectItems fetch_project_items = 11;
+    CreateProjectSubIssue create_project_sub_issue = 12;
   }
 }

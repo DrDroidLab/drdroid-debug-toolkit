@@ -41,6 +41,7 @@ class Github(google.protobuf.message.Message):
         FETCH_ORG_PROJECTS: Github._TaskType.ValueType  # 9
         FETCH_PROJECT: Github._TaskType.ValueType  # 10
         FETCH_PROJECT_ITEMS: Github._TaskType.ValueType  # 11
+        CREATE_PROJECT_SUB_ISSUE: Github._TaskType.ValueType  # 12
 
     class TaskType(_TaskType, metaclass=_TaskTypeEnumTypeWrapper): ...
     UNKNOWN: Github.TaskType.ValueType  # 0
@@ -55,6 +56,7 @@ class Github(google.protobuf.message.Message):
     FETCH_ORG_PROJECTS: Github.TaskType.ValueType  # 9
     FETCH_PROJECT: Github.TaskType.ValueType  # 10
     FETCH_PROJECT_ITEMS: Github.TaskType.ValueType  # 11
+    CREATE_PROJECT_SUB_ISSUE: Github.TaskType.ValueType  # 12
 
     @typing_extensions.final
     class FetchRelatedCommits(google.protobuf.message.Message):
@@ -358,6 +360,45 @@ class Github(google.protobuf.message.Message):
         def HasField(self, field_name: typing_extensions.Literal["org", b"org", "per_page", b"per_page", "project_number", b"project_number"]) -> builtins.bool: ...
         def ClearField(self, field_name: typing_extensions.Literal["org", b"org", "per_page", b"per_page", "project_number", b"project_number"]) -> None: ...
 
+    @typing_extensions.final
+    class CreateProjectSubIssue(google.protobuf.message.Message):
+        """Create a real repo Issue as a sub-issue of a parent Issue, then add it to the project."""
+
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        PROJECT_NUMBER_FIELD_NUMBER: builtins.int
+        TITLE_FIELD_NUMBER: builtins.int
+        BODY_FIELD_NUMBER: builtins.int
+        PARENT_REPO_FIELD_NUMBER: builtins.int
+        PARENT_ISSUE_NUMBER_FIELD_NUMBER: builtins.int
+        PARENT_ISSUE_ID_FIELD_NUMBER: builtins.int
+        @property
+        def project_number(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+        @property
+        def title(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def body(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def parent_repo(self) -> google.protobuf.wrappers_pb2.StringValue:
+            """Parent issue repository as "owner/repo" (preferred) or repo name under connector org."""
+        @property
+        def parent_issue_number(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+        @property
+        def parent_issue_id(self) -> google.protobuf.wrappers_pb2.UInt64Value:
+            """Numeric GitHub issue id of the parent (optional; looked up if omitted)."""
+        def __init__(
+            self,
+            *,
+            project_number: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+            title: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            body: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            parent_repo: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            parent_issue_number: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+            parent_issue_id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["body", b"body", "parent_issue_id", b"parent_issue_id", "parent_issue_number", b"parent_issue_number", "parent_repo", b"parent_repo", "project_number", b"project_number", "title", b"title"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["body", b"body", "parent_issue_id", b"parent_issue_id", "parent_issue_number", b"parent_issue_number", "parent_repo", b"parent_repo", "project_number", b"project_number", "title", b"title"]) -> None: ...
+
     TYPE_FIELD_NUMBER: builtins.int
     FETCH_RELATED_COMMITS_FIELD_NUMBER: builtins.int
     FETCH_FILE_FIELD_NUMBER: builtins.int
@@ -369,6 +410,7 @@ class Github(google.protobuf.message.Message):
     FETCH_ORG_PROJECTS_FIELD_NUMBER: builtins.int
     FETCH_PROJECT_FIELD_NUMBER: builtins.int
     FETCH_PROJECT_ITEMS_FIELD_NUMBER: builtins.int
+    CREATE_PROJECT_SUB_ISSUE_FIELD_NUMBER: builtins.int
     type: global___Github.TaskType.ValueType
     @property
     def fetch_related_commits(self) -> global___Github.FetchRelatedCommits: ...
@@ -390,6 +432,8 @@ class Github(google.protobuf.message.Message):
     def fetch_project(self) -> global___Github.FetchProject: ...
     @property
     def fetch_project_items(self) -> global___Github.FetchProjectItems: ...
+    @property
+    def create_project_sub_issue(self) -> global___Github.CreateProjectSubIssue: ...
     def __init__(
         self,
         *,
@@ -404,9 +448,10 @@ class Github(google.protobuf.message.Message):
         fetch_org_projects: global___Github.FetchOrgProjects | None = ...,
         fetch_project: global___Github.FetchProject | None = ...,
         fetch_project_items: global___Github.FetchProjectItems | None = ...,
+        create_project_sub_issue: global___Github.CreateProjectSubIssue | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["create_project_draft_issue", b"create_project_draft_issue", "create_pull_request", b"create_pull_request", "fetch_file", b"fetch_file", "fetch_org_projects", b"fetch_org_projects", "fetch_project", b"fetch_project", "fetch_project_items", b"fetch_project_items", "fetch_recent_commits", b"fetch_recent_commits", "fetch_recent_merges", b"fetch_recent_merges", "fetch_related_commits", b"fetch_related_commits", "task", b"task", "update_file", b"update_file"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["create_project_draft_issue", b"create_project_draft_issue", "create_pull_request", b"create_pull_request", "fetch_file", b"fetch_file", "fetch_org_projects", b"fetch_org_projects", "fetch_project", b"fetch_project", "fetch_project_items", b"fetch_project_items", "fetch_recent_commits", b"fetch_recent_commits", "fetch_recent_merges", b"fetch_recent_merges", "fetch_related_commits", b"fetch_related_commits", "task", b"task", "type", b"type", "update_file", b"update_file"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing_extensions.Literal["task", b"task"]) -> typing_extensions.Literal["fetch_related_commits", "fetch_file", "update_file", "fetch_recent_commits", "fetch_recent_merges", "create_pull_request", "create_project_draft_issue", "fetch_org_projects", "fetch_project", "fetch_project_items"] | None: ...
+    def HasField(self, field_name: typing_extensions.Literal["create_project_draft_issue", b"create_project_draft_issue", "create_project_sub_issue", b"create_project_sub_issue", "create_pull_request", b"create_pull_request", "fetch_file", b"fetch_file", "fetch_org_projects", b"fetch_org_projects", "fetch_project", b"fetch_project", "fetch_project_items", b"fetch_project_items", "fetch_recent_commits", b"fetch_recent_commits", "fetch_recent_merges", b"fetch_recent_merges", "fetch_related_commits", b"fetch_related_commits", "task", b"task", "update_file", b"update_file"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["create_project_draft_issue", b"create_project_draft_issue", "create_project_sub_issue", b"create_project_sub_issue", "create_pull_request", b"create_pull_request", "fetch_file", b"fetch_file", "fetch_org_projects", b"fetch_org_projects", "fetch_project", b"fetch_project", "fetch_project_items", b"fetch_project_items", "fetch_recent_commits", b"fetch_recent_commits", "fetch_recent_merges", b"fetch_recent_merges", "fetch_related_commits", b"fetch_related_commits", "task", b"task", "type", b"type", "update_file", b"update_file"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing_extensions.Literal["task", b"task"]) -> typing_extensions.Literal["fetch_related_commits", "fetch_file", "update_file", "fetch_recent_commits", "fetch_recent_merges", "create_pull_request", "create_project_draft_issue", "fetch_org_projects", "fetch_project", "fetch_project_items", "create_project_sub_issue"] | None: ...
 
 global___Github = Github

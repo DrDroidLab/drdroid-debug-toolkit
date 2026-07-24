@@ -292,6 +292,41 @@ class GithubSourceManager(SourceManager):
                               default_value=Literal(type=LiteralType.LONG, long=Int64Value(value=50))),
                 ]
             },
+            Github.TaskType.CREATE_PROJECT_SUB_ISSUE: {
+                'executor': self.create_project_sub_issue,
+                'model_types': [SourceModelType.GITHUB_PROJECT, SourceModelType.GITHUB_REPOSITORY],
+                'result_type': PlaybookTaskResultType.API_RESPONSE,
+                'display_name': 'Create Project Sub-Issue',
+                'category': 'Projects',
+                'form_fields': [
+                    FormField(key_name=StringValue(value="project_number"),
+                              display_name=StringValue(value="Project Number"),
+                              data_type=LiteralType.LONG,
+                              form_field_type=FormFieldType.TEXT_FT),
+                    FormField(key_name=StringValue(value="title"),
+                              display_name=StringValue(value="Title"),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT),
+                    FormField(key_name=StringValue(value="body"),
+                              display_name=StringValue(value="Body"),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.MULTILINE_FT,
+                              is_optional=True),
+                    FormField(key_name=StringValue(value="parent_repo"),
+                              display_name=StringValue(value="Parent Repo (owner/repo)"),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT),
+                    FormField(key_name=StringValue(value="parent_issue_number"),
+                              display_name=StringValue(value="Parent Issue Number"),
+                              data_type=LiteralType.LONG,
+                              form_field_type=FormFieldType.TEXT_FT),
+                    FormField(key_name=StringValue(value="parent_issue_id"),
+                              display_name=StringValue(value="Parent Issue ID (optional)"),
+                              data_type=LiteralType.LONG,
+                              form_field_type=FormFieldType.TEXT_FT,
+                              is_optional=True),
+                ]
+            },
         }
 
         self.connector_form_configs = [
@@ -783,23 +818,43 @@ class GithubSourceManager(SourceManager):
             simplified = []
             for item in items:
                 content = item.get('content') or {}
+                content_type = (
+                    item.get('content_type')
+                    or item.get('type')
+                    or content.get('type')
+                    or ''
+                )
+                url = content.get('html_url') or content.get('url') or ''
+                repo_full_name = self._repo_from_issue_url(url)
+                repository = content.get('repository') or {}
+                if not repo_full_name and isinstance(repository, dict):
+                    repo_full_name = repository.get('full_name') or ''
+                    if not repo_full_name and repository.get('name'):
+                        owner = (repository.get('owner') or {}).get('login') or org
+                        repo_full_name = f"{owner}/{repository.get('name')}"
                 simplified.append({
                     'id': item.get('id'),
-                    'content_type': item.get('content_type') or item.get('type'),
+                    'content_type': content_type,
                     'created_at': item.get('created_at'),
                     'updated_at': item.get('updated_at'),
                     'title': content.get('title') or item.get('title'),
                     'body': content.get('body') or item.get('body'),
                     'number': content.get('number'),
+                    'issue_id': content.get('id'),
                     'state': content.get('state'),
-                    'url': content.get('url') or content.get('html_url'),
+                    'url': url,
+                    'repo': repo_full_name,
+                    'is_issue': str(content_type).lower() in ('issue', 'issues'),
                 })
+            issues = [i for i in simplified if i.get('is_issue') and i.get('number')]
             response_struct = dict_to_proto(
                 {
                     'org': org,
                     'project_number': int(project_number),
                     'count': len(simplified),
+                    'issue_count': len(issues),
                     'items': simplified,
+                    'issues': issues,
                 },
                 Struct,
             )
@@ -810,6 +865,77 @@ class GithubSourceManager(SourceManager):
             )
         except Exception as e:
             raise Exception(f"Error while executing Github fetch_project_items task: {e}")
+
+    @staticmethod
+    def _repo_from_issue_url(url: str) -> str:
+        if not url:
+            return ''
+        # https://github.com/{owner}/{repo}/issues/{n}
+        try:
+            parts = url.split('github.com/', 1)[-1].strip('/').split('/')
+            if len(parts) >= 2:
+                return f"{parts[0]}/{parts[1]}"
+        except Exception:
+            return ''
+        return ''
+
+    def create_project_sub_issue(self, time_range: TimeRange, github_task: Github,
+                                 github_connector: ConnectorProto):
+        try:
+            task = github_task.create_project_sub_issue
+            project_number = task.project_number.value
+            title = task.title.value
+            body = task.body.value if task.HasField('body') else ''
+            parent_repo = task.parent_repo.value
+            parent_issue_number = task.parent_issue_number.value
+            parent_issue_id = (
+                task.parent_issue_id.value if task.HasField('parent_issue_id') else None
+            )
+
+            processor = self.get_connector_processor(github_connector)
+            org = getattr(processor, 'org', None)
+            if not org:
+                return build_task_failure_result(
+                    self.source, "GitHub connector has no org configured"
+                )
+
+            result = processor.create_project_sub_issue(
+                org=org,
+                project_number=project_number,
+                title=title,
+                body=body,
+                parent_repo=parent_repo,
+                parent_issue_number=parent_issue_number,
+                parent_issue_id=parent_issue_id,
+            )
+            if not result:
+                return build_task_failure_result(
+                    self.source, f"Failed to create sub-issue on project #{project_number}"
+                )
+            if isinstance(result, dict) and result.get('error'):
+                return build_task_failure_result(self.source, result['error'])
+
+            response_body = {
+                'item_id': result.get('item_id'),
+                'issue_id': result.get('issue_id'),
+                'issue_number': result.get('issue_number'),
+                'issue_url': result.get('issue_url'),
+                'parent_repo': result.get('parent_repo'),
+                'parent_issue_number': result.get('parent_issue_number'),
+                'parent_issue_id': result.get('parent_issue_id'),
+                'project_number': result.get('project_number'),
+                'title': result.get('title'),
+                'project_url': result.get('project_url'),
+                'status': result.get('status', 'Created'),
+            }
+            response_struct = dict_to_proto(response_body, Struct)
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                source=self.source,
+                api_response=ApiResponseResult(response_body=response_struct),
+            )
+        except Exception as e:
+            raise Exception(f"Error while executing Github create_project_sub_issue task: {e}")
 
     def fetch_recent_merges(self, time_range: TimeRange, github_task: Github,
                             github_connector: ConnectorProto):
