@@ -837,6 +837,7 @@ class _SourceModelTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper
     GITHUB_REPOSITORY: _SourceModelType.ValueType  # 2601
     """Github Models"""
     GITHUB_MEMBER: _SourceModelType.ValueType  # 2602
+    GITHUB_PROJECT: _SourceModelType.ValueType  # 2603
     JIRA_PROJECT: _SourceModelType.ValueType  # 2701
     """Jira Models"""
     JIRA_USER: _SourceModelType.ValueType  # 2702
@@ -1070,6 +1071,7 @@ MODELS_ACTIVE: SourceModelType.ValueType  # 2501
 GITHUB_REPOSITORY: SourceModelType.ValueType  # 2601
 """Github Models"""
 GITHUB_MEMBER: SourceModelType.ValueType  # 2602
+GITHUB_PROJECT: SourceModelType.ValueType  # 2603
 JIRA_PROJECT: SourceModelType.ValueType  # 2701
 """Jira Models"""
 JIRA_USER: SourceModelType.ValueType  # 2702

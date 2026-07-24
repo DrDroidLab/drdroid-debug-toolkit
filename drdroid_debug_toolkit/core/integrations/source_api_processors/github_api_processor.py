@@ -1044,3 +1044,337 @@ class GithubAPIProcessor(Processor):
         except Exception as e:
             logger.error(f"GithubAPIProcessor.get_pr_comments:: Exception occurred for {self.org}/{repo}: {e}")
             return []
+
+    # ==================== GitHub Projects V2 ====================
+
+    def _projects_headers(self):
+        return {
+            'Authorization': f'Bearer {self.__api_key}',
+            'Accept': 'application/vnd.github+json',
+            'X-GitHub-Api-Version': '2026-03-10',
+        }
+
+    def list_org_projects(self, org=None):
+        """List org-owned GitHub Projects V2 boards. Paginates via Link/after cursor."""
+        org = org or self.org
+        if not org:
+            raise Exception("GitHub connector has no org configured")
+
+        try:
+            headers = self._projects_headers()
+            all_projects = []
+            after = None
+            while True:
+                params = {'per_page': 100}
+                if after:
+                    params['after'] = after
+                url = f'{self.base_url}/orgs/{org}/projectsV2'
+                response = requests.get(url, headers=headers, params=params, timeout=EXTERNAL_CALL_TIMEOUT)
+                if response.status_code in (401, 403):
+                    raise Exception(
+                        f"GitHub Projects permission denied ({response.status_code}). "
+                        f"Ensure the token has Projects: Read. Response: {response.text[:300]}"
+                    )
+                if response.status_code == 404:
+                    raise Exception(f"GitHub org '{org}' not found or projects inaccessible: {response.text[:300]}")
+                if response.status_code != 200:
+                    raise Exception(
+                        f"Failed to list GitHub projects for org '{org}': "
+                        f"{response.status_code} {response.text[:300]}"
+                    )
+
+                page_projects = response.json() or []
+                if not isinstance(page_projects, list):
+                    raise Exception(f"Unexpected projects response type: {type(page_projects)}")
+                all_projects.extend(page_projects)
+
+                link = response.headers.get('Link', '') or ''
+                next_after = None
+                if 'rel="next"' in link:
+                    # Prefer Link header cursor if present; also support GitHub after pagination via Link URL
+                    import re
+                    match = re.search(r'[?&]after=([^&>]+)', link)
+                    if match:
+                        next_after = match.group(1)
+                if not next_after or len(page_projects) < 100:
+                    break
+                after = next_after
+
+            # Prefer open/non-deleted projects when fields exist
+            open_projects = []
+            for project in all_projects:
+                if project.get('deleted_at'):
+                    continue
+                state = (project.get('state') or 'open').lower()
+                if state == 'closed':
+                    continue
+                open_projects.append(project)
+            return open_projects
+        except Exception as e:
+            logger.error(f"GithubAPIProcessor.list_org_projects:: Exception for org {org}: {e}")
+            raise
+
+    def _raise_projects_http_error(self, response, org, action, project_number=None):
+        detail = (response.text or '')[:300]
+        if response.status_code in (401, 403):
+            raise Exception(
+                f"GitHub Projects permission denied ({response.status_code}) while {action}. "
+                f"Ensure Projects: Write is granted and App installs were re-accepted. "
+                f"Response: {detail}"
+            )
+        if response.status_code == 404:
+            target = f" project #{project_number}" if project_number is not None else ""
+            raise Exception(
+                f"GitHub{target} not found for org '{org}' while {action}: {detail}"
+            )
+        raise Exception(
+            f"Failed while {action} for org '{org}': {response.status_code} {detail}"
+        )
+
+    def _paginate_projects_get(self, url, params=None):
+        """GET with after-cursor pagination; returns list of JSON objects."""
+        import re
+        headers = self._projects_headers()
+        params = dict(params or {})
+        params.setdefault('per_page', 100)
+        all_items = []
+        after = None
+        while True:
+            page_params = dict(params)
+            if after:
+                page_params['after'] = after
+            response = requests.get(
+                url, headers=headers, params=page_params, timeout=EXTERNAL_CALL_TIMEOUT
+            )
+            if response.status_code != 200:
+                return response, all_items
+            page = response.json() or []
+            if not isinstance(page, list):
+                raise Exception(f"Unexpected list response type: {type(page)}")
+            all_items.extend(page)
+            link = response.headers.get('Link', '') or ''
+            next_after = None
+            if 'rel="next"' in link:
+                match = re.search(r'[?&]after=([^&>]+)', link)
+                if match:
+                    next_after = match.group(1)
+            if not next_after or len(page) < int(page_params.get('per_page') or 100):
+                return response, all_items
+            after = next_after
+
+    def get_org_project(self, org, project_number):
+        """Get a single org-owned GitHub Project V2 board."""
+        org = org or self.org
+        if not org:
+            raise Exception("GitHub connector has no org configured")
+        if project_number is None:
+            raise Exception("project_number is required")
+
+        try:
+            headers = self._projects_headers()
+            url = f'{self.base_url}/orgs/{org}/projectsV2/{int(project_number)}'
+            response = requests.get(url, headers=headers, timeout=EXTERNAL_CALL_TIMEOUT)
+            if response.status_code != 200:
+                self._raise_projects_http_error(
+                    response, org, f"fetching project #{project_number}", project_number
+                )
+            return response.json() or {}
+        except Exception as e:
+            logger.error(
+                f"GithubAPIProcessor.get_org_project:: Exception for "
+                f"org={org} project={project_number}: {e}"
+            )
+            raise
+
+    def list_org_project_items(self, org, project_number, per_page=100):
+        """List items on an org-owned GitHub Project V2 board."""
+        org = org or self.org
+        if not org:
+            raise Exception("GitHub connector has no org configured")
+        if project_number is None:
+            raise Exception("project_number is required")
+
+        try:
+            url = f'{self.base_url}/orgs/{org}/projectsV2/{int(project_number)}/items'
+            response, items = self._paginate_projects_get(
+                url, params={'per_page': min(int(per_page or 100), 100)}
+            )
+            if response.status_code != 200:
+                self._raise_projects_http_error(
+                    response, org, f"listing items for project #{project_number}", project_number
+                )
+            return items
+        except Exception as e:
+            logger.error(
+                f"GithubAPIProcessor.list_org_project_items:: Exception for "
+                f"org={org} project={project_number}: {e}"
+            )
+            raise
+
+    def create_project_draft_issue(self, org, project_number, title, body=''):
+        """Create a draft issue item on an org-owned GitHub Project board."""
+        org = org or self.org
+        if not org:
+            raise Exception("GitHub connector has no org configured")
+        if project_number is None:
+            raise Exception("project_number is required")
+        if not title or not str(title).strip():
+            raise Exception("title is required")
+
+        try:
+            headers = self._projects_headers()
+            url = f'{self.base_url}/orgs/{org}/projectsV2/{int(project_number)}/drafts'
+            payload = {'title': str(title).strip(), 'body': body or ''}
+            response = requests.post(url, headers=headers, json=payload, timeout=EXTERNAL_CALL_TIMEOUT)
+
+            if response.status_code not in (200, 201):
+                self._raise_projects_http_error(
+                    response, org, f"creating draft on project #{project_number}", project_number
+                )
+
+            data = response.json() if response.content else {}
+            item_id = data.get('id')
+            return {
+                'item_id': item_id,
+                'project_number': int(project_number),
+                'title': str(title).strip(),
+                'project_url': f'https://github.com/orgs/{org}/projects/{int(project_number)}',
+                'status': 'Created',
+                'raw': data,
+            }
+        except Exception as e:
+            logger.error(
+                f"GithubAPIProcessor.create_project_draft_issue:: Exception for "
+                f"org={org} project={project_number}: {e}"
+            )
+            raise
+
+    def _resolve_owner_repo(self, repo):
+        """Accept 'owner/repo' or bare repo name (uses connector org)."""
+        repo = (repo or '').strip().strip('/')
+        if not repo:
+            raise Exception("repo is required")
+        if '/' in repo:
+            owner, name = repo.split('/', 1)
+            owner, name = owner.strip(), name.strip()
+            if not owner or not name:
+                raise Exception(f"Invalid repo '{repo}'; expected owner/repo")
+            return owner, name
+        if not self.org:
+            raise Exception("GitHub connector has no org configured")
+        return self.org, repo
+
+    def get_repo_issue(self, repo, issue_number):
+        owner, name = self._resolve_owner_repo(repo)
+        headers = self._projects_headers()
+        url = f'{self.base_url}/repos/{owner}/{name}/issues/{int(issue_number)}'
+        response = requests.get(url, headers=headers, timeout=EXTERNAL_CALL_TIMEOUT)
+        if response.status_code != 200:
+            raise Exception(
+                f"Failed to fetch issue #{issue_number} in {owner}/{name}: "
+                f"{response.status_code} {(response.text or '')[:300]}"
+            )
+        return response.json() or {}
+
+    def create_repo_issue(self, repo, title, body=''):
+        """Create a real GitHub Issue in a repository."""
+        owner, name = self._resolve_owner_repo(repo)
+        if not title or not str(title).strip():
+            raise Exception("title is required")
+        headers = self._projects_headers()
+        url = f'{self.base_url}/repos/{owner}/{name}/issues'
+        payload = {'title': str(title).strip(), 'body': body or ''}
+        response = requests.post(url, headers=headers, json=payload, timeout=EXTERNAL_CALL_TIMEOUT)
+        if response.status_code not in (200, 201):
+            raise Exception(
+                f"Failed to create issue in {owner}/{name}: "
+                f"{response.status_code} {(response.text or '')[:300]}"
+            )
+        return response.json() or {}
+
+    def add_sub_issue(self, repo, parent_issue_number, sub_issue_id):
+        """Link an existing issue as a sub-issue of a parent issue."""
+        owner, name = self._resolve_owner_repo(repo)
+        if parent_issue_number is None:
+            raise Exception("parent_issue_number is required")
+        if sub_issue_id is None:
+            raise Exception("sub_issue_id is required")
+        headers = self._projects_headers()
+        url = f'{self.base_url}/repos/{owner}/{name}/issues/{int(parent_issue_number)}/sub_issues'
+        payload = {'sub_issue_id': int(sub_issue_id)}
+        response = requests.post(url, headers=headers, json=payload, timeout=EXTERNAL_CALL_TIMEOUT)
+        if response.status_code not in (200, 201):
+            raise Exception(
+                f"Failed to add sub-issue {sub_issue_id} under "
+                f"{owner}/{name}#{parent_issue_number}: "
+                f"{response.status_code} {(response.text or '')[:300]}"
+            )
+        return response.json() if response.content else {}
+
+    def add_issue_to_org_project(self, org, project_number, issue_id):
+        """Add an existing repo Issue to an org-owned Project board."""
+        org = org or self.org
+        if not org:
+            raise Exception("GitHub connector has no org configured")
+        if project_number is None:
+            raise Exception("project_number is required")
+        if issue_id is None:
+            raise Exception("issue_id is required")
+        headers = self._projects_headers()
+        url = f'{self.base_url}/orgs/{org}/projectsV2/{int(project_number)}/items'
+        payload = {'type': 'Issue', 'id': int(issue_id)}
+        response = requests.post(url, headers=headers, json=payload, timeout=EXTERNAL_CALL_TIMEOUT)
+        if response.status_code not in (200, 201):
+            self._raise_projects_http_error(
+                response, org, f"adding issue {issue_id} to project #{project_number}", project_number
+            )
+        return response.json() if response.content else {}
+
+    def create_project_sub_issue(self, org, project_number, title, body, parent_repo,
+                                 parent_issue_number, parent_issue_id=None):
+        """
+        Create a repo Issue as a sub-issue of parent, then add it to the project board.
+        """
+        org = org or self.org
+        if not org:
+            raise Exception("GitHub connector has no org configured")
+        if project_number is None:
+            raise Exception("project_number is required")
+        if parent_issue_number is None:
+            raise Exception("parent_issue_number is required")
+
+        owner, name = self._resolve_owner_repo(parent_repo)
+        full_repo = f'{owner}/{name}'
+
+        if parent_issue_id is None:
+            parent = self.get_repo_issue(full_repo, parent_issue_number)
+            parent_issue_id = parent.get('id')
+            if parent_issue_id is None:
+                raise Exception(
+                    f"Could not resolve parent issue id for {full_repo}#{parent_issue_number}"
+                )
+
+        created = self.create_repo_issue(full_repo, title=title, body=body)
+        child_id = created.get('id')
+        child_number = created.get('number')
+        child_url = created.get('html_url')
+        if child_id is None:
+            raise Exception("GitHub did not return an id for the created issue")
+
+        self.add_sub_issue(full_repo, parent_issue_number, child_id)
+        project_item = self.add_issue_to_org_project(org, project_number, child_id)
+
+        return {
+            'item_id': project_item.get('id'),
+            'issue_id': child_id,
+            'issue_number': child_number,
+            'issue_url': child_url,
+            'parent_repo': full_repo,
+            'parent_issue_number': int(parent_issue_number),
+            'parent_issue_id': int(parent_issue_id),
+            'project_number': int(project_number),
+            'title': str(title).strip(),
+            'project_url': f'https://github.com/orgs/{org}/projects/{int(project_number)}',
+            'status': 'Created',
+            'raw': {'issue': created, 'project_item': project_item},
+        }

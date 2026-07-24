@@ -36,6 +36,23 @@ message GithubMemberAssetOptions {
   repeated GithubMember members = 1;
 }
 
+message GithubProjectAssetModel {
+  google.protobuf.UInt64Value id = 1;
+  google.protobuf.UInt64Value number = 2;
+  google.protobuf.StringValue title = 3;
+  google.protobuf.StringValue project_url = 4;
+  google.protobuf.StringValue node_id = 5;
+}
+
+message GithubProjectAssetOptions {
+  message GithubProject {
+    google.protobuf.StringValue number = 1;
+    google.protobuf.StringValue title = 2;
+  }
+
+  repeated GithubProject projects = 1;
+}
+
 message GithubAssetModel {
   google.protobuf.UInt64Value id = 1;
   Source connector_type = 2;
@@ -44,6 +61,7 @@ message GithubAssetModel {
   oneof asset {
     GithubRepositoryAssetModel github_repository = 5;
     GithubMemberAssetModel github_member = 6;
+    GithubProjectAssetModel github_project = 7;
   }
 }
 
