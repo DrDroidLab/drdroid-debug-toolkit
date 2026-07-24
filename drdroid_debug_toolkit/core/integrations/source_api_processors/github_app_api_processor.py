@@ -777,7 +777,7 @@ class GithubAppAPIProcessor(Processor):
                 if response.status_code in (401, 403):
                     raise Exception(
                         f"GitHub Projects permission denied ({response.status_code}). "
-                        f"Ensure the App has Projects: Read and Write and the installation was re-accepted. "
+                        f"Ensure the App has Projects: Read and the installation was re-accepted. "
                         f"Response: {response.text[:300]}"
                     )
                 if response.status_code == 404:
@@ -822,7 +822,7 @@ class GithubAppAPIProcessor(Processor):
         if response.status_code in (401, 403):
             raise Exception(
                 f"GitHub Projects permission denied ({response.status_code}) while {action}. "
-                f"Ensure the App has Projects: Read and Write and the installation was re-accepted. "
+                f"Ensure the App has Projects: Write and the installation was re-accepted. "
                 f"Response: {detail}"
             )
         if response.status_code == 404:
