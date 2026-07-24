@@ -213,7 +213,29 @@ class GithubSourceManager(SourceManager):
             Github.TaskType.ANALYZE_SENTRY_CREATE_PR: {
                 'display_name': 'Analyze Sentry Alerts and Create PR',
                 'model_types': [SourceModelType.GITHUB_REPOSITORY]
-            }
+            },
+            Github.TaskType.CREATE_PROJECT_DRAFT_ISSUE: {
+                'executor': self.create_project_draft_issue,
+                'model_types': [SourceModelType.GITHUB_PROJECT],
+                'result_type': PlaybookTaskResultType.API_RESPONSE,
+                'display_name': 'Create Project Draft Issue',
+                'category': 'Projects',
+                'form_fields': [
+                    FormField(key_name=StringValue(value="project_number"),
+                              display_name=StringValue(value="Project Number"),
+                              data_type=LiteralType.LONG,
+                              form_field_type=FormFieldType.TEXT_FT),
+                    FormField(key_name=StringValue(value="title"),
+                              display_name=StringValue(value="Title"),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT),
+                    FormField(key_name=StringValue(value="body"),
+                              display_name=StringValue(value="Body"),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.MULTILINE_FT,
+                              is_optional=True),
+                ]
+            },
         }
 
         self.connector_form_configs = [
@@ -493,6 +515,50 @@ class GithubSourceManager(SourceManager):
                                       api_response=pr_output)
         except Exception as e:
             raise Exception(f"Error while executing Github create_pull_request task: {e}")
+
+    def create_project_draft_issue(self, time_range: TimeRange, github_task: Github,
+                                   github_connector: ConnectorProto):
+        try:
+            task = github_task.create_project_draft_issue
+            project_number = task.project_number.value
+            title = task.title.value
+            body = task.body.value if task.HasField('body') else ''
+
+            processor = self.get_connector_processor(github_connector)
+            org = getattr(processor, 'org', None)
+            if not org:
+                return build_task_failure_result(
+                    self.source, "GitHub connector has no org configured"
+                )
+
+            result = processor.create_project_draft_issue(
+                org=org,
+                project_number=project_number,
+                title=title,
+                body=body,
+            )
+            if not result:
+                return build_task_failure_result(
+                    self.source, f"Failed to create draft issue on project #{project_number}"
+                )
+            if isinstance(result, dict) and result.get('error'):
+                return build_task_failure_result(self.source, result['error'])
+
+            response_body = {
+                'item_id': result.get('item_id'),
+                'project_number': result.get('project_number'),
+                'title': result.get('title'),
+                'project_url': result.get('project_url'),
+                'status': result.get('status', 'Created'),
+            }
+            response_struct = dict_to_proto(response_body, Struct)
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                source=self.source,
+                api_response=ApiResponseResult(response_body=response_struct),
+            )
+        except Exception as e:
+            raise Exception(f"Error while executing Github create_project_draft_issue task: {e}")
 
     def fetch_recent_merges(self, time_range: TimeRange, github_task: Github,
                             github_connector: ConnectorProto):

@@ -1044,3 +1044,120 @@ class GithubAPIProcessor(Processor):
         except Exception as e:
             logger.error(f"GithubAPIProcessor.get_pr_comments:: Exception occurred for {self.org}/{repo}: {e}")
             return []
+
+    # ==================== GitHub Projects V2 ====================
+
+    def _projects_headers(self):
+        return {
+            'Authorization': f'Bearer {self.__api_key}',
+            'Accept': 'application/vnd.github+json',
+            'X-GitHub-Api-Version': '2026-03-10',
+        }
+
+    def list_org_projects(self, org=None):
+        """List org-owned GitHub Projects V2 boards. Paginates via Link/after cursor."""
+        org = org or self.org
+        if not org:
+            raise Exception("GitHub connector has no org configured")
+
+        try:
+            headers = self._projects_headers()
+            all_projects = []
+            after = None
+            while True:
+                params = {'per_page': 100}
+                if after:
+                    params['after'] = after
+                url = f'{self.base_url}/orgs/{org}/projectsV2'
+                response = requests.get(url, headers=headers, params=params, timeout=EXTERNAL_CALL_TIMEOUT)
+                if response.status_code in (401, 403):
+                    raise Exception(
+                        f"GitHub Projects permission denied ({response.status_code}). "
+                        f"Ensure the token has Projects: Read and Write. Response: {response.text[:300]}"
+                    )
+                if response.status_code == 404:
+                    raise Exception(f"GitHub org '{org}' not found or projects inaccessible: {response.text[:300]}")
+                if response.status_code != 200:
+                    raise Exception(
+                        f"Failed to list GitHub projects for org '{org}': "
+                        f"{response.status_code} {response.text[:300]}"
+                    )
+
+                page_projects = response.json() or []
+                if not isinstance(page_projects, list):
+                    raise Exception(f"Unexpected projects response type: {type(page_projects)}")
+                all_projects.extend(page_projects)
+
+                link = response.headers.get('Link', '') or ''
+                next_after = None
+                if 'rel="next"' in link:
+                    # Prefer Link header cursor if present; also support GitHub after pagination via Link URL
+                    import re
+                    match = re.search(r'[?&]after=([^&>]+)', link)
+                    if match:
+                        next_after = match.group(1)
+                if not next_after or len(page_projects) < 100:
+                    break
+                after = next_after
+
+            # Prefer open/non-deleted projects when fields exist
+            open_projects = []
+            for project in all_projects:
+                if project.get('deleted_at'):
+                    continue
+                state = (project.get('state') or 'open').lower()
+                if state == 'closed':
+                    continue
+                open_projects.append(project)
+            return open_projects
+        except Exception as e:
+            logger.error(f"GithubAPIProcessor.list_org_projects:: Exception for org {org}: {e}")
+            raise
+
+    def create_project_draft_issue(self, org, project_number, title, body=''):
+        """Create a draft issue item on an org-owned GitHub Project board."""
+        org = org or self.org
+        if not org:
+            raise Exception("GitHub connector has no org configured")
+        if project_number is None:
+            raise Exception("project_number is required")
+        if not title or not str(title).strip():
+            raise Exception("title is required")
+
+        try:
+            headers = self._projects_headers()
+            url = f'{self.base_url}/orgs/{org}/projectsV2/{int(project_number)}/drafts'
+            payload = {'title': str(title).strip(), 'body': body or ''}
+            response = requests.post(url, headers=headers, json=payload, timeout=EXTERNAL_CALL_TIMEOUT)
+
+            if response.status_code in (401, 403):
+                raise Exception(
+                    f"GitHub Projects permission denied ({response.status_code}). "
+                    f"Ensure the token/App has Projects: Read and Write and the installation was re-accepted. "
+                    f"Response: {response.text[:300]}"
+                )
+            if response.status_code == 404:
+                raise Exception(
+                    f"GitHub project #{project_number} not found in org '{org}': {response.text[:300]}"
+                )
+            if response.status_code not in (200, 201):
+                raise Exception(
+                    f"Failed to create project draft issue: {response.status_code} {response.text[:300]}"
+                )
+
+            data = response.json() if response.content else {}
+            item_id = data.get('id')
+            return {
+                'item_id': item_id,
+                'project_number': int(project_number),
+                'title': str(title).strip(),
+                'project_url': f'https://github.com/orgs/{org}/projects/{int(project_number)}',
+                'status': 'Created',
+                'raw': data,
+            }
+        except Exception as e:
+            logger.error(
+                f"GithubAPIProcessor.create_project_draft_issue:: Exception for "
+                f"org={org} project={project_number}: {e}"
+            )
+            raise

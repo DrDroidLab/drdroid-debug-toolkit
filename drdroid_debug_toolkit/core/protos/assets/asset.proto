@@ -67,6 +67,7 @@ message ConnectorModelTypeOptions {
     DatadogDashboardAssetOptions datadog_oauth_dashboard_model_options = 25;
     GithubRepositoryAssetOptions github_repository_model_options = 26;
     GithubMemberAssetOptions github_member_model_options = 27;
+    GithubProjectAssetOptions github_project_model_options = 122;
     JiraUserAssetOptions jira_user_model_options = 28;
     JiraProjectAssetOptions jira_project_model_options = 29;
     SentryProjectAssetOptions sentry_project_model_options = 30;
@@ -160,6 +161,7 @@ message AccountConnectorAssetsModelFilters {
     DatadogDashboardAssetOptions datadog_oauth_dashboard_model_filters = 24;
     GithubRepositoryAssetOptions github_repository_model_filters = 25;
     GithubMemberAssetOptions github_member_model_filters = 26;
+    GithubProjectAssetOptions github_project_model_filters = 202;
     JiraUserAssetOptions jira_user_model_filters = 27;
     JiraProjectAssetOptions jira_project_model_filters = 28;
     SentryProjectAssetOptions sentry_project_model_filters = 29;

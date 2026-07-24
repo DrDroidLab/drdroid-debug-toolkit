@@ -61,6 +61,12 @@ message Github {
     google.protobuf.StringValue committer_email = 9;
   }
 
+  message CreateProjectDraftIssue {
+    google.protobuf.UInt64Value project_number = 1;
+    google.protobuf.StringValue title = 2;
+    google.protobuf.StringValue body = 3;
+  }
+
   enum TaskType {
     UNKNOWN = 0;
     FETCH_RELATED_COMMITS = 1;
@@ -70,6 +76,7 @@ message Github {
     FETCH_RECENT_MERGES = 5;
     CREATE_PULL_REQUEST = 6;
     ANALYZE_SENTRY_CREATE_PR =7;
+    CREATE_PROJECT_DRAFT_ISSUE = 8;
   }
 
   TaskType type = 1;
@@ -80,5 +87,6 @@ message Github {
     FetchRecentCommits fetch_recent_commits = 5;
     FetchRecentMerges fetch_recent_merges = 6;
     CreatePullRequest create_pull_request = 7;
+    CreateProjectDraftIssue create_project_draft_issue = 8;
   }
 }

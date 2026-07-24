@@ -149,6 +149,74 @@ class GithubMemberAssetOptions(google.protobuf.message.Message):
 global___GithubMemberAssetOptions = GithubMemberAssetOptions
 
 @typing_extensions.final
+class GithubProjectAssetModel(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    ID_FIELD_NUMBER: builtins.int
+    NUMBER_FIELD_NUMBER: builtins.int
+    TITLE_FIELD_NUMBER: builtins.int
+    PROJECT_URL_FIELD_NUMBER: builtins.int
+    NODE_ID_FIELD_NUMBER: builtins.int
+    @property
+    def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+    @property
+    def number(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
+    @property
+    def title(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    @property
+    def project_url(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    @property
+    def node_id(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    def __init__(
+        self,
+        *,
+        id: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+        number: google.protobuf.wrappers_pb2.UInt64Value | None = ...,
+        title: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        project_url: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        node_id: google.protobuf.wrappers_pb2.StringValue | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["id", b"id", "node_id", b"node_id", "number", b"number", "project_url", b"project_url", "title", b"title"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["id", b"id", "node_id", b"node_id", "number", b"number", "project_url", b"project_url", "title", b"title"]) -> None: ...
+
+global___GithubProjectAssetModel = GithubProjectAssetModel
+
+@typing_extensions.final
+class GithubProjectAssetOptions(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    @typing_extensions.final
+    class GithubProject(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        NUMBER_FIELD_NUMBER: builtins.int
+        TITLE_FIELD_NUMBER: builtins.int
+        @property
+        def number(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        @property
+        def title(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+        def __init__(
+            self,
+            *,
+            number: google.protobuf.wrappers_pb2.StringValue | None = ...,
+            title: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["number", b"number", "title", b"title"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["number", b"number", "title", b"title"]) -> None: ...
+
+    PROJECTS_FIELD_NUMBER: builtins.int
+    @property
+    def projects(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___GithubProjectAssetOptions.GithubProject]: ...
+    def __init__(
+        self,
+        *,
+        projects: collections.abc.Iterable[global___GithubProjectAssetOptions.GithubProject] | None = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["projects", b"projects"]) -> None: ...
+
+global___GithubProjectAssetOptions = GithubProjectAssetOptions
+
+@typing_extensions.final
 class GithubAssetModel(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -158,6 +226,7 @@ class GithubAssetModel(google.protobuf.message.Message):
     LAST_UPDATED_FIELD_NUMBER: builtins.int
     GITHUB_REPOSITORY_FIELD_NUMBER: builtins.int
     GITHUB_MEMBER_FIELD_NUMBER: builtins.int
+    GITHUB_PROJECT_FIELD_NUMBER: builtins.int
     @property
     def id(self) -> google.protobuf.wrappers_pb2.UInt64Value: ...
     connector_type: core.protos.base_pb2.Source.ValueType
@@ -167,6 +236,8 @@ class GithubAssetModel(google.protobuf.message.Message):
     def github_repository(self) -> global___GithubRepositoryAssetModel: ...
     @property
     def github_member(self) -> global___GithubMemberAssetModel: ...
+    @property
+    def github_project(self) -> global___GithubProjectAssetModel: ...
     def __init__(
         self,
         *,
@@ -176,10 +247,11 @@ class GithubAssetModel(google.protobuf.message.Message):
         last_updated: builtins.int = ...,
         github_repository: global___GithubRepositoryAssetModel | None = ...,
         github_member: global___GithubMemberAssetModel | None = ...,
+        github_project: global___GithubProjectAssetModel | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["asset", b"asset", "github_member", b"github_member", "github_repository", b"github_repository", "id", b"id"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["asset", b"asset", "connector_type", b"connector_type", "github_member", b"github_member", "github_repository", b"github_repository", "id", b"id", "last_updated", b"last_updated", "type", b"type"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing_extensions.Literal["asset", b"asset"]) -> typing_extensions.Literal["github_repository", "github_member"] | None: ...
+    def HasField(self, field_name: typing_extensions.Literal["asset", b"asset", "github_member", b"github_member", "github_project", b"github_project", "github_repository", b"github_repository", "id", b"id"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["asset", b"asset", "connector_type", b"connector_type", "github_member", b"github_member", "github_project", b"github_project", "github_repository", b"github_repository", "id", b"id", "last_updated", b"last_updated", "type", b"type"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing_extensions.Literal["asset", b"asset"]) -> typing_extensions.Literal["github_repository", "github_member", "github_project"] | None: ...
 
 global___GithubAssetModel = GithubAssetModel
 
