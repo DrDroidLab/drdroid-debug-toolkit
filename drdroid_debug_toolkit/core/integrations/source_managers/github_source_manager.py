@@ -241,13 +241,25 @@ class GithubSourceManager(SourceManager):
         self.connector_form_configs = [
             {
                 "name": StringValue(value="GitHub Personal Access Token"),
-                "description": StringValue(value="Connect to GitHub using a Personal Access Token (PAT) and specify the Organization. Ensure the PAT has the necessary scopes (e.g., `repo` for private repositories, `org:read` for organization details)."),
+                "description": StringValue(
+                    value=(
+                        "Connect to GitHub using a Personal Access Token (PAT) and specify the Organization. "
+                        "Fine-grained permissions: Contents (R/W), Metadata (R), Pull requests (R/W), "
+                        "and Projects (R/W) for creating draft issues on org project boards. "
+                        "Classic tokens need `repo` and `org:read` (plus project access as applicable)."
+                    )
+                ),
                 "form_fields": {
                     SourceKeyType.GITHUB_TOKEN: FormField(
                         key_name=StringValue(value=get_connector_key_type_string(SourceKeyType.GITHUB_TOKEN)),
                         display_name=StringValue(value="GitHub Token"),
                         description=StringValue(value='Your GitHub Personal Access Token (classic or fine-grained)'),
-                        helper_text=StringValue(value="Enter your GitHub Personal Access Token with 'repo' and 'org:read' scopes from Developer Settings > Personal Access Tokens"),
+                        helper_text=StringValue(
+                            value=(
+                                "Fine-grained: Contents R/W, Metadata R, Pull requests R/W, Projects R/W. "
+                                "Classic: repo + org:read. Projects access is required to create draft issues on boards."
+                            )
+                        ),
                         data_type=LiteralType.STRING,
                         form_field_type=FormFieldType.TEXT_FT,
                         is_optional=False,
@@ -279,7 +291,10 @@ class GithubSourceManager(SourceManager):
                     value=(
                         "Connect to GitHub using a GitHub App installation. "
                         "App ID and Installation ID are stored on the connector; "
-                        "the App private key is configured server-side and is not shown here."
+                        "the App private key is configured server-side and is not shown here. "
+                        "The App must have Projects: Read and write (plus Contents/PRs as needed). "
+                        "After changing App permissions, re-accept the installation on the org, "
+                        "then refresh connector assets so projects appear in pickers."
                     )
                 ),
                 "form_fields": {
@@ -301,7 +316,10 @@ class GithubSourceManager(SourceManager):
                         display_name=StringValue(value="GitHub App Installation ID"),
                         description=StringValue(value="Installation ID for the App on your org/account"),
                         helper_text=StringValue(
-                            value="Set automatically when you install the Doctor Droid GitHub App"
+                            value=(
+                                "Set automatically on install. If Projects APIs fail with 403, "
+                                "update the App's Projects permission and re-accept this installation."
+                            )
                         ),
                         data_type=LiteralType.STRING,
                         form_field_type=FormFieldType.TEXT_FT,
@@ -312,7 +330,7 @@ class GithubSourceManager(SourceManager):
                         display_name=StringValue(value="GitHub Organization"),
                         description=StringValue(value='e.g. "my-org", "acme-corp", "awesome-team"'),
                         helper_text=StringValue(
-                            value="Organization that owns this GitHub App installation"
+                            value="Organization that owns this GitHub App installation (required for org project boards)"
                         ),
                         data_type=LiteralType.STRING,
                         form_field_type=FormFieldType.TEXT_FT,
