@@ -6,7 +6,7 @@ from core.utils.credentilal_utils import generate_credentials_dict, get_connecto
 from core.utils.proto_utils import dict_to_proto
 from core.utils.time_utils import format_to_github_timestamp
 
-from google.protobuf.wrappers_pb2 import StringValue
+from google.protobuf.wrappers_pb2 import StringValue, Int64Value
 
 from core.integrations.source_api_processors.github_api_processor import GithubAPIProcessor
 from core.integrations.source_manager import SourceManager
@@ -234,6 +234,62 @@ class GithubSourceManager(SourceManager):
                               data_type=LiteralType.STRING,
                               form_field_type=FormFieldType.MULTILINE_FT,
                               is_optional=True),
+                ]
+            },
+            Github.TaskType.FETCH_ORG_PROJECTS: {
+                'executor': self.fetch_org_projects,
+                'model_types': [SourceModelType.GITHUB_PROJECT],
+                'result_type': PlaybookTaskResultType.API_RESPONSE,
+                'display_name': 'Fetch Org Projects',
+                'category': 'Projects',
+                'form_fields': [
+                    FormField(key_name=StringValue(value="org"),
+                              display_name=StringValue(value="Organization (optional override)"),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT,
+                              is_optional=True),
+                ]
+            },
+            Github.TaskType.FETCH_PROJECT: {
+                'executor': self.fetch_project,
+                'model_types': [SourceModelType.GITHUB_PROJECT],
+                'result_type': PlaybookTaskResultType.API_RESPONSE,
+                'display_name': 'Fetch Project Details',
+                'category': 'Projects',
+                'form_fields': [
+                    FormField(key_name=StringValue(value="project_number"),
+                              display_name=StringValue(value="Project Number"),
+                              data_type=LiteralType.LONG,
+                              form_field_type=FormFieldType.TEXT_FT),
+                    FormField(key_name=StringValue(value="org"),
+                              display_name=StringValue(value="Organization (optional override)"),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT,
+                              is_optional=True),
+                ]
+            },
+            Github.TaskType.FETCH_PROJECT_ITEMS: {
+                'executor': self.fetch_project_items,
+                'model_types': [SourceModelType.GITHUB_PROJECT],
+                'result_type': PlaybookTaskResultType.API_RESPONSE,
+                'display_name': 'Fetch Project Items',
+                'category': 'Projects',
+                'form_fields': [
+                    FormField(key_name=StringValue(value="project_number"),
+                              display_name=StringValue(value="Project Number"),
+                              data_type=LiteralType.LONG,
+                              form_field_type=FormFieldType.TEXT_FT),
+                    FormField(key_name=StringValue(value="org"),
+                              display_name=StringValue(value="Organization (optional override)"),
+                              data_type=LiteralType.STRING,
+                              form_field_type=FormFieldType.TEXT_FT,
+                              is_optional=True),
+                    FormField(key_name=StringValue(value="per_page"),
+                              display_name=StringValue(value="Per page (max 100)"),
+                              data_type=LiteralType.LONG,
+                              form_field_type=FormFieldType.TEXT_FT,
+                              is_optional=True,
+                              default_value=Literal(type=LiteralType.LONG, long=Int64Value(value=50))),
                 ]
             },
         }
@@ -624,6 +680,136 @@ class GithubSourceManager(SourceManager):
             )
         except Exception as e:
             raise Exception(f"Error while executing Github create_project_draft_issue task: {e}")
+
+    def _resolve_github_org(self, processor, task) -> str:
+        override = task.org.value.strip() if task.HasField('org') and task.org.value else ''
+        org = override or getattr(processor, 'org', None)
+        return org or ''
+
+    def fetch_org_projects(self, time_range: TimeRange, github_task: Github,
+                           github_connector: ConnectorProto):
+        try:
+            task = github_task.fetch_org_projects
+            processor = self.get_connector_processor(github_connector)
+            org = self._resolve_github_org(processor, task)
+            if not org:
+                return build_task_failure_result(
+                    self.source, "GitHub connector has no org configured"
+                )
+
+            projects = processor.list_org_projects(org=org) or []
+            simplified = []
+            for project in projects:
+                simplified.append({
+                    'number': project.get('number'),
+                    'title': project.get('title') or project.get('name'),
+                    'id': project.get('id'),
+                    'url': project.get('url') or project.get('html_url'),
+                    'state': project.get('state'),
+                    'public': project.get('public'),
+                    'short_description': project.get('short_description'),
+                    'created_at': project.get('created_at'),
+                    'updated_at': project.get('updated_at'),
+                })
+            response_struct = dict_to_proto(
+                {'org': org, 'count': len(simplified), 'projects': simplified},
+                Struct,
+            )
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                source=self.source,
+                api_response=ApiResponseResult(response_body=response_struct),
+            )
+        except Exception as e:
+            raise Exception(f"Error while executing Github fetch_org_projects task: {e}")
+
+    def fetch_project(self, time_range: TimeRange, github_task: Github,
+                      github_connector: ConnectorProto):
+        try:
+            task = github_task.fetch_project
+            project_number = task.project_number.value
+            processor = self.get_connector_processor(github_connector)
+            org = self._resolve_github_org(processor, task)
+            if not org:
+                return build_task_failure_result(
+                    self.source, "GitHub connector has no org configured"
+                )
+
+            project = processor.get_org_project(org=org, project_number=project_number) or {}
+            response_body = {
+                'org': org,
+                'project_number': int(project_number),
+                'project': {
+                    'number': project.get('number'),
+                    'title': project.get('title') or project.get('name'),
+                    'id': project.get('id'),
+                    'url': project.get('url') or project.get('html_url'),
+                    'state': project.get('state'),
+                    'public': project.get('public'),
+                    'short_description': project.get('short_description'),
+                    'readme': project.get('readme'),
+                    'created_at': project.get('created_at'),
+                    'updated_at': project.get('updated_at'),
+                    'closed_at': project.get('closed_at'),
+                    'deleted_at': project.get('deleted_at'),
+                    'owner': project.get('owner'),
+                },
+            }
+            response_struct = dict_to_proto(response_body, Struct)
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                source=self.source,
+                api_response=ApiResponseResult(response_body=response_struct),
+            )
+        except Exception as e:
+            raise Exception(f"Error while executing Github fetch_project task: {e}")
+
+    def fetch_project_items(self, time_range: TimeRange, github_task: Github,
+                            github_connector: ConnectorProto):
+        try:
+            task = github_task.fetch_project_items
+            project_number = task.project_number.value
+            per_page = task.per_page.value if task.HasField('per_page') else 50
+            processor = self.get_connector_processor(github_connector)
+            org = self._resolve_github_org(processor, task)
+            if not org:
+                return build_task_failure_result(
+                    self.source, "GitHub connector has no org configured"
+                )
+
+            items = processor.list_org_project_items(
+                org=org, project_number=project_number, per_page=per_page
+            ) or []
+            simplified = []
+            for item in items:
+                content = item.get('content') or {}
+                simplified.append({
+                    'id': item.get('id'),
+                    'content_type': item.get('content_type') or item.get('type'),
+                    'created_at': item.get('created_at'),
+                    'updated_at': item.get('updated_at'),
+                    'title': content.get('title') or item.get('title'),
+                    'body': content.get('body') or item.get('body'),
+                    'number': content.get('number'),
+                    'state': content.get('state'),
+                    'url': content.get('url') or content.get('html_url'),
+                })
+            response_struct = dict_to_proto(
+                {
+                    'org': org,
+                    'project_number': int(project_number),
+                    'count': len(simplified),
+                    'items': simplified,
+                },
+                Struct,
+            )
+            return PlaybookTaskResult(
+                type=PlaybookTaskResultType.API_RESPONSE,
+                source=self.source,
+                api_response=ApiResponseResult(response_body=response_struct),
+            )
+        except Exception as e:
+            raise Exception(f"Error while executing Github fetch_project_items task: {e}")
 
     def fetch_recent_merges(self, time_range: TimeRange, github_task: Github,
                             github_connector: ConnectorProto):

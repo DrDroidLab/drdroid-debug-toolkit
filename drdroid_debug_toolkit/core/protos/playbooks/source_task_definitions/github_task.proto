@@ -67,6 +67,22 @@ message Github {
     google.protobuf.StringValue body = 3;
   }
 
+  message FetchOrgProjects {
+    // Uses connector org; optional override for testing.
+    google.protobuf.StringValue org = 1;
+  }
+
+  message FetchProject {
+    google.protobuf.UInt64Value project_number = 1;
+    google.protobuf.StringValue org = 2;
+  }
+
+  message FetchProjectItems {
+    google.protobuf.UInt64Value project_number = 1;
+    google.protobuf.StringValue org = 2;
+    google.protobuf.UInt64Value per_page = 3;
+  }
+
   enum TaskType {
     UNKNOWN = 0;
     FETCH_RELATED_COMMITS = 1;
@@ -77,6 +93,9 @@ message Github {
     CREATE_PULL_REQUEST = 6;
     ANALYZE_SENTRY_CREATE_PR =7;
     CREATE_PROJECT_DRAFT_ISSUE = 8;
+    FETCH_ORG_PROJECTS = 9;
+    FETCH_PROJECT = 10;
+    FETCH_PROJECT_ITEMS = 11;
   }
 
   TaskType type = 1;
@@ -88,5 +107,8 @@ message Github {
     FetchRecentMerges fetch_recent_merges = 6;
     CreatePullRequest create_pull_request = 7;
     CreateProjectDraftIssue create_project_draft_issue = 8;
+    FetchOrgProjects fetch_org_projects = 9;
+    FetchProject fetch_project = 10;
+    FetchProjectItems fetch_project_items = 11;
   }
 }
