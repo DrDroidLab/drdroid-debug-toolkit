@@ -167,6 +167,7 @@ enum Source {
   VICTORIA_LOGS=77;
   METABASE = 78;
   DATABRICKS = 79;
+  CHECKLY = 80;
 }
 
 enum SourceKeyType {
@@ -386,6 +387,18 @@ enum SourceKeyType {
   // Github specific keys
   GITHUB_API_URL = 168;
 
+  // Checkly specific keys
+  CHECKLY_API_KEY = 169;
+  CHECKLY_ACCOUNT_ID = 170;
+
+  // MCP Server OAuth keys
+  MCP_SERVER_OAUTH_ACCESS_TOKEN = 177;
+  MCP_SERVER_OAUTH_REFRESH_TOKEN = 178;
+  MCP_SERVER_OAUTH_TOKEN_METADATA = 179;
+  MCP_SERVER_OAUTH_CLIENT_ID = 180;
+  MCP_SERVER_OAUTH_CLIENT_SECRET = 181;
+  MCP_SERVER_OAUTH_TOKEN_URL = 182;
+
 }
 
 enum SourceModelType {
@@ -586,6 +599,7 @@ enum SourceModelType {
   //Github Models
   GITHUB_REPOSITORY = 2601;
   GITHUB_MEMBER = 2602;
+  GITHUB_PROJECT = 2603;
 
   // Jira Models
   JIRA_PROJECT = 2701;

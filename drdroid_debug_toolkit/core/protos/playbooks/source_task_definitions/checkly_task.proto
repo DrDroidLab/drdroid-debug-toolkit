@@ -1,0 +1,94 @@
+syntax = "proto3";
+package core.protos.playbooks;
+
+import "google/protobuf/wrappers.proto";
+
+
+message Checkly {
+  message ListChecksTask {
+    // No parameters needed - fetches all checks
+  }
+
+  message GetCheckStatusesTask {
+    // No parameters needed - fetches current status of all checks
+  }
+
+  message GetCheckResultsTask {
+    google.protobuf.StringValue check_id = 1;
+    google.protobuf.UInt64Value limit = 2;
+  }
+
+  message GetCheckAnalyticsTask {
+    google.protobuf.StringValue check_id = 1;
+    // check_type: "api", "browser", "multistep", "tcp"
+    google.protobuf.StringValue check_type = 2;
+    // metrics: required by the API. Comma-separated, e.g. "responseTime" or
+    // "availability". Cannot mix aggregate and non-aggregate metrics in one call.
+    // Defaults to "responseTime" when empty.
+    google.protobuf.StringValue metrics = 3;
+  }
+
+  message GetCheckAlertsTask {
+    // Optional: if empty, fetches alerts for entire account
+    google.protobuf.StringValue check_id = 1;
+  }
+
+  message GetCheckGroupsTask {
+    // No parameters needed - fetches all check groups
+  }
+
+  message GetErrorGroupsTask {
+    // Optional: if set, fetches error groups for a single check
+    google.protobuf.StringValue check_id = 1;
+    google.protobuf.UInt64Value limit = 2;
+    google.protobuf.UInt64Value page = 3;
+  }
+
+  message GetReportingTask {
+    // quick_range: one of last24Hrs, last7Days, last30Days, thisWeek,
+    // thisMonth, lastWeek, lastMonth. Used when no time range is provided.
+    google.protobuf.StringValue quick_range = 1;
+    // granularity: one of day, week, month
+    google.protobuf.StringValue granularity = 2;
+  }
+
+  message GetCheckResultDetailTask {
+    google.protobuf.StringValue check_id = 1;
+    google.protobuf.StringValue check_result_id = 2;
+    // If true, also fetch the result's assets (screenshots, traces, logs)
+    google.protobuf.BoolValue include_assets = 3;
+  }
+
+  message GetAlertChannelsTask {
+    google.protobuf.UInt64Value limit = 1;
+    google.protobuf.UInt64Value page = 2;
+  }
+
+  enum TaskType {
+    UNKNOWN = 0;
+    LIST_CHECKS = 1;
+    GET_CHECK_STATUSES = 2;
+    GET_CHECK_RESULTS = 3;
+    GET_CHECK_ANALYTICS = 4;
+    GET_CHECK_ALERTS = 5;
+    GET_CHECK_GROUPS = 6;
+    GET_ERROR_GROUPS = 7;
+    GET_REPORTING = 8;
+    GET_CHECK_RESULT_DETAIL = 9;
+    GET_ALERT_CHANNELS = 10;
+  }
+
+  TaskType type = 1;
+  oneof task {
+    ListChecksTask list_checks = 2;
+    GetCheckStatusesTask get_check_statuses = 3;
+    GetCheckResultsTask get_check_results = 4;
+    GetCheckAnalyticsTask get_check_analytics = 5;
+    GetCheckAlertsTask get_check_alerts = 6;
+    GetCheckGroupsTask get_check_groups = 7;
+    GetErrorGroupsTask get_error_groups = 8;
+    GetReportingTask get_reporting = 9;
+    GetCheckResultDetailTask get_check_result_detail = 10;
+    GetAlertChannelsTask get_alert_channels = 11;
+  }
+}

@@ -21,6 +21,7 @@ from core.utils.credentilal_utils import generate_credentials_dict, get_connecto
 from core.utils.proto_utils import dict_to_proto
 
 logger = logging.getLogger(__name__)
+from core.integrations.utils.task_result_utils import build_task_failure_result, build_task_empty_result
 
 
 def buildSentryUrl(org_slug: str, task_type: str, params: dict = None) -> str:
@@ -322,12 +323,7 @@ class SentrySourceManager(SourceManager):
                     "issue_id": issue_id
                 })
                 
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=f"No issue found with ID: {issue_id}")),
-                    source=self.source,
-                    metadata=metadata
-                )
+                return build_task_empty_result(self.source, f"No issue found with ID: {issue_id}", task_metadata=metadata)
 
             issue_hash_0 = sentry_processor.fetch_issue_last_event(issue_id)
             if not issue_hash_0:
@@ -462,12 +458,7 @@ class SentrySourceManager(SourceManager):
                 "issue_id": issue_id
             })
             
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=f"Error while executing Sentry task: {e}")),
-                source=self.source,
-                metadata=metadata
-            )
+            return build_task_failure_result(self.source, f"Error while executing Sentry task: {e}", task_metadata=metadata)
 
     def fetch_event_info_by_id(self, time_range: TimeRange, sentry_task: Sentry,
                             sentry_connector: ConnectorProto):
@@ -490,12 +481,7 @@ class SentrySourceManager(SourceManager):
                     "project_slug": project_slug
                 })
                 
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=f"No event found with ID: {event_id}")),
-                    source=self.source,
-                    metadata=metadata
-                )
+                return build_task_empty_result(self.source, f"No event found with ID: {event_id}", task_metadata=metadata)
 
             # Convert the event details to a structured format
             response_dict = {
@@ -550,12 +536,7 @@ class SentrySourceManager(SourceManager):
                 "project_slug": project_slug
             })
             
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=f"Error while executing Sentry event task: {e}")),
-                source=self.source,
-                metadata=metadata
-            )
+            return build_task_failure_result(self.source, f"Error while executing Sentry event task: {e}", task_metadata=metadata)
 
     def fetch_list_of_recent_events_with_search_query(self, time_range: TimeRange, sentry_task: Sentry,
                             sentry_connector: ConnectorProto):
@@ -589,12 +570,7 @@ class SentrySourceManager(SourceManager):
                     "end": end_time
                 })
                 
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=f"No issues found with {query} for project: {project_slug}")),
-                    source=self.source,
-                    metadata=metadata
-                )
+                return build_task_empty_result(self.source, f"No issues found with {query} for project: {project_slug}", task_metadata=metadata)
                         
             # filter issues where last_seen is not between start and end time. last seen is in this format -- '2025-03-20T18:19:36.613837Z' . 
             issues = [issue for issue in issues if issue.get('lastSeen', '') and datetime.fromisoformat(start_time) <= datetime.fromisoformat(issue.get('lastSeen', '').replace("Z", "+00:00"))]
@@ -612,12 +588,7 @@ class SentrySourceManager(SourceManager):
                     "end": end_time
                 })
                 
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=f"No issues found with {query} for project: {project_slug}")),
-                    source=self.source,
-                    metadata=metadata
-                )
+                return build_task_empty_result(self.source, f"No issues found with {query} for project: {project_slug}", task_metadata=metadata)
 
             all_events = []
             with ThreadPoolExecutor(max_workers=10) as executor:
@@ -721,12 +692,7 @@ class SentrySourceManager(SourceManager):
                 "end": end_time
             })
             
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=f"Error while executing Sentry events search task: {e}")),
-                source=self.source,
-                metadata=metadata
-            )
+            return build_task_failure_result(self.source, f"Error while executing Sentry events search task: {e}", task_metadata=metadata)
 
     def process_issue(self, issue, time_range, sentry_processor, project_slug):
         issue_id = issue.get('id')
@@ -760,11 +726,10 @@ class SentrySourceManager(SourceManager):
                 org_slug = self._extract_org_slug_from_connector(sentry_connector)
                 metadata = self._create_metadata_with_sentry_url(org_slug, "project", {})
                 
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value="No projects found for the given Sentry account.")),
-                    source=self.source,
-                    metadata=metadata
+                return build_task_empty_result(
+                    self.source,
+                    "No projects found for the given Sentry account.",
+                    task_metadata=metadata,
                 )
 
             table_rows: [TableResult.TableRow] = []
@@ -806,12 +771,7 @@ class SentrySourceManager(SourceManager):
             org_slug = self._extract_org_slug_from_connector(sentry_connector)
             metadata = self._create_metadata_with_sentry_url(org_slug, "project", {})
             
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=f"Error while executing Sentry projects task: {e}")),
-                source=self.source,
-                metadata=metadata
-            )
+            return build_task_failure_result(self.source, f"Error while executing Sentry projects task: {e}", task_metadata=metadata)
 
     def query_issues(self, time_range: TimeRange, sentry_task: Sentry,
                      sentry_connector: ConnectorProto):

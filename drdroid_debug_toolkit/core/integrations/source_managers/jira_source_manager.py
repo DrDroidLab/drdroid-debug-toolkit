@@ -19,6 +19,7 @@ from core.protos.connectors.connector_pb2 import Connector as ConnectorProto
 from core.utils.proto_utils import dict_to_proto
 
 logger = logging.getLogger(__name__)
+from core.integrations.utils.task_result_utils import build_task_failure_result
 
 
 class JiraSourceManager(SourceManager):
@@ -302,11 +303,7 @@ class JiraSourceManager(SourceManager):
             if not result:
                 error_msg = "JIRA API returned no result when fetching users"
                 logger.error(error_msg)
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=error_msg)),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, error_msg)
 
             # Convert result to Struct for API response
             response_dict = {
@@ -327,11 +324,7 @@ class JiraSourceManager(SourceManager):
             error_msg = f"Exception occurred while fetching JIRA users: {str(e)}"
             logger.error(error_msg, exc_info=True)
 
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=error_msg)),
-                source=self.source
-            )
+            return build_task_failure_result(self.source, error_msg)
 
     def assign_ticket(self, time_range: TimeRange, jira_task: Jira,
                       jira_connector: ConnectorProto):
@@ -353,11 +346,7 @@ class JiraSourceManager(SourceManager):
                 if not assignee: missing_fields.append("assignee")
                 error_msg = f"Missing required fields: {', '.join(missing_fields)}"
                 logger.error(error_msg)
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=error_msg)),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, error_msg)
 
             # Get JIRA processor
             jira_processor = self.get_connector_processor(jira_connector)
@@ -370,11 +359,7 @@ class JiraSourceManager(SourceManager):
             if not users:
                 error_msg = f"Could not find user {assignee}"
                 logger.error(error_msg)
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=error_msg)),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, error_msg)
 
             assignee_id = users[0]['accountId']
 
@@ -384,11 +369,7 @@ class JiraSourceManager(SourceManager):
             if not result:
                 error_msg = "JIRA API returned no result when assigning ticket"
                 logger.error(error_msg)
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=error_msg)),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, error_msg)
 
             # Convert result to Struct for API response
             response_dict = {
@@ -411,11 +392,7 @@ class JiraSourceManager(SourceManager):
             error_msg = f"Exception occurred while assigning JIRA ticket: {str(e)}"
             logger.error(error_msg, exc_info=True)
 
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=error_msg)),
-                source=self.source
-            )
+            return build_task_failure_result(self.source, error_msg)
 
     def create_ticket(self, time_range: TimeRange, jira_task: Jira,
                       jira_connector: ConnectorProto):
@@ -441,8 +418,7 @@ class JiraSourceManager(SourceManager):
                 error_msg = f"Missing required fields: {', '.join(missing_fields)}"
                 logger.error(f'JiraSourceManager.create_ticket:: {error_msg} for account id: '
                              f'{jira_connector.account_id.value}')
-                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
-                                          text=TextResult(output=StringValue(value=error_msg)), source=self.source)
+                return build_task_failure_result(self.source, error_msg)
 
             jira_processor = self.get_connector_processor(jira_connector)
             available_issue_types = jira_processor.get_issue_types_for_project(project_key)
@@ -487,8 +463,7 @@ class JiraSourceManager(SourceManager):
 
             if not result:
                 error_msg = "JIRA API returned no result when creating ticket"
-                return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
-                                          text=TextResult(output=StringValue(value=error_msg)), source=self.source)
+                return build_task_failure_result(self.source, error_msg)
             ticket_url = f"https://{jira_processor.domain}.atlassian.net/browse/{result['key']}"
             response_dict = {'ticket_key': result['key'], 'ticket_id': result['id'], 'ticket_url': ticket_url,
                              'status': 'Created'}
@@ -503,11 +478,7 @@ class JiraSourceManager(SourceManager):
         except Exception as e:
             error_msg = f"Exception occurred while creating JIRA ticket: {str(e)}"
             logger.error(f'JiraSourceManager.create_ticket:: {error_msg}', exc_info=True)
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=error_msg)),
-                source=self.source
-            )
+            return build_task_failure_result(self.source, error_msg)
 
     def get_ticket(self, time_range: TimeRange, jira_task: Jira,
                    jira_connector: ConnectorProto):
@@ -527,11 +498,7 @@ class JiraSourceManager(SourceManager):
                 if not ticket_key: missing_fields.append("ticket_key")
                 error_msg = f"Missing required fields: {', '.join(missing_fields)}"
                 logger.error(error_msg)
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=error_msg)),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, error_msg)
 
             # Get JIRA processor
             jira_processor = self.get_connector_processor(jira_connector)
@@ -545,11 +512,7 @@ class JiraSourceManager(SourceManager):
             if not result:
                 error_msg = "JIRA API returned no result when fetching ticket"
                 logger.error(error_msg)
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=error_msg)),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, error_msg)
 
             # Convert result to Struct for API response
             response_dict = {
@@ -570,11 +533,7 @@ class JiraSourceManager(SourceManager):
             error_msg = f"Exception occurred while fetching JIRA ticket: {str(e)}"
             logger.error(error_msg, exc_info=True)
 
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=error_msg)),
-                source=self.source
-            )
+            return build_task_failure_result(self.source, error_msg)
 
     def search_tickets(self, time_range: TimeRange, jira_task: Jira,
                        jira_connector: ConnectorProto):
@@ -594,11 +553,7 @@ class JiraSourceManager(SourceManager):
                 if not query: missing_fields.append("query")
                 error_msg = f"Missing required fields: {', '.join(missing_fields)}"
                 logger.error(error_msg)
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=error_msg)),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, error_msg)
 
             # Get JIRA processor
             jira_processor = self.get_connector_processor(jira_connector)
@@ -612,11 +567,7 @@ class JiraSourceManager(SourceManager):
             if not result:
                 error_msg = "JIRA API returned no result when searching tickets"
                 logger.error(error_msg)
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=error_msg)),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, error_msg)
 
             # Convert result to Struct for API response
             response_dict = {
@@ -637,11 +588,7 @@ class JiraSourceManager(SourceManager):
             error_msg = f"Exception occurred while searching JIRA tickets: {str(e)}"
             logger.error(error_msg, exc_info=True)
 
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=error_msg)),
-                source=self.source
-            )
+            return build_task_failure_result(self.source, error_msg)
 
     def add_comment(self, time_range: TimeRange, jira_task: Jira,
                     jira_connector: ConnectorProto):
@@ -664,11 +611,7 @@ class JiraSourceManager(SourceManager):
                 if not comment_text: missing_fields.append("comment_text")
                 error_msg = f"Missing required fields: {', '.join(missing_fields)}"
                 logger.error(error_msg)
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=error_msg)),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, error_msg)
 
             # Get JIRA processor
             jira_processor = self.get_connector_processor(jira_connector)
@@ -686,11 +629,7 @@ class JiraSourceManager(SourceManager):
             if not result:
                 error_msg = "JIRA API returned no result when adding comment"
                 logger.error(error_msg)
-                return PlaybookTaskResult(
-                    type=PlaybookTaskResultType.TEXT,
-                    text=TextResult(output=StringValue(value=error_msg)),
-                    source=self.source
-                )
+                return build_task_failure_result(self.source, error_msg)
 
             # Extract comment information from the result
             comment_id = result.get('id', 'Unknown')
@@ -719,8 +658,4 @@ class JiraSourceManager(SourceManager):
             error_msg = f"Exception occurred while adding comment to JIRA ticket: {str(e)}"
             logger.error(error_msg, exc_info=True)
 
-            return PlaybookTaskResult(
-                type=PlaybookTaskResultType.TEXT,
-                text=TextResult(output=StringValue(value=error_msg)),
-                source=self.source
-            )
+            return build_task_failure_result(self.source, error_msg)

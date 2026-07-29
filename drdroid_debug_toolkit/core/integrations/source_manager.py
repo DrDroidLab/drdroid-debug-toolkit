@@ -203,6 +203,12 @@ class _DefaultSourceManager:
                 source_str = Source.Name(resolved_task.source).lower()
                 raise Exception(f"Error while executing task for source: {source_str} with error: {e}")
         except Exception as e:
+            # The inner handler already prefixes task-execution errors; the outer catch here only
+            # exists to wrap failures from the resolution/connector-setup code above. Re-wrapping an
+            # already-prefixed message just double-nests "Error while executing task ..." and pushes
+            # the real reason past where UIs/probes truncate — so pass those through unchanged.
+            if str(e).startswith("Error while executing task"):
+                raise
             raise Exception(f"Error while executing task: {e}")
 
     def postprocess_task_result(self, playbook_task_result: PlaybookTaskResult, resolved_task: PlaybookTask, task_local_variable_map: dict):
