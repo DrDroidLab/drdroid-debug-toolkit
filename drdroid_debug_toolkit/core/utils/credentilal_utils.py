@@ -480,6 +480,16 @@ def generate_credentials_dict(connector_type, connector_keys):
                 credentials_dict['api_key'] = conn_key.key.value
             elif conn_key.key_type == SourceKeyType.CHECKLY_ACCOUNT_ID:
                 credentials_dict['account_id'] = conn_key.key.value
+    elif connector_type == Source.SITE24X7:
+        for conn_key in connector_keys:
+            if conn_key.key_type == SourceKeyType.SITE24X7_CLIENT_ID:
+                credentials_dict['client_id'] = conn_key.key.value
+            elif conn_key.key_type == SourceKeyType.SITE24X7_CLIENT_SECRET:
+                credentials_dict['client_secret'] = conn_key.key.value
+            elif conn_key.key_type == SourceKeyType.SITE24X7_REFRESH_TOKEN:
+                credentials_dict['refresh_token'] = conn_key.key.value
+            elif conn_key.key_type == SourceKeyType.SITE24X7_DATA_CENTER:
+                credentials_dict['data_center'] = conn_key.key.value
     else:
         return None
     return credentials_dict
@@ -1104,6 +1114,27 @@ def credential_yaml_to_connector_proto(connector_name, credential_yaml, connecto
         c_keys.append(ConnectorKey(
             key_type=SourceKeyType.CHECKLY_ACCOUNT_ID,
             key=StringValue(value=credential_yaml['account_id'])
+        ))
+    elif c_type == 'SITE24X7':
+        required = ['client_id', 'client_secret', 'refresh_token']
+        if any(k not in credential_yaml for k in required):
+            raise Exception(f'client_id, client_secret and refresh_token are required in credential yaml for site24x7 source in connector: {connector_name}')
+        c_source = Source.SITE24X7
+        c_keys.append(ConnectorKey(
+            key_type=SourceKeyType.SITE24X7_CLIENT_ID,
+            key=StringValue(value=credential_yaml['client_id'])
+        ))
+        c_keys.append(ConnectorKey(
+            key_type=SourceKeyType.SITE24X7_CLIENT_SECRET,
+            key=StringValue(value=credential_yaml['client_secret'])
+        ))
+        c_keys.append(ConnectorKey(
+            key_type=SourceKeyType.SITE24X7_REFRESH_TOKEN,
+            key=StringValue(value=credential_yaml['refresh_token'])
+        ))
+        c_keys.append(ConnectorKey(
+            key_type=SourceKeyType.SITE24X7_DATA_CENTER,
+            key=StringValue(value=credential_yaml.get('data_center', 'US'))
         ))
     else:
         raise Exception(f'Invalid type in credential yaml for connector: {connector_name}')
