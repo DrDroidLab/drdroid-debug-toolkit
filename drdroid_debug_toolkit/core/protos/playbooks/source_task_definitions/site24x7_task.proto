@@ -1,0 +1,56 @@
+syntax = "proto3";
+package core.protos.playbooks;
+
+import "google/protobuf/wrappers.proto";
+
+
+message Site24x7 {
+  message GetCurrentStatusTask {
+    // No parameters needed - fetches live status of all monitors in the account
+  }
+
+  message GetDownMonitorsTask {
+    // No parameters needed - fetches current status and filters to monitors that
+    // are Down (0), Trouble (2) or Critical (3).
+  }
+
+  message ListMonitorsTask {
+    // No parameters needed - lists all configured monitors
+  }
+
+  message GetMonitorDetailsTask {
+    google.protobuf.StringValue monitor_id = 1;
+  }
+
+  message GetAvailabilityReportTask {
+    google.protobuf.StringValue monitor_id = 1;
+    // Optional Site24x7 period constant (e.g. "1" last day, "7" last week).
+    // Ignored when the task time range is set (start_date/end_date derived from it).
+    google.protobuf.StringValue period = 2;
+  }
+
+  message GetPerformanceReportTask {
+    google.protobuf.StringValue monitor_id = 1;
+    google.protobuf.StringValue period = 2;
+  }
+
+  enum TaskType {
+    UNKNOWN = 0;
+    GET_CURRENT_STATUS = 1;
+    GET_DOWN_MONITORS = 2;
+    LIST_MONITORS = 3;
+    GET_MONITOR_DETAILS = 4;
+    GET_AVAILABILITY_REPORT = 5;
+    GET_PERFORMANCE_REPORT = 6;
+  }
+
+  TaskType type = 1;
+  oneof task {
+    GetCurrentStatusTask get_current_status = 2;
+    GetDownMonitorsTask get_down_monitors = 3;
+    ListMonitorsTask list_monitors = 4;
+    GetMonitorDetailsTask get_monitor_details = 5;
+    GetAvailabilityReportTask get_availability_report = 6;
+    GetPerformanceReportTask get_performance_report = 7;
+  }
+}

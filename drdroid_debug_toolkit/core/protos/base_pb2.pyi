@@ -220,6 +220,7 @@ class _SourceEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTyp
     METABASE: _Source.ValueType  # 78
     DATABRICKS: _Source.ValueType  # 79
     CHECKLY: _Source.ValueType  # 80
+    SITE24X7: _Source.ValueType  # 81
 
 class Source(_Source, metaclass=_SourceEnumTypeWrapper): ...
 
@@ -304,6 +305,7 @@ VICTORIA_LOGS: Source.ValueType  # 77
 METABASE: Source.ValueType  # 78
 DATABRICKS: Source.ValueType  # 79
 CHECKLY: Source.ValueType  # 80
+SITE24X7: Source.ValueType  # 81
 global___Source = Source
 
 class _SourceKeyType:
@@ -484,6 +486,11 @@ class _SourceKeyTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     MCP_SERVER_OAUTH_CLIENT_ID: _SourceKeyType.ValueType  # 180
     MCP_SERVER_OAUTH_CLIENT_SECRET: _SourceKeyType.ValueType  # 181
     MCP_SERVER_OAUTH_TOKEN_URL: _SourceKeyType.ValueType  # 182
+    SITE24X7_CLIENT_ID: _SourceKeyType.ValueType  # 183
+    """Site24x7 (Zoho OAuth) specific keys"""
+    SITE24X7_CLIENT_SECRET: _SourceKeyType.ValueType  # 184
+    SITE24X7_REFRESH_TOKEN: _SourceKeyType.ValueType  # 185
+    SITE24X7_DATA_CENTER: _SourceKeyType.ValueType  # 186
 
 class SourceKeyType(_SourceKeyType, metaclass=_SourceKeyTypeEnumTypeWrapper): ...
 
@@ -659,6 +666,11 @@ MCP_SERVER_OAUTH_TOKEN_METADATA: SourceKeyType.ValueType  # 179
 MCP_SERVER_OAUTH_CLIENT_ID: SourceKeyType.ValueType  # 180
 MCP_SERVER_OAUTH_CLIENT_SECRET: SourceKeyType.ValueType  # 181
 MCP_SERVER_OAUTH_TOKEN_URL: SourceKeyType.ValueType  # 182
+SITE24X7_CLIENT_ID: SourceKeyType.ValueType  # 183
+"""Site24x7 (Zoho OAuth) specific keys"""
+SITE24X7_CLIENT_SECRET: SourceKeyType.ValueType  # 184
+SITE24X7_REFRESH_TOKEN: SourceKeyType.ValueType  # 185
+SITE24X7_DATA_CENTER: SourceKeyType.ValueType  # 186
 global___SourceKeyType = SourceKeyType
 
 class _SourceModelType:
