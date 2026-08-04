@@ -300,6 +300,29 @@ class JenkinsAPIProcessor(Processor):
             logger.error(f"Exception occurred while fetching branches with error: {e}")
             raise e
 
+    @staticmethod
+    def _default_multibranch_branch(sub_jobs):
+        """Pick a default branch for a multibranch job when the caller supplies none.
+
+        Why: fetch_last_build_details is almost always called without a branch, and multibranch jobs
+        previously hard-failed ("branch name must be specified") — the top Jenkins tool failure.
+        Mirrors the github default-branch behaviour: prefer a branch literally named main/master,
+        otherwise the branch with the most recent build so the agent gets the freshest signal.
+        Returns None only when the job has no branches at all (then the caller still raises).
+        `sub_jobs` is the `jobs[name,lastBuild[...]]` list already fetched for job-type detection."""
+        names = [j.get('name', '') for j in sub_jobs if j.get('name')]
+        if not names:
+            return None
+        lowered = {n.lower(): n for n in names}
+        for pref in ('main', 'master'):
+            if pref in lowered:
+                return lowered[pref]
+        # No conventional default branch present: fall back to whichever branch built most recently
+        # (branches that never built have no lastBuild -> timestamp 0 -> sort last).
+        def _ts(j):
+            return (j.get('lastBuild') or {}).get('timestamp') or 0
+        return max(sub_jobs, key=_ts).get('name') or names[0]
+
     def get_last_build(self, job_name, branch_name=None, timeout=120):
         """Get the last build details for a job.
         Automatically detects job type using the _class attribute.
@@ -347,12 +370,20 @@ class JenkinsAPIProcessor(Processor):
                 logger.info(f"Detected regular job (class: {job_class})")
                 return self._get_regular_job_build(job_name, url_path, timeout)
             
-            # Step 2: This is a multibranch job - require branch_name parameter
+            # Step 2: This is a multibranch job.
             logger.info(f"Detected multibranch job (class: {job_class})")
-            
+
+            # The agent almost always calls fetch_last_build_details WITHOUT a branch (same pattern
+            # as the github default-branch fix). Hard-failing with "branch name must be specified"
+            # turned the single most common Jenkins call into the dominant tool failure. Instead pick
+            # a sensible default from the branches we already fetched (prefer main/master, else the
+            # most recently built) so the agent gets a usable result rather than an error.
             if not branch_name:
-                raise Exception("Branch name must be specified for multibranch pipeline jobs. Use the 'Get All Branches' task to see available branches.")
-            
+                branch_name = self._default_multibranch_branch(job_data.get('jobs') or [])
+                if not branch_name:
+                    raise Exception("Branch name must be specified for multibranch pipeline jobs. Use the 'Get All Branches' task to see available branches.")
+                logger.info(f"No branch supplied for multibranch job '{job_name}'; defaulting to '{branch_name}'")
+
             # Step 3: Get build details for the specific branch
             return self._get_specific_branch_build(job_name, url_path, branch_name, timeout)
             
@@ -381,7 +412,12 @@ class JenkinsAPIProcessor(Processor):
         """Get build details for a specific branch in a multibranch job."""
         try:
             # Construct the branch-specific URL path
-            branch_url_path = f"{url_path}/job/{requests.utils.quote(branch_name)}"
+            # safe="" is required: quote() leaves "/" unescaped by default, so a branch like
+            # "release/beta-patch" would become /job/release/beta-patch — two nested job segments
+            # pointing at a job that does not exist — instead of one branch job named
+            # "release%2Fbeta-patch". Agents were observed hand-encoding branch names to work around
+            # this; encoding here is what makes passing the branch literally correct.
+            branch_url_path = f"{url_path}/job/{requests.utils.quote(branch_name, safe='')}"
             detailed_build_url = f"{self.config['url']}{branch_url_path}/lastBuild/api/json"
             
             logger.info(f"Fetching build details for branch '{branch_name}' in job '{job_name}'")

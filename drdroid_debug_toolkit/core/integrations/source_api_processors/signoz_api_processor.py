@@ -896,7 +896,15 @@ class SignozApiProcessor(Processor):
                     return {"error": f"Failed to parse JSON: {e}", "raw_response": response.text}
             else:
                 logger.error(f"Failed to query metrics: {response.status_code} - {response.text}")
-                return {"error": f"HTTP {response.status_code}", "raw_response": response.text}
+                # Embed the response body in `error`, not just `raw_response`: nothing downstream
+                # reads raw_response, so a failed query reached the agent as a bare "HTTP 500" with
+                # no reason at all — undiagnosable, and impossible for the agent to correct.
+                # Collapse CRLF/CR/LF alike: a body normalised for only "\n" keeps stray "\r"
+                # characters, which corrupt single-line log output downstream.
+                detail = " ".join((response.text or "").split())[:400]
+                return {"error": f"HTTP {response.status_code}: {detail}" if detail
+                        else f"HTTP {response.status_code} (empty response body)",
+                        "raw_response": response.text}
         except Exception as e:
             logger.error(f"Exception when posting to query_range: {e}")
             raise e
@@ -921,7 +929,15 @@ class SignozApiProcessor(Processor):
                     return {"error": f"Failed to parse JSON: {e}", "raw_response": response.text}
             else:
                 logger.error(f"Failed to query metrics: {response.status_code} - {response.text}")
-                return {"error": f"HTTP {response.status_code}", "raw_response": response.text}
+                # Embed the response body in `error`, not just `raw_response`: nothing downstream
+                # reads raw_response, so a failed query reached the agent as a bare "HTTP 500" with
+                # no reason at all — undiagnosable, and impossible for the agent to correct.
+                # Collapse CRLF/CR/LF alike: a body normalised for only "\n" keeps stray "\r"
+                # characters, which corrupt single-line log output downstream.
+                detail = " ".join((response.text or "").split())[:400]
+                return {"error": f"HTTP {response.status_code}: {detail}" if detail
+                        else f"HTTP {response.status_code} (empty response body)",
+                        "raw_response": response.text}
         except Exception as e:
             logger.error(f"Exception in _post_query_range_v5: {e}")
             return {"error": f"Exception: {e}"}

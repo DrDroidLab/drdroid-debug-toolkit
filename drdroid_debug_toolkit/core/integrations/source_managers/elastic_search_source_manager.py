@@ -62,10 +62,12 @@ class ElasticSearchSourceManager(SourceManager):
                 'category': 'Logs',
                 'form_fields': []
             },
+            # TEXT, not LOGS: execute_node_stats emits a markdown report via TextResult, and the
+            # declared result_type is the contract consumers render against.
             ElasticSearchProto.TaskType.NODE_STATS: {
                 'executor': self.execute_node_stats,
                 'model_types': [SourceModelType.ELASTIC_SEARCH_INDEX],
-                'result_type': PlaybookTaskResultType.LOGS,
+                'result_type': PlaybookTaskResultType.TEXT,
                 'display_name': 'Get Elasticsearch Node Stats',
                 'category': 'Logs',
                 'form_fields': []
@@ -577,16 +579,21 @@ class ElasticSearchSourceManager(SourceManager):
             if 'hits' not in result or not result['hits']['hits']:
                 # Check if the result structure indicates an empty response (which could be from a missing index)
                 if result.get('hits', {}).get('total', {}).get('value') == 0 and not result.get('hits', {}).get('hits'):
-                    # This could be a missing index scenario handled gracefully by the API processor
-                    return build_task_failure_result(self.source, f"Index '{index}' not found or no data returned from Elasticsearch for query: {lucene_query}. "
-                              f"This could indicate that the index doesn't exist or contains no matching documents.")
+                    # Reaching here means Elasticsearch returned a well-formed hits envelope with
+                    # total == 0, i.e. the index DID respond and simply matched nothing. That is an
+                    # empty result, not a failure — emitting it as one made "no logs matched" the
+                    # single largest tool-failure class on the platform, and the old wording ("index
+                    # not found OR no data") left the agent unable to tell a missing index from an
+                    # empty one, so it retried the same query against other indices.
+                    return build_task_empty_result(self.source, f"No documents matched query: {lucene_query} on index: {index}. "
+                              f"The index responded normally; it contains no documents matching this query in the given time range.")
                 else:
-                    return build_task_failure_result(self.source, f"No data returned from Elastic Search for query: {lucene_query} on index: {index}")
+                    return build_task_empty_result(self.source, f"No data returned from Elastic Search for query: {lucene_query} on index: {index}")
 
             hits = result['hits']['hits']
             count_result = len(hits)
             if count_result == 0:
-                return build_task_failure_result(self.source, f"No data returned from Elasticsearch for query: {lucene_query} on index: {index}")
+                return build_task_empty_result(self.source, f"No data returned from Elasticsearch for query: {lucene_query} on index: {index}")
 
             table_rows: [TableResult.TableRow] = []
             for hit in hits:
@@ -660,7 +667,13 @@ class ElasticSearchSourceManager(SourceManager):
             output += json.dumps(result, indent=2)
             output += "\n```"
 
-            return build_task_failure_result(self.source, output)
+            # Fetching health SUCCEEDED — a yellow/red cluster is the answer, not a task failure.
+            # This previously returned build_task_failure_result unconditionally, so every health
+            # check (green included) came back as HTTP 500 + operational_error with the full report
+            # as the "error message". The agent then treated its own answer as a broken tool.
+            return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
+                                      text=TextResult(output=StringValue(value=output)),
+                                      source=self.source)
         except Exception as e:
             raise Exception(f"Error while checking ElasticSearch cluster health: {e}")
 
@@ -676,12 +689,29 @@ class ElasticSearchSourceManager(SourceManager):
             # Format the output
             output = f"## Elasticsearch Node Stats\n\n"
 
+            # A node-stats response can be PARTIAL: _nodes.failed > 0 means some nodes did not
+            # report, and the stats below cover only the ones that did. Call that out at the top
+            # rather than failing the task — the returned data is still real and usable, and
+            # discarding it is the exact behaviour this change exists to stop. Silently presenting
+            # partial stats as complete would be the opposite mistake.
+            nodes_meta = (result or {}).get('_nodes') or {}
+            failed_nodes = nodes_meta.get('failed') or 0
+            if failed_nodes:
+                output += (f"⚠️ **Partial response**: {failed_nodes} of {nodes_meta.get('total', '?')} "
+                           f"nodes failed to report. The stats below cover only the "
+                           f"{nodes_meta.get('successful', '?')} node(s) that responded — treat totals "
+                           f"as a lower bound. Per-node failures are in the `failures` key below.\n\n")
+
             # Include the full node stats data
             output += "### Full Node Stats Data:\n\n```json\n"
             output += json.dumps(result, indent=2)
             output += "\n```"
 
-            return build_task_failure_result(self.source, output)
+            # Same defect as cluster health: a successful stats fetch (_nodes.failed == 0) was being
+            # emitted as a failure, so the agent discarded data it had actually received.
+            return PlaybookTaskResult(type=PlaybookTaskResultType.TEXT,
+                                      text=TextResult(output=StringValue(value=output)),
+                                      source=self.source)
         except Exception as e:
             raise Exception(f"Error while fetching ElasticSearch node stats: {e}")
 
@@ -755,7 +785,7 @@ class ElasticSearchSourceManager(SourceManager):
                 )
                 return PlaybookTaskResult(type=PlaybookTaskResultType.LOGS, logs=table, source=self.source)
             else:
-                return build_task_failure_result(self.source, "No thread pool search data found")
+                return build_task_empty_result(self.source, "No thread pool search data found")
         except Exception as e:
             raise Exception(f"Error while fetching ElasticSearch cat thread pool search: {e}")
 
@@ -788,7 +818,7 @@ class ElasticSearchSourceManager(SourceManager):
 
             buckets = result.get('aggregations', {}).get('per_minute', {}).get('buckets', [])
             if not buckets or len(buckets) < 2:
-                return build_task_failure_result(self.source, "Not enough monitoring data to plot")
+                return build_task_empty_result(self.source, "Not enough monitoring data to plot")
 
             for i in range(1, len(buckets)):
 
@@ -1502,7 +1532,7 @@ class ElasticSearchSourceManager(SourceManager):
             transaction_names = es_client.get_transaction_names_by_service(service_name=service_name, index_pattern=self._get_account_index(es_connector.account_id.value))
 
             if not transaction_names:
-                return build_task_failure_result(self.source, f"No transaction names found for service: {service_name}")
+                return build_task_empty_result(self.source, f"No transaction names found for service: {service_name}")
 
             # Convert to table format
             table_rows = []
@@ -1563,7 +1593,7 @@ class ElasticSearchSourceManager(SourceManager):
                                                       sort_by=sort_by, sort_order=sort_order, include_summary=True, index_pattern=self._get_account_index(es_connector.account_id.value))
 
             if not result or 'hits' not in result or not result['hits']['hits']:
-                return build_task_failure_result(self.source, f"No traces found for service: {service_name}")
+                return build_task_empty_result(self.source, f"No traces found for service: {service_name}")
 
             hits = result['hits']['hits']
             summary = result.get('summary', {})
@@ -1682,7 +1712,7 @@ class ElasticSearchSourceManager(SourceManager):
                                                           sort_by=sort_by, sort_order=sort_order, include_summary=True, index_pattern=self._get_account_index(es_connector.account_id.value))
 
             if not result or 'hits' not in result or not result['hits']['hits']:
-                return build_task_failure_result(self.source, f"No traces found for transaction: {transaction_name}")
+                return build_task_empty_result(self.source, f"No traces found for transaction: {transaction_name}")
 
             hits = result['hits']['hits']
             summary = result.get('summary', {})

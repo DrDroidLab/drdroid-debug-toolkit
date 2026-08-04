@@ -237,7 +237,12 @@ class JenkinsSourceManager(SourceManager):
             print("Playbook Task Downstream Request: Type -> {}, Account -> {}".format("Jenkins",
                                                                                        jenkins_connector.account_id.value),
                   job_name, flush=True)
-            result = jenkins_processor.get_last_build(job_name)
+            # Pass the optional branch_name through: the proto has always carried a branch_name field
+            # but this call dropped it, so an agent that DID target a specific multibranch branch was
+            # silently ignored and still hit "branch name must be specified". Empty -> None so the
+            # processor picks the default branch (main/master/newest) instead of failing.
+            branch_name = fetch_last_build_details.branch_name.value or None
+            result = jenkins_processor.get_last_build(job_name, branch_name=branch_name)
             table_rows: [TableResult.TableRow] = []
             for r in list(result):
                 table_columns = []
