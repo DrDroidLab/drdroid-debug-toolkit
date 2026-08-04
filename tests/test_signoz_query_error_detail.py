@@ -92,3 +92,15 @@ def test_success_path_unchanged(method):
 
     assert out == {"data": {"result": []}}
     assert "error" not in out
+
+
+@pytest.mark.parametrize("method", ["_post_query_range", "_post_query_range_v5"])
+def test_crlf_bodies_are_fully_normalized(method):
+    """A body normalised for only "\\n" keeps stray "\\r", which corrupts single-line log output."""
+    with patch("core.integrations.source_api_processors.signoz_api_processor.requests.post",
+               return_value=_response(500, "line one\r\nline two\rline three\nline four")):
+        out = getattr(_processor(), method)({"q": 1})
+
+    assert "\r" not in out["error"]
+    assert "\n" not in out["error"]
+    assert "line one line two line three line four" in out["error"]

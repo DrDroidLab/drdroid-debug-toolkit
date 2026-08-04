@@ -21,10 +21,12 @@ TEXT_BUDGET = {
     "coralogix_source_manager.py": 6,
     "metabase_source_manager.py": 0,
     "jira_source_manager.py": 0,
-    # 3 parity leftovers + 2 added deliberately: check_cluster_health and node_stats used to emit
+    # 3 parity leftovers + 3 added deliberately: check_cluster_health and node_stats used to emit
     # their markdown report through build_task_failure_result, so a successful fetch surfaced as
-    # HTTP 500. They are now success TEXT emits. Mirror on drdroid-on-prem when porting.
-    "elastic_search_source_manager.py": 5,
+    # HTTP 500. They are now success TEXT emits (2 sites), and NODE_STATS' declared result_type was
+    # corrected LOGS -> TEXT to match what its executor actually returns (1 site).
+    # Mirror on drdroid-on-prem when porting.
+    "elastic_search_source_manager.py": 6,
     "newrelic_source_manager.py": 0,
     "sentry_source_manager.py": 0,
     "posthog_source_manager.py": 0,

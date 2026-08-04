@@ -132,3 +132,27 @@ def test_health_and_stats_still_raise_on_real_errors():
     s = _source()
     assert 'raise Exception(f"Error while checking ElasticSearch cluster health: {e}")' in s
     assert 'raise Exception(f"Error while fetching ElasticSearch node stats: {e}")' in s
+
+
+# ---------------------------------------------------------------------------
+# declared result_type must match what the executor actually emits
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("task_type", ["NODE_STATS", "CHECK_CLUSTER_HEALTH"])
+def test_markdown_report_tasks_declare_text_result_type(task_type):
+    """The declared result_type is the contract consumers render against. NODE_STATS emitted a
+    TextResult while declaring LOGS, so consumers were told to expect the wrong shape."""
+    s = _source()
+    i = s.index(f"ElasticSearchProto.TaskType.{task_type}: {{")
+    block = s[i:i + 400]
+    assert "'result_type': PlaybookTaskResultType.TEXT" in block
+
+
+def test_partial_node_stats_response_is_flagged_in_the_report():
+    """_nodes.failed > 0 means the stats cover only the nodes that answered. The data is still
+    real, so it is surfaced with a warning rather than discarded as a task failure."""
+    body = _body_after("def execute_node_stats", span=1800)
+    assert "_nodes" in body and "failed" in body
+    assert "Partial response" in body
+    assert "build_task_failure_result" not in body, "partial data must not be thrown away"

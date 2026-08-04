@@ -62,10 +62,12 @@ class ElasticSearchSourceManager(SourceManager):
                 'category': 'Logs',
                 'form_fields': []
             },
+            # TEXT, not LOGS: execute_node_stats emits a markdown report via TextResult, and the
+            # declared result_type is the contract consumers render against.
             ElasticSearchProto.TaskType.NODE_STATS: {
                 'executor': self.execute_node_stats,
                 'model_types': [SourceModelType.ELASTIC_SEARCH_INDEX],
-                'result_type': PlaybookTaskResultType.LOGS,
+                'result_type': PlaybookTaskResultType.TEXT,
                 'display_name': 'Get Elasticsearch Node Stats',
                 'category': 'Logs',
                 'form_fields': []
@@ -686,6 +688,19 @@ class ElasticSearchSourceManager(SourceManager):
 
             # Format the output
             output = f"## Elasticsearch Node Stats\n\n"
+
+            # A node-stats response can be PARTIAL: _nodes.failed > 0 means some nodes did not
+            # report, and the stats below cover only the ones that did. Call that out at the top
+            # rather than failing the task — the returned data is still real and usable, and
+            # discarding it is the exact behaviour this change exists to stop. Silently presenting
+            # partial stats as complete would be the opposite mistake.
+            nodes_meta = (result or {}).get('_nodes') or {}
+            failed_nodes = nodes_meta.get('failed') or 0
+            if failed_nodes:
+                output += (f"⚠️ **Partial response**: {failed_nodes} of {nodes_meta.get('total', '?')} "
+                           f"nodes failed to report. The stats below cover only the "
+                           f"{nodes_meta.get('successful', '?')} node(s) that responded — treat totals "
+                           f"as a lower bound. Per-node failures are in the `failures` key below.\n\n")
 
             # Include the full node stats data
             output += "### Full Node Stats Data:\n\n```json\n"

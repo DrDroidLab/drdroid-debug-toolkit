@@ -75,13 +75,19 @@ def test_multibranch_without_branch_defaults_instead_of_raising():
                          {'name': 'dev', 'lastBuild': {'timestamp': 9}}]}
     build = {'number': 42, 'result': 'SUCCESS', 'timestamp': 5, 'actions': []}
 
-    # first _make_request = job-type probe; second = the branch build fetch
-    with patch.object(p, '_make_request', side_effect=[_resp(200, job_info), _resp(200, build)]):
+    # THREE requests: job-type probe, branch build fetch, then the console-log fetch that
+    # _format_build_result always makes for a numbered build. Without the third response the
+    # mock raises StopIteration and the formatter turns it into an error row -- the branch
+    # assertions would still pass, so the test would look green while asserting nothing useful.
+    with patch.object(p, '_make_request', side_effect=[_resp(200, job_info), _resp(200, build),
+                                                       _resp(200, "console output")]):
         out = p.get_last_build("folder/my-multibranch")  # NO branch supplied
 
     # picked 'main' (preferred default) and returned a real build, not an exception
     assert out and out[0]['Branch'] == 'main'
     assert out[0]['Job Type'] == 'Multibranch Pipeline'
+    assert out[0]['Build #'] == 42
+    assert out[0]['Status'] == 'SUCCESS'   # 'Error' here means the mock ran dry mid-format
 
 
 def test_multibranch_still_raises_when_no_branches_exist():
@@ -99,9 +105,12 @@ def test_regular_job_unaffected():
     p = _proc()
     job_info = {'_class': 'hudson.model.FreeStyleProject'}  # not multibranch
     build = {'number': 7, 'result': 'FAILURE', 'timestamp': 1, 'actions': []}
-    with patch.object(p, '_make_request', side_effect=[_resp(200, job_info), _resp(200, build)]):
+    with patch.object(p, '_make_request', side_effect=[_resp(200, job_info), _resp(200, build),
+                                                       _resp(200, "console output")]):
         out = p.get_last_build("regular-job")
     assert out and out[0].get('Branch') is None  # regular jobs carry no Branch key
+    assert out[0]['Build #'] == 7
+    assert out[0]['Status'] == 'FAILURE'   # 'Error' here means the mock ran dry mid-format
 
 
 # --------------------------------------------------------------------------------------
@@ -131,3 +140,20 @@ def test_source_manager_passes_none_when_branch_absent():
     mgr.fetch_last_build_details(None, task, MagicMock())
     _, kwargs = fake_proc.get_last_build.call_args
     assert kwargs.get('branch_name') is None  # empty proto value -> None -> processor defaults
+
+
+def test_branch_name_with_slash_is_encoded_as_one_job_segment():
+    """quote() leaves "/" unescaped by default, so "release/beta-patch" would address two nested
+    job segments instead of one branch job. Agents were hand-encoding branch names to compensate."""
+    p = _proc()
+    job_info = {'_class': 'WorkflowMultiBranchProject',
+                'jobs': [{'name': 'release/beta-patch', 'lastBuild': {'timestamp': 5}}]}
+    build = {'number': 3, 'result': 'SUCCESS', 'timestamp': 5, 'actions': []}
+
+    with patch.object(p, '_make_request', side_effect=[_resp(200, job_info), _resp(200, build),
+                                                       _resp(200, "console")]) as req:
+        p.get_last_build("folder/my-multibranch", branch_name="release/beta-patch")
+
+    called = " ".join(str(c) for c in req.call_args_list)
+    assert "release%2Fbeta-patch" in called
+    assert "/job/release/beta-patch" not in called

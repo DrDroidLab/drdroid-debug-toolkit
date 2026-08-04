@@ -412,7 +412,12 @@ class JenkinsAPIProcessor(Processor):
         """Get build details for a specific branch in a multibranch job."""
         try:
             # Construct the branch-specific URL path
-            branch_url_path = f"{url_path}/job/{requests.utils.quote(branch_name)}"
+            # safe="" is required: quote() leaves "/" unescaped by default, so a branch like
+            # "release/beta-patch" would become /job/release/beta-patch — two nested job segments
+            # pointing at a job that does not exist — instead of one branch job named
+            # "release%2Fbeta-patch". Agents were observed hand-encoding branch names to work around
+            # this; encoding here is what makes passing the branch literally correct.
+            branch_url_path = f"{url_path}/job/{requests.utils.quote(branch_name, safe='')}"
             detailed_build_url = f"{self.config['url']}{branch_url_path}/lastBuild/api/json"
             
             logger.info(f"Fetching build details for branch '{branch_name}' in job '{job_name}'")
